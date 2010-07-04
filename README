@@ -1,0 +1,42 @@
+Camoto: Classic-game Modding Tools
+Copyright 2010 Adam Nielsen <malvineous@shikadi.net>
+http://www.shikadi.net/camoto/
+
+Camoto is a collection of utilities for editing (modding) "classic games",
+those from the early to mid 1990s.
+
+This is libgamegraphics, one component of the Camoto suite.  libgamegraphics
+provides a standard method of accessing pixel and palette data in the many
+different (often custom) image formats used by many games.  It allows
+full-screen images, sprites and animations to be extracted and/or modified.
+
+Pixel data is provided as an array of bytes, with one byte per pixel.  This
+allows it to work with images of up to 256 colours.  Images of less colours
+(such as EGA 16-colour) will still be expanded to one byte per pixel, only the
+values used will be limited (e.g. 0-15.)  This means any application using
+the library will only need to handle a single image format - 8bpp with a
+palette.
+
+The palette will be made available if it exists, however as many image formats
+store the palette externally it is left up to the application to locate and
+use any external palette data.
+
+This library is still in the preliminary stages, so only the following formats
+have been implemented:
+
+  * None yet!
+
+Many more formats are planned.
+
+The library is compiled and installed in the usual way:
+
+  ./configure && make
+  sudo make install
+  sudo ldconfig
+
+If you downloaded the git release, run ./autogen.sh before the commands above.
+
+All supported image formats are fully documented on the ModdingWiki - see
+http://www.shikadi.net/moddingwiki/Category:Graphics_Files
+
+This library is released under the GPLv3 license.
