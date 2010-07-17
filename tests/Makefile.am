@@ -1,0 +1,12 @@
+check_PROGRAMS = tests
+
+tests_SOURCES = tests.cpp
+tests_SOURCES += test-conv-byteplanar.cpp
+tests_SOURCES += test-img-ccaves.cpp
+
+EXTRA_tests_SOURCES = tests.hpp test-conv.hpp
+
+TESTS = tests
+
+AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(libgamecommon_CFLAGS) -I $(top_srcdir)/include
+AM_LDFLAGS = $(BOOST_SYSTEM_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIBS) $(libgamecommon_LIBS) $(top_builddir)/src/libgamegraphics.la

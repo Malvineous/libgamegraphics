@@ -24,11 +24,15 @@ use any external palette data.
 This library is still in the preliminary stages, so only the following formats
 have been implemented:
 
-  * None yet!
+  * Crystal Caves (tiles)
 
 Many more formats are planned.
 
-The library is compiled and installed in the usual way:
+The example program (gamegfx) requires png++ for generation of .png files.
+Download it from http://www.nongnu.org/pngpp/ and extract it into a folder
+called png++ in the examples/ directory.
+
+The library is then compiled and installed in the usual way:
 
   ./configure && make
   sudo make install

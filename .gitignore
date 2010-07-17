@@ -34,3 +34,6 @@ doxygen/full/
 # Compiled binaries
 examples/gamegfx
 tests/tests
+
+# External code
+examples/png++/

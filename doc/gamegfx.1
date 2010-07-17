@@ -1,0 +1,121 @@
+.\" t
+.de TQ
+.  br
+.  ns
+.  TP \\$1
+..
+.TH GAMEGFX "1" "July 2010" "Camoto" "User Commands"
+.SH NAME
+gamegfx \- manipulate graphics files used internally by many games
+.SH SYNOPSIS
+.B gamegfx
+\fIfile\fR \fIaction\fR [\fIaction...\fR]
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Perform the specified \fIaction\fRs on the given \fIfile\fR.  The actions
+are performed in order (i.e. the first action specified on the command line is
+performed first.)
+.SH ACTIONS
+.TP
+\fB-l\fR, \fB--list\fR
+list tilesets and images in the file, along with an \fIid\fR that can be passed
+to the other commands.
+.TP
+\fB-X\fR, \fB--extract-all-images\fR
+extract all the images in the file, saving them into the current directory as
+a separate .png file per image.
+.TP
+\fB-T\fR, \fB--extract-all-tilesets\fR
+extract all the images in the file, combining them into one .png file per
+tileset (e.g. as a grid of 10x10 tiles.)  Grid size is controlled via the
+--width option.
+.TP
+\fB-x\fR \fIid\fR[\fB=\fR\fIdest.png\fR], \fB--extract=\fR\fIid\fR[\fB=\fR\fIdest.png\fR]
+extract \fIid\fR from the file, saving it as \fIdest.png\fR (or into the
+current directory as \fIid\fR.png if \fIdest.png\fR is not supplied.)
+.TP
+\fB-o\fR \fIid\fR\fB=\fR\fInew.png\fR, \fB--overwrite=\fR\fIid\fR\fB=\fR\fInew.png\fR
+replace \fIid\fR with the data from \fInew.png\fR.  The image must be in the
+correct format (bit depth) or an error will be returned.  The palette in the
+image file (if any) is not changed, so for best results the palette in
+\fInew.png\fR should match that which is generated when extracting images.
+.TP
+\fB-p\fR \fIid\fR, \fB--print=\fR\fIid\fR
+print image \fIid\fR to standard output using ANSI codes and spaces to display
+the image on a text console.
+.SH OPTIONS
+.TP
+\fB-t\fR, \fB--type\fR
+manually specify the file type (see \fBSUPPORTED FORMATS\fR below for a list
+of valid values.)  The type is normally autodetected, but it needs to
+be specified for a few formats which lack signatures to identify them by.)
+.TP
+\fB-w\fR, \fB--width\fR
+when using \fB--extract\fR with a tileset or \fB--extract-all-tilesets\fR, this
+option controls the width of the .png image, measured in tiles.  A tileset with
+32 images and a --width of 8 will result in a .png file of 8x4 tiles.
+.TP
+\fB-f\fR, \fB--force\fR
+open the image file as the given --type, even if it doesn't look like it's in
+that format.
+.TP
+\fB-s\fR, \fB--script\fR
+print output suitable for parsing by a script.
+.SH "SUPPORTED FORMATS"
+.TS
+tab(@), left, box;
+c c c c c c c
+l l l l l l l.
+-t@Ext@Game
+_
+[img-ccaves]@gfx@Crystal Caves
+.TE
+.PP
+.SH "BASIC EXAMPLES"
+.TP
+\fBgamegfx cc1.gfx --list\fR
+display a list of the images inside the main Crystal Caves graphics file
+.TP
+\fBgamegfx cc1.gfx --extract-all-images\fR
+extract every image in every tileset as a separate .png file
+.TP
+\fBgamegfx cc1.gfx --extract-all-tilesets\fR
+extract all the tilesets into a handful of .png files in the current directory
+(all the images in each tileset are displayed as a grid in each .png file)
+.TP
+\fBgamegfx cc1.gfx -x 0.1+2=test.png\fR
+extract the third image ("+2") from the second tileset ("0.1") and save it as
+test.png in the current directory
+.TP
+\fBgamegfx cc1.gfx -o 0.1+2=new.png\fR
+overwrite the image extracted in the previous example with the contents of
+new.png
+.TP
+\fBgamearch cc1.gfx --type=img-ccaves --list\fR
+list files when the format can't be autodetected and must be specified manually
+(See \fBSUPPORTED FORMATS\fR for a list of formats which need to be specified
+like this.)
+.SH NOTES
+.PP
+Exit status is 0 on success, 1 on failure.
+.SH KNOWN ISSUES
+.PP
+None (yet)
+.SH AUTHOR
+Written by Adam Nielsen <malvineous@shikadi.net>.
+.SH "REPORTING BUGS"
+Report bugs to <camoto@lists.shikadi.net>.
+.SH COPYRIGHT
+Copyright \(co 2010 Adam Nielsen.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+\fBfile\fR(1), <http://www.shikadi.net/camoto>
+.PP
+All the archive formats supported by this utility are fully documented on the Game Modding
+Wiki \fB<http://www.shikadi.net/moddingwiki>\fR.
+.PP
+This utility is part of the Camoto suite of tools.
