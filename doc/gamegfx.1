@@ -44,6 +44,11 @@ image file (if any) is not changed, so for best results the palette in
 \fB-p\fR \fIid\fR, \fB--print=\fR\fIid\fR
 print image \fIid\fR to standard output using ANSI codes and spaces to display
 the image on a text console.
+.TP
+\fB-z\fR \fIid\fR=\fIWxH\fR, \fB--set-size=\fIid\fR=\fR\fIWxH\fR
+set all images in the tileset \fIid\fR to \fIW\fR pixels wide and \fIH\fR
+pixels high.  This will cause all images to become distorted, so all images
+will need to be overwritten after this operation.
 .SH OPTIONS
 .TP
 \fB-t\fR, \fB--type\fR
