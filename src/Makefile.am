@@ -8,7 +8,7 @@ libgamegraphics_la_SOURCES += img-ccaves.cpp
 EXTRA_libgamegraphics_la_SOURCES = conv-byteplanar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ccaves.hpp
 
-AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(BOOST_CPPFLAGS) $(libgamecommon_CFLAGS) -I $(top_srcdir)/include
+AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(BOOST_CPPFLAGS) -I $(top_srcdir)/include $(libgamecommon_CFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS)
 
 libgamegraphics_la_LDFLAGS = $(AM_LDFLAGS) -release @VERSION@ -version-info 0
