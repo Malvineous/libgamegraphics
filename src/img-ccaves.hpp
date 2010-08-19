@@ -30,14 +30,14 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CCavesSpriteType: virtual public GraphicsType {
+class CCavesGraphicsType: virtual public GraphicsType {
 
 	public:
 
-		CCavesSpriteType()
+		CCavesGraphicsType()
 			throw ();
 
-		virtual ~CCavesSpriteType()
+		virtual ~CCavesGraphicsType()
 			throw ();
 
 		virtual std::string getCode() const
@@ -65,43 +65,7 @@ class CCavesSpriteType: virtual public GraphicsType {
 			throw ();
 
 };
-/*
-class CCavesTileType: virtual public GraphicsType {
 
-	public:
-
-		CCavesTileType()
-			throw ();
-
-		virtual ~CCavesTileType()
-			throw ();
-
-		virtual std::string getCode() const
-			throw ();
-
-		virtual std::string getFriendlyName() const
-			throw ();
-
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
-
-		virtual std::vector<std::string> getGameList() const
-			throw ();
-
-		virtual E_CERTAINTY isInstance(iostream_sptr fsGraphics) const
-			throw (std::ios::failure);
-
-		virtual GraphicsPtr create(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
-			throw (std::ios::failure);
-
-		virtual GraphicsPtr open(iostream_sptr fsGraphics, MP_SUPPDATA& suppData) const
-			throw (std::ios::failure);
-
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
-
-};
-*/
 class CCavesGraphics: virtual public Graphics {
 	protected:
 		segstream_sptr data;
@@ -128,9 +92,6 @@ class CCavesGraphics: virtual public Graphics {
 
 		virtual GraphicsPtr getTileset(int index)
 			throw ();
-
-		//virtual GraphicsPtr insertTileset(int insertBefore)
-		//	throw ();
 
 		virtual void getTileSize(unsigned int *width, unsigned int *height)
 			throw ();

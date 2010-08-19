@@ -59,8 +59,7 @@ Manager::Manager()
 		registered_exit_func = true;
 	}
 #endif
-	this->vcTypes.push_back(GraphicsTypePtr(new CCavesSpriteType()));
-	//this->vcTypes.push_back(GraphicsTypePtr(new CCavesTileType()));
+	this->vcTypes.push_back(GraphicsTypePtr(new CCavesGraphicsType()));
 }
 
 Manager::~Manager()

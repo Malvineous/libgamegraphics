@@ -47,37 +47,37 @@ namespace io = boost::iostreams;
 #define SAFETY_MAX_TILESETCOUNT 1024
 
 //
-// CCavesSpriteType
+// CCavesGraphicsType
 //
 
-refcount_declclass(CCavesSpriteType);
+refcount_declclass(CCavesGraphicsType);
 
-CCavesSpriteType::CCavesSpriteType()
+CCavesGraphicsType::CCavesGraphicsType()
 	throw ()
 {
-	refcount_qenterclass(CCavesSpriteType);
+	refcount_qenterclass(CCavesGraphicsType);
 }
 
-CCavesSpriteType::~CCavesSpriteType()
+CCavesGraphicsType::~CCavesGraphicsType()
 	throw ()
 {
-	refcount_qexitclass(CCavesSpriteType);
+	refcount_qexitclass(CCavesGraphicsType);
 }
 
-std::string CCavesSpriteType::getCode() const
+std::string CCavesGraphicsType::getCode() const
 	throw ()
 {
 	return "img-ccaves";
 }
 
-std::string CCavesSpriteType::getFriendlyName() const
+std::string CCavesGraphicsType::getFriendlyName() const
 	throw ()
 {
 	return "Crystal Caves Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> CCavesSpriteType::getFileExtensions() const
+std::vector<std::string> CCavesGraphicsType::getFileExtensions() const
 	throw ()
 {
 	std::vector<std::string> vcExtensions;
@@ -85,7 +85,7 @@ std::vector<std::string> CCavesSpriteType::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> CCavesSpriteType::getGameList() const
+std::vector<std::string> CCavesGraphicsType::getGameList() const
 	throw ()
 {
 	std::vector<std::string> vcGames;
@@ -94,7 +94,7 @@ std::vector<std::string> CCavesSpriteType::getGameList() const
 	return vcGames;
 }
 
-E_CERTAINTY CCavesSpriteType::isInstance(iostream_sptr psGraphics) const
+E_CERTAINTY CCavesGraphicsType::isInstance(iostream_sptr psGraphics) const
 	throw (std::ios::failure)
 {
 	psGraphics->seekg(0, std::ios::end);
@@ -134,7 +134,7 @@ E_CERTAINTY CCavesSpriteType::isInstance(iostream_sptr psGraphics) const
 	return EC_POSSIBLY_YES;
 }
 
-GraphicsPtr CCavesSpriteType::create(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
+GraphicsPtr CCavesGraphicsType::create(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
 	throw std::ios::failure("not implemented yet");
@@ -144,129 +144,19 @@ GraphicsPtr CCavesSpriteType::create(iostream_sptr psGraphics, MP_SUPPDATA& supp
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-GraphicsPtr CCavesSpriteType::open(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
+GraphicsPtr CCavesGraphicsType::open(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
 	return GraphicsPtr(new CCavesGraphics(psGraphics, NUMPLANES_SPRITE));
 }
 
-MP_SUPPLIST CCavesSpriteType::getRequiredSupps(const std::string& filenameGraphics) const
+MP_SUPPLIST CCavesGraphicsType::getRequiredSupps(const std::string& filenameGraphics) const
 	throw ()
 {
 	// No supplemental types/empty list
 	return MP_SUPPLIST();
 }
 
-
-//
-// CCavesTileType
-//
-
-/*CCavesTileType::CCavesTileType()
-	throw ()
-{
-	refcount_qenterclass(CCavesTileType);
-}
-
-CCavesTileType::~CCavesTileType()
-	throw ()
-{
-	refcount_qexitclass(CCavesTileType);
-}
-
-std::string CCavesTileType::getCode() const
-	throw ()
-{
-	return "img-ccaves-tiles";
-}
-
-std::string CCavesTileType::getFriendlyName() const
-	throw ()
-{
-	return "Crystal Caves Tileset File";
-}
-
-// Get a list of the known file extensions for this format.
-std::vector<std::string> CCavesTileType::getFileExtensions() const
-	throw ()
-{
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
-}
-
-std::vector<std::string> CCavesTileType::getGameList() const
-	throw ()
-{
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Crystal Caves");
-	//vcGames.push_back("Secret Agent");
-	return vcGames;
-}
-
-E_CERTAINTY CCavesTileType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
-{
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
-
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c02
-	if (len < 3) return EC_DEFINITELY_NO; // too short
-
-	psGraphics->seekg(0, std::ios::beg);
-	io::stream_offset pos = 0;
-	while (pos < len) {
-		uint8_t numTiles, width, height;
-		psGraphics
-			>> u8(numTiles)
-			>> u8(width)
-			>> u8(height)
-		;
-		int delta = width*height*NUMPLANES_TILE*numTiles;
-
-		// Make sure we don't get stuck
-		if (delta == 0) {
-			if ((numTiles == 0) && (len == 3)) {
-				// This matches a valid empty file
-				return EC_POSSIBLY_YES;
-			}
-			return EC_DEFINITELY_NO;
-		}
-
-		// If this pushes us past EOF it's not a valid file
-		pos += delta + 3;
-		if (pos > len) return EC_DEFINITELY_NO;
-
-		psGraphics->seekg(delta, std::ios::cur);
-	}
-
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c01
-	return EC_POSSIBLY_YES;
-}
-
-GraphicsPtr CCavesTileType::create(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
-	throw (std::ios::failure)
-{
-	throw std::ios::failure("not implemented yet");
-	/ *psGraphics->seekp(0, std::ios::beg);
-	psGraphics->write("KenSilverman\0\0\0\0", 16);
-	return GraphicsPtr(new CCavesGraphics(psGraphics));* /
-}
-
-// Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-GraphicsPtr CCavesTileType::open(iostream_sptr psGraphics, MP_SUPPDATA& suppData) const
-	throw (std::ios::failure)
-{
-	return GraphicsPtr(new CCavesGraphics(psGraphics, NUMPLANES_TILE));
-}
-
-MP_SUPPLIST CCavesTileType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
-{
-	// No supplemental types/empty list
-	return MP_SUPPLIST();
-}
-*/
 
 //
 // CCavesGraphics
@@ -279,15 +169,14 @@ CCavesGraphics::CCavesGraphics(iostream_sptr psGraphics, unsigned int numPlanes)
 		data(new segmented_stream(psGraphics)),
 		numPlanes(numPlanes)
 {
-	//this->data.reset(psGraphics);
-	this->data->seekg(0, std::ios::end); // skip "KenSilverman" sig
+	this->data->seekg(0, std::ios::end);
 	io::stream_offset len = this->data->tellg();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
 	if (len < 3) throw std::ios::failure("file too short");
 
-	this->data->seekg(0, std::ios::beg); // skip "KenSilverman" sig
+	this->data->seekg(0, std::ios::beg);
 
 	io::stream_offset pos = 0;
 	while (pos < len) {
@@ -303,15 +192,12 @@ CCavesGraphics::CCavesGraphics(iostream_sptr psGraphics, unsigned int numPlanes)
 		// Make sure this tileset won't go past EOF or is zero data
 		if (pos + next.len > len) break;
 		this->tilesets.push_back(next);
-		//std::cout << (int)numTiles << " tiles, " << (int)width << 'x' << (int)height << std::endl;
 		this->data->seekg(next.len-3, std::ios::cur);
 		pos += next.len;
-		//this->numTilesets++;
 		if (this->tilesets.size() >= SAFETY_MAX_TILESETCOUNT) {
 			throw std::ios::failure("too many tilesets or corrupted graphics file");
 		}
 	}
-
 
 	refcount_qenterclass(CCavesGraphics);
 }
@@ -349,15 +235,6 @@ GraphicsPtr CCavesGraphics::getTileset(int index)
 		new CCavesTileset(tilesetStream, fnTruncate, this->numPlanes)
 	);
 }
-
-/*
-GraphicsPtr CCavesGraphics::insertTileset(int insertBefore)
-	throw ()
-{
-	assert(index < this->tilesets.size());
-	return GraphicsPtr();
-}
-*/
 
 void CCavesGraphics::getTileSize(unsigned int *width, unsigned int *height)
 	throw ()
@@ -400,6 +277,7 @@ ImageConverterPtr CCavesGraphics::openImage(int index)
 	assert(false);
 	return ImageConverterPtr();
 }
+
 
 //
 // CCavesTileset
