@@ -29,8 +29,11 @@ have been implemented:
 Many more formats are planned.
 
 The example program (gamegfx) requires png++ for generation of .png files.
-Download it from http://www.nongnu.org/pngpp/ and extract it into a folder
-called png++ in the examples/ directory.
+This is supplied in the source release but not in the git version.  If you are
+compiling from git, download png++ from http://www.nongnu.org/pngpp/ and
+extract it into a folder called png++ in the examples/ directory.  The latest
+release at the time of writing (v0.2.3) only works with an older version of
+libpng, so you may need the SVN version instead if ./configure fails.
 
 The library is then compiled and installed in the usual way:
 

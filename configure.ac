@@ -25,18 +25,23 @@ BOOST_TEST
 PKG_CHECK_MODULES([libgamecommon], [libgamecommon])
 PKG_CHECK_MODULES([libpng], [libpng])
 
+SAVE_CPPFLAGS=$CPPFLAGS
+CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
+
 # Checks for header files.
 AC_CACHE_CHECK([for png++ in examples folder],
 	[ac_cv_pngpp],
 	[AC_COMPILE_IFELSE(
 		[AC_LANG_PROGRAM([#include "examples/png++/png.hpp"], [return 0;])],
 		[ac_cv_pngpp=yes],
-		[AC_MSG_ERROR([examples/png++/png.hpp not found.
+		[AC_MSG_ERROR([examples/png++/png.hpp not found or unusable.
 
-Please download png++ and extract into ./examples/png++/ as per README])
+Please download png++ and extract into ./examples/png++/ as per README.  See config.log for failure messages if required.])
 		]
 	)]
 )
+
+CPPFLAGS=$SAVE_CPPFLAGS
 
 # Checks for typedefs, structures, and compiler characteristics.
 
