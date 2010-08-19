@@ -26,6 +26,7 @@
 #include <cstring>
 #include <boost/shared_array.hpp>
 #include <boost/iostreams/positioning.hpp>  // stream_offset
+#include <boost/bind.hpp>
 
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
@@ -225,12 +226,13 @@ GraphicsPtr CCavesGraphics::getTileset(int index)
 {
 	assert(index < this->tilesets.size());
 
-	iostream_sptr tilesetStream = iostream_sptr(new substream(
+	substream *sub = new substream(
 		this->data,
 		this->tilesets[index].offset,
 		this->tilesets[index].len
-	));
-	FN_TRUNCATE fnTruncate = NULL;//TEMP
+	);
+	iostream_sptr tilesetStream = iostream_sptr(sub);
+	FN_TRUNCATE fnTruncate = boost::bind<void>(&substream::setSize, sub, _1);
 	return GraphicsPtr(
 		new CCavesTileset(tilesetStream, fnTruncate, this->numPlanes)
 	);
