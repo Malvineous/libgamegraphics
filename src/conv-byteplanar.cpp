@@ -53,9 +53,15 @@ StdImageDataPtr EGABytePlanarConverter::toStandardMask()
 	return this->doConversion(true);
 }
 
-void EGABytePlanarConverter::fromStandard(StdImageDataPtr newContent, StdImageDataPtr newMask)
+void EGABytePlanarConverter::fromStandard(StdImageDataPtr newContent,
+	StdImageDataPtr newMask, PalettePtr newPalette
+)
 	throw ()
 {
+	// Make sure the caller didn't violate the precondition for this function by
+	// supplying a palette that won't be used (as indicated by getPalette())
+	assert(!newPalette);
+
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
 	int planeValue[PLANE_MAX], notPlaneValue[PLANE_MAX];

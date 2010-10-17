@@ -31,6 +31,7 @@
 //#include <vector>
 
 #include <camoto/types.hpp>
+#include <camoto/gamegraphics/palette.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -92,11 +93,11 @@ class ImageConverter {
 		 */
 		FN_TRUNCATE fnTruncate;
 
-		//Image()
-		//	throw ();
+		ImageConverter()
+			throw ();
 
-		//virtual ~Image()
-		//	throw ();
+		virtual ~ImageConverter()
+			throw ();
 
 		/// Convert the image into a standard format.
 		/**
@@ -124,6 +125,14 @@ class ImageConverter {
 		virtual StdImageDataPtr toStandardMask()
 			throw () = 0;
 
+		/// Get the indexed colour map from the file.
+		/**
+		 * @return NULL/empty pointer if the format doesn't support custom palettes,
+		 *   otherwise a shared pointer to a Palette.
+		 */
+		virtual PalettePtr getPalette()
+			throw ();
+
 		/// Replace the image with new content.
 		/**
 		 * Take image data in the standard format, convert it to the underlying
@@ -135,13 +144,18 @@ class ImageConverter {
 		 * next bit (0x02) is used to denote hitmapping (0 == background, 1 ==
 		 * object)
 		 *
-		 * @param  newContent Image data, in the standard 8bpp indexed format, to
-		 *         convert and replace the underlying image with.
+		 * @param newContent  Image data, in the standard 8bpp indexed format, to
+		 *   convert and replace the underlying image with.
 		 *
-		 * @param  newMask Image data, in the standard 8bpp format, to
-		 *         convert and replace the underlying mask with.
+		 * @param newMask  Image data, in the standard 8bpp format, to
+		 *   convert and replace the underlying mask with.
+		 *
+		 * @param newPalette  Palette data, but only if getPalette() returned a
+		 *   valid palette, otherwise the image doesn't support custom palettes
+		 *   and new palette data should not be supplied.
 		 */
-		virtual void fromStandard(StdImageDataPtr newContent, StdImageDataPtr newMask)
+		virtual void fromStandard(StdImageDataPtr newContent,
+			StdImageDataPtr newMask, PalettePtr newPalette)
 			throw () = 0;
 
 };

@@ -141,34 +141,6 @@ struct FIXTURE_NAME: public default_sample {
 		);
 	}
 
-	/*FIXTURE_NAME(int i) :
-		baseData(new std::stringstream),
-		baseStream(this->baseData)
-	{
-		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-	}
-
-	boost::test_tools::predicate_result is_equal(const std::string& strExpected)
-	{
-		// Flush out any changes before we perform the check
-		BOOST_CHECK_NO_THROW(
-			this->pArchive->flush()
-		);
-
-		return this->default_sample::is_equal(strExpected, this->baseData->str());
-	}
-
-	boost::test_tools::predicate_result is_supp_equal(ga::E_SUPPTYPE type, const std::string& strExpected)
-	{
-		// Flush out any changes to the main archive before we perform the check,
-		// in case this function was called first.
-		BOOST_CHECK_NO_THROW(
-			this->pArchive->flush()
-		);
-
-		return this->default_sample::is_equal(strExpected, this->suppBase[type]->str());
-	}*/
-
 };
 
 BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
@@ -246,7 +218,9 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(overwrite_image))
 		StdImageDataPtr stdmask(new uint8_t[8*8]);
 		memcpy(stdmask.get(), stdformat_test_mask3_8x8, 8*8);
 
-		img->fromStandard(stddata, stdmask);
+		PalettePtr origPal = img->getPalette();
+
+		img->fromStandard(stddata, stdmask, origPal);
 	}
 
 	BOOST_TEST_MESSAGE("Extracting first image (now modified) in first tileset");

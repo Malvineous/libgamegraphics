@@ -50,9 +50,6 @@ class ENotFound: public std::exception {
 class EInvalidFormat: public std::exception {
 };
 
-/// Shared pointer to the raw image data
-typedef boost::shared_ptr<uint8_t> RawImagePtr;
-
 class Graphics;
 
 /// Shared pointer to a Graphics file.

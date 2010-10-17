@@ -86,7 +86,8 @@ class EGABytePlanarConverter: virtual public ImageConverter {
 		virtual StdImageDataPtr toStandardMask()
 			throw ();
 
-		virtual void fromStandard(StdImageDataPtr newContent, StdImageDataPtr newMask)
+		virtual void fromStandard(StdImageDataPtr newContent,
+			StdImageDataPtr newMask, PalettePtr newPalette)
 			throw ();
 
 	protected:

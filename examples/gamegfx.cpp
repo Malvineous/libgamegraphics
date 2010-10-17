@@ -352,7 +352,12 @@ void pngToImage(gg::ImageConverterPtr img, unsigned int width,
 		}
 	}
 
-	img->fromStandard(stdimg, stdmask);
+	gg::PalettePtr origPal = img->getPalette();
+	if (origPal) {
+		// TODO: This format supports custom palettes, so update it from the
+		// PNG image.
+	}
+	img->fromStandard(stdimg, stdmask, origPal);
 
 	return;
 }
@@ -418,7 +423,13 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
 				}
 			}
 		}
-		img->fromStandard(stdimg, stdmask);
+
+		gg::PalettePtr origPal = img->getPalette();
+		if (origPal) {
+			// TODO: This format supports custom palettes, so update it from the
+			// PNG image.
+		}
+		img->fromStandard(stdimg, stdmask, origPal);
 	}
 
 	return;

@@ -325,7 +325,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_8x8))
 	memcpy(stdmask.get(), stdformat_test_mask_8x8, 8*8);
 
 	ImageConverterPtr conv = TEST_VAR(get_converter)(baseStream, 8, 8);
-	conv->fromStandard(stddata, stdmask);
+	PalettePtr origPal = conv->getPalette();
+	conv->fromStandard(stddata, stdmask, origPal);
 
 	// Make sure the right amount of data was written out
 	BOOST_REQUIRE_EQUAL(baseData->str().length(), 1*8*5); // TODO: abstract plane count
@@ -352,7 +353,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_16x16))
 	memcpy(stdmask.get(), stdformat_test_mask_16x16, 16*16);
 
 	ImageConverterPtr conv = TEST_VAR(get_converter)(baseStream, 16, 16);
-	conv->fromStandard(stddata, stdmask);
+	PalettePtr origPal = conv->getPalette();
+	conv->fromStandard(stddata, stdmask, origPal);
 
 	// Make sure the right amount of data was written out
 	BOOST_REQUIRE_EQUAL(baseData->str().length(), 2*16*5); // TODO: abstract plane count
@@ -379,7 +381,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_9x9))
 	memcpy(stdmask.get(), stdformat_test_mask_9x9, 9*9);
 
 	ImageConverterPtr conv = TEST_VAR(get_converter)(baseStream, 9, 9);
-	conv->fromStandard(stddata, stdmask);
+	PalettePtr origPal = conv->getPalette();
+	conv->fromStandard(stddata, stdmask, origPal);
 
 	// Make sure the right amount of data was written out
 	BOOST_REQUIRE_EQUAL(baseData->str().length(), 2*9*5); // TODO: abstract plane count
