@@ -5,12 +5,16 @@ libgamegraphics_la_SOURCES += tileset.cpp
 libgamegraphics_la_SOURCES += image.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
 libgamegraphics_la_SOURCES += img-ega-byteplanar.cpp
+libgamegraphics_la_SOURCES += img-vga.cpp
+libgamegraphics_la_SOURCES += img-vga-raw.cpp
 libgamegraphics_la_SOURCES += img-palette.cpp
 libgamegraphics_la_SOURCES += pal-vga-raw.cpp
 libgamegraphics_la_SOURCES += tileset-fat.cpp
 libgamegraphics_la_SOURCES += tls-ccaves.cpp
 
 EXTRA_libgamegraphics_la_SOURCES = img-ega-byteplanar.hpp
+EXTRA_libgamegraphics_la_SOURCES += img-vga.hpp
+EXTRA_libgamegraphics_la_SOURCES += img-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-palette.hpp
 EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp

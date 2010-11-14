@@ -24,6 +24,7 @@
 
 // Include all the file formats for the Manager to load
 #include "tls-ccaves.hpp"
+#include "img-vga-raw.hpp"
 #include "pal-vga-raw.hpp"
 
 namespace camoto {
@@ -40,6 +41,7 @@ Manager::Manager()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesTilesetType()));
 
+	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
 }
 
