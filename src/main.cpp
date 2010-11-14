@@ -24,6 +24,8 @@
 
 // Include all the file formats for the Manager to load
 #include "tls-ccaves.hpp"
+#include "tls-zone66.hpp"
+#include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
 #include "pal-vga-raw.hpp"
 
@@ -40,7 +42,9 @@ Manager::Manager()
 	throw ()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
+	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
 }
