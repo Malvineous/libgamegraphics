@@ -28,8 +28,8 @@ libtool
 *.la
 
 # doxygen output
-doxygen/api/
-doxygen/full/
+doc/doxygen/api/
+doc/doxygen/full/
 
 # Compiled binaries
 examples/gamegfx
