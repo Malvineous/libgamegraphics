@@ -63,8 +63,11 @@ class Image {
 			/// Set if the image can be resized with setDimensions().
 			CanSetDimensions  = 0x01,
 
-			/// Set if getPalette() returns valid data and setPalette() can be used.
-			HasPalette        = 0x08,
+			/// Set if getPalette() returns valid data.
+			HasPalette        = 0x02,
+
+			/// Set if setPalette() can be used.  Must be used with HasPalette.
+			CanSetPalette     = 0x04,
 
 			/// Set if the image is 8bpp (256 colour)
 			ColourDepthVGA    = 0x00,
@@ -150,25 +153,6 @@ class Image {
 		virtual StdImageDataPtr toStandardMask()
 			throw (std::ios::failure) = 0;
 
-		/// Get the indexed colour map from the file.
-		/**
-		 * @pre getCaps() return value includes HasPalette.
-		 *
-		 * @return Shared pointer to a Palette.
-		 */
-		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
-
-		/// Set the indexed colour map used by the file.
-		/**
-		 * @pre getCaps() return value includes HasPalette.
-		 *
-		 * @param newPalette
-		 *   New palette data
-		 */
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
-
 		/// Replace the image with new content.
 		/**
 		 * Take image data in the standard format, convert it to the underlying
@@ -190,6 +174,25 @@ class Image {
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
 			throw (std::ios::failure) = 0;
+
+		/// Get the indexed colour map from the file.
+		/**
+		 * @pre getCaps() return value includes HasPalette.
+		 *
+		 * @return Shared pointer to a Palette.
+		 */
+		virtual PaletteTablePtr getPalette()
+			throw (std::ios::failure);
+
+		/// Set the indexed colour map used by the file.
+		/**
+		 * @pre getCaps() return value includes HasPalette.
+		 *
+		 * @param newPalette
+		 *   New palette data
+		 */
+		virtual void setPalette(PaletteTablePtr newPalette)
+			throw (std::ios::failure);
 
 };
 

@@ -43,8 +43,9 @@ struct SuppItem {
 
 	/// Type of supplemental file.
 	enum Type {
-		EST_FAT,  ///< FAT is stored externally
-		EST_DICT, ///< Compression dictionary is external
+		FAT,         ///< FAT is stored externally
+		Dictionary,  ///< Compression dictionary is external
+		Palette,     ///< Palette data
 	};
 
 	/// The stream containing the supplemental data.
