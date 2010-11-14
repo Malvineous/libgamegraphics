@@ -1,6 +1,7 @@
 /**
- * @file   img-palette_only.cpp
- * @brief  Graphics implementation of a Palette file.
+ * @file   img-palette.cpp
+ * @brief  Image implementation of a Palette file.  This will be inherited by
+ *         classes implementing a specific palette file formats.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
@@ -26,75 +27,46 @@
 namespace camoto {
 namespace gamegraphics {
 
-PaletteGraphics::PaletteGraphics()
+Palette::Palette()
 	throw ()
 {
 }
 
-PaletteGraphics::~PaletteGraphics()
+Palette::~Palette()
 	throw ()
 {
 }
 
-int PaletteGraphics::getCaps()
+int Palette::getCaps()
 	throw ()
 {
 	return HasPalette;
 }
 
-int PaletteGraphics::getTilesetCount()
-	throw ()
-{
-	return 0;
-}
-
-GraphicsPtr PaletteGraphics::getTileset(int index)
-	throw ()
-{
-	// This function should never be called
-	assert(false);
-}
-
-void PaletteGraphics::getTileSize(unsigned int *width, unsigned int *height)
-	throw ()
+void Palette::getDimensions(unsigned int *width, unsigned int *height)
+	throw (std::ios::failure)
 {
 	*width = 0;
 	*height = 0;
+}
+
+StdImageDataPtr Palette::toStandard()
+	throw (std::ios::failure)
+{
+	return StdImageDataPtr();
+}
+
+StdImageDataPtr Palette::toStandardMask()
+	throw (std::ios::failure)
+{
+	return StdImageDataPtr();
+}
+
+void Palette::fromStandard(StdImageDataPtr newContent,
+	StdImageDataPtr newMask)
+	throw (std::ios::failure)
+{
 	return;
-}
-
-unsigned int PaletteGraphics::getLayoutWidth()
-	throw ()
-{
-	return 0;
-}
-
-void PaletteGraphics::setTileSize(unsigned int x, unsigned int y)
-	throw (std::ios::failure)
-{
-	// This function should never be called (as per getCaps() response.)
-	assert(false);
-}
-
-int PaletteGraphics::getImageCount()
-	throw ()
-{
-	return 0;
-}
-
-void PaletteGraphics::setImageCount(int count)
-	throw (std::ios::failure)
-{
-	// This function should never be called (as per getCaps() response.)
-	assert(false);
-}
-
-ImageConverterPtr PaletteGraphics::openImage(int index)
-	throw ()
-{
-	// This function should never be called (as getImageCount() returns 0.)
-	assert(false);
-	return ImageConverterPtr();
 }
 
 } // namespace gamegraphics

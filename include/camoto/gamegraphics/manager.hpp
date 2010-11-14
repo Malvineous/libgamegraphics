@@ -25,7 +25,8 @@
 #include <vector>
 
 #include <camoto/types.hpp>
-#include <camoto/gamegraphics/graphicstype.hpp>
+#include <camoto/gamegraphics/tilesettype.hpp>
+#include <camoto/gamegraphics/imagetype.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -51,8 +52,8 @@ ManagerPtr getManager(void)
  * by the library.
  *
  * In order to open an graphics, this class must be used to access an instance
- * of the graphics type.  This GraphicsType instance is then used to create an
- * Graphics instance around a particular file.  It is this Graphics instance that
+ * of the graphics type.  This TilesetType instance is then used to create an
+ * Tileset instance around a particular file.  It is this Tileset instance that
  * is then used to manipulate the graphics file itself.
  *
  * @note This class shouldn't be created manually, use the global function
@@ -61,7 +62,8 @@ ManagerPtr getManager(void)
 class Manager {
 	private:
 		/// List of available graphics types.
-		VC_GRAPHICSTYPE vcTypes;
+		VC_TILESETTYPE vcTilesetTypes;
+		VC_IMAGETYPE vcImageTypes;
 
 		Manager()
 			throw ();
@@ -74,26 +76,48 @@ class Manager {
 		~Manager()
 			throw ();
 
-		/// Get an GraphicsType instance for a supported file format.
+		/// Get an TilesetType instance for a supported file format.
 		/**
 		 * This can be used to enumerate all available file formats.
 		 *
 		 * @param  iIndex Index of the format, starting from 0.
-		 * @return A shared pointer to an GraphicsType for the given index, or
+		 * @return A shared pointer to an TilesetType for the given index, or
 		 *         an empty pointer once iIndex goes out of range.
 		 * @todo Remove this and replace it with a function that just returns the vector.
 		 */
-		GraphicsTypePtr getGraphicsType(int iIndex)
+		TilesetTypePtr getTilesetType(int iIndex)
 			throw ();
 
-		/// Get an GraphicsType instance by its code.
+		/// Get an TilesetType instance by its code.
 		/**
-		 * @param  strCode %Graphics code (e.g. "grp-duke3d")
-		 * @return A shared pointer to an GraphicsType for the given code, or
+		 * @param  strCode %Tileset code (e.g. "grp-duke3d")
+		 * @return A shared pointer to an TilesetType for the given code, or
 		 *         an empty pointer on an invalid code.
 		 */
-		GraphicsTypePtr getGraphicsTypeByCode(const std::string& strCode)
+		TilesetTypePtr getTilesetTypeByCode(const std::string& strCode)
 			throw ();
+
+		/// Get an ImageType instance for a supported file format.
+		/**
+		 * This can be used to enumerate all available file formats.
+		 *
+		 * @param  iIndex Index of the format, starting from 0.
+		 * @return A shared pointer to an ImageType for the given index, or
+		 *         an empty pointer once iIndex goes out of range.
+		 * @todo Remove this and replace it with a function that just returns the vector.
+		 */
+		ImageTypePtr getImageType(int iIndex)
+			throw ();
+
+		/// Get an ImageType instance by its code.
+		/**
+		 * @param  strCode %Image code (e.g. "grp-duke3d")
+		 * @return A shared pointer to an ImageType for the given code, or
+		 *         an empty pointer on an invalid code.
+		 */
+		ImageTypePtr getImageTypeByCode(const std::string& strCode)
+			throw ();
+
 };
 
 } // namespace gamegraphics

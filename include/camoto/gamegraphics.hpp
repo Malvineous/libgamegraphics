@@ -90,8 +90,11 @@ homepage <http://www.shikadi.net/camoto>.
 }
 
 // These are all in the camoto::gamegraphics namespace
-#include <camoto/gamegraphics/graphics.hpp>
-#include <camoto/gamegraphics/graphicstype.hpp>
+#include <camoto/gamegraphics/palettetable.hpp>
+#include <camoto/gamegraphics/image.hpp>
+#include <camoto/gamegraphics/imagetype.hpp>
+#include <camoto/gamegraphics/tileset.hpp>
+#include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/manager.hpp>
 
 #endif // _CAMOTO_GAMEGRAPHICS_HPP_

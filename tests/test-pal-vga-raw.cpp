@@ -19,10 +19,9 @@
  */
 
 #include <boost/test/unit_test.hpp>
-
-#include <boost/algorithm/string.hpp> // for case-insensitive string compare
-#include <boost/iostreams/copy.hpp>
+#include <boost/bind.hpp>
 #include <iostream>
+#include <sstream>
 
 #include "../src/pal-vga-raw.hpp"
 
@@ -40,39 +39,40 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_read)
 	data[3] = data[4] = data[5] = 0x3F;
 	data[6] = data[7] = data[8] = 0x40;
 
-	iostream_sptr ss(new std::stringstream());
+	std::stringstream *pss = new std::stringstream();
+	iostream_sptr ss(pss);
 	ss->write((char *)data, 768);
-	VGAPalette pal(ss);
+	FN_TRUNCATE fnTruncate = boost::bind<void>(stringStreamTruncate, pss, _1);
+	VGAPalette img(ss, fnTruncate);
 
-	BOOST_REQUIRE_EQUAL(pal.getMaxEntries(), 256);
+	PaletteTablePtr pal = img.getPalette();
 
-	const PaletteEntries& ent = pal.getEntries();
+	BOOST_REQUIRE_EQUAL((*pal)[0].red,   0);
+	BOOST_REQUIRE_EQUAL((*pal)[0].green, 0);
+	BOOST_REQUIRE_EQUAL((*pal)[0].blue,  0);
 
-	BOOST_REQUIRE_EQUAL(ent[0].red,   0);
-	BOOST_REQUIRE_EQUAL(ent[0].green, 0);
-	BOOST_REQUIRE_EQUAL(ent[0].blue,  0);
+	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
 
-	BOOST_REQUIRE_EQUAL(ent[1].red,   255);
-	BOOST_REQUIRE_EQUAL(ent[1].green, 255);
-	BOOST_REQUIRE_EQUAL(ent[1].blue,  255);
-
-	BOOST_REQUIRE_EQUAL(ent[1].red,   255);
-	BOOST_REQUIRE_EQUAL(ent[1].green, 255);
-	BOOST_REQUIRE_EQUAL(ent[1].blue,  255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
 }
 
 BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 {
 	BOOST_TEST_MESSAGE("Write to VGA palette");
 
-	PaletteEntries ent;
-	ent.push_back(PaletteEntry(  0,   0,   0));
-	ent.push_back(PaletteEntry(255, 255, 255));
+	PaletteTablePtr pal(new PaletteTable());
+	pal->push_back(PaletteEntry(  0,   0,   0));
+	pal->push_back(PaletteEntry(255, 255, 255));
 
 	std::stringstream *pss = new std::stringstream();
 	iostream_sptr ss(pss);
-	VGAPalette pal(ss);
-	pal.setEntries(ent);
+	FN_TRUNCATE fnTruncate = boost::bind<void>(stringStreamTruncate, pss, _1);
+	VGAPalette img(ss, fnTruncate);
+	img.setPalette(pal);
 
 	std::string s = pss->str();
 	uint8_t *buf = (uint8_t *)s.c_str();

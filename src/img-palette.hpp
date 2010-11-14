@@ -1,6 +1,7 @@
 /**
- * @file   img-palette_only.cpp
- * @brief  Graphics implementation of a Palette file.
+ * @file   img-palette.hpp
+ * @brief  Image implementation of a Palette file.  This will be inherited by
+ *         classes implementing a specific palette file formats.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -21,54 +22,42 @@
 #ifndef _CAMOTO_IMG_PALETTE_HPP_
 #define _CAMOTO_IMG_PALETTE_HPP_
 
-#include <vector>
-#include <camoto/gamegraphics/graphicstype.hpp>
-#include <camoto/gamegraphics/graphics.hpp>
-#include <camoto/segmented_stream.hpp>
-#include <camoto/iostream_helpers.hpp>
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-class PaletteGraphics: virtual public Graphics {
+/// Image specialisation for palette files.
+class Palette: virtual public Image {
 
 	public:
-		PaletteGraphics()
+		Palette()
 			throw ();
 
-		virtual ~PaletteGraphics()
+		virtual ~Palette()
 			throw ();
 
 		virtual int getCaps()
 			throw ();
 
-		virtual int getTilesetCount()
-			throw ();
-
-		virtual GraphicsPtr getTileset(int index)
-			throw ();
-
-		virtual void getTileSize(unsigned int *width, unsigned int *height)
-			throw ();
-
-		virtual unsigned int getLayoutWidth()
-			throw ();
-
-		/// @note This function should never be called (as per getCaps() response.)
-		virtual void setTileSize(unsigned int x, unsigned int y)
+		virtual void getDimensions(unsigned int *width, unsigned int *height)
 			throw (std::ios::failure);
 
-		/// @note For this format, this function will always return 0.)
-		virtual int getImageCount()
-			throw ();
-
-		/// @note This function should never be called (as per getCaps() response.)
-		virtual void setImageCount(int count)
+		virtual StdImageDataPtr toStandard()
 			throw (std::ios::failure);
 
-		/// @note This function should never be called (as getImageCount() returns 0.)
-		virtual ImageConverterPtr openImage(int index)
-			throw ();
+		virtual StdImageDataPtr toStandardMask()
+			throw (std::ios::failure);
+
+		virtual PaletteTablePtr getPalette()
+			throw (std::ios::failure) = 0;
+
+		virtual void setPalette(PaletteTablePtr newPalette)
+			throw (std::ios::failure) = 0;
+
+		virtual void fromStandard(StdImageDataPtr newContent,
+			StdImageDataPtr newMask)
+			throw (std::ios::failure);
 
 };
 

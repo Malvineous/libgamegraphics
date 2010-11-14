@@ -1,6 +1,6 @@
 /**
- * @file   imageconverter.hpp
- * @brief  ImageConverter class interface, used to convert between various game
+ * @file   image.hpp
+ * @brief  Image class interface, used to convert between various game
  *         formats and a standard image data format.  Actual format conversions
  *         are handled by other classes which implement this interface.
  *
@@ -25,13 +25,10 @@
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
-//#include <exception>
 #include <iostream>
-//#include <sstream>
-//#include <vector>
 
 #include <camoto/types.hpp>
-#include <camoto/gamegraphics/palette.hpp>
+#include <camoto/gamegraphics/palettetable.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -39,10 +36,10 @@ namespace gamegraphics {
 /// Shared pointer to the raw image data
 typedef boost::shared_array<uint8_t> StdImageDataPtr;
 
-class ImageConverter;
+class Image;
 
-/// Shared pointer to an ImageConverter.
-typedef boost::shared_ptr<ImageConverter> ImageConverterPtr;
+/// Shared pointer to an Image.
+typedef boost::shared_ptr<Image> ImagePtr;
 
 /// Primary interface to an image file.
 /**
@@ -53,51 +50,79 @@ typedef boost::shared_ptr<ImageConverter> ImageConverterPtr;
  * The image being converted could be an 8x8 tile, a 320x200 full-screen
  * graphic or a single frame from an animation.
  *
- * Note that this does not have anything to do with palettes, which still need
- * to be obtained externally to this class.
- *
  * @note Multithreading: Only call one function in this class at a time.  Many
  *       of the functions seek around the underlying stream and thus will break
  *       if two or more functions are executing at the same time.
  */
-class ImageConverter {
+class Image {
 
 	public:
 
-		/// Truncate callback
+		/// Capabilities of this image format.
+		enum Caps {
+			/// Set if the image can be resized with setDimensions().
+			CanSetDimensions  = 0x01,
+
+			/// Set if getPalette() returns valid data and setPalette() can be used.
+			HasPalette        = 0x08,
+
+			/// Set if the image is 8bpp (256 colour)
+			ColourDepthVGA    = 0x00,
+
+			/// Set if the image is 4bpp (16 colour)
+			ColourDepthEGA    = 0x10,
+
+			/// Set if the image is 2bpp (4 colour)
+			ColourDepthCGA    = 0x20,
+
+			/// Set if the image is 1bpp (black and white)
+			ColourDepthMono   = 0x30,
+
+			/// Mask to isolate the ColourDepth value.  This must always be used when
+			/// checking the colour depth.
+			ColourDepthMask   = 0x30,
+		};
+
+		Image()
+			throw ();
+
+		virtual ~Image()
+			throw ();
+
+		/// Get the capabilities of this image format.
 		/**
-		 * This function is called with a single unsigned long parameter when
-		 * the underlying image file needs to be shrunk or enlarged to the given
-		 * size.  It must be set to a valid function before fromStandard() is
-		 * called.
-		 *
-		 * The function signature is:
-		 * @code
-		 * void fnTruncate(unsigned long newLength);
-		 * @endcode
-		 *
-		 * This example uses boost::bind to package up a call to the Linux
-		 * truncate() function (which requires both a filename and size) such that
-		 * the filename is supplied in advance and not required when flush() makes
-		 * the call.
-		 *
-		 * @code
-		 * ImageConverter *img = ...
-		 * img->fnTruncate = boost::bind<void>(truncate, "graphics.dat", _1);
-		 * img->fromStandard(...);  // calls truncate("graphics.dat", 123)
-		 * @endcode
-		 *
-		 * Unfortunately since there is no cross-platform method for changing a
-		 * file's size via its iostream, this is a necessary evil to avoid
-		 * passing the graphics filename around all over the place.
+		 * @return One or more of the \ref Caps enum values (OR'd together.)
 		 */
-		FN_TRUNCATE fnTruncate;
+		virtual int getCaps()
+			throw () = 0;
 
-		ImageConverter()
-			throw ();
+		/// Get the size of this image in pixels.
+		/**
+		 * @param width
+		 *   Pointer to a variable that will receive the image's width.
+		 *
+		 * @param height
+		 *   Pointer to a variable that will receive the image's height.
+		 *
+		 * @throw std::ios::failure on I/O error.
+		 */
+		virtual void getDimensions(unsigned int *width, unsigned int *height)
+			throw (std::ios::failure) = 0;
 
-		virtual ~ImageConverter()
-			throw ();
+		/// Set the size of this image in pixels.
+		/**
+		 * @pre getCaps() return value includes CanSetDimensions.
+		 *
+		 * @param width
+		 *   New width
+		 *
+		 * @param height
+		 *   New height
+		 *
+		 * @throw std::ios::failure on I/O error.
+		 */
+		virtual void setDimensions(unsigned int width, unsigned int height)
+			throw (std::ios::failure);
 
 		/// Convert the image into a standard format.
 		/**
@@ -107,7 +132,7 @@ class ImageConverter {
 		 * @return A shared pointer to a byte array of image data.
 		 */
 		virtual StdImageDataPtr toStandard()
-			throw () = 0;
+			throw (std::ios::failure) = 0;
 
 		/// Convert the image mask into a standard format.
 		/**
@@ -123,15 +148,26 @@ class ImageConverter {
 		 * @return A shared pointer to a byte array of mask data.
 		 */
 		virtual StdImageDataPtr toStandardMask()
-			throw () = 0;
+			throw (std::ios::failure) = 0;
 
 		/// Get the indexed colour map from the file.
 		/**
-		 * @return NULL/empty pointer if the format doesn't support custom palettes,
-		 *   otherwise a shared pointer to a Palette.
+		 * @pre getCaps() return value includes HasPalette.
+		 *
+		 * @return Shared pointer to a Palette.
 		 */
-		virtual PalettePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette()
+			throw (std::ios::failure);
+
+		/// Set the indexed colour map used by the file.
+		/**
+		 * @pre getCaps() return value includes HasPalette.
+		 *
+		 * @param newPalette
+		 *   New palette data
+		 */
+		virtual void setPalette(PaletteTablePtr newPalette)
+			throw (std::ios::failure);
 
 		/// Replace the image with new content.
 		/**
@@ -150,13 +186,10 @@ class ImageConverter {
 		 * @param newMask  Image data, in the standard 8bpp format, to
 		 *   convert and replace the underlying mask with.
 		 *
-		 * @param newPalette  Palette data, but only if getPalette() returned a
-		 *   valid palette, otherwise the image doesn't support custom palettes
-		 *   and new palette data should not be supplied.
 		 */
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask, PalettePtr newPalette)
-			throw () = 0;
+			StdImageDataPtr newMask)
+			throw (std::ios::failure) = 0;
 
 };
 

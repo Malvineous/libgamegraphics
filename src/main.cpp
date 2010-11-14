@@ -23,26 +23,11 @@
 #include <camoto/gamegraphics.hpp>
 
 // Include all the file formats for the Manager to load
-#include "img-ccaves.hpp"
-//#include "img-xargon.hpp"
+#include "tls-ccaves.hpp"
+#include "pal-vga-raw.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-#ifdef DEBUG
-static bool registered_exit_func = false;
-void exitFunc()
-{
-	std::cerr << "\e[44m --- Instance counts --- \e[49m\n";
-	refcount_dump(GRPType);
-	refcount_dump(GRPArchive);
-	refcount_dump(FATArchive);
-	refcount_dump(FATEntry);
-	refcount_dump(SubdirArchive);
-	refcount_dump(substream_device);
-	refcount_dump(segmented_stream_device);
-}
-#endif
 
 ManagerPtr getManager()
 	throw ()
@@ -53,13 +38,9 @@ ManagerPtr getManager()
 Manager::Manager()
 	throw ()
 {
-#ifdef DEBUG
-	if (!registered_exit_func) {
-		atexit(exitFunc);
-		registered_exit_func = true;
-	}
-#endif
-	this->vcTypes.push_back(GraphicsTypePtr(new CCavesGraphicsType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesTilesetType()));
+
+	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
 }
 
 Manager::~Manager()
@@ -67,20 +48,42 @@ Manager::~Manager()
 {
 }
 
-GraphicsTypePtr Manager::getGraphicsType(int iIndex)
+TilesetTypePtr Manager::getTilesetType(int iIndex)
 	throw ()
 {
-	if (iIndex >= this->vcTypes.size()) return GraphicsTypePtr();
-	return this->vcTypes[iIndex];
+	if (iIndex >= this->vcTilesetTypes.size()) return TilesetTypePtr();
+	return this->vcTilesetTypes[iIndex];
 }
 
-GraphicsTypePtr Manager::getGraphicsTypeByCode(const std::string& strCode)
+TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
 	throw ()
 {
-	for (VC_GRAPHICSTYPE::const_iterator i = this->vcTypes.begin(); i != this->vcTypes.end(); i++) {
+	for (VC_TILESETTYPE::const_iterator i = this->vcTilesetTypes.begin();
+		i != this->vcTilesetTypes.end();
+		i++
+	) {
 		if ((*i)->getCode().compare(strCode) == 0) return *i;
 	}
-	return GraphicsTypePtr();
+	return TilesetTypePtr();
+}
+
+ImageTypePtr Manager::getImageType(int iIndex)
+	throw ()
+{
+	if (iIndex >= this->vcImageTypes.size()) return ImageTypePtr();
+	return this->vcImageTypes[iIndex];
+}
+
+ImageTypePtr Manager::getImageTypeByCode(const std::string& strCode)
+	throw ()
+{
+	for (VC_IMAGETYPE::const_iterator i = this->vcImageTypes.begin();
+		i != this->vcImageTypes.end();
+		i++
+	) {
+		if ((*i)->getCode().compare(strCode) == 0) return *i;
+	}
+	return ImageTypePtr();
 }
 
 } // namespace gamegraphics

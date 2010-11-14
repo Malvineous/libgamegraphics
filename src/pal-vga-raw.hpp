@@ -21,30 +21,70 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_PAL_VGA_RAW_HPP_
 #define _CAMOTO_GAMEGRAPHICS_PAL_VGA_RAW_HPP_
 
-#include <camoto/gamegraphics/palette.hpp>
+#include <camoto/gamegraphics/imagetype.hpp>
+#include "img-palette.hpp"
 
 namespace camoto {
 namespace gamegraphics {
+
+/// Filetype handler for VGA palette files.
+class VGAPaletteImageType: virtual public ImageType {
+
+	public:
+
+		VGAPaletteImageType()
+			throw ();
+
+		virtual ~VGAPaletteImageType()
+			throw ();
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
+		virtual std::vector<std::string> getFileExtensions() const
+			throw ();
+
+		virtual std::vector<std::string> getGameList() const
+			throw ();
+
+		virtual Certainty isInstance(iostream_sptr fsImage) const
+			throw (std::ios::failure);
+
+		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameImage) const
+			throw ();
+
+};
 
 /// Palette interface to 768-byte raw 6-bit VGA palette files.
 class VGAPalette: virtual public Palette {
 
 	private:
 		iostream_sptr data;
+		FN_TRUNCATE fnTruncate;
 
 	public:
-		VGAPalette(iostream_sptr data)
+		VGAPalette(iostream_sptr data, FN_TRUNCATE fnTruncate)
 			throw (std::ios::failure);
 
 		virtual ~VGAPalette()
 			throw ();
 
-		virtual int getMaxEntries()
-			throw ();
-
-		virtual void setEntries(const PaletteEntries& source)
+		virtual PaletteTablePtr getPalette()
 			throw (std::ios::failure);
 
+		virtual void setPalette(PaletteTablePtr newPalette)
+			throw (std::ios::failure);
 };
 
 } // namespace gamegraphics

@@ -1,7 +1,6 @@
 /**
- * @file   conv-byteplanar.hpp
- * @brief  ImageConverter implementation adding support for the EGA byte-planar
- *         format.
+ * @file   img-ega-byteplanar.hpp
+ * @brief  Image implementation adding support for the EGA byte-planar format.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -19,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_CONV_BYTEPLANAR_HPP_
-#define _CAMOTO_CONV_BYTEPLANAR_HPP_
+#ifndef _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
+#define _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 
-#include <camoto/gamegraphics/imageconverter.hpp>
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -51,15 +50,7 @@ namespace gamegraphics {
 #define PLANE_MAX           6
 typedef int PLANE_LAYOUT[PLANE_MAX];
 
-/*struct PlaneLayout {
-	int red;
-	int green;
-	int blue;
-	int transparency;
-	int hitmapping;
-};*/
-
-/// EGA byte-planar ImageConverter.
+/// EGA byte-planar Image implementation.
 /**
  * This class adds support for converting to and from EGA byte-planar format.
  *
@@ -67,18 +58,29 @@ typedef int PLANE_LAYOUT[PLANE_MAX];
  * transparency and hitmapping.
  *
  */
-class EGABytePlanarConverter: virtual public ImageConverter {
+class EGABytePlanarImage: virtual public Image {
 	protected:
 		iostream_sptr data;
+		FN_TRUNCATE fnTruncate;
 		int width, height;
 		PLANE_LAYOUT planes;
 
 	public:
-		EGABytePlanarConverter(iostream_sptr data, int width, int height, const PLANE_LAYOUT& planes)
+		EGABytePlanarImage(iostream_sptr data, FN_TRUNCATE fnTruncate, int width,
+			int height, const PLANE_LAYOUT& planes)
 			throw ();
 
-		virtual ~EGABytePlanarConverter()
+		virtual ~EGABytePlanarImage()
 			throw ();
+
+		virtual int getCaps()
+			throw ();
+
+		virtual void getDimensions(unsigned int *width, unsigned int *height)
+			throw ();
+
+		virtual void setDimensions(unsigned int width, unsigned int height)
+			throw (std::ios::failure);
 
 		virtual StdImageDataPtr toStandard()
 			throw ();
@@ -87,7 +89,7 @@ class EGABytePlanarConverter: virtual public ImageConverter {
 			throw ();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask, PalettePtr newPalette)
+			StdImageDataPtr newMask)
 			throw ();
 
 	protected:
@@ -99,4 +101,4 @@ class EGABytePlanarConverter: virtual public ImageConverter {
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_CONV_BYTEPLANAR_HPP_
+#endif // _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_

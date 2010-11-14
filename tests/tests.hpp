@@ -35,8 +35,6 @@ struct default_sample {
 		const std::string& strExpected, const std::string& strResult,
 		unsigned int width);
 
-//	boost::test_tools::predicate_result is_equal(const std::string& strExpected,
-//		const std::string& strCheck);
 	boost::test_tools::predicate_result is_equal(const uint8_t *expected,
 		const uint8_t *check, unsigned int len, unsigned int width);
 

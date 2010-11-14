@@ -1,11 +1,13 @@
 check_PROGRAMS = tests
 
 tests_SOURCES = tests.cpp
-tests_SOURCES += test-conv-byteplanar.cpp
-tests_SOURCES += test-img-ccaves.cpp
+tests_SOURCES += test-img-ega-byteplanar.cpp
+tests_SOURCES += test-tls-ccaves.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
 
-EXTRA_tests_SOURCES = tests.hpp test-conv.hpp
+EXTRA_tests_SOURCES = tests.hpp
+EXTRA_tests_SOURCES += test-img.hpp
+EXTRA_tests_SOURCES += test-tls.hpp
 
 TESTS = tests
 

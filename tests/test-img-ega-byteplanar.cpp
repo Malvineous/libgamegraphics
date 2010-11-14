@@ -1,5 +1,5 @@
 /**
- * @file   test-conv-byteplanar.cpp
+ * @file   test-img-ega-byteplanar.cpp
  * @brief  Test code for conversion to and from byte-planar EGA data.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/gamegraphics/imageconverter.hpp>
-#include "../src/conv-byteplanar.hpp"
+#include <camoto/gamegraphics/image.hpp>
+#include "../src/img-ega-byteplanar.hpp"
 
 using namespace camoto::gamegraphics;
 using namespace camoto;
@@ -63,7 +63,8 @@ using namespace camoto;
 	"\x80\x00\x00\x80\x80" "\x80\x00\x80\x00\x80" \
 	"\xFF\x7F\x00\x80\xFF" "\x80\x00\x80\x00\x80"
 
-ImageConverterPtr conv_byteplanar_get_converter(iostream_sptr imgStream, unsigned int width, unsigned int height)
+ImagePtr img_ega_byteplanar_get_converter(iostream_sptr imgStream,
+	FN_TRUNCATE fnTruncate, unsigned int width, unsigned int height)
 {
 	PLANE_LAYOUT planes;
 	planes[PLANE_BLUE] = 2;
@@ -72,8 +73,9 @@ ImageConverterPtr conv_byteplanar_get_converter(iostream_sptr imgStream, unsigne
 	planes[PLANE_INTENSITY] = 5;
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 1;
-	return ImageConverterPtr(new EGABytePlanarConverter(imgStream, width, height, planes));
+	return ImagePtr(new EGABytePlanarImage(
+		imgStream, fnTruncate, width, height, planes));
 }
 
-#define CONV_CLASS conv_byteplanar
-#include "test-conv.hpp"
+#define IMG_CLASS img_ega_byteplanar
+#include "test-img.hpp"

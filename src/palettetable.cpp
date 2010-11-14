@@ -1,6 +1,6 @@
 /**
- * @file   imageconverter.cpp
- * @brief  Standard ImageConverter functions.
+ * @file   palettetable.cpp
+ * @brief  PaletteEntry, for accessing indexed colour maps used by game images.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,26 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cassert>
-#include <camoto/gamegraphics/imageconverter.hpp>
+#include <camoto/gamegraphics/palettetable.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-ImageConverter::ImageConverter()
-	throw ()
+PaletteEntry::PaletteEntry()
 {
 }
 
-ImageConverter::~ImageConverter()
-	throw ()
+PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue) :
+	red(red), green(green), blue(blue)
 {
-}
-
-PalettePtr ImageConverter::getPalette()
-	throw ()
-{
-	return PalettePtr();
 }
 
 } // namespace gamegraphics

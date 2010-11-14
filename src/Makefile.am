@@ -1,16 +1,20 @@
 lib_LTLIBRARIES = libgamegraphics.la
 
 libgamegraphics_la_SOURCES = main.cpp
-libgamegraphics_la_SOURCES += graphics.cpp
-libgamegraphics_la_SOURCES += imageconverter.cpp
-libgamegraphics_la_SOURCES += palette.cpp
-libgamegraphics_la_SOURCES += conv-byteplanar.cpp
-libgamegraphics_la_SOURCES += img-ccaves.cpp
+libgamegraphics_la_SOURCES += tileset.cpp
+libgamegraphics_la_SOURCES += image.cpp
+libgamegraphics_la_SOURCES += palettetable.cpp
+libgamegraphics_la_SOURCES += img-ega-byteplanar.cpp
+libgamegraphics_la_SOURCES += img-palette.cpp
 libgamegraphics_la_SOURCES += pal-vga-raw.cpp
+libgamegraphics_la_SOURCES += tileset-fat.cpp
+libgamegraphics_la_SOURCES += tls-ccaves.cpp
 
-EXTRA_libgamegraphics_la_SOURCES = conv-byteplanar.hpp
-EXTRA_libgamegraphics_la_SOURCES += img-ccaves.hpp
+EXTRA_libgamegraphics_la_SOURCES = img-ega-byteplanar.hpp
+EXTRA_libgamegraphics_la_SOURCES += img-palette.hpp
 EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
+EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-ccaves.hpp
 
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(BOOST_CPPFLAGS) -I $(top_srcdir)/include $(libgamecommon_CFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS)

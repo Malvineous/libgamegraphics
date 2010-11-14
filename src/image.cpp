@@ -1,7 +1,6 @@
 /**
- * @file   palette.cpp
- * @brief  Declaration of Palette class, for accessing indexed colour maps used
- *         by game images.
+ * @file   image.cpp
+ * @brief  Standard Image functions.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -19,40 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/gamegraphics/palette.hpp>
+#include <cassert>
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-PaletteEntry::PaletteEntry()
-{
-}
-
-PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue) :
-	red(red), green(green), blue(blue)
-{
-}
-
-Palette::Palette()
+Image::Image()
 	throw ()
 {
 }
 
-Palette::~Palette()
+Image::~Image()
 	throw ()
 {
 }
 
-int Palette::getMaxEntries()
-	throw ()
+void Image::setDimensions(unsigned int width, unsigned int height)
+	throw (std::ios::failure)
 {
-	return 0;
+	// Caller didn't check getCaps()
+	assert(false);
+	throw std::ios::failure("this image format can't have its dimensions changed"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-const PaletteEntries& Palette::getEntries()
-	throw ()
+PaletteTablePtr Image::getPalette()
+	throw (std::ios::failure)
 {
-	return this->entries;
+	return PaletteTablePtr();
+}
+
+void Image::setPalette(PaletteTablePtr newPalette)
+	throw (std::ios::failure)
+{
+	// Caller didn't check getCaps()
+	assert(false);
+	throw std::ios::failure("this format doesn't support palettes"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
 } // namespace gamegraphics

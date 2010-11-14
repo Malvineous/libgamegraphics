@@ -1,6 +1,6 @@
 /**
- * @file   conv-byteplanar.cpp
- * @brief  ImageConverter implementation adding support for the EGA byte-planar
+ * @file   img-ega-byteplanar.cpp
+ * @brief  ImageImage implementation adding support for the EGA byte-planar
  *         format.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
@@ -22,46 +22,75 @@
 #include <cstring>  // memset
 #include <cassert>
 #include <camoto/iostream_helpers.hpp>
-#include "conv-byteplanar.hpp"
+#include "img-ega-byteplanar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarConverter::EGABytePlanarConverter(iostream_sptr data, int width, int height, const PLANE_LAYOUT& planes)
+EGABytePlanarImage::EGABytePlanarImage(iostream_sptr data,
+	FN_TRUNCATE fnTruncate, int width, int height, const PLANE_LAYOUT& planes)
 	throw () :
 		data(data),
+		fnTruncate(fnTruncate),
 		width(width),
 		height(height)
 {
 	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
 }
 
-EGABytePlanarConverter::~EGABytePlanarConverter()
+EGABytePlanarImage::~EGABytePlanarImage()
 	throw ()
 {
 }
 
-StdImageDataPtr EGABytePlanarConverter::toStandard()
+int EGABytePlanarImage::getCaps()
+	throw ()
+{
+	return ColourDepthEGA;
+}
+
+void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+	throw ()
+{
+	*width = this->width;
+	*height = this->height;
+	return;
+}
+
+void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
+	throw (std::ios::failure)
+{
+	this->width = width;
+	this->height = height;
+
+	int numPlanes = 0;
+	for (int p = 0; p < PLANE_MAX; p++) {
+		// Count the plane if its order is nonzero, otherwise ignore it
+		if (this->planes[p]) numPlanes++;
+	}
+
+	// TODO: Confirm this is correct
+	this->fnTruncate((this->width + 7) / 8 * this->height * numPlanes);
+	return;
+}
+
+StdImageDataPtr EGABytePlanarImage::toStandard()
 	throw ()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGABytePlanarConverter::toStandardMask()
+StdImageDataPtr EGABytePlanarImage::toStandardMask()
 	throw ()
 {
 	return this->doConversion(true);
 }
 
-void EGABytePlanarConverter::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask, PalettePtr newPalette
+void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
+	StdImageDataPtr newMask
 )
 	throw ()
 {
-	// Make sure the caller didn't violate the precondition for this function by
-	// supplying a palette that won't be used (as indicated by getPalette())
-	assert(!newPalette);
-
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
 	int planeValue[PLANE_MAX], notPlaneValue[PLANE_MAX];
@@ -152,7 +181,7 @@ void EGABytePlanarConverter::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-StdImageDataPtr EGABytePlanarConverter::doConversion(bool mask)
+StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
 	throw ()
 {
 	// Sort out all the values we need to output for each plane

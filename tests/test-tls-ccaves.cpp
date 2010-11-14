@@ -27,15 +27,6 @@
 	"\x81\x00\x01\x80\x81" \
 	"\x81\x00\x01\x80\x81" \
 	"\xFF\x7E\x01\x80\xFF"
-/*	"First" \
-	" imag" \
-	"e.\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6"
-*/
 
 #define TESTDATA_IMAGE2_8x8 \
 	"\xFF\xFF\xFF\xFF\xFF" \
@@ -46,15 +37,6 @@
 	"\xFF\xFF\xFF\xFF\xFF" \
 	"\xFF\xFF\xFF\xFF\xFF" \
 	"\xFF\xFF\xFF\xFF\xFF"
-/*	"Secon" \
-	"d ima" \
-	"ge.\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6"
-*/
 
 #define TESTDATA_IMAGE3_8x8 \
 	"\xFF\x00\x00\x00\x00" \
@@ -65,15 +47,6 @@
 	"\xFF\x00\x00\x00\x00" \
 	"\xFF\x00\x00\x00\x00" \
 	"\xFF\x00\x00\x00\x00"
-/*	"Third" \
-	" imag" \
-	"e.\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6" \
-	"\xF6\xF6\xF6\xF6\xF6"
-*/
 
 #define testdata_initialstate \
 	"\x02" "\x01" "\x08" \
@@ -116,9 +89,9 @@
 // The format supports adding new subtilesets
 //#define TEST_CAN_ADD_SUBTILESET
 
-#define GRAPHICS_CLASS img_ccaves
-#define GRAPHICS_TYPE  "img-ccaves"
-#include "test-img.hpp"
+#define TILESET_CLASS tls_ccaves
+#define TILESET_TYPE  "tls-ccaves"
+#include "test-tls.hpp"
 
 // Test some invalid formats to make sure they're not identified as valid
 // archives.  Note that they can still be opened though (by 'force'), this
@@ -134,7 +107,7 @@ ISINSTANCE_TEST(c01,
 	TESTDATA_IMAGE1_8x8
 	TESTDATA_IMAGE2_8x8
 	,
-	EC_DEFINITELY_NO
+	TilesetType::DefinitelyNo
 );
 
 /// Make sure an empty tileset doesn't cause a problem
@@ -145,5 +118,5 @@ ISINSTANCE_TEST(c02,
 	TESTDATA_IMAGE1_8x8
 	TESTDATA_IMAGE2_8x8
 	,
-	EC_POSSIBLY_YES
+	TilesetType::PossiblyYes
 );

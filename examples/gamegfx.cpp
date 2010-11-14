@@ -79,47 +79,68 @@ bool split(const std::string& in, char delim, std::string *out1, std::string *ou
  *
  * @return true to continue, false on error (e.g. corrupt file suspected)
  */
-bool printTilesetList(std::string prefix, gg::GraphicsPtr pGraphics,
+void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 	bool bScript
 ) {
-	unsigned int tilesetCount = pGraphics->getTilesetCount();
-	unsigned int imageCount = pGraphics->getImageCount();
-	if ((tilesetCount > 4096) || (imageCount > 4096)) {
-		std::cerr << "Too many images - aborting as this is probably an error." << std::endl;
-		return false; // abort
+	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+
+	if (bScript) {
+		std::cout << "id=" << prefix << ";type=tileset";
+	} else {
+		std::cout << prefix << ": Tileset";
 	}
 
-	unsigned int width, height;
-	pGraphics->getTileSize(&width, &height);
-	if (bScript) {
-		std::cout << "id=" << prefix << ";type=tileset;width=" << width
-			<< ";height=" << height << ";tilesets=" << tilesetCount
-			<< ";images=" << imageCount << std::endl;
-		for (int j = 0; j < imageCount; j++) {
-			std::cout << "id=" << prefix << '+' << j
-				<< ";type=image;width=" << width
-				<< ";height=" << height << std::endl;
-		}
-	} else {
-		std::cout << prefix << ": Tileset (" << width << 'x'
-			<< height << "), ";
-		if (imageCount) {
-			std::cout << "images are " << prefix << "+0 to "
-				<< prefix << '+' << (imageCount - 1) << std::endl;
+	if (pTileset->getCaps() & gg::Tileset::ChangeDimensions) {
+		// This tileset has dimensions
+		unsigned int width, height;
+		pTileset->getTilesetDimensions(&width, &height);
+		if (bScript) {
+			std::cout << ";width=" << width << ";height=" << height;
 		} else {
-			std::cout << "no images" << std::endl;
+			std::cout << " (" << width << 'x' << height << ")";
 		}
 	}
-	for (int j = 0; j < tilesetCount; j++) {
-		std::ostringstream ss;
-		ss << prefix << '.' << j;
-		if (!printTilesetList(
-			ss.str(), pGraphics->getTileset(j), bScript
-		)) {
-			return false;
+	if (bScript) {
+		std::cout << ";numitems=" << tiles.size() << '\n';
+	} else {
+		std::cout << ", ";
+		if (tiles.size()) {
+			std::cout << (tiles.size() - 1) << " items\n";
+		} else {
+			std::cout << "no images" << '\n';
 		}
 	}
-	return true; // keep going
+
+	int j = 0;
+	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
+		i != tiles.end();
+		i++
+	) {
+		// If this entry is a tileset, open it and dump its contents recursively
+		if ((*i)->attr & gg::Tileset::SubTileset) {
+			gg::TilesetPtr tileset = pTileset->openTileset(*i);
+			std::ostringstream ss;
+			ss << prefix << '.' << j;
+			printTilesetList(ss.str(), tileset, bScript);
+
+		// Otherwise if it's an image just dump the specs
+		} else {
+			gg::ImagePtr img = pTileset->openImage(*i);
+			unsigned int iwidth, iheight;
+			pTileset->getTilesetDimensions(&iwidth, &iheight);
+			if (bScript) {
+				std::cout << "id=" << prefix << '+' << j
+					<< ";type=image;width=" << iwidth
+					<< ";iheight=" << iheight << '\n';
+			} else {
+				std::cout << prefix << '.' << j << ": Image (" << iwidth << "x"
+					<< iheight << ")\n";
+			}
+		}
+		j++;
+	}
+
+	return;
 }
 
 
@@ -164,21 +185,21 @@ bool explodeId(std::vector<int> *id, const std::string& name)
 	return true;
 }
 
-/// Export an image to a .png file
+/// Export an image to a .png file.
 /**
  * Convert the given image into a PNG file on disk.
  *
- * @param  img  Image file to export
+ * @param img
+ *   Image file to export
  *
- * @param  width  Image width
- *
- * @param  height  Image height
- *
- * @param  destFile  Filename of destination (including ".png")
+ * @param destFile
+ *   Filename of destination (including ".png")
  */
-void imageToPng(gg::ImageConverterPtr img, unsigned int width,
-	unsigned int height, const std::string& destFile)
+void imageToPng(gg::ImagePtr img, const std::string& destFile)
 {
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+
 	gg::StdImageDataPtr data = img->toStandard();
 	gg::StdImageDataPtr mask = img->toStandardMask();
 
@@ -229,25 +250,35 @@ void imageToPng(gg::ImageConverterPtr img, unsigned int width,
  * Convert the given tileset into a PNG file on disk, by arranging each image
  * in the tileset as a grid of the given width.
  *
- * @param  tileset  The tileset to export.
+ * @param tileset
+ *   The tileset to export.
  *
- * @param  widthTiles  The width of the exported .png image, in tiles.  0 means
- *         as wide as possible (all tiles on a single row.)
+ * @param widthTiles
+ *   The width of the exported .png image, in tiles.  0 means as wide as
+ *   possible (all tiles on a single row.)
  *
- * @param  destFile  Filename of destination (including ".png")
+ * @param destFile
+ *   Filename of destination (including ".png")
  */
-void tilesetToPng(gg::GraphicsPtr tileset, unsigned int widthTiles,
+void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	const std::string& destFile)
+	throw (std::ios::failure)
 {
 	if (widthTiles == 0) {
 		widthTiles = tileset->getLayoutWidth();
 	}
-	unsigned int numTiles = tileset->getImageCount();
+
+	const gg::Tileset::VC_ENTRYPTR& tiles = tileset->getItems();
+	unsigned int numTiles = tiles.size();
 	if (widthTiles > numTiles) widthTiles = numTiles;
 	unsigned int heightTiles = (numTiles + widthTiles - 1) / widthTiles;
 
 	unsigned int width, height;
-	tileset->getTileSize(&width, &height);
+	tileset->getTilesetDimensions(&width, &height);
+	if ((width == 0) || (height == 0)) {
+		throw std::ios::failure("this only works with tilesets where all tiles "
+			"are the same size");
+	}
 
 	png::image<png::index_pixel> png(width * widthTiles, height * heightTiles);
 
@@ -276,8 +307,14 @@ void tilesetToPng(gg::GraphicsPtr tileset, unsigned int widthTiles,
 	transparency.push_back(0);
 	png.set_tRNS(transparency);
 
-	for (unsigned int t = 0; t < numTiles; t++) {
-		gg::ImageConverterPtr img = tileset->openImage(t);
+	int t = 0;
+	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
+		i != tiles.end();
+		i++, t++
+	) {
+		if ((*i)->attr & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
+
+		gg::ImagePtr img = tileset->openImage(*i);
 		gg::StdImageDataPtr data = img->toStandard();
 		gg::StdImageDataPtr mask = img->toStandardMask();
 
@@ -286,9 +323,6 @@ void tilesetToPng(gg::GraphicsPtr tileset, unsigned int widthTiles,
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				// TODO: optimise this loop (remove i)
-				//if (!(data[i] & 0x20)) pixels[i] = 16; // transparent
-				//else pixels[i] = data[i] & 0x0F;
 				// Only write opaque pixels
 				if (mask[y*height+x] & 0x01) {
 					png[offY+y][offX+x] =
@@ -311,16 +345,14 @@ void tilesetToPng(gg::GraphicsPtr tileset, unsigned int widthTiles,
  *
  * @param  img  Image file to overwrite
  *
- * @param  width  Image width
- *
- * @param  height  Image height
- *
  * @param  srcFile  Filename of source (including ".png")
  */
-void pngToImage(gg::ImageConverterPtr img, unsigned int width,
-	unsigned int height, const std::string& srcFile)
+void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	throw (std::ios::failure)
 {
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+
 	png::image<png::index_pixel> png(
 		srcFile, png::require_color_space<png::index_pixel>()
 	);
@@ -352,12 +384,12 @@ void pngToImage(gg::ImageConverterPtr img, unsigned int width,
 		}
 	}
 
-	gg::PalettePtr origPal = img->getPalette();
-	if (origPal) {
+	if (img->getCaps() & gg::Image::HasPalette) {
 		// TODO: This format supports custom palettes, so update it from the
 		// PNG image.
+		//img->setPalette(...);
 	}
-	img->fromStandard(stdimg, stdmask, origPal);
+	img->fromStandard(stdimg, stdmask);
 
 	return;
 }
@@ -371,7 +403,7 @@ void pngToImage(gg::ImageConverterPtr img, unsigned int width,
  *
  * @param  srcFile  Filename of source (including ".png")
  */
-void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
+void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 	throw (std::ios::failure)
 {
 	png::image<png::index_pixel> png(
@@ -379,7 +411,11 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
 	);
 
 	unsigned int width, height;
-	tileset->getTileSize(&width, &height);
+	tileset->getTilesetDimensions(&width, &height);
+	if ((width == 0) || (height == 0)) {
+		throw std::ios::failure("this only works with tilesets where all tiles "
+			"are the same size");
+	}
 
 	if ((png.get_width() % width) != 0) {
 		throw std::ios::failure("image width must be a multiple of the tile width");
@@ -395,7 +431,8 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
 
 	unsigned int tilesX = png.get_width() / width;
 	unsigned int tilesY = png.get_height() / height;
-	unsigned int numTiles = tileset->getImageCount();
+	const gg::Tileset::VC_ENTRYPTR& tiles = tileset->getItems();
+	unsigned int numTiles = tiles.size();
 	if (numTiles > tilesX * tilesY) numTiles = tilesX * tilesY;
 
 	int imgSizeBytes = width * height;
@@ -404,8 +441,14 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
 	gg::StdImageDataPtr stdimg(imgData);
 	gg::StdImageDataPtr stdmask(maskData);
 
-	for (unsigned int t = 0; t < numTiles; t++) {
-		gg::ImageConverterPtr img = tileset->openImage(t);
+	int t = 0;
+	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
+		i != tiles.end();
+		i++, t++
+	) {
+		if ((*i)->attr & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
+
+		gg::ImagePtr img = tileset->openImage(*i);
 		gg::StdImageDataPtr data = img->toStandard();
 		gg::StdImageDataPtr mask = img->toStandardMask();
 
@@ -424,12 +467,12 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
 			}
 		}
 
-		gg::PalettePtr origPal = img->getPalette();
-		if (origPal) {
+		if (img->getCaps() & gg::Image::HasPalette) {
 			// TODO: This format supports custom palettes, so update it from the
 			// PNG image.
+			//img->setPalette(...);
 		}
-		img->fromStandard(stdimg, stdmask, origPal);
+		img->fromStandard(stdimg, stdmask);
 	}
 
 	return;
@@ -440,13 +483,12 @@ void pngToTileset(gg::GraphicsPtr tileset, const std::string& srcFile)
  * Convert the given image into ANSI text and print it on stdout.
  *
  * @param  img  The image to display.
- *
- * @param  width  Image width
- *
- * @param  height  Image height
  */
-void imageToANSI(gg::ImageConverterPtr img, unsigned int width, unsigned int height)
+void imageToANSI(gg::ImagePtr img)
 {
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+
 	gg::StdImageDataPtr data = img->toStandard();
 	gg::StdImageDataPtr mask = img->toStandardMask();
 	int pos = 0;
@@ -497,44 +539,82 @@ void imageToANSI(gg::ImageConverterPtr img, unsigned int width, unsigned int hei
 /**
  * Extract all images or tilesets and convert them into PNG files.
  *
- * @param  prefix  ID prefix (used when recurring, use "0" on first call)
+ * @param prefix
+ *   ID prefix (used when recurring, use "0" on first call)
  *
- * @param  tilesetAsSingleImage  false to extract each image as a separate
- *         .png file, true to combine images into one .png per tileset
+ * @param tilesetAsSingleImage
+ *   false to extract each image as a separate .png file, true to combine
+ *   images into one .png per tileset
  *
- * @param  widthTiles  The width of the exported .png image, in tiles.  0 means
- *         as wide as possible (all tiles on a single row)
+ * @param widthTiles
+ *   The width of the exported .png image, in tiles.  0 means as wide as
+ *   possible (all tiles on a single row)
  *
- * @param  pGraphics  Graphics file to export
+ * @param tiles
+ *   Tileset file to export
  *
- * @param  bScript  true if -s option given (produces easily parseable output)
+ * @param bScript
+ *   true if -s option given (produces easily parseable output)
  */
-bool extractAllImages(std::string prefix, bool tilesetAsSingleImage,
-	int widthTiles, gg::GraphicsPtr pGraphics, bool bScript
+void extractAllImages(std::string prefix, bool tilesetAsSingleImage,
+	int widthTiles, gg::TilesetPtr tileset, bool bScript
 ) {
-	unsigned int tilesetCount = pGraphics->getTilesetCount();
-	unsigned int imageCount = pGraphics->getImageCount();
-	if ((tilesetCount > 4096) || (imageCount > 4096)) {
-		std::cerr << "Too many images - aborting as this is probably an error." << std::endl;
-		return false; // abort
-	}
+	const gg::Tileset::VC_ENTRYPTR& tiles = tileset->getItems();
 
-	unsigned int width, height;
-	pGraphics->getTileSize(&width, &height);
-	if ((tilesetAsSingleImage) && (imageCount > 0)) {
-		std::ostringstream ssFilename;
-		ssFilename << prefix << ".png";
-		if (bScript) {
-			std::cout << "id=" << prefix
-				<< ";filename=" << ssFilename.str()
-				<< ";status=";
-		} else {
-			std::cout << " extracting: " << ssFilename.str() << std::endl;
-		}
+	int j = 0;
+	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
+		i != tiles.end();
+		i++, j++
+	) {
 		try {
-			tilesetToPng(pGraphics, widthTiles, ssFilename.str());
-			if (bScript) {
-				std::cout << "ok" << std::endl;
+			if ((*i)->attr & gg::Tileset::SubTileset) {
+				if (tilesetAsSingleImage) {
+					std::ostringstream ssFilename;
+					ssFilename << prefix << '.' << ".png";
+					if (bScript) {
+						std::cout << "id=" << prefix << '.' << j
+							<< ";filename=" << ssFilename.str()
+							<< ";status=";
+					} else {
+						std::cout << " extracting: " << ssFilename.str() << std::endl;
+					}
+					try {
+						tilesetToPng(tileset, widthTiles, ssFilename.str());
+						if (bScript) {
+							std::cout << "ok" << std::endl;
+						}
+					} catch (std::exception& e) {
+						if (bScript) {
+							std::cout << "fail" << std::endl;
+						} else {
+							std::cout << " [failed; " << e.what() << "]" << std::endl;
+						}
+						//iRet = RET_NONCRITICAL_FAILURE; // one or more files failed
+					}
+				} else {
+					std::ostringstream ss;
+					ss << prefix << '.' << j;
+					gg::TilesetPtr sub = tileset->openTileset(*i);
+					assert(sub); // must throw exception on failure
+					extractAllImages(ss.str(), tilesetAsSingleImage, widthTiles,
+						sub, bScript);
+				}
+
+			} else { // single image
+				std::ostringstream ssFilename;
+				ssFilename << prefix << '.' << j << ".png";
+				if (bScript) {
+					std::cout << "id=" << prefix << '.' << j
+						<< ";filename=" << ssFilename.str()
+						<< ";status=";
+				} else {
+					std::cout << " extracting: " << ssFilename.str() << std::endl;
+				}
+				gg::ImagePtr img = tileset->openImage(*i);
+				imageToPng(img, ssFilename.str());
+				if (bScript) {
+					std::cout << "ok" << std::endl;
+				}
 			}
 		} catch (std::exception& e) {
 			if (bScript) {
@@ -544,96 +624,67 @@ bool extractAllImages(std::string prefix, bool tilesetAsSingleImage,
 			}
 			//iRet = RET_NONCRITICAL_FAILURE; // one or more files failed
 		}
-	} else {
-		for (unsigned int i = 0; i < imageCount; i++) {
-			std::ostringstream ssFilename;
-			ssFilename << prefix << '+' << i << ".png";
-			if (bScript) {
-				std::cout << "id=" << prefix << '+' << i
-					<< ";filename=" << ssFilename.str()
-					<< ";status=";
-			} else {
-				std::cout << " extracting: " << ssFilename.str() << std::endl;
-			}
-			try {
-				gg::ImageConverterPtr img = pGraphics->openImage(i);
-				imageToPng(img, width, height, ssFilename.str());
-				if (bScript) {
-					std::cout << "ok" << std::endl;
-				}
-			} catch (std::exception& e) {
-				if (bScript) {
-					std::cout << "fail" << std::endl;
-				} else {
-					std::cout << " [failed; " << e.what() << "]" << std::endl;
-				}
-				//iRet = RET_NONCRITICAL_FAILURE; // one or more files failed
-			}
-		}
 	}
-	for (int j = 0; j < tilesetCount; j++) {
-		std::ostringstream ss;
-		ss << prefix << '.' << j;
-		if (!extractAllImages(
-			ss.str(), tilesetAsSingleImage, widthTiles,
-			pGraphics->getTileset(j), bScript
-		)) {
-			return false;
-		}
-	}
-	return true; // keep going
+
+	return;
 }
 
-/// Open a tileset or image from an ID
+/// Find the EntryPtr for the given (user-supplied) ID.
 /**
  * Take the given ID and try to open it.
  *
- * @param  id  The ID to open.
+ * @param idText
+ *   The ID to open.
  *
- * @param  img  On return, set to an image or null if the ID is for a tileset.
+ * @param ep
+ *   On return, set to an image or null if the ID is for a tileset.
  *
- * @param  nextTileset  Root tileset to search under.  On return, set to the
- *         tileset containing img, or (if img is null) the tileset matching the
- *         ID, or null on an invalid ID.
+ * @param tileset
+ *   Root tileset to search under.  On return, set to the tileset containing ep
+ *   or NULL on invalid ID.
  *
- * @return img and nextTileset are set as above.
+ * @return EntryPtr to file represented by id, or NULL if the ID specified a
+ *   tileset (which is supplied in tileset, which could also be NULL if the ID
+ *   was invalid.)
  */
-void openById(const std::string& strArchFile, gg::ImageConverterPtr& img, gg::GraphicsPtr& nextTileset)
-{
+gg::Tileset::EntryPtr idToEntryPtr(const std::string& idText,
+	gg::TilesetPtr& tileset
+) {
+	gg::Tileset::EntryPtr ep;
 	std::vector<int> id;
-	if (explodeId(&id, strArchFile)) {
+	if (explodeId(&id, idText)) {
 		// TODO: Make sure the next line's +1 condition works when it == id.end(),
 		//       i.e. there's only images here, no subtilesets
 		for (std::vector<int>::iterator i = id.begin() + 1; i != id.end(); i++) {
-			if (*i < 0) {
-				// Make sure image index is valid
-				unsigned int index = (*i + 1) * -1;
-				if (index < nextTileset->getImageCount()) {
-					img = nextTileset->openImage(index);
-				} else {
-					std::cout << " [failed; invalid ID]" << std::endl;
-					img.reset();
-					nextTileset.reset();
-				}
-				break; // not really necessary but will prevent multiple '+' ids
+
+			if (ep) {
+				// An image has already been found but there are more ID components,
+				// so technically the ID is invalid.
+				std::cout << " [failed; invalid ID]" << std::endl;
+				tileset.reset();
+				ep.reset();
+				break;
+			}
+
+			const gg::Tileset::VC_ENTRYPTR& tiles = tileset->getItems();
+			if (*i >= tiles.size()) {
+				std::cout << " [failed; invalid ID]" << std::endl;
+				tileset.reset();
+				break;
 			} else {
-				// Make sure tileset index is valid
-				if (*i < nextTileset->getTilesetCount()) {
-					nextTileset = nextTileset->getTileset(*i);
+				if (tiles[*i]->attr & gg::Tileset::SubTileset) {
+					tileset = tileset->openTileset(tiles[*i]);
 				} else {
-					std::cout << " [failed; invalid ID]";
-					img.reset();
-					nextTileset.reset();
-					break;
+					ep = tiles[*i];
 				}
 			}
+
 		}
 	} else {
 		// Invalid ID
-		nextTileset.reset();
-		img.reset();
+		tileset.reset();
 	}
-	return;
+	return ep;
 }
 
 int main(int iArgC, char *cArgV[])
@@ -664,6 +715,12 @@ int main(int iArgC, char *cArgV[])
 
 		("overwrite,o", po::value<std::string>(),
 			"replace an image with the given file")
+
+		("insert-image,i", po::value<std::string>(),
+			"insert an image at the given ID")
+
+		("insert-tileset,t", po::value<std::string>(),
+			"insert an empty tileset at the given ID")
 
 		("set-size,z", po::value<std::string>(),
 			"set the tileset to the given image size in pixels (e.g. 16x16)")
@@ -774,10 +831,10 @@ int main(int iArgC, char *cArgV[])
 		std::cout << "Opening " << strFilename << " as type "
 			<< (strType.empty() ? "<autodetect>" : strType) << std::endl;
 
-		boost::shared_ptr<std::fstream> psGraphics(new std::fstream());
-		psGraphics->exceptions(std::ios::badbit | std::ios::failbit);
+		boost::shared_ptr<std::fstream> psTileset(new std::fstream());
+		psTileset->exceptions(std::ios::badbit | std::ios::failbit);
 		try {
-			psGraphics->open(strFilename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
+			psTileset->open(strFilename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
 		} catch (std::ios::failure& e) {
 			std::cerr << "Error opening " << strFilename << std::endl;
 			#ifdef DEBUG
@@ -789,30 +846,30 @@ int main(int iArgC, char *cArgV[])
 		// Get the format handler for this file format
 		boost::shared_ptr<gg::Manager> pManager(gg::getManager());
 
-		gg::GraphicsTypePtr pGfxType;
+		gg::TilesetTypePtr pGfxType;
 		if (strType.empty()) {
 			// Need to autodetect the file format.
-			gg::GraphicsTypePtr pTestType;
+			gg::TilesetTypePtr pTestType;
 			int i = 0;
-			while ((pTestType = pManager->getGraphicsType(i++))) {
-				gg::E_CERTAINTY cert = pTestType->isInstance(psGraphics);
+			while ((pTestType = pManager->getTilesetType(i++))) {
+				gg::TilesetType::Certainty cert = pTestType->isInstance(psTileset);
 				switch (cert) {
-					case gg::EC_DEFINITELY_NO:
+					case gg::TilesetType::DefinitelyNo:
 						// Don't print anything (TODO: Maybe unless verbose?)
 						break;
-					case gg::EC_UNSURE:
+					case gg::TilesetType::Unsure:
 						std::cout << "File could be a " << pTestType->getFriendlyName()
 							<< " [" << pTestType->getCode() << "]" << std::endl;
 						// If we haven't found a match already, use this one
 						if (!pGfxType) pGfxType = pTestType;
 						break;
-					case gg::EC_POSSIBLY_YES:
+					case gg::TilesetType::PossiblyYes:
 						std::cout << "File is likely to be a " << pTestType->getFriendlyName()
 							<< " [" << pTestType->getCode() << "]" << std::endl;
 						// Take this one as it's better than an uncertain match
 						pGfxType = pTestType;
 						break;
-					case gg::EC_DEFINITELY_YES:
+					case gg::TilesetType::DefinitelyYes:
 						std::cout << "File is definitely a " << pTestType->getFriendlyName()
 							<< " [" << pTestType->getCode() << "]" << std::endl;
 						pGfxType = pTestType;
@@ -827,7 +884,7 @@ finishTesting:
 				return RET_BE_MORE_SPECIFIC;
 			}
 		} else {
-			gg::GraphicsTypePtr pTestType(pManager->getGraphicsTypeByCode(strType));
+			gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(strType));
 			if (!pTestType) {
 				std::cerr << "Unknown file type given to -t/--type: " << strType
 					<< std::endl;
@@ -839,7 +896,7 @@ finishTesting:
 		assert(pGfxType != NULL);
 
 		// Check to see if the file is actually in this format
-		if (!pGfxType->isInstance(psGraphics)) {
+		if (!pGfxType->isInstance(psTileset)) {
 			if (bForceOpen) {
 				std::cerr << "Warning: " << strFilename << " is not a "
 					<< pGfxType->getFriendlyName() << ", open forced." << std::endl;
@@ -876,90 +933,197 @@ finishTesting:
 		}
 
 		// Open the graphics file
-		gg::GraphicsPtr pGraphics(pGfxType->open(psGraphics, suppData));
-		assert(pGraphics);
-		pGraphics->fnTruncate = boost::bind<void>(truncate, strFilename.c_str(), _1);
+		camoto::FN_TRUNCATE fnTruncate =
+			boost::bind<void>(truncate, strFilename.c_str(), _1);
+		gg::TilesetPtr pTileset(pGfxType->open(psTileset, fnTruncate, suppData));
+		assert(pTileset);
 
 		int iRet = RET_OK;
 
 		// Run through the actions on the command line
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
 			if (i->string_key.compare("list") == 0) {
-				printTilesetList("0", pGraphics, bScript);
+				printTilesetList("0", pTileset, bScript);
 
 			} else if (i->string_key.compare("extract-all-images") == 0) {
-				extractAllImages("0", false, iTilesetExportWidth, pGraphics, bScript);
+				extractAllImages("0", false, iTilesetExportWidth, pTileset, bScript);
 
 			} else if (i->string_key.compare("extract-all-tilesets") == 0) {
-				extractAllImages("0", true, iTilesetExportWidth, pGraphics, bScript);
+				extractAllImages("0", true, iTilesetExportWidth, pTileset, bScript);
 
 			} else if (i->string_key.compare("extract") == 0) {
-				std::string strArchFile, strLocalFile;
-				bool bAltDest = split(i->value[0], '=', &strArchFile, &strLocalFile);
+				std::string id, strLocalFile;
+				bool bAltDest = split(i->value[0], '=', &id, &strLocalFile);
 				if (!bAltDest) strLocalFile += ".png";
 
-				std::cout << " extracting: " << strArchFile;
-				if (bAltDest) std::cout << " (into " << strLocalFile << ")";
-				std::cout << std::flush;
-
-				gg::GraphicsPtr nextTileset = pGraphics;
-				gg::ImageConverterPtr img;
-				openById(strArchFile, img, nextTileset);
-				if (img) {
-					// We have a single image to extract
-					unsigned int width, height;
-					nextTileset->getTileSize(&width, &height);
-					imageToPng(img, width, height, strLocalFile);
-				} else if (nextTileset) {
-					// We have an entire tileset to extract
-					tilesetToPng(nextTileset, iTilesetExportWidth, strLocalFile);
+				if (bScript) {
+					std::cout << "extracting=" << id
+						<< ";wrote=" << strLocalFile
+						<< ";status=";
 				} else {
-					std::cout << " [failed; invalid ID]";
-					iRet = RET_NONCRITICAL_FAILURE;
+					std::cout << " extracting: " << id;
+					if (bAltDest) std::cout << " (into " << strLocalFile << ")";
+					std::cout << std::flush;
+				}
+
+				gg::TilesetPtr nextTileset = pTileset;
+				gg::Tileset::EntryPtr ep = idToEntryPtr(id, nextTileset);
+				if (!ep) {
+					if (nextTileset) {
+						// We have an entire tileset to extract
+						tilesetToPng(nextTileset, iTilesetExportWidth, strLocalFile);
+						if (bScript) std::cout << "ok";
+					} else {
+						if (bScript) std::cout << "fail";
+						else std::cout << " [failed; invalid ID]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					}
+				} else {
+					// We have a single image to extract
+					gg::ImagePtr img = nextTileset->openImage(ep);
+					if (!img) {
+						if (bScript) std::cout << "fail";
+						else std::cout << " [failed; unable to open image]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					} else {
+						imageToPng(img, strLocalFile);
+						if (bScript) std::cout << "ok";
+					}
 				}
 				std::cout << std::endl;
 
 			} else if (i->string_key.compare("print") == 0) {
-				gg::GraphicsPtr nextTileset = pGraphics;
-				gg::ImageConverterPtr img;
-				const std::string& strArchFile = i->value[0];
-				openById(strArchFile, img, nextTileset);
-				if (img) {
-					// We have a single image to extract
-					unsigned int width, height;
-					nextTileset->getTileSize(&width, &height);
-					imageToANSI(img, width, height);
-				} else if (nextTileset) {
-					std::cerr << "-p/--print parameter must be an image ID (not a tileset ID.)" << std::endl;
-					return RET_BADARGS;
+				gg::TilesetPtr nextTileset = pTileset;
+				const std::string& id = i->value[0];
+				gg::Tileset::EntryPtr ep = idToEntryPtr(id, nextTileset);
+				if (!ep) {
+					if (nextTileset) {
+						std::cerr << "-p/--print parameter must be an image ID (not a tileset ID.)" << std::endl;
+						return RET_BADARGS;
+					} else {
+						std::cerr << "ERROR: Invalid ID \"" << id << "\"" << std::endl;
+						return RET_BADARGS;
+					}
 				} else {
-					std::cerr << "ERROR: Invalid ID \"" << strArchFile << "\"" << std::endl;
-					return RET_BADARGS;
+					// We have a single image to extract
+					gg::ImagePtr img = nextTileset->openImage(ep);
+					if (!img) {
+						std::cout << " [failed; unable to open image]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					} else {
+						imageToANSI(img);
+					}
 				}
 
 			} else if (i->string_key.compare("overwrite") == 0) {
-				std::string strArchFile, strLocalFile;
-				bool bAltDest = split(i->value[0], '=', &strArchFile, &strLocalFile);
+				std::string id, strLocalFile;
+				bool bAltDest = split(i->value[0], '=', &id, &strLocalFile);
 				if (!bAltDest) strLocalFile += ".png";
 
-				std::cout << "overwriting: " << strArchFile;
-				if (bAltDest) std::cout << " (from " << strLocalFile << ")";
-				std::cout << std::flush;
-
-				gg::GraphicsPtr nextTileset = pGraphics;
-				gg::ImageConverterPtr img;
-				openById(strArchFile, img, nextTileset);
-				if (img) {
-					// We have a single image to overwrite
-					unsigned int width, height;
-					nextTileset->getTileSize(&width, &height);
-					pngToImage(img, width, height, strLocalFile);
-				} else if (nextTileset) {
-					// We have an entire tileset to extract
-					pngToTileset(nextTileset, strLocalFile);
+				if (bScript) {
+					std::cout << "overwriting=" << id
+						<< ";read=" << strLocalFile
+						<< ";status=";
 				} else {
-					std::cout << " [failed; invalid ID]";
+					std::cout << "overwriting: " << id;
+					if (bAltDest) std::cout << " (from " << strLocalFile << ")";
+					std::cout << std::flush;
+				}
+
+				gg::TilesetPtr nextTileset = pTileset;
+				gg::Tileset::EntryPtr ep = idToEntryPtr(id, nextTileset);
+				if (!ep) {
+					if (nextTileset) {
+						// We have an entire tileset to extract
+						pngToTileset(nextTileset, strLocalFile);
+						if (bScript) std::cout << "ok";
+					} else {
+						if (bScript) std::cout << "fail";
+						else std::cout << " [failed; invalid ID]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					}
+				} else {
+					// We have a single image to overwrite
+					gg::ImagePtr img = nextTileset->openImage(ep);
+					if (!img) {
+						if (bScript) std::cout << "fail";
+						else std::cout << " [failed; unable to open image]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					} else {
+						pngToImage(img, strLocalFile);
+						if (bScript) std::cout << "ok";
+					}
+				}
+				if (nextTileset) nextTileset->flush();
+				std::cout << std::endl;
+
+			} else if (i->string_key.compare("insert-image") == 0) {
+				std::string id, strLocalFile;
+				bool bAltDest = split(i->value[0], '=', &id, &strLocalFile);
+				if (!bAltDest) strLocalFile += ".png";
+
+				if (bScript) {
+					std::cout << "inserting=" << id
+						<< ";read=" << strLocalFile
+						<< ";status=";
+				} else {
+					std::cout << "  inserting: " << id;
+					if (bAltDest) std::cout << " (from " << strLocalFile << ")";
+					std::cout << std::flush;
+				}
+
+				gg::TilesetPtr nextTileset = pTileset;
+				gg::Tileset::EntryPtr epBefore = idToEntryPtr(id, nextTileset);
+				if (!epBefore) {
+					if (bScript) std::cout << "fail";
+					else std::cout << " [failed; invalid ID]";
 					iRet = RET_NONCRITICAL_FAILURE;
+				}
+				try {
+					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore,
+						gg::Tileset::None);
+
+					gg::ImagePtr img = nextTileset->openImage(ep);
+					if (!img) {
+						if (bScript) std::cout << "fail";
+						else std::cout << " [failed; unable to open newly inserted image]";
+						iRet = RET_NONCRITICAL_FAILURE;
+					} else {
+						pngToImage(img, strLocalFile);
+						if (bScript) std::cout << "ok";
+					}
+					nextTileset->flush();
+				} catch (std::exception& e) {
+					if (bScript) std::cout << "fail";
+					else std::cout << " [failed; " << e.what() << ']' << std::endl;
+				}
+				std::cout << std::endl;
+
+			} else if (i->string_key.compare("insert-tileset") == 0) {
+				std::string id = i->value[0];
+
+				if (bScript) {
+					std::cout << "addtileset=" << id
+						<< ";status=";
+				} else {
+					std::cout << "add tileset: " << id << std::flush;
+				}
+
+				gg::TilesetPtr nextTileset = pTileset;
+				gg::Tileset::EntryPtr epBefore = idToEntryPtr(id, nextTileset);
+				if (!epBefore) {
+					if (bScript) std::cout << "fail";
+					else std::cout << " [failed; invalid ID]";
+					iRet = RET_NONCRITICAL_FAILURE;
+				}
+				try {
+					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore,
+						gg::Tileset::SubTileset);
+					nextTileset->flush();
+					if (bScript) std::cout << "ok";
+				} catch (std::exception& e) {
+					if (bScript) std::cout << "fail";
+					else std::cout << " [failed; " << e.what() << ']' << std::endl;
 				}
 				std::cout << std::endl;
 
@@ -975,35 +1139,46 @@ finishTesting:
 						int newHeight = strtod(strHeight.c_str(), NULL);
 						std::cout << " -> " << newWidth << 'x' << newHeight;
 
-						gg::GraphicsPtr nextTileset = pGraphics;
-						gg::ImageConverterPtr img;
-						openById(strArchFile, img, nextTileset);
-						if (img) {
-							std::cout << " [failed; can't set the size of an image, use a "
-								"tileset ID instead]" << std::endl;
-							iRet = RET_NONCRITICAL_FAILURE;
-						} else if (nextTileset) {
-							if (nextTileset->getCaps() & gg::Graphics::ChangeTileSize) {
-								try {
-									nextTileset->setTileSize(newWidth, newHeight);
-									std::cout << std::endl;
-								} catch (std::exception& e) {
-									std::cout << " [failed; " << e.what()
-										<< ']' << std::endl;
+						gg::TilesetPtr nextTileset = pTileset;
+						gg::Tileset::EntryPtr ep = idToEntryPtr(strArchFile, nextTileset);
+						if (!ep) {
+							if (nextTileset) {
+								// ID was for a tileset
+								if (nextTileset->getCaps() & gg::Tileset::ChangeDimensions) {
+									try {
+										nextTileset->setTilesetDimensions(newWidth, newHeight);
+										std::cout << std::endl;
+									} catch (std::exception& e) {
+										std::cout << " [failed; " << e.what()
+											<< ']' << std::endl;
+									}
+								} else {
+									std::cout << " [failed; this file format has a fixed tile size]"
+										<< std::endl;
+									// Abort in this case, because any subsequent
+									// commands are likely to break if the tile size
+									// wasn't changed as expected.
+									return RET_BADARGS;
 								}
 							} else {
-								std::cout << " [failed; this file format has a "
-									"fixed tile size]" << std::endl;
-								// Abort in this case, because any subsequent
-								// commands are likely to break if the tile size
-								// wasn't changed as expected.
-								return RET_BADARGS;
+								std::cout << " [failed; invalid ID " << strArchFile << ']'
+									<< std::endl;
+								iRet = RET_NONCRITICAL_FAILURE;
 							}
+
 						} else {
-							std::cout << " [failed; invalid ID " << strArchFile << ']'
-								<< std::endl;
-							iRet = RET_NONCRITICAL_FAILURE;
+							// ID was for an image
+							gg::ImagePtr img = nextTileset->openImage(ep);
+							if (img->getCaps() & gg::Image::CanSetDimensions) {
+								img->setDimensions(newWidth, newHeight);
+								std::cout << std::endl;
+							} else {
+								std::cout << " [failed; this image's size is fixed]"
+									<< std::endl;
+								iRet = RET_NONCRITICAL_FAILURE;
+							}
 						}
+						if (nextTileset) nextTileset->flush();
 					} else {
 						std::cout << " [failed; invalid size]" << std::endl;
 						iRet = RET_NONCRITICAL_FAILURE;
@@ -1027,15 +1202,20 @@ finishTesting:
 			} // else it's the archive filename, but we already have that
 
 		} // for (all command line elements)
+
+		// Save changes
+		pTileset->flush();
+
 	} catch (po::unknown_option& e) {
 		std::cerr << PROGNAME ": " << e.what()
 			<< ".  Use --help for help." << std::endl;
-		return 1;
+		return RET_BADARGS;
+
 	} catch (po::invalid_command_line_syntax& e) {
 		std::cerr << PROGNAME ": " << e.what()
 			<< ".  Use --help for help." << std::endl;
-		return 1;
+		return RET_BADARGS;
 	}
 
-	return 0;
+	return RET_OK;
 }
