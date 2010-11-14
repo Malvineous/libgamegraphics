@@ -25,10 +25,9 @@
 #include <camoto/gamegraphics.hpp>
 #include <iostream>
 #include <fstream>
-#include "png++/png.hpp"
+#include "common.hpp"
 
 namespace po = boost::program_options;
-namespace gg = camoto::gamegraphics;
 
 #define PROGNAME "gamegfx"
 
@@ -124,10 +123,17 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 			printTilesetList(ss.str(), tileset, bScript);
 
 		// Otherwise if it's an image just dump the specs
+		} else if ((*i)->attr & gg::Tileset::EmptySlot) {
+			if (bScript) {
+				std::cout << "id=" << prefix << '+' << j
+					<< ";type=empty\n";
+			} else {
+				std::cout << prefix << '.' << j << ": Empty slot\n";
+			}
 		} else {
 			gg::ImagePtr img = pTileset->openImage(*i);
 			unsigned int iwidth, iheight;
-			pTileset->getTilesetDimensions(&iwidth, &iheight);
+			img->getDimensions(&iwidth, &iheight);
 			if (bScript) {
 				std::cout << "id=" << prefix << '+' << j
 					<< ";type=image;width=" << iwidth
@@ -183,66 +189,6 @@ bool explodeId(std::vector<int> *id, const std::string& name)
 	}
 	id->push_back(next);
 	return true;
-}
-
-/// Export an image to a .png file.
-/**
- * Convert the given image into a PNG file on disk.
- *
- * @param img
- *   Image file to export
- *
- * @param destFile
- *   Filename of destination (including ".png")
- */
-void imageToPng(gg::ImagePtr img, const std::string& destFile)
-{
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
-
-	gg::StdImageDataPtr data = img->toStandard();
-	gg::StdImageDataPtr mask = img->toStandardMask();
-
-	png::image<png::index_pixel> png(width, height);
-
-	png::palette pal(17);
-	pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-	pal[ 1] = png::color(0x00, 0x00, 0x00);
-	pal[ 2] = png::color(0x00, 0x00, 0xAA);
-	pal[ 3] = png::color(0x00, 0xAA, 0x00);
-	pal[ 4] = png::color(0x00, 0xAA, 0xAA);
-	pal[ 5] = png::color(0xAA, 0x00, 0x00);
-	pal[ 6] = png::color(0xAA, 0x00, 0xAA);
-	pal[ 7] = png::color(0xAA, 0x55, 0x00);
-	pal[ 8] = png::color(0xAA, 0xAA, 0xAA);
-	pal[ 9] = png::color(0x55, 0x55, 0x55);
-	pal[10] = png::color(0x55, 0x55, 0xFF);
-	pal[11] = png::color(0x55, 0xFF, 0x55);
-	pal[12] = png::color(0x55, 0xFF, 0xFF);
-	pal[13] = png::color(0xFF, 0x55, 0x55);
-	pal[14] = png::color(0xFF, 0x55, 0xFF);
-	pal[15] = png::color(0xFF, 0xFF, 0x55);
-	pal[16] = png::color(0xFF, 0xFF, 0xFF);
-	png.set_palette(pal);
-
-	// Make first colour transparent
-	png::tRNS transparency;
-	transparency.push_back(0);
-	png.set_tRNS(transparency);
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			// TODO: optimise this loop (remove i)
-			//if (!(data[i] & 0x20)) pixels[i] = 16; // transparent
-			//else pixels[i] = data[i] & 0x0F;
-			// Only write opaque pixels
-			if (mask[y*height+x] & 0x01) png[y][x] = png::index_pixel(data[y*height+x] + 1);
-			else png[y][x] = png::index_pixel(0);
-		}
-	}
-
-	png.write(destFile);
-	return;
 }
 
 /// Export a whole tileset to a single .png file
@@ -324,10 +270,10 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				// Only write opaque pixels
-				if (mask[y*height+x] & 0x01) {
+				if (mask[y*width+x] & 0x01) {
 					png[offY+y][offX+x] =
 						// +1 to the colour to skip over transparent (#0)
-						png::index_pixel(data[y*height+x] + 1);
+						png::index_pixel(data[y*width+x] + 1);
 				} else {
 					png[offY+y][offX+x] = png::index_pixel(0);
 				}
@@ -336,61 +282,6 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	}
 
 	png.write(destFile);
-	return;
-}
-
-/// Replace an image with the contents of a .png file
-/**
- * Load the given PNG file and use it to replace the given image.
- *
- * @param  img  Image file to overwrite
- *
- * @param  srcFile  Filename of source (including ".png")
- */
-void pngToImage(gg::ImagePtr img, const std::string& srcFile)
-	throw (std::ios::failure)
-{
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
-
-	png::image<png::index_pixel> png(
-		srcFile, png::require_color_space<png::index_pixel>()
-	);
-
-	if ((png.get_width() != width) || (png.get_height() != height)) {
-		throw std::ios::failure("image does not match tileset size");
-	}
-
-	png::tRNS transparency = png.get_tRNS();
-	if (transparency[0] != 0) {
-		throw std::ios::failure("palette entry #0 must be assigned as transparent");
-	}
-
-	int imgSizeBytes = width * height;
-	uint8_t *imgData = new uint8_t[imgSizeBytes];
-	uint8_t *maskData = new uint8_t[imgSizeBytes];
-	gg::StdImageDataPtr stdimg(imgData);
-	gg::StdImageDataPtr stdmask(maskData);
-
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			uint8_t pixel = png[y][x];
-			if (pixel == 0) { // Palette #0 must be transparent
-				maskData[y * width + x] = 0x00; // transparent
-			} else {
-				maskData[y * width + x] = 0x01; // opaque
-				imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
-			}
-		}
-	}
-
-	if (img->getCaps() & gg::Image::HasPalette) {
-		// TODO: This format supports custom palettes, so update it from the
-		// PNG image.
-		//img->setPalette(...);
-	}
-	img->fromStandard(stdimg, stdmask);
-
 	return;
 }
 
@@ -475,62 +366,6 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 		img->fromStandard(stdimg, stdmask);
 	}
 
-	return;
-}
-
-/// Export an image to ANSI coloured text
-/**
- * Convert the given image into ANSI text and print it on stdout.
- *
- * @param  img  The image to display.
- */
-void imageToANSI(gg::ImagePtr img)
-{
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
-
-	gg::StdImageDataPtr data = img->toStandard();
-	gg::StdImageDataPtr mask = img->toStandardMask();
-	int pos = 0;
-	bool bright = false, xp = false;
-	std::cout << "\x1B[0;7m";
-	bool bFirst = true;
-	for (int y = 0; y < height; y++) {
-		if (!bFirst) std::cout << "\n"; else bFirst = false;
-		for (int x = 0; x < width; x++, pos++) {
-			uint8_t pixel = data[pos], maskpixel = mask[pos];
-			std::cout << "\x1B[";
-			if (pixel & 0x08) {
-				if (!bright) {
-					std::cout << "1;"; // intensity bit on
-					bright ^= 1;
-				}
-			} else {
-				if (bright) {
-					std::cout << "22;"; // intensity bit off
-					bright ^= 1;
-				}
-			}
-			if (maskpixel & 0x01) {
-				if (xp) {
-					std::cout << "7;"; // reverse on (xp off)
-					xp ^= 1;
-				}
-			} else {
-				if (!xp) {
-					std::cout << "27;"; // reverse off (xp on)
-					xp ^= 1;
-				}
-			}
-			int ansiClr = 30 + (
-				((pixel & 0x01) << 2) |
-				(pixel & 0x02) |
-				((pixel & 0x04) >> 2)
-			);
-			std::cout << ansiClr << "m  ";
-		}
-	}
-	std::cout << "\x1B[0m" << std::endl;
 	return;
 }
 
@@ -719,7 +554,7 @@ int main(int iArgC, char *cArgV[])
 		("insert-image,i", po::value<std::string>(),
 			"insert an image at the given ID")
 
-		("insert-tileset,t", po::value<std::string>(),
+		("insert-tileset,n", po::value<std::string>(),
 			"insert an empty tileset at the given ID")
 
 		("set-size,z", po::value<std::string>(),
@@ -737,6 +572,8 @@ int main(int iArgC, char *cArgV[])
 			"force open even if the file is not in the given format")
 		("width,w", po::value<int>(),
 			"width (in tiles) when exporting whole tileset")
+		("list-types",
+			"list available types that can be passed to --type")
 	;
 
 	po::options_description poHidden("Hidden parameters");
@@ -754,6 +591,8 @@ int main(int iArgC, char *cArgV[])
 
 	std::string strFilename;
 	std::string strType;
+
+	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
 
 	bool bScript = false; // show output suitable for script parsing?
 	bool bForceOpen = false; // open anyway even if archive not in given format?
@@ -783,8 +622,21 @@ int main(int iArgC, char *cArgV[])
 					"Utility to manipulate graphics files used by games to store images.\n"
 					"Build date " __DATE__ " " __TIME__ << "\n"
 					"\n"
-					"Usage: gamegfx <archive> <action> [action...]\n" << poVisible << "\n"
+					"Usage: gamegfx <tileset> <action> [action...]\n" << poVisible << "\n"
 					<< std::endl;
+				return RET_OK;
+			} else if (
+				(i->string_key.compare("list-types") == 0)
+			) {
+				gg::TilesetTypePtr nextType;
+				int i = 0;
+				while ((nextType = pManager->getTilesetType(i++))) {
+					std::string code = nextType->getCode();
+					std::cout << code;
+					int len = code.length();
+					if (len < 20) std::cout << std::string(20-code.length(), ' ');
+					std::cout << ' ' << nextType->getFriendlyName() << '\n';
+				}
 				return RET_OK;
 			} else if (
 				(i->string_key.compare("t") == 0) ||
@@ -842,9 +694,6 @@ int main(int iArgC, char *cArgV[])
 			#endif
 			return RET_SHOWSTOPPER;
 		}
-
-		// Get the format handler for this file format
-		boost::shared_ptr<gg::Manager> pManager(gg::getManager());
 
 		gg::TilesetTypePtr pGfxType;
 		if (strType.empty()) {

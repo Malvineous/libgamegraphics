@@ -33,6 +33,7 @@ doc/doxygen/full/
 
 # Compiled binaries
 examples/gamegfx
+examples/gameimg
 tests/tests
 
 # External code
