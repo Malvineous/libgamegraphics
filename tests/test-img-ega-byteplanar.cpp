@@ -63,19 +63,28 @@ using namespace camoto;
 	"\x80\x00\x00\x80\x80" "\x80\x00\x80\x00\x80" \
 	"\xFF\x7F\x00\x80\xFF" "\x80\x00\x80\x00\x80"
 
-ImagePtr img_ega_byteplanar_get_converter(iostream_sptr imgStream,
-	FN_TRUNCATE fnTruncate, unsigned int width, unsigned int height)
-{
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 2;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 4;
-	planes[PLANE_INTENSITY] = 5;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1;
-	return ImagePtr(new EGABytePlanarImage(
-		imgStream, fnTruncate, width, height, planes));
-}
+#define TESTDATA_INITIAL_8x4 \
+	"\xFF\xFF\xFF\xFF\xFF" \
+	"\x81\x00\x01\x80\x81" \
+	"\x81\x00\x01\x80\x81" \
+	"\xFF\x7E\x01\x80\xFF"
+
+// Because this format isn't exposed as an image type we need some custom code
+// to create instances of it.
+#define IMG_OPEN_CODE \
+	PLANE_LAYOUT planes; \
+	planes[PLANE_BLUE] = 2; \
+	planes[PLANE_GREEN] = 3; \
+	planes[PLANE_RED] = 4; \
+	planes[PLANE_INTENSITY] = 5; \
+	planes[PLANE_HITMAP] = 0; \
+	planes[PLANE_OPACITY] = 1; \
+	this->img = ImagePtr(new EGABytePlanarImage( \
+		this->baseStream, this->fnTruncate, width, height, planes)); \
+	this->dataWidth = width / 8 * height * 5; // 5 == numplanes
+
+// Same code for creating empty images
+#define IMG_CREATE_CODE IMG_OPEN_CODE
 
 #define IMG_CLASS img_ega_byteplanar
 #include "test-img.hpp"
