@@ -22,6 +22,7 @@
 #define _CAMOTO_GAMEGRAPHICS_TESTS_HPP_
 
 #include <boost/test/unit_test.hpp>
+#include <camoto/types.hpp>
 
 // Allow a string constant to be passed around with embedded nulls
 #define makeString(x)  std::string((x), sizeof((x)) - 1)

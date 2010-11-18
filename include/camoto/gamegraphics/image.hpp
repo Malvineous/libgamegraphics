@@ -122,6 +122,8 @@ class Image {
 		 * @param height
 		 *   New height
 		 *
+		 * @post Image content is undefined, fromStandard() must be called.
+		 *
 		 * @throw std::ios::failure on I/O error.
 		 */
 		virtual void setDimensions(unsigned int width, unsigned int height)
@@ -170,6 +172,10 @@ class Image {
 		 * @param newMask  Image data, in the standard 8bpp format, to
 		 *   convert and replace the underlying mask with.
 		 *
+		 * @note If getCaps() reports CanSetDimensions the dimensions should be
+		 *   set *before* this function is called (if necessary) as some formats
+		 *   encode data differently depending on the image size (e.g. 'end of
+		 *   line' codes can't be used unless the line width is known.)
 		 */
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)

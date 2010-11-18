@@ -72,6 +72,7 @@ class Zone66TileImage: virtual public Image {
 		iostream_sptr data;
 		FN_TRUNCATE fnTruncate;
 		PaletteTablePtr pal;
+		int width, height;
 
 	public:
 		Zone66TileImage(iostream_sptr data, FN_TRUNCATE fnTruncate,

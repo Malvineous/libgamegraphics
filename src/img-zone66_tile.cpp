@@ -120,11 +120,15 @@ ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
 		<< u16le(0)  // height
 		<< u8(0xFF)  // end-of-image code
 	;
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	// Only load the palette if one was given
+	if (suppData[SuppItem::Palette].stream) {
+		ImagePtr palFile(new VGAPalette(
+			suppData[SuppItem::Palette].stream,
+			suppData[SuppItem::Palette].fnTruncate
+		));
+		pal = palFile->getPalette();
+	}
 	return ImagePtr(new Zone66TileImage(psImage, fnTruncate, pal));
 }
 
@@ -132,11 +136,15 @@ ImagePtr Zone66TileImageType::open(iostream_sptr psImage,
 	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	// Only load the palette if one was given
+	if (suppData[SuppItem::Palette].stream) {
+		ImagePtr palFile(new VGAPalette(
+			suppData[SuppItem::Palette].stream,
+			suppData[SuppItem::Palette].fnTruncate
+		));
+		pal = palFile->getPalette();
+	}
 	return ImagePtr(new Zone66TileImage(psImage, fnTruncate, pal));
 }
 
@@ -156,6 +164,8 @@ Zone66TileImage::Zone66TileImage(iostream_sptr data,
 		fnTruncate(fnTruncate),
 		pal(pal)
 {
+	this->data->seekg(0, std::ios::beg);
+	this->data >> u16le(this->width) >> u16le(this->height);
 }
 
 
@@ -173,8 +183,8 @@ int Zone66TileImage::getCaps()
 void Zone66TileImage::getDimensions(unsigned int *width, unsigned int *height)
 	throw ()
 {
-	this->data->seekg(0, std::ios::beg);
-	this->data >> u16le(*width) >> u16le(*height);
+	*width = this->width;
+	*height = this->height;
 	return;
 }
 
@@ -183,21 +193,21 @@ void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
 {
 	this->data->seekp(0, std::ios::beg);
 	this->data << u16le(width) << u16le(height);
+	this->width = width;
+	this->height = height;
 	return;
 }
 
 StdImageDataPtr Zone66TileImage::toStandard()
 	throw (std::ios::failure)
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
+	assert((this->width != 0) && (this->height != 0));
 
-	this->data->seekg(Z66_IMG_OFFSET, std::ios::beg);
-
+	int dataSize = this->width * height;
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
+
+	this->data->seekg(Z66_IMG_OFFSET, std::ios::beg);
 	bool justDidReset = false;
 	for (int i = 0; i < dataSize; ) {
 		uint8_t code;
@@ -211,9 +221,9 @@ StdImageDataPtr Zone66TileImage::toStandard()
 
 			case 0xFE: { // Skip to the next line
 				// Pad rest of line (if any) with black
-				int restOfLine = width - (i % width);
+				int restOfLine = this->width - (i % this->width);
 				// Don't skip a line when we're at EOL, unless we just omitted a skip
-				if ((restOfLine != width) || (justDidReset)) {
+				if ((restOfLine != this->width) || (justDidReset)) {
 					while (restOfLine--) imgData[i++] = 0;
 				}
 				justDidReset = true;
@@ -246,10 +256,8 @@ StdImageDataPtr Zone66TileImage::toStandard()
 StdImageDataPtr Zone66TileImage::toStandardMask()
 	throw ()
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
+	assert((this->width != 0) && (this->height != 0));
+	int dataSize = this->width * height;
 
 	// Return an entirely opaque mask
 	uint8_t *imgData = new uint8_t[dataSize];
@@ -264,15 +272,95 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 )
 	throw (std::ios::failure)
 {
-	throw std::ios::failure("not implemented yet");
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
+	assert((this->width != 0) && (this->height != 0));
+	this->data->seekp(0, std::ios::beg);
 
-	uint8_t *imgData = (uint8_t *)newContent.get();
+	// Start off with enough space for the worst-case size
+	this->fnTruncate(4 + (this->width + 2) * this->height + 1);
+	int finalSize = 4; // for header
+
 	this->data->seekp(Z66_IMG_OFFSET, std::ios::beg);
-	this->data->rdbuf()->sputn((char *)imgData, dataSize);
+	uint8_t *imgData = (uint8_t *)newContent.get();
+	for (int y = 0; y < height; y++) {
+		int dw = this->width;
+		while (dw > 0) {
+			// Count how many black pixels are in a row starting at the current pos
+			int amt = 0;
+			while ((*imgData == 0) && (amt < 254) && (dw > 0)) {
+				imgData++;
+				amt++;
+				dw--;
+			}
+			// If there were black pixels, figure out the best way to write them
+			if (amt) {
+				if (dw == 0) {
+					// Got blanks until EOL
+					// TESTED BY: img_zone66_tile_from_standard_8x4
+					//this->data << u8(0xFE);
+					//finalSize++;
+					break; // go to next line (will write 0xFE)
+				} else {
+					// Encountered at least one blank pixel
+					if (amt > 1) {
+						// More efficient to write as RLE
+						// TESTED BY: img_zone66_tile_from_standard_8x4
+						this->data << u8(0xFD) << u8(amt);
+						finalSize += 2;
+						// If there were enough blanks, keep looking for more.
+						// TESTED BY: TODO
+						if (amt == 255) continue;
+					} else {
+						// Less/same efficiency to write code, so don't
+						// TESTED BY: img_zone66_tile_from_standard_8x4
+						imgData -= amt; // reprocess data in next step
+						dw += amt;
+					}
+				}
+			}
+			if (dw == 0) break;
+			// This next pixel is not blank (or it is but there's only 1-2 of them)
+			// so write out as straight pixel data.  If this assertion fails then
+			// the code above is broken because three blanks in a row should've been
+			// handled up there.
+			assert(
+				(imgData[0] != 0) ||
+				(imgData[1] != 0) ||
+				(imgData[2] != 0)
+			);
+			amt = (dw > 255) ? 255 : dw;
+			for (int l = 1; l < amt; l++) { // assume [0] is not blank - if it is [1] or [2] won't be
+				if (imgData[l] == 0) {
+					// found first empty
+					int lenBlank = 1;
+					for (int ll = l + 1; ll < amt; ll++) {
+						if (imgData[ll] == 0) lenBlank++;
+						else break; // TESTED BY: img_zone66_tile_from_standard_8x4
+					}
+					if (lenBlank > 2) {
+						// More than two blanks start at pos l, so only write up to pos l
+						// as normal pixels (then the loop will run again and the blanks
+						// will get picked up by the condition above.)
+						// TESTED BY: img_zone66_tile_from_standard_8x4
+						amt = l;
+						break;
+					}
+				}
+			}
+			this->data << u8(amt);
+			this->data->rdbuf()->sputn((char *)imgData, amt);
+			imgData += amt;
+			dw -= amt;
+			finalSize += amt + 1;
+		}
+		assert(dw == 0); // make sure we read everything
+		this->data << u8(0xFE); // end of line
+		finalSize++;
+	}
+	this->data << u8(0xFF); // end of file
+	finalSize++;
+
+	// Then shrink back to actual size
+	this->fnTruncate(finalSize);
 
 	return;
 }

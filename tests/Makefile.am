@@ -3,6 +3,7 @@ check_PROGRAMS = tests
 tests_SOURCES = tests.cpp
 tests_SOURCES += test-img-ega-byteplanar.cpp
 tests_SOURCES += test-tls-ccaves.cpp
+tests_SOURCES += test-img-zone66_tile.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
 
 EXTRA_tests_SOURCES = tests.hpp

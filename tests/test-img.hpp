@@ -21,10 +21,27 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
+#include <camoto/util.hpp> // for TOSTRING macro
 #include <iostream>
 #include <sstream>
 
 #include "tests.hpp"
+
+// These constants should be defined in the file that #includes this one.
+
+// Define if converting the mask should be tested.
+//#define IMG_HAS_MASK
+
+// Run particular code instead of the standard openImage() function below.
+// Use this when testing image formats that aren't exposed via the library's
+// public interface.
+//#define IMG_CREATE_CODE  <C++ code>
+
+// Number of bytes wide to display mismatched data in failed test when
+// converting *from* standard data.  This should be set to the number of
+// bytes in the image format that hold one row of data (if possible) to
+// make error diagnosis easier.  Defaults to 8.
+//#define IMG_DATA_WIDTH 8
 
 using namespace camoto;
 using namespace camoto::gamegraphics;
@@ -111,6 +128,19 @@ const uint8_t stdformat_test_mask_9x9[] = {
 	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
 };
 
+const uint8_t stdformat_test_image_8x4[] = {
+	0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x0A
+};
+const uint8_t stdformat_test_mask_8x4[] = {
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
+};
+
 // Defines to allow code reuse
 #define COMBINE_CLASSNAME_EXP(c, n)  c ## _ ## n
 #define COMBINE_CLASSNAME(c, n)  COMBINE_CLASSNAME_EXP(c, n)
@@ -135,225 +165,153 @@ struct FIXTURE_NAME: public default_sample {
 	sstr_ptr baseData;
 	camoto::iostream_sptr baseStream;
 	FN_TRUNCATE fnTruncate;
+	ImagePtr img;
+	MP_SUPPDATA suppData;
+
+	/// Number of bytes wide to display mismatched data in a failed test.
+	/// Defaults to IMG_DATA_WIDTH or can be overridden when redefining
+	/// IMG_CREATE_CODE.
+	int dataWidth;
 
 	FIXTURE_NAME() :
 		baseData(new std::stringstream),
 		baseStream(this->baseData)
 	{
-		std::stringstream *pss = new std::stringstream;
-		iostream_sptr ss(pss);
-		this->fnTruncate = boost::bind<void>(stringStreamTruncate, pss, _1);
+		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
+		this->fnTruncate = boost::bind<void>(
+			stringStreamTruncate, this->baseData.get(), _1);
+#ifdef IMG_DATA_WIDTH
+		this->dataWidth = IMG_DATA_WIDTH;
+#else
+		this->dataWidth = 8;
+#endif
+	}
+
+	void openImage(int width, int height)
+	{
+#ifdef IMG_OPEN_CODE
+	IMG_OPEN_CODE
+#else
+		ManagerPtr pManager(getManager());
+		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE));
+		BOOST_REQUIRE_MESSAGE(pTestType, "Invalid image code " IMG_TYPE);
+		this->img = pTestType->open(this->baseStream, this->fnTruncate, this->suppData);
+#endif
+		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
+	}
+
+	void createImage(int width, int height)
+	{
+#ifdef IMG_CREATE_CODE
+	IMG_CREATE_CODE
+#else
+		ManagerPtr pManager(getManager());
+		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE));
+		BOOST_REQUIRE_MESSAGE(pTestType, "Invalid image code " IMG_TYPE);
+		this->img = pTestType->create(this->baseStream, this->fnTruncate, this->suppData);
+#endif
+		BOOST_REQUIRE_MESSAGE(this->img, "Could not create image instance");
 	}
 
 };
 
 BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
 
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_8x8))
-{
-	BOOST_TEST_MESSAGE("Converting to stdformat 8x8");
-
-	baseData->str(makeString(TESTDATA_INITIAL_8x8));
-
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 8, 8);
-	StdImageDataPtr output = conv->toStandard();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_image_8x8,
-			output.get(),
-			8 * 8,
-			8
-		),
-		"Error converting 8x8 image to standard format"
-	);
+#define TO_STANDARD_TEST(w, h) \
+BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_ ## w ## x ## h)) \
+{ \
+	BOOST_TEST_MESSAGE("Converting " TOSTRING(IMG_CLASS) " to stdformat " __STRING(w) "x" __STRING(h)); \
+\
+	baseData->str(makeString(TESTDATA_INITIAL_ ## w ## x ## h)); \
+	this->openImage(w, h); \
+\
+	StdImageDataPtr output = this->img->toStandard(); \
+\
+	BOOST_CHECK_MESSAGE( \
+		default_sample::is_equal( \
+			stdformat_test_image_ ## w ## x ## h, \
+			output.get(), \
+			w * h, \
+			w \
+		), \
+		"Error converting " __STRING(w) "x" __STRING(h) " image to standard format" \
+	); \
 }
 
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_16x16))
-{
-	BOOST_TEST_MESSAGE("Converting to stdformat 16x16");
 
-	baseData->str(makeString(TESTDATA_INITIAL_16x16));
+TO_STANDARD_TEST(8, 8);
+TO_STANDARD_TEST(16, 16);
+TO_STANDARD_TEST(9, 9);
+TO_STANDARD_TEST(8, 4);
 
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 16, 16);
-	StdImageDataPtr output = conv->toStandard();
+// The image mask tests are only run for those image formats which actually
+// have masks.
+#ifdef IMG_HAS_MASK
 
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_image_16x16,
-			output.get(),
-			16 * 16,
-			16
-		),
-		"Error converting 16x16 image to standard format"
-	);
+#define TO_MASK_TEST(w, h) \
+BOOST_AUTO_TEST_CASE(TEST_NAME(to_mask_ ## w ## x ## h)) \
+{ \
+	BOOST_TEST_MESSAGE("Converting " TOSTRING(IMG_CLASS) " to stdmask " __STRING(w) "x" __STRING(h)); \
+\
+	baseData->str(makeString(TESTDATA_INITIAL_ ## w ## x ## h)); \
+	this->openImage(w, h); \
+\
+	StdImageDataPtr output = this->img->toStandardMask(); \
+\
+	BOOST_CHECK_MESSAGE( \
+		default_sample::is_equal( \
+			stdformat_test_mask_ ## w ## x ## h, \
+			output.get(), \
+			w * h, \
+			w \
+		), \
+		"Error converting " __STRING(w) "x" __STRING(h) " image to standard mask format" \
+	); \
 }
 
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_9x9))
-{
-	BOOST_TEST_MESSAGE("Converting to stdformat 9x9");
+TO_MASK_TEST(8, 8);
+TO_MASK_TEST(16, 16);
+TO_MASK_TEST(9, 9);
+TO_MASK_TEST(8, 4);
 
-	baseData->str(makeString(TESTDATA_INITIAL_9x9));
+#endif // IMG_HAS_MASK
 
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 9, 9);
-	StdImageDataPtr output = conv->toStandard();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_image_9x9,
-			output.get(),
-			9 * 9,
-			9
-		),
-		"Error converting 9x9 image to standard format"
-	);
+#define FROM_STANDARD_TEST(w, h) \
+BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
+{ \
+	BOOST_TEST_MESSAGE("Converting stdmask " __STRING(w) "x" __STRING(h) " to " TOSTRING(IMG_CLASS)); \
+\
+	StdImageDataPtr stddata(new uint8_t[w*h]); \
+	memcpy(stddata.get(), stdformat_test_image_ ## w ## x ## h, w*h); \
+\
+	StdImageDataPtr stdmask(new uint8_t[w*h]); \
+	memcpy(stdmask.get(), stdformat_test_mask_ ## w ## x ## h, w*h); \
+\
+	this->createImage(w, h); \
+\
+	if (this->img->getCaps() & Image::CanSetDimensions) { \
+		this->img->setDimensions(w, h); \
+	} \
+	this->img->fromStandard(stddata, stdmask); \
+\
+	int targetSize = sizeof(TESTDATA_INITIAL_ ## w ## x ## h) - 1; \
+	BOOST_CHECK_MESSAGE( \
+		default_sample::is_equal( \
+			(const uint8_t *)TESTDATA_INITIAL_ ## w ## x ## h, \
+			(const uint8_t *)(this->baseData->str().c_str()), \
+			targetSize, \
+			this->dataWidth \
+		), \
+		"Error converting " __STRING(w) "x" __STRING(h) " standard format to " TOSTRING(IMG_CLASS) \
+	); \
+\
+	/* Make sure the right amount of data was written out */ \
+	BOOST_REQUIRE_EQUAL(baseData->str().length(), targetSize); \
 }
 
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_mask_8x8))
-{
-	BOOST_TEST_MESSAGE("Converting to stdmask 8x8");
-
-	baseData->str(makeString(TESTDATA_INITIAL_8x8));
-
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 8, 8);
-	StdImageDataPtr output = conv->toStandardMask();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_mask_8x8,
-			output.get(),
-			8 * 8,
-			8
-		),
-		"Error converting 8x8 image to standard mask format"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_mask_16x16))
-{
-	BOOST_TEST_MESSAGE("Converting to stdmask 16x16");
-
-	baseData->str(makeString(TESTDATA_INITIAL_16x16));
-
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 16, 16);
-	StdImageDataPtr output = conv->toStandardMask();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_mask_16x16,
-			output.get(),
-			16 * 16,
-			16
-		),
-		"Error converting 16x16 image to standard mask format"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_mask_9x9))
-{
-	BOOST_TEST_MESSAGE("Converting to stdmask 9x9");
-
-	baseData->str(makeString(TESTDATA_INITIAL_9x9));
-
-	// Leaving fnTruncate as NULL here because it should not be required.
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, NULL, 9, 9);
-	StdImageDataPtr output = conv->toStandardMask();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			stdformat_test_mask_9x9,
-			output.get(),
-			9 * 9,
-			9
-		),
-		"Error converting 9x9 image to standard mask format"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_8x8))
-{
-	BOOST_TEST_MESSAGE("Converting to custom format 8x8");
-
-	StdImageDataPtr stddata(new uint8_t[8*8]);
-	memcpy(stddata.get(), stdformat_test_image_8x8, 8*8);
-
-	StdImageDataPtr stdmask(new uint8_t[8*8]);
-	memcpy(stdmask.get(), stdformat_test_mask_8x8, 8*8);
-
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, fnTruncate, 8, 8);
-	conv->fromStandard(stddata, stdmask);
-
-	// Make sure the right amount of data was written out
-	BOOST_REQUIRE_EQUAL(baseData->str().length(), 1*8*5); // TODO: abstract plane count
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			(const uint8_t *)TESTDATA_INITIAL_8x8,
-			(const uint8_t *)(baseData->str().c_str()),
-			1*8*5, // TODO: abstract plane count
-			1  *5
-		),
-		"Error converting 8x8 image to custom format"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_16x16))
-{
-	BOOST_TEST_MESSAGE("Converting to custom format 16x16");
-
-	StdImageDataPtr stddata(new uint8_t[16*16]);
-	memcpy(stddata.get(), stdformat_test_image_16x16, 16*16);
-
-	StdImageDataPtr stdmask(new uint8_t[16*16]);
-	memcpy(stdmask.get(), stdformat_test_mask_16x16, 16*16);
-
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, fnTruncate, 16, 16);
-	conv->fromStandard(stddata, stdmask);
-
-	// Make sure the right amount of data was written out
-	BOOST_REQUIRE_EQUAL(baseData->str().length(), 2*16*5); // TODO: abstract plane count
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			(const uint8_t *)TESTDATA_INITIAL_16x16,
-			(const uint8_t *)(baseData->str().c_str()),
-			2*16*5, // TODO: abstract plane count
-			2   *5
-		),
-		"Error converting 16x16 image to custom format"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_custom_9x9))
-{
-	BOOST_TEST_MESSAGE("Converting to custom format 9x9");
-
-	StdImageDataPtr stddata(new uint8_t[9*9]);
-	memcpy(stddata.get(), stdformat_test_image_9x9, 9*9);
-
-	StdImageDataPtr stdmask(new uint8_t[9*9]);
-	memcpy(stdmask.get(), stdformat_test_mask_9x9, 9*9);
-
-	ImagePtr conv = TEST_VAR(get_converter)(baseStream, fnTruncate, 9, 9);
-	conv->fromStandard(stddata, stdmask);
-
-	// Make sure the right amount of data was written out
-	BOOST_REQUIRE_EQUAL(baseData->str().length(), 2*9*5); // TODO: abstract plane count
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			(const uint8_t *)TESTDATA_INITIAL_9x9,
-			(const uint8_t *)(baseData->str().c_str()),
-			2*9*5, // TODO: abstract plane count
-			2  *5
-		),
-		"Error converting 9x9 image to custom format"
-	);
-}
+FROM_STANDARD_TEST(8, 8)
+FROM_STANDARD_TEST(16, 16)
+FROM_STANDARD_TEST(9, 9)
+FROM_STANDARD_TEST(8, 4)
 
 BOOST_AUTO_TEST_SUITE_END()
