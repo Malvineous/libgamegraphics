@@ -122,7 +122,7 @@ ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
 	;
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
-	if (suppData[SuppItem::Palette].stream) {
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new VGAPalette(
 			suppData[SuppItem::Palette].stream,
 			suppData[SuppItem::Palette].fnTruncate
@@ -138,7 +138,7 @@ ImagePtr Zone66TileImageType::open(iostream_sptr psImage,
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
-	if (suppData[SuppItem::Palette].stream) {
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new VGAPalette(
 			suppData[SuppItem::Palette].stream,
 			suppData[SuppItem::Palette].fnTruncate
@@ -166,6 +166,11 @@ Zone66TileImage::Zone66TileImage(iostream_sptr data,
 {
 	this->data->seekg(0, std::ios::beg);
 	this->data >> u16le(this->width) >> u16le(this->height);
+	if ((!this->data->good()) || this->data->eof()) {
+		this->width = 0;
+		this->height = 0;
+		this->data->clear(); // clear errors
+	}
 }
 
 
@@ -191,10 +196,18 @@ void Zone66TileImage::getDimensions(unsigned int *width, unsigned int *height)
 void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
 	throw (std::ios::failure)
 {
+	assert(this->data->good());
+	this->data->seekg(0, std::ios::end);
+	if (this->data->tellg() < 4) {
+		// Need to enlarge stream to write image size
+		this->fnTruncate(4);
+	}
+
 	this->data->seekp(0, std::ios::beg);
 	this->data << u16le(width) << u16le(height);
 	this->width = width;
 	this->height = height;
+	assert(this->data->good());
 	return;
 }
 
@@ -273,6 +286,7 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 	throw (std::ios::failure)
 {
 	assert((this->width != 0) && (this->height != 0));
+	assert(this->data->good());
 	this->data->seekp(0, std::ios::beg);
 
 	// Start off with enough space for the worst-case size
@@ -281,6 +295,12 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 
 	this->data->seekp(Z66_IMG_OFFSET, std::ios::beg);
 	uint8_t *imgData = (uint8_t *)newContent.get();
+
+	// Find the last non-black pixel in the image
+	uint8_t *imgEnd = imgData + this->width * this->height - 1;
+	while ((*imgEnd == 0) && (imgEnd > imgData)) imgEnd--;
+	imgEnd++; // still want current (non-black) pixel
+
 	for (int y = 0; y < height; y++) {
 		int dw = this->width;
 		while (dw > 0) {
@@ -296,9 +316,7 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 				if (dw == 0) {
 					// Got blanks until EOL
 					// TESTED BY: img_zone66_tile_from_standard_8x4
-					//this->data << u8(0xFE);
-					//finalSize++;
-					break; // go to next line (will write 0xFE)
+					break; // go to next line (will write 0xFE or 0xFF)
 				} else {
 					// Encountered at least one blank pixel
 					if (amt > 1) {
@@ -352,12 +370,19 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 			dw -= amt;
 			finalSize += amt + 1;
 		}
+
+		// TESTED BY: img_zone66_tile_from_standard_8x5
+		// TESTED BY: img_zone66_tile_from_standard_8x7
+		if (imgData >= imgEnd) break; // just write EOF
+
 		assert(dw == 0); // make sure we read everything
 		this->data << u8(0xFE); // end of line
 		finalSize++;
 	}
 	this->data << u8(0xFF); // end of file
 	finalSize++;
+
+	this->data->flush();
 
 	// Then shrink back to actual size
 	this->fnTruncate(finalSize);

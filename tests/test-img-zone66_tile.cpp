@@ -29,7 +29,7 @@
 	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A\xFE" \
+	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A" \
 	"\xFF"
 
 #define TESTDATA_INITIAL_16x16 \
@@ -49,7 +49,7 @@
 	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x10\x0C\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x0A\xFE" \
+	"\x10\x0C\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x0A" \
 	"\xFF"
 
 #define TESTDATA_INITIAL_9x9 \
@@ -62,7 +62,7 @@
 	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x09\x0C\x09\x09\x09\x09\x09\x09\x09\x0A\xFE" \
+	"\x09\x0C\x09\x09\x09\x09\x09\x09\x09\x0A" \
 	"\xFF"
 
 #define TESTDATA_INITIAL_8x4 \
@@ -70,7 +70,7 @@
 	"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE" \
 	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
 	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A\xFE" \
+	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A" \
 	"\xFF"
 
 // This format doesn't support masks
@@ -85,9 +85,9 @@
 // Exercise the various encoding types
 #define TESTDATA_INITIAL_8x3 \
 	"\x08\x00\x03\x00" \
-	"\x04\x00\x01\x01\x01" "\xFE" \
-	"\xFE" \
-	"\x04\x02\x00\x00\x03" "\xFD\x03" "\x01\x04" "\xFE" \
+	"\x04\x00\x01\x01\x01" "\xFE" /* initial black pixel */ \
+	"\xFE" /* empty line */ \
+	"\x04\x02\x00\x00\x03" "\xFD\x03" "\x01\x04" /* two and three black pixels */ \
 	"\xFF"
 
 const uint8_t stdformat_test_image_8x3[] = {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_SUITE_END()
 	"\x04\x00\x03\x00" \
 	"\x04\x00\x01\x00\x01" "\xFE" \
 	"\x04\x01\x00\x00\x01" "\xFE" \
-	"\x04\x00\x01\x00\x01" "\xFE" \
+	"\x04\x00\x01\x00\x01" \
 	"\xFF"
 
 const uint8_t stdformat_test_image_4x3[] = {
@@ -128,4 +128,60 @@ const uint8_t stdformat_test_mask_4x3[] = {
 BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
 TO_STANDARD_TEST(4, 3);
 FROM_STANDARD_TEST(4, 3)
+BOOST_AUTO_TEST_SUITE_END()
+
+// Make sure it works with a trailing blank image
+#define TESTDATA_INITIAL_4x5 \
+	"\x04\x00\x05\x00" \
+	"\x04\x01\x01\x01\x01" "\xFE" \
+	"\x04\x01\x01\x01\x01" \
+	"\xFF"
+
+const uint8_t stdformat_test_image_4x5[] = {
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00
+};
+const uint8_t stdformat_test_mask_4x5[] = {
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01
+};
+
+BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
+TO_STANDARD_TEST(4, 5);
+FROM_STANDARD_TEST(4, 5)
+BOOST_AUTO_TEST_SUITE_END()
+
+// Make sure it works with an entirely blank image
+#define TESTDATA_INITIAL_4x7 \
+	"\x04\x00\x07\x00" \
+	"\xFF"
+
+const uint8_t stdformat_test_image_4x7[] = {
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00
+};
+const uint8_t stdformat_test_mask_4x7[] = {
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01
+};
+
+BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
+TO_STANDARD_TEST(4, 7);
+FROM_STANDARD_TEST(4, 7)
 BOOST_AUTO_TEST_SUITE_END()
