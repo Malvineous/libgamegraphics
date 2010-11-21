@@ -36,16 +36,13 @@ namespace io = boost::iostreams;
 
 /// Tileset implementation for tilesets with an associated size/offset table.
 class FATTileset: virtual public Tileset {
-	protected:
-		segstream_sptr data;
-		FN_TRUNCATE fnTruncate;
-		uint8_t offFirstTile;
-
-		VC_ENTRYPTR items;
 
 	public:
-
-		/// Extension class to hold extra fields.
+		/// FAT-related fields to add to EntryPtr.
+		/**
+		 * This shouldn't really be public, but sometimes it is handy to access the
+		 * FAT fields (especially from within the unit tests.)
+		 */
 		struct FATEntry: virtual public Entry {
 			/// Index of item in the tileset.
 			/**
@@ -175,11 +172,31 @@ class FATTileset: virtual public Tileset {
 			iostream_sptr content, FN_TRUNCATE fnTruncate)
 			throw (std::ios::failure);
 
-		/// Adjust the offset of the given file in the on-disk FAT.
+		/// Adjust the offset of the given entry in the on-disk FAT.
+		/**
+		 * @param pid
+		 *   The entry to update.  pid->offset is already set to the new offset.
+		 *
+		 * @param offDelta
+		 *   Amount the offset has changed, in case this value is needed.
+		 *
+		 * @note pid->offset is already set to the new offset, do not add offDelta
+		 *   to this or you will get the wrong offset!
+		 */
 		virtual void updateFileOffset(const FATEntry *pid, std::streamsize offDelta)
 			throw (std::ios::failure);
 
-		/// Adjust the size of the given file in the on-disk FAT.
+		/// Adjust the size of the given entry in the on-disk FAT.
+		/**
+		 * @param pid
+		 *   The entry to update.  pid->size is already set to the new size.
+		 *
+		 * @param sizeDelta
+		 *   Amount the size has changed, in case this value is needed.
+		 *
+		 * @note pid->size is already set to the new size, do not add sizeDelta
+		 *   to this or you will get the wrong size!
+		 */
 		virtual void updateFileSize(const FATEntry *pid, std::streamsize sizeDelta)
 			throw (std::ios::failure);
 
@@ -285,7 +302,7 @@ class FATTileset: virtual public Tileset {
 
 };
 
-} // namespace gamearchive
+} // namespace gamegraphics
 } // namespace camoto
 
 #endif // _CAMOTO_TILESET_FAT_HPP_
