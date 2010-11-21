@@ -79,6 +79,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	pNewFile->isValid = true;
 	pNewFile->attr = attr;
 	pNewFile->size = 0;
+	pNewFile->lenHeader = 0;
 
 	// Figure out where the new file is going to go
 	const FATEntry *pFATBeforeThis = NULL;
@@ -117,7 +118,12 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	if (idBeforeThis && idBeforeThis->isValid) {
 		// Update the offsets of any files located after this one (since they will
 		// all have been shifted forward to make room for the insert.)
-		this->shiftFiles(pNewFile->offset + pNewFile->lenHeader, pNewFile->size, 1);
+		this->shiftFiles(
+			pNewFile,
+			pNewFile->offset + pNewFile->lenHeader,
+			pNewFile->size,
+			1
+		);
 
 		// Add the new file to the vector now all the existing offsets have been
 		// updated.
@@ -163,7 +169,12 @@ void FATTileset::remove(EntryPtr& id)
 
 	// Update the offsets of any files located after this one (since they will
 	// all have been shifted back to fill the gap made by the removal.)
-	this->shiftFiles(pFATDel->offset, -(pFATDel->size + pFATDel->lenHeader), -1);
+	this->shiftFiles(
+		pFATDel,
+		pFATDel->offset,
+		-(pFATDel->size + pFATDel->lenHeader),
+		-1
+	);
 
 	// Remove the file's data from the archive
 	this->data->seekp(pFATDel->offset);
@@ -180,7 +191,6 @@ void FATTileset::remove(EntryPtr& id)
 void FATTileset::resize(EntryPtr& id, size_t newSize)
 	throw (std::ios::failure)
 {
-	std::cout << "resize to " << newSize << std::endl;
 	FATEntry *pFAT = dynamic_cast<FATEntry *>(id.get());
 	assert(pFAT);
 	std::streamsize delta = newSize - pFAT->size;
@@ -208,17 +218,24 @@ void FATTileset::resize(EntryPtr& id, size_t newSize)
 
 	// Adjust the in-memory offsets etc. of the rest of the files in the archive,
 	// including any open streams.
-	this->shiftFiles(start, delta, 0);
+	this->shiftFiles(pFAT, start, delta, 0);
 
 	// Resize any open substreams
-	for (substream_vc::iterator i = this->vcSubStream.begin();
-		i != this->vcSubStream.end();
+	bool clean = false;
+	for (OPEN_ITEMS::iterator i = this->openItems.begin();
+		i != this->openItems.end();
 		i++
 	) {
-		if ((*i)->getOffset() >= pFAT->offset) {
-			(*i)->setSize(newSize);
+		if (i->first.get() == pFAT) {
+			if (substream_sptr sub = i->second.lock()) {
+				sub->setSize(newSize);
+				// no break, could be multiple opens for same entry
+			} else clean = true;
 		}
 	}
+
+	// If one substream has closed, clean up
+	if (clean) this->cleanOpenSubstreams();
 
 	return;
 }
@@ -233,13 +250,13 @@ void FATTileset::flush()
 	return;
 }
 
-void FATTileset::shiftFiles(io::stream_offset offStart,
+void FATTileset::shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
 	std::streamsize deltaOffset, int deltaIndex)
 	throw (std::ios::failure)
 {
 	for (VC_ENTRYPTR::iterator i = this->items.begin(); i != this->items.end(); i++) {
 		FATEntry *pFAT = dynamic_cast<FATEntry *>(i->get());
-		if (pFAT->offset >= offStart) {
+		if (this->entryInRange(pFAT, offStart, fatSkip)) {
 			// This file is located after the one we're deleting, so tweak its offset
 			pFAT->offset += deltaOffset;
 
@@ -254,14 +271,23 @@ void FATTileset::shiftFiles(io::stream_offset offStart,
 	}
 
 	// Relocate any open substreams
-	for (substream_vc::iterator i = this->vcSubStream.begin();
-		i != this->vcSubStream.end();
+	bool clean = false;
+	for (OPEN_ITEMS::iterator i = this->openItems.begin();
+		i != this->openItems.end();
 		i++
 	) {
-		if ((*i)->getOffset() >= offStart) {
-			(*i)->relocate(deltaOffset);
-		}
+		if (i->first->isValid) {
+			if (this->entryInRange(i->first.get(), offStart, fatSkip)) {
+				if (substream_sptr sub = i->second.lock()) {
+					sub->relocate(deltaOffset);
+				}
+			}
+		} else clean = true;
 	}
+
+	// If one substream has closed, clean up
+	if (clean) this->cleanOpenSubstreams();
+
 	return;
 }
 
@@ -342,9 +368,15 @@ FATTileset::FATEntry *FATTileset::createNewFATEntry()
 iostream_sptr FATTileset::openStream(const EntryPtr& id)
 	throw ()
 {
-	const FATTileset::FATEntry *pFAT =
-		dynamic_cast<const FATTileset::FATEntry *>(id.get());
+	assert(id->isValid);
+
+	// We are casting away const here, but that's because we need to maintain
+	// access to the EntryPtr, which we may need to "change" later (to update the
+	// offset if another file gets inserted before it, i.e. any change would not
+	// be visible externally.)
+	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
 	assert(pFAT);
+
 	substream_sptr psSub(
 		new substream(
 			this->data,
@@ -352,8 +384,72 @@ iostream_sptr FATTileset::openStream(const EntryPtr& id)
 			pFAT->size
 		)
 	);
-	this->vcSubStream.push_back(psSub);
+
+	// Add it to the list of open files, in case we need to shift the substream
+	// around later on as files are added/removed/resized.
+	this->openItems.insert(OPEN_ITEM(
+		pFAT,
+		psSub
+	));
 	return psSub;
+}
+
+void FATTileset::cleanOpenSubstreams()
+	throw ()
+{
+	bool clean;
+	do {
+		clean = true;
+		// Run through the list looking for the first expired item
+		for (OPEN_ITEMS::iterator i = this->openItems.begin();
+			i != this->openItems.end();
+			i++
+		) {
+			if (i->second.expired()) {
+				// Found one so remove it and restart the search (since removing an
+				// item invalidates the iterator.)
+				this->openItems.erase(i);
+				clean = false;
+				break;
+			};
+		}
+	} while (!clean);
+
+	return;
+}
+
+bool FATTileset::entryInRange(const FATEntry *fat, io::stream_offset offStart,
+	const FATEntry *fatSkip)
+	throw ()
+{
+	// Don't move any files earlier than the start of the shift block.
+	if (fat->offset < offStart) return false;
+
+	// If we have a valid item to skip (an invalid item is given during insert,
+	// before the skip item has been fully inserted.)
+	if ((fatSkip) && (fatSkip->isValid)) {
+
+		// Don't move the item we're skipping.
+		if (fat == fatSkip) return false;
+		// Can't use index for comparison here as this function is called during
+		// file insertion, and then we have two files with the exact same index and
+		// offset.
+		// if (fat->iIndex == fatSkip->iIndex) return false;
+
+		if (
+			// If it's a zero-length file...
+			(fat->size == 0)
+			// ...starting at the same location as the skip file...
+			&& (fat->offset == fatSkip->offset)
+			// ...but appearing before it in the index order...
+			&& (fat->index < fatSkip->index)
+		) {
+			// ...then don't move it.
+			return false;
+		}
+	}
+
+	return true;
 }
 
 } // namespace gamearchive

@@ -21,10 +21,13 @@
 #ifndef _CAMOTO_TILESET_FAT_HPP_
 #define _CAMOTO_TILESET_FAT_HPP_
 
+#include <map>
 #include <boost/iostreams/stream.hpp>
+#include <boost/weak_ptr.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 #include <camoto/substream.hpp>
 #include <camoto/segmented_stream.hpp>
+#include <camoto/substream.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -57,10 +60,48 @@ class FATTileset: virtual public Tileset {
 
 			FATEntry();
 			virtual ~FATEntry();
+
+			private:
+				FATEntry(const FATEntry&);
 		};
 
-		typedef std::vector<substream_sptr> substream_vc;
-		substream_vc vcSubStream; ///< List of substreams currently open
+		/// Shared pointer of FAT-specific file entry.
+		typedef boost::shared_ptr<FATEntry> FATEntryPtr;
+
+	protected:
+		segstream_sptr data;
+		FN_TRUNCATE fnTruncate;
+
+		/// Offset of the first tile in an empty archive.
+		uint8_t offFirstTile;
+
+		/// Vector of all items in the tileset.
+		/**
+		 * Although we have a specific FAT type for each entry we can't use a
+		 * vector of them here because getFileList() must return a vector of the
+		 * base type.  So instead each FAT entry type inherits from the base type
+		 * so that the specific FAT entry types can still be added to this vector.
+		 *
+		 * The entries in this vector can be in any order (not necessarily the
+		 * order on-disk.  Use the iIndex member for that.)
+		 */
+		VC_ENTRYPTR items;
+
+		/// Vector of substream references.
+		/**
+		 * These are weak pointers so that we don't hold a file open simply because
+		 * we're keeping track of it.  We need to keep track of it so that open
+		 * files can be moved around as other files are inserted, resized, etc.
+		 */
+		typedef std::multimap< FATEntryPtr, boost::weak_ptr<substream> > OPEN_ITEMS;
+
+		/// Helper type when inserting elements into openFiles.
+		typedef std::pair< FATEntryPtr, boost::weak_ptr<substream> > OPEN_ITEM;
+
+		/// List of substreams currently open.
+		OPEN_ITEMS openItems;
+
+	public:
 
 		FATTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
 			io::stream_offset offFirstTile)
@@ -98,8 +139,8 @@ class FATTileset: virtual public Tileset {
 		 * following it.  This function must notify any open files that their offset
 		 * has moved.
 		 */
-		virtual void shiftFiles(io::stream_offset offStart, std::streamsize deltaOffset,
-			int deltaIndex)
+		virtual void shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
+			std::streamsize deltaOffset, int deltaIndex)
 			throw (std::ios::failure);
 
 		// Methods to be filled out by descendent classes
@@ -231,6 +272,15 @@ class FATTileset: virtual public Tileset {
 
 		/// Create a substream containing the item's data.
 		iostream_sptr openStream(const EntryPtr& id)
+			throw ();
+
+		/// Remove any substreams from the cached list if they have closed.
+		void cleanOpenSubstreams()
+			throw ();
+
+		/// Should the given entry be moved during an insert/resize operation?
+		bool entryInRange(const FATEntry *fat, io::stream_offset offStart,
+			const FATEntry *fatSkip)
 			throw ();
 
 };
