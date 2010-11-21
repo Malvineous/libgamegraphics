@@ -96,6 +96,10 @@ class Tileset: virtual public Metadata {
 
 			Entry();
 			virtual ~Entry();
+
+			private:
+				/// Can't copy Entry instances, must use references/pointers.
+				Entry(const Entry&);
 		};
 
 		/// Shared pointer to a FileEntry
