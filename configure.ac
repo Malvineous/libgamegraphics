@@ -63,4 +63,4 @@ then
 	AC_DEFINE([DEBUG], [1], [Define to include extra debugging output])
 fi
 
-AC_OUTPUT(Makefile src/Makefile include/Makefile include/camoto/Makefile examples/Makefile tests/Makefile doc/Makefile $PACKAGE.pc)
+AC_OUTPUT(Makefile src/Makefile include/Makefile include/camoto/Makefile examples/Makefile tests/Makefile doc/Makefile utils/Makefile $PACKAGE.pc)

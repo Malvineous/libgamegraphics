@@ -35,6 +35,8 @@ doc/doxygen/full/
 examples/gamegfx
 examples/gameimg
 tests/tests
+utils/dumpb800
+utils/dumppal
 
 # External code
 examples/png++/
