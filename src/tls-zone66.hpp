@@ -99,6 +99,17 @@ class Zone66Tileset: virtual public FATTileset {
 			FATEntry *pNewEntry)
 			throw (std::ios::failure);
 
+		virtual void postInsertFile(FATEntry *pNewEntry)
+			throw (std::ios::failure);
+
+		virtual void postRemoveFile(const FATEntry *pid)
+			throw (std::ios::failure);
+
+	private:
+		/// Update the number of tiles in the tileset
+		void updateFileCount(uint32_t newCount)
+			throw (std::ios_base::failure);
+
 };
 
 } // namespace gamearchive
