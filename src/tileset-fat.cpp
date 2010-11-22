@@ -198,19 +198,18 @@ void FATTileset::resize(EntryPtr& id, size_t newSize)
 	// Add or remove the data in the underlying stream
 	io::stream_offset start;
 	if (delta > 0) { // inserting data
-		// TESTED BY: TODO //fmt_grp_duke3d_resize_larger
+		// TESTED BY: tls_zone66_insert*
 		start = pFAT->offset + pFAT->lenHeader + pFAT->size;
 		this->data->seekp(start);
 		this->data->insert(delta);
 	} else if (delta < 0) { // removing data
-		// TESTED BY: TODO //fmt_grp_duke3d_resize_smaller
+		// TESTED BY: TODO
 		start = pFAT->offset + pFAT->lenHeader + newSize;
 		this->data->seekp(start);
 		this->data->remove(-delta);
 	} else {
 		return; // no change
 	}
-
 	pFAT->size = newSize;
 
 	// Update the FAT with the file's new size

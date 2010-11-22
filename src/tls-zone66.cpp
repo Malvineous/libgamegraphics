@@ -129,6 +129,7 @@ TilesetPtr Zone66TilesetType::create(iostream_sptr psTileset,
 	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
+	fnTruncate(4);
 	psTileset->seekp(0, std::ios::beg);
 	psTileset << u32le(0);
 
@@ -293,7 +294,6 @@ Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 	// Because the new entry isn't in the vector yet we need to shift it manually
 	pNewEntry->offset += Z66_FAT_ENTRY_LEN;
 
-	this->updateFileCount(this->items.size() + 1);
 	return pNewEntry;
 }
 
@@ -303,6 +303,7 @@ void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
 	this->shiftFiles(NULL, 0, 0, 0);
+	this->updateFileCount(this->items.size());
 	return;
 }
 
@@ -325,7 +326,7 @@ void Zone66Tileset::postRemoveFile(const FATEntry *pid)
 	this->data->seekp(Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN);
 	this->data->remove(Z66_FAT_ENTRY_LEN);
 
-	this->updateFileCount(this->items.size() - 1);
+	this->updateFileCount(this->items.size());
 	return;
 }
 
