@@ -48,7 +48,7 @@ FATTileset::~FATTileset()
 {
 }
 
-const FATTileset::VC_ENTRYPTR& FATTileset::getItems(void)
+const FATTileset::VC_ENTRYPTR& FATTileset::getItems(void) const
 	throw ()
 {
 	return this->items;
@@ -418,7 +418,7 @@ void FATTileset::cleanOpenSubstreams()
 }
 
 bool FATTileset::entryInRange(const FATEntry *fat, io::stream_offset offStart,
-	const FATEntry *fatSkip)
+	const FATEntry *fatSkip) const
 	throw ()
 {
 	// Don't move any files earlier than the start of the shift block.

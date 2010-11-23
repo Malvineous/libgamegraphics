@@ -66,7 +66,7 @@ class FATTileset: virtual public Tileset {
 		typedef boost::shared_ptr<FATEntry> FATEntryPtr;
 
 	protected:
-		segstream_sptr data;
+		mutable segstream_sptr data;
 		FN_TRUNCATE fnTruncate;
 
 		/// Offset of the first tile in an empty archive.
@@ -107,7 +107,7 @@ class FATTileset: virtual public Tileset {
 		virtual ~FATTileset()
 			throw ();
 
-		virtual const VC_ENTRYPTR& getItems(void)
+		virtual const VC_ENTRYPTR& getItems(void) const
 			throw ();
 
 		virtual TilesetPtr openTileset(const EntryPtr& id)
@@ -297,7 +297,7 @@ class FATTileset: virtual public Tileset {
 
 		/// Should the given entry be moved during an insert/resize operation?
 		bool entryInRange(const FATEntry *fat, io::stream_offset offStart,
-			const FATEntry *fatSkip)
+			const FATEntry *fatSkip) const
 			throw ();
 
 };

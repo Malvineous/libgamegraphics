@@ -125,7 +125,7 @@ class Tileset: virtual public Metadata {
 		/**
 		 * @return A vector of %Entry with one element for each item in the tileset.
 		 */
-		virtual const VC_ENTRYPTR& getItems(void)
+		virtual const VC_ENTRYPTR& getItems(void) const
 			throw () = 0;
 
 		/// Open the sub-tileset at the given offset.
