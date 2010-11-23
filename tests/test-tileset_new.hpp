@@ -51,7 +51,12 @@ struct EMPTY_FIXTURE_NAME: public FIXTURE_NAME {
 		//);
 		BOOST_REQUIRE_MESSAGE(this->pTileset, "Could not create new tileset");
 
-		BOOST_TEST_CHECKPOINT("New tileset created successfully");
+		BOOST_TEST_CHECKPOINT("New tileset resized successfully");
+
+		if (this->pTileset->getCaps() & gg::Tileset::ChangeDimensions) {
+			this->pTileset->setTilesetDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
+			BOOST_TEST_CHECKPOINT("New tileset created successfully");
+		}
 	}
 };
 
@@ -149,6 +154,11 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	BOOST_REQUIRE_MESSAGE(ep3->isValid,
 		"Couldn't insert new tile in empty tileset");
 	gg::ImagePtr img3(pTileset->openImage(ep3));
+	// Get offsets of each tile for later testing
+	gg::FATTileset::FATEntryPtr fat3 =
+		boost::dynamic_pointer_cast<gg::FATTileset::FATEntry>(ep3);
+	int off3;
+	if (fat3) off3 = fat3->offset;
 
 	gg::Tileset::EntryPtr ep1 =
 		pTileset->insert(ep3, gg::Tileset::None);
@@ -162,15 +172,11 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 		"Couldn't insert new tile in empty tileset");
 	gg::ImagePtr img2(pTileset->openImage(ep2));
 
-	// Get offsets of each tile for later testing
+	// Get offsets of first tile for later testing
 	gg::FATTileset::FATEntryPtr fat1 =
 		boost::dynamic_pointer_cast<gg::FATTileset::FATEntry>(ep1);
-	gg::FATTileset::FATEntryPtr fat3 =
-		boost::dynamic_pointer_cast<gg::FATTileset::FATEntry>(ep3);
-
-	int off1, off3;
+	int off1;
 	if (fat1) off1 = fat1->offset;
-	if (fat3) off3 = fat3->offset;
 
 	// This will resize the second tile.  Since all three tiles are zero-length,
 	// they currently all share the same offset.  This should result in tile1
@@ -178,21 +184,16 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	// increased.
 	setTileData(ep2, 2, 1);
 
-	// Make sure the first tile hasn't moved
+	// Make sure the first tile hasn't moved.  We can't test the other tiles as
+	// sometimes they will move, sometimes they won't (e.g. in the case of
+	// tilesets with fixed image sizes, where the insert puts data at the final
+	// offset.)
 	if (fat1) BOOST_REQUIRE_EQUAL(fat1->offset, off1);
-
-	// Make sure the third tile has moved.  In theory this could fail if an
-	// tileset format comes along that can do this correctly without moving the
-	// tile, but if that ever happens this test can be adjusted then.
-	if (fat3) BOOST_REQUIRE_GT(fat3->offset, off3);
 
 	setTileData(ep1, 1, 1);
 
-	// Make sure the first tile hasn't moved
+	// Make sure the first tile still hasn't moved
 	if (fat1) BOOST_REQUIRE_EQUAL(fat1->offset, off1);
-
-	// Make sure the third tile has moved again.  Same caveat as above.
-	if (fat3) BOOST_REQUIRE_GT(fat3->offset, off3);
 
 	setTileData(ep3, 3, 1);
 

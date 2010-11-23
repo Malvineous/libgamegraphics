@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves.hpp
- * @brief  Crystal Caves tileset handler.
+ * @file   tls-ccaves-sub.hpp
+ * @brief  Crystal Caves sub tileset handler (containing images)
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_CCAVES_HPP_
-#define _CAMOTO_TLS_CCAVES_HPP_
+#ifndef _CAMOTO_TLS_CCAVES_SUB_HPP_
+#define _CAMOTO_TLS_CCAVES_SUB_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include "tileset-fat.hpp"
@@ -27,14 +27,14 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CCavesTilesetType: virtual public TilesetType {
+class CCavesSubTilesetType: virtual public TilesetType {
 
 	public:
 
-		CCavesTilesetType()
+		CCavesSubTilesetType()
 			throw ();
 
-		virtual ~CCavesTilesetType()
+		virtual ~CCavesSubTilesetType()
 			throw ();
 
 		virtual std::string getCode() const
@@ -65,38 +65,15 @@ class CCavesTilesetType: virtual public TilesetType {
 
 };
 
-class CCavesTileset: virtual public FATTileset {
-	protected:
-		unsigned int numPlanes;
-
-	public:
-		CCavesTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
-			unsigned int numPlanes)
-			throw (std::ios::failure);
-
-		virtual ~CCavesTileset()
-			throw ();
-
-		virtual int getCaps()
-			throw ();
-
-		// FATTileset
-
-		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
-
-};
-
-class CCavesTiles: virtual public FATTileset {
+class CCavesSubTileset: virtual public FATTileset {
 	protected:
 		uint8_t width, height, numPlanes;
 
 	public:
-		CCavesTiles(iostream_sptr data, FN_TRUNCATE fnTruncate, uint8_t numPlanes)
+		CCavesSubTileset(iostream_sptr data, FN_TRUNCATE fnTruncate, uint8_t numPlanes)
 			throw (std::ios::failure);
 
-		virtual ~CCavesTiles()
+		virtual ~CCavesSubTileset()
 			throw ();
 
 		virtual int getCaps()
@@ -129,7 +106,7 @@ class CCavesTiles: virtual public FATTileset {
 
 };
 
-} // namespace gamearchive
+} // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_CCAVES_HPP_
+#endif // _CAMOTO_TLS_CCAVES_SUB_HPP_

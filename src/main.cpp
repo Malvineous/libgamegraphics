@@ -23,7 +23,8 @@
 #include <camoto/gamegraphics.hpp>
 
 // Include all the file formats for the Manager to load
-#include "tls-ccaves.hpp"
+#include "tls-ccaves-sub.hpp"
+#include "tls-ccaves-main.hpp"
 #include "tls-zone66.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
@@ -41,7 +42,8 @@ ManagerPtr getManager()
 Manager::Manager()
 	throw ()
 {
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));

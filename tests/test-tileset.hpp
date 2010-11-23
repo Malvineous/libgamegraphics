@@ -28,6 +28,11 @@
 
 #include "tests.hpp"
 
+// Define if there's no way to guarantee a given data set is in this format.
+// It makes the c00 isinstance check match against PossiblyYes as opposed
+// to DefinitelyYes.
+//#define TILESET_DETECTION_UNCERTAIN
+
 namespace gg = camoto::gamegraphics;
 
 // Defines to allow code reuse
@@ -135,10 +140,13 @@ struct FIXTURE_NAME: public default_sample {
 
 // Make an image of the standard size with each pixel set to n, and the very
 // last pixel set to 0x0e.
-#define MAKE_IMAGE(var, n) \
+#define MAKE_MASK(var, n) \
 	gg::StdImageDataPtr var(new uint8_t[DATA_TILE_WIDTH * DATA_TILE_HEIGHT]); \
 	memset(var.get(), n, \
-		DATA_TILE_WIDTH * DATA_TILE_HEIGHT); \
+		DATA_TILE_WIDTH * DATA_TILE_HEIGHT);
+
+#define MAKE_IMAGE(var, n) \
+	MAKE_MASK(var, n) \
 	/* Last pixel is different */ \
 	var[DATA_TILE_WIDTH * DATA_TILE_HEIGHT - 1] = 0x0e;
 
@@ -146,10 +154,12 @@ struct FIXTURE_NAME: public default_sample {
 	{
 		// Open new tile and populate with image data
 		gg::ImagePtr img(pTileset->openImage(ep));
-		img->setDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
+		if (img->getCaps() & gg::Image::CanSetDimensions) {
+			img->setDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
+		}
 
 		MAKE_IMAGE(newImg, imgVal);
-		MAKE_IMAGE(newMask, maskVal);
+		MAKE_MASK(newMask, maskVal);
 		img->fromStandard(newImg, newMask);
 
 		return;
@@ -175,10 +185,14 @@ BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
 		(*psstrBase) << makeString(d); \
 		camoto::iostream_sptr psBase(psstrBase); \
 		\
-		BOOST_CHECK_EQUAL(pTestType->isInstance(psBase), r); \
+		BOOST_CHECK_EQUAL(pTestType->isInstance(psBase), gg::TilesetType::r); \
 	}
 
-ISINSTANCE_TEST(c00, test_tileset_initialstate, gg::TilesetType::DefinitelyYes);
+#ifdef TILESET_DETECTION_UNCERTAIN
+ISINSTANCE_TEST(c00, test_tileset_initialstate, PossiblyYes);
+#else
+ISINSTANCE_TEST(c00, test_tileset_initialstate, DefinitelyYes);
+#endif
 
 
 // Define an INVALIDDATA_TEST macro which we use to confirm the reader correctly

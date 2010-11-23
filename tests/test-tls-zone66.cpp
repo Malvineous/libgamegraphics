@@ -145,7 +145,7 @@ ISINSTANCE_TEST(c01,
 	"\x05\x00\x00\x00"
 	DATA_TILE_ONE
 	DATA_TILE_TWO,
-	gg::TilesetType::DefinitelyNo
+	DefinitelyNo
 );
 
 // Test offset decreasing (resulting in a negative filesize)
@@ -157,7 +157,7 @@ ISINSTANCE_TEST(c02,
 	DATA_TILE_ONE
 	DATA_TILE_TWO
 	DATA_TILE_TWO,
-	gg::TilesetType::DefinitelyNo
+	DefinitelyNo
 );
 
 // Make sure all tiles are contained within the file
@@ -167,11 +167,11 @@ ISINSTANCE_TEST(c03,
 	"\x05\x01\x00\x00"
 	DATA_TILE_ONE
 	DATA_TILE_TWO,
-	gg::TilesetType::DefinitelyNo
+	DefinitelyNo
 );
 
 // Too short
 ISINSTANCE_TEST(c04,
 	"\x00\x00\x00",
-	gg::TilesetType::DefinitelyNo
+	DefinitelyNo
 );

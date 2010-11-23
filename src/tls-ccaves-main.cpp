@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves.cpp
- * @brief  Crystal Caves tileset handler.
+ * @file   tls-ccaves-main.cpp
+ * @brief  Crystal Caves top-level tileset handler (containing sub tilesets)
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
@@ -32,8 +32,8 @@
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
 #include <camoto/substream.hpp>
-#include "img-ega-byteplanar.hpp"
-#include "tls-ccaves.hpp"
+#include "tls-ccaves-main.hpp"
+#include "tls-ccaves-sub.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -54,33 +54,33 @@ namespace io = boost::iostreams;
 #define CC_FIRST_TILE_OFFSET    3
 
 //
-// CCavesTilesetType
+// CCavesMainTilesetType
 //
 
-CCavesTilesetType::CCavesTilesetType()
+CCavesMainTilesetType::CCavesMainTilesetType()
 	throw ()
 {
 }
 
-CCavesTilesetType::~CCavesTilesetType()
+CCavesMainTilesetType::~CCavesMainTilesetType()
 	throw ()
 {
 }
 
-std::string CCavesTilesetType::getCode() const
+std::string CCavesMainTilesetType::getCode() const
 	throw ()
 {
-	return "tls-ccaves";
+	return "tls-ccaves-main";
 }
 
-std::string CCavesTilesetType::getFriendlyName() const
+std::string CCavesMainTilesetType::getFriendlyName() const
 	throw ()
 {
-	return "Crystal Caves Tileset";
+	return "Crystal Caves Concatenated Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> CCavesTilesetType::getFileExtensions() const
+std::vector<std::string> CCavesMainTilesetType::getFileExtensions() const
 	throw ()
 {
 	std::vector<std::string> vcExtensions;
@@ -88,7 +88,7 @@ std::vector<std::string> CCavesTilesetType::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> CCavesTilesetType::getGameList() const
+std::vector<std::string> CCavesMainTilesetType::getGameList() const
 	throw ()
 {
 	std::vector<std::string> vcGames;
@@ -97,7 +97,7 @@ std::vector<std::string> CCavesTilesetType::getGameList() const
 	return vcGames;
 }
 
-CCavesTilesetType::Certainty CCavesTilesetType::isInstance(iostream_sptr psGraphics) const
+CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(iostream_sptr psGraphics) const
 	throw (std::ios::failure)
 {
 	psGraphics->seekg(0, std::ios::end);
@@ -137,7 +137,7 @@ CCavesTilesetType::Certainty CCavesTilesetType::isInstance(iostream_sptr psGraph
 	return PossiblyYes;
 }
 
-TilesetPtr CCavesTilesetType::create(iostream_sptr psGraphics,
+TilesetPtr CCavesMainTilesetType::create(iostream_sptr psGraphics,
 	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
@@ -145,18 +145,18 @@ TilesetPtr CCavesTilesetType::create(iostream_sptr psGraphics,
 	psGraphics->seekp(0, std::ios::beg);
 	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
 	psGraphics->write("\x00\x01\x08", 3);
-	return TilesetPtr(new CCavesTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr CCavesTilesetType::open(iostream_sptr psGraphics,
+TilesetPtr CCavesMainTilesetType::open(iostream_sptr psGraphics,
 	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
-	return TilesetPtr(new CCavesTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
 }
 
-MP_SUPPLIST CCavesTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+MP_SUPPLIST CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
 	throw ()
 {
 	// No supplemental types/empty list
@@ -165,10 +165,10 @@ MP_SUPPLIST CCavesTilesetType::getRequiredSupps(const std::string& filenameGraph
 
 
 //
-// CCavesTileset
+// CCavesMainTileset
 //
 
-CCavesTileset::CCavesTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+CCavesMainTileset::CCavesMainTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	unsigned int numPlanes)
 	throw (std::ios::failure) :
 		FATTileset(data, fnTruncate, CC_FIRST_TILESET_OFFSET),
@@ -213,175 +213,26 @@ CCavesTileset::CCavesTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	}
 }
 
-CCavesTileset::~CCavesTileset()
+CCavesMainTileset::~CCavesMainTileset()
 	throw ()
 {
 }
 
-int CCavesTileset::getCaps()
+int CCavesMainTileset::getCaps()
 	throw ()
 {
 	return 0;
 }
 
-TilesetPtr CCavesTileset::createTilesetInstance(const EntryPtr& id,
+TilesetPtr CCavesMainTileset::createTilesetInstance(const EntryPtr& id,
 	iostream_sptr content, FN_TRUNCATE fnTruncate)
 	throw (std::ios::failure)
 {
 	assert(content->good());
 
 	return TilesetPtr(
-		new CCavesTiles(content, fnTruncate, this->numPlanes)
+		new CCavesSubTileset(content, fnTruncate, this->numPlanes)
 	);
-}
-
-
-
-//
-// CCavesTiles
-//
-
-CCavesTiles::CCavesTiles(iostream_sptr data, FN_TRUNCATE fnTruncate,
-	uint8_t numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CC_FIRST_TILE_OFFSET),
-		numPlanes(numPlanes)
-{
-	assert(this->data->good());
-
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
-
-	// We still have to perform sanity checks in case the user forced an
-	// open even though it failed the signature check.
-	if (len < 3) throw std::ios::failure("file too short");
-
-	this->data->seekg(0, std::ios::beg);
-	uint8_t numImages;
-	this->data
-		>> u8(numImages)
-		>> u8(this->width)
-		>> u8(this->height)
-	;
-
-	if (!this->data->good()) throw std::ios::failure("unable to read header");
-
-	int tileSize = this->width * this->height * this->numPlanes;
-	this->items.reserve(numImages);
-	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->isValid = true;
-		fat->attr = None;
-		fat->index = i;
-		fat->offset = 3 + i * tileSize;
-		fat->size = tileSize;
-		fat->lenHeader = 0;
-		this->items.push_back(ep);
-	}
-
-}
-
-CCavesTiles::~CCavesTiles()
-	throw ()
-{
-}
-
-int CCavesTiles::getCaps()
-	throw ()
-{
-	return ChangeDimensions;
-}
-
-void CCavesTiles::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
-{
-	if (newSize != this->width * this->height * this->numPlanes) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
-	}
-	return;
-}
-
-void CCavesTiles::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
-{
-	*width = this->width * 8;
-	*height = this->height;
-	return;
-}
-
-void CCavesTiles::setTilesetDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
-{
-	// TODO: confirm this, it could just leave the unused bits blank
-	if (width % 8) throw std::ios::failure("width must be a multiple of 8");
-	this->width = width / 8;
-	this->height = height;
-
-	// Update the header
-	this->data->seekp(1);
-	this->data
-		<< u8(this->width)
-		<< u8(this->height)
-	;
-
-	// Resize our containing stream to fit the new dimensions
-	this->fnTruncate(3 + this->items.size() * this->numPlanes *
-		this->width * this->height);
-
-	return;
-}
-
-unsigned int CCavesTiles::getLayoutWidth()
-	throw ()
-{
-	return 10;
-}
-
-ImagePtr CCavesTiles::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
-{
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 2;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 4;
-	planes[PLANE_INTENSITY] = 5;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1;
-
-	ImagePtr conv(new EGABytePlanarImage(
-		content, fnTruncate, this->width * 8, this->height, planes
-	));
-
-	return conv;
-}
-
-CCavesTiles::FATEntry *CCavesTiles::preInsertFile(
-	const CCavesTiles::FATEntry *idBeforeThis, CCavesTiles::FATEntry *pNewEntry)
-	throw (std::ios::failure)
-{
-	if (this->items.size() >= 255) {
-		throw std::ios::failure("maximum number of tiles reached");
-	}
-
-	// All tiles are a fixed size in this format.
-	pNewEntry->size = this->width * this->height * this->numPlanes;
-
-	// Update the header
-	this->data->seekp(0);
-	this->data << u8(this->items.size() + 1);
-
-	return pNewEntry;
-}
-
-void CCavesTiles::postRemoveFile(const FATEntry *pid)
-	throw (std::ios::failure)
-{
-	// Update the header
-	this->data->seekp(0);
-	this->data << u8(this->items.size());
-	return;
 }
 
 
