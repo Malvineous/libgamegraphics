@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-byteplanar.cpp
- * @brief  Image implementation adding support for the EGA byte-planar format.
+ * @file   img-ega-rowplanar.cpp
+ * @brief  Image implementation adding support for the EGA row-planar format.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -21,12 +21,12 @@
 #include <cstring>  // memset
 #include <cassert>
 #include <camoto/iostream_helpers.hpp>
-#include "img-ega-byteplanar.hpp"
+#include "img-ega-rowplanar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarImage::EGABytePlanarImage(iostream_sptr data,
+EGARowPlanarImage::EGARowPlanarImage(iostream_sptr data,
 	FN_TRUNCATE fnTruncate, int width, int height, const PLANE_LAYOUT& planes)
 	throw () :
 		data(data),
@@ -37,18 +37,18 @@ EGABytePlanarImage::EGABytePlanarImage(iostream_sptr data,
 	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
 }
 
-EGABytePlanarImage::~EGABytePlanarImage()
+EGARowPlanarImage::~EGARowPlanarImage()
 	throw ()
 {
 }
 
-int EGABytePlanarImage::getCaps()
+int EGARowPlanarImage::getCaps()
 	throw ()
 {
 	return ColourDepthEGA;
 }
 
-void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void EGARowPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 	throw ()
 {
 	*width = this->width;
@@ -56,7 +56,7 @@ void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height
 	return;
 }
 
-void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
+void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	throw (std::ios::failure)
 {
 	this->width = width;
@@ -73,19 +73,19 @@ void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandard()
+StdImageDataPtr EGARowPlanarImage::toStandard()
 	throw ()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandardMask()
+StdImageDataPtr EGARowPlanarImage::toStandardMask()
 	throw ()
 {
 	return this->doConversion(true);
 }
 
-void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
+void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 	throw ()
@@ -145,11 +145,11 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	uint8_t *rowData;
 	for (int y = 0; y < this->height; y++) {
 
-		// Run through each lot of eight pixels (a "cell")
-		for (int x = 0; x < (this->width + 7) / 8; x++) {
+		// For each pixel, set the appropriate bits in the cell
+		for (int p = 0; p < numPlanes; p++) {
 
-			// For each pixel, set the appropriate bits in the cell
-			for (int p = 0; p < numPlanes; p++) {
+			// Run through each lot of eight pixels (a "cell")
+			for (int x = 0; x < (this->width + 7) / 8; x++) {
 
 				// Only perform the calculations if the plane is in use
 				uint8_t c = 0;
@@ -180,7 +180,7 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
+StdImageDataPtr EGARowPlanarImage::doConversion(bool mask)
 	throw ()
 {
 	// Sort out all the values we need to output for each plane
@@ -246,10 +246,10 @@ StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
 	//for (int xy = 0; xy < (this->width + 7) / 8 * this->height; xy++) {
 	for (int y = 0; y < this->height; y++) {
 
-		// Run through each lot of eight pixels (a "cell")
-		for (int x = 0; x < (this->width + 7) / 8; x++) {
+		for (int p = 0; p < numPlanes; p++) {
 
-			for (int p = 0; p < numPlanes; p++) {
+			// Run through each lot of eight pixels (a "cell")
+			for (int x = 0; x < (this->width + 7) / 8; x++) {
 				uint8_t nextByte;
 				this->data >> u8(nextByte);
 

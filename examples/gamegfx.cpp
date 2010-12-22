@@ -592,7 +592,7 @@ int main(int iArgC, char *cArgV[])
 	std::string strFilename;
 	std::string strType;
 
-	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
+	gg::ManagerPtr pManager(gg::getManager());
 
 	bool bScript = false; // show output suitable for script parsing?
 	bool bForceOpen = false; // open anyway even if archive not in given format?

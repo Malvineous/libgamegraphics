@@ -26,6 +26,7 @@
 #include "tls-ccaves-sub.hpp"
 #include "tls-ccaves-main.hpp"
 #include "tls-zone66.hpp"
+#include "tls-ddave.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
 #include "pal-vga-raw.hpp"
@@ -45,6 +46,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveTilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
