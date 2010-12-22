@@ -6,7 +6,6 @@ includedir=@includedir@
 Name: libgamegraphics
 Description: Access and modify images, sprites and animations from many different games
 URL: http://www.shikadi.net/camoto/
-Requires: boost >= 1.37
 Version: @VERSION@
-Libs: -L${libdir}
+Libs: -L${libdir} -lgamegraphics
 Cflags: -I${includedir}/@camoto_release@
