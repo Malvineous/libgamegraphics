@@ -259,7 +259,7 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_RED] = 4;
 	planes[PLANE_INTENSITY] = 5;
 	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1;
+	planes[PLANE_OPACITY] = -1;
 
 	ImagePtr conv(new EGABytePlanarImage(
 		content, fnTruncate, this->width * 8, this->height, planes

@@ -146,7 +146,7 @@ class Image {
 		 *
 		 * The data layout is identical to the image data, only instead of the
 		 * values being colours, the least-significant bit of each byte (0x01)
-		 * is used to denote opacity (0 == transparent, 1 == opaque) and the
+		 * is used to denote opacity (0 == opaque, 1 == transparent) and the
 		 * next bit (0x02) is used to denote hitmapping (0 == background, 1 ==
 		 * object)
 		 *

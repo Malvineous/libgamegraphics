@@ -271,11 +271,11 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 			for (int x = 0; x < width; x++) {
 				// Only write opaque pixels
 				if (mask[y*width+x] & 0x01) {
+					png[offY+y][offX+x] = png::index_pixel(0);
+				} else {
 					png[offY+y][offX+x] =
 						// +1 to the colour to skip over transparent (#0)
 						png::index_pixel(data[y*width+x] + 1);
-				} else {
-					png[offY+y][offX+x] = png::index_pixel(0);
 				}
 			}
 		}
@@ -350,9 +350,9 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 			for (int x = 0; x < width; x++) {
 				uint8_t pixel = png[offY + y][offX + x];
 				if (pixel == 0) { // Palette #0 must be transparent
-					maskData[y * width + x] = 0x00; // transparent
+					maskData[y * width + x] = 0x01; // transparent
 				} else {
-					maskData[y * width + x] = 0x01; // opaque
+					maskData[y * width + x] = 0x00; // opaque
 					imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
 				}
 			}

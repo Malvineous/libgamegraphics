@@ -92,9 +92,9 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
 		for (int x = 0; x < width; x++) {
 			if (useMask) {
 				if (mask[y*width+x] & 0x01) {
-					png[y][x] = png::index_pixel(data[y*width+x] + 1);
-				} else {
 					png[y][x] = png::index_pixel(0);
+				} else {
+					png[y][x] = png::index_pixel(data[y*width+x] + 1);
 				}
 			} else {
 				png[y][x] = png::index_pixel(data[y*width+x]);
@@ -143,9 +143,9 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 		for (int x = 0; x < width; x++) {
 			uint8_t pixel = png[y][x];
 			if (pixel == 0) { // Palette #0 must be transparent
-				maskData[y * width + x] = 0x00; // transparent
+				maskData[y * width + x] = 0x01; // transparent
 			} else {
-				maskData[y * width + x] = 0x01; // opaque
+				maskData[y * width + x] = 0x00; // opaque
 				imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
 			}
 		}
@@ -195,13 +195,13 @@ void imageToANSI(gg::ImagePtr img)
 				}
 			}
 			if (maskpixel & 0x01) {
-				if (xp) {
-					std::cout << "7;"; // reverse on (xp off)
+				if (!xp) {
+					std::cout << "27;"; // reverse off (xp on)
 					xp ^= 1;
 				}
 			} else {
-				if (!xp) {
-					std::cout << "27;"; // reverse off (xp on)
+				if (xp) {
+					std::cout << "7;"; // reverse on (xp off)
 					xp ^= 1;
 				}
 			}
