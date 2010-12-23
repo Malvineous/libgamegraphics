@@ -213,6 +213,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	if (widthTiles == 0) {
 		widthTiles = tileset->getLayoutWidth();
 	}
+	if (widthTiles == 0) widthTiles = 16;
 
 	const gg::Tileset::VC_ENTRYPTR& tiles = tileset->getItems();
 	unsigned int numTiles = tiles.size();
@@ -228,30 +229,48 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 
 	png::image<png::index_pixel> png(width * widthTiles, height * heightTiles);
 
-	png::palette pal(17);
-	pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-	pal[ 1] = png::color(0x00, 0x00, 0x00);
-	pal[ 2] = png::color(0x00, 0x00, 0xAA);
-	pal[ 3] = png::color(0x00, 0xAA, 0x00);
-	pal[ 4] = png::color(0x00, 0xAA, 0xAA);
-	pal[ 5] = png::color(0xAA, 0x00, 0x00);
-	pal[ 6] = png::color(0xAA, 0x00, 0xAA);
-	pal[ 7] = png::color(0xAA, 0x55, 0x00);
-	pal[ 8] = png::color(0xAA, 0xAA, 0xAA);
-	pal[ 9] = png::color(0x55, 0x55, 0x55);
-	pal[10] = png::color(0x55, 0x55, 0xFF);
-	pal[11] = png::color(0x55, 0xFF, 0x55);
-	pal[12] = png::color(0x55, 0xFF, 0xFF);
-	pal[13] = png::color(0xFF, 0x55, 0x55);
-	pal[14] = png::color(0xFF, 0x55, 0xFF);
-	pal[15] = png::color(0xFF, 0xFF, 0x55);
-	pal[16] = png::color(0xFF, 0xFF, 0xFF);
-	png.set_palette(pal);
+	bool useMask;
+	if (tileset->getCaps() & gg::Tileset::HasPalette) {
+		gg::PaletteTablePtr srcPal = tileset->getPalette();
+		png::palette pal(srcPal->size());
+		int j = 0;
+		//pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
+		for (gg::PaletteTable::iterator i = srcPal->begin();
+			i != srcPal->end();
+			i++, j++
+		) {
+			pal[j] = png::color(i->red, i->green, i->blue);
+		}
+		png.set_palette(pal);
+		useMask = false; // not enough room in the palette for transparent entry
+	} else {
+		// Standard EGA palette
+		png::palette pal(17);
+		pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
+		pal[ 1] = png::color(0x00, 0x00, 0x00);
+		pal[ 2] = png::color(0x00, 0x00, 0xAA);
+		pal[ 3] = png::color(0x00, 0xAA, 0x00);
+		pal[ 4] = png::color(0x00, 0xAA, 0xAA);
+		pal[ 5] = png::color(0xAA, 0x00, 0x00);
+		pal[ 6] = png::color(0xAA, 0x00, 0xAA);
+		pal[ 7] = png::color(0xAA, 0x55, 0x00);
+		pal[ 8] = png::color(0xAA, 0xAA, 0xAA);
+		pal[ 9] = png::color(0x55, 0x55, 0x55);
+		pal[10] = png::color(0x55, 0x55, 0xFF);
+		pal[11] = png::color(0x55, 0xFF, 0x55);
+		pal[12] = png::color(0x55, 0xFF, 0xFF);
+		pal[13] = png::color(0xFF, 0x55, 0x55);
+		pal[14] = png::color(0xFF, 0x55, 0xFF);
+		pal[15] = png::color(0xFF, 0xFF, 0x55);
+		pal[16] = png::color(0xFF, 0xFF, 0xFF);
+		png.set_palette(pal);
+		useMask = true;
 
-	// Make first colour transparent
-	png::tRNS transparency;
-	transparency.push_back(0);
-	png.set_tRNS(transparency);
+		// Make first colour transparent
+		png::tRNS transparency;
+		transparency.push_back(0);
+		png.set_tRNS(transparency);
+	}
 
 	int t = 0;
 	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
@@ -269,13 +288,16 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				// Only write opaque pixels
-				if (mask[y*width+x] & 0x01) {
-					png[offY+y][offX+x] = png::index_pixel(0);
+				if (useMask) {
+					if (mask[y*width+x] & 0x01) {
+						png[offY+y][offX+x] = png::index_pixel(0);
+					} else {
+						png[offY+y][offX+x] =
+							// +1 to the colour to skip over transparent (#0)
+							png::index_pixel(data[y*width+x] + 1);
+					}
 				} else {
-					png[offY+y][offX+x] =
-						// +1 to the colour to skip over transparent (#0)
-						png::index_pixel(data[y*width+x] + 1);
+					png[offY+y][offX+x] = png::index_pixel(data[y*width+x]);
 				}
 			}
 		}
