@@ -18,7 +18,8 @@ libgamegraphics_la_SOURCES += tls-ccaves-main.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 libgamegraphics_la_SOURCES += tls-ddave.cpp
 
-EXTRA_libgamegraphics_la_SOURCES = img-ega-byteplanar.hpp
+EXTRA_libgamegraphics_la_SOURCES = img-ega-common.hpp
+EXTRA_libgamegraphics_la_SOURCES += img-ega-byteplanar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-rowplanar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-vga.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-vga-raw.hpp

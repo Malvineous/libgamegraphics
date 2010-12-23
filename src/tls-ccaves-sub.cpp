@@ -261,9 +261,11 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = -1;
 
-	ImagePtr conv(new EGABytePlanarImage(
-		content, fnTruncate, this->width * 8, this->height, planes
-	));
+	EGABytePlanarImage *ega = new EGABytePlanarImage();
+	ImagePtr conv(ega);
+	ega->setParams(
+		content, fnTruncate, 0, this->width * 8, this->height, planes
+	);
 
 	return conv;
 }

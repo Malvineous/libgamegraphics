@@ -26,20 +26,28 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarImage::EGABytePlanarImage(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, int width, int height, const PLANE_LAYOUT& planes)
-	throw () :
-		data(data),
-		fnTruncate(fnTruncate),
-		width(width),
-		height(height)
+EGABytePlanarImage::EGABytePlanarImage()
+	throw ()
 {
-	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
 }
 
 EGABytePlanarImage::~EGABytePlanarImage()
 	throw ()
 {
+}
+
+void EGABytePlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
+	io::stream_offset offset, int width, int height, const PLANE_LAYOUT& planes
+)
+	throw ()
+{
+	this->data = data;
+	this->fnTruncate = fnTruncate;
+	this->offset = offset;
+	this->width = width;
+	this->height = height;
+	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
+	return;
 }
 
 int EGABytePlanarImage::getCaps()

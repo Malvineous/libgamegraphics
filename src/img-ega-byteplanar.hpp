@@ -22,33 +22,10 @@
 #define _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 
 #include <camoto/gamegraphics/image.hpp>
+#include "img-ega-common.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-/// Plane order description.
-/**
- * This structure is used to describe the order of the planes in the image file
- * being converted.
- *
- * Each plane (red, green, etc.) is set to a number representing the order of
- * the data in the underlying file.  Setting red to 1 means the first plane of
- * image data in the file controls the red pixels.  A value of zero means the
- * plane is not present in the data, and a negative value means the bits
- * in the plane should be inverted (commonly used for the transparency plane.)
- *
- * @note These constants also indicate the bits that will be set in the output
- *       data, i.e. the LSB (zero'th) bit will be blue - so each byte will be
- *       composed as the eight-bit binary value 00THIRGB.
- */
-#define PLANE_BLUE          0
-#define PLANE_GREEN         1
-#define PLANE_RED           2
-#define PLANE_INTENSITY     3
-#define PLANE_HITMAP        4
-#define PLANE_OPACITY       5  ///< 0 == transparent, 1 == opaque
-#define PLANE_MAX           6
-typedef int PLANE_LAYOUT[PLANE_MAX];
 
 /// EGA byte-planar Image implementation.
 /**
@@ -62,15 +39,22 @@ class EGABytePlanarImage: virtual public Image {
 	protected:
 		iostream_sptr data;
 		FN_TRUNCATE fnTruncate;
+		io::stream_offset offset;
 		int width, height;
 		PLANE_LAYOUT planes;
 
 	public:
-		EGABytePlanarImage(iostream_sptr data, FN_TRUNCATE fnTruncate, int width,
-			int height, const PLANE_LAYOUT& planes)
+		EGABytePlanarImage()
 			throw ();
 
 		virtual ~EGABytePlanarImage()
+			throw ();
+
+		/// These could be set in the constructor, but often descendent classes
+		/// won't have these values until the end of their constructors.
+		virtual void setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
+			io::stream_offset offset, int width, int height,
+			const PLANE_LAYOUT& planes)
 			throw ();
 
 		virtual int getCaps()

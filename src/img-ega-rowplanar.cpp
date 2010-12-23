@@ -26,20 +26,28 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGARowPlanarImage::EGARowPlanarImage(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, int width, int height, const PLANE_LAYOUT& planes)
-	throw () :
-		data(data),
-		fnTruncate(fnTruncate),
-		width(width),
-		height(height)
+EGARowPlanarImage::EGARowPlanarImage()
+	throw ()
 {
-	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
 }
 
 EGARowPlanarImage::~EGARowPlanarImage()
 	throw ()
 {
+}
+
+void EGARowPlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
+	io::stream_offset offset, int width, int height, const PLANE_LAYOUT& planes
+)
+	throw ()
+{
+	this->data = data;
+	this->fnTruncate = fnTruncate;
+	this->offset = offset;
+	this->width = width;
+	this->height = height;
+	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
+	return;
 }
 
 int EGARowPlanarImage::getCaps()
@@ -59,6 +67,8 @@ void EGARowPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	throw (std::ios::failure)
 {
+	assert(this->getCaps() & Image::CanSetDimensions);
+
 	this->width = width;
 	this->height = height;
 
@@ -139,7 +149,7 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 		}
 	}
 
-	this->data->seekp(0, std::ios::beg);
+	this->data->seekp(this->offset, std::ios::beg);
 	uint8_t *imgData = (uint8_t *)newContent.get();
 	uint8_t *maskData = (uint8_t *)newMask.get();
 	uint8_t *rowData;
@@ -237,7 +247,7 @@ StdImageDataPtr EGARowPlanarImage::doConversion(bool mask)
 	uint8_t *rowData = new uint8_t[imgSizeBytes];
 	StdImageDataPtr ret(rowData);
 	memset(rowData, 0, imgSizeBytes);
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(this->offset, std::ios::beg);
 
 	// Adding 7 means a width that's not an even multiple of eight will
 	// effectively be rounded up to the next byte - so an eight pixel wide
