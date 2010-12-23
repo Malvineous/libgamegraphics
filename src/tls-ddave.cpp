@@ -156,14 +156,16 @@ TilesetPtr DDaveCGATilesetType::create(iostream_sptr psTileset,
 	psTileset->seekp(0, std::ios::beg);
 	psTileset << u32le(0);
 
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, PaletteTablePtr()));
+	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, pal));
 }
 
 TilesetPtr DDaveCGATilesetType::open(iostream_sptr psTileset,
 	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
 	throw (std::ios::failure)
 {
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, PaletteTablePtr()));
+	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, pal));
 }
 
 bool DDaveCGATilesetType::isInstance(int firstTileSize) const
@@ -319,7 +321,7 @@ DDaveTileset::~DDaveTileset()
 int DDaveTileset::getCaps()
 	throw ()
 {
-	return 0 | ((this->imgType == VGA) ? Tileset::HasPalette : 0);
+	return 0 | (this->pal ? Tileset::HasPalette : 0);
 }
 
 ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,

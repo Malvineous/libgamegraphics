@@ -110,9 +110,15 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 PaletteTablePtr CGAImage::getPalette()
 	throw (std::ios::failure)
 {
+	return CGAImage::generatePalette(this->cgaPal);
+}
+
+PaletteTablePtr CGAImage::generatePalette(CGAPaletteType cgaPal)
+	throw ()
+{
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(4);
-	switch (this->cgaPal & 0x0F) {
+	switch (cgaPal & 0x0F) {
 		case 0: pal->push_back(PaletteEntry(0x00, 0x00, 0x00)); break;
 		case 1: pal->push_back(PaletteEntry(0x00, 0x00, 0xAA)); break;
 		case 2: pal->push_back(PaletteEntry(0x00, 0xAA, 0x00)); break;
@@ -131,7 +137,7 @@ PaletteTablePtr CGAImage::getPalette()
 		case 15: pal->push_back(PaletteEntry(0xFF, 0xFF, 0xFF)); break;
 	}
 
-	switch (this->cgaPal & 0xF0) {
+	switch (cgaPal & 0xF0) {
 		case GreenRed:
 			pal->push_back(PaletteEntry(0x00, 0xAA, 0x00));
 			pal->push_back(PaletteEntry(0xAA, 0x00, 0x00));

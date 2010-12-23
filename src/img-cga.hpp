@@ -63,11 +63,7 @@ class CGAImage: virtual public Image {
 		 *   Offset from start of stream where CGA data begins.
 		 *
 		 * @param cgaPal
-		 *   CGA palette to use.  One of the CGAPaletteType values.  The lower
-		 *   eight bits are used to represent the background colour.  If this is
-		 *   not the default black, it can be specified here, e.g. for a background
-		 *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
-		 *   only needs to be specified when the background colour is not black.
+		 *   CGA palette to use.  See generatePalette() for details.
 		 */
 		CGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, io::stream_offset off,
 			CGAPaletteType cgaPal)
@@ -98,6 +94,18 @@ class CGAImage: virtual public Image {
 
 		virtual PaletteTablePtr getPalette()
 			throw (std::ios::failure);
+
+		/// Generate a CGA palette.
+		/**
+		 * @param cgaPal
+		 *   CGA palette to use.  One of the CGAPaletteType values.  The lower
+		 *   eight bits are used to represent the background colour.  If this is
+		 *   not the default black, it can be specified here, e.g. for a background
+		 *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
+		 *   only needs to be specified when the background colour is not black.
+		 */
+		static PaletteTablePtr generatePalette(CGAPaletteType cgaPal)
+			throw ();
 
 	protected:
 		bitstream_sptr data;     ///< CGA image data
