@@ -46,7 +46,9 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));

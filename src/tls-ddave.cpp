@@ -26,6 +26,8 @@
 
 #include "img-ega-rowplanar.hpp"
 #include "tls-ddave.hpp"
+#include "img-ddave.hpp"
+#include "pal-vga-raw.hpp"
 
 /// Offset of the number of tilesets
 #define DD_TILECOUNT_OFFSET    0
@@ -42,6 +44,9 @@
 /// Maximum tiles to load in case of a corrupted file
 #define DD_SAFETY_MAX_TILES    4096
 
+/// First tile with width and height fields
+#define DD_FIRST_TILE_WITH_DIMS  53
+
 namespace camoto {
 namespace gamegraphics {
 
@@ -55,18 +60,6 @@ DDaveTilesetType::DDaveTilesetType()
 DDaveTilesetType::~DDaveTilesetType()
 	throw ()
 {
-}
-
-std::string DDaveTilesetType::getCode() const
-	throw ()
-{
-	return "tls-ddave";
-}
-
-std::string DDaveTilesetType::getFriendlyName() const
-	throw ()
-{
-	return "Dangerous Dave tileset";
 }
 
 std::vector<std::string> DDaveTilesetType::getFileExtensions() const
@@ -91,7 +84,7 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 {
 	psTileset->seekg(0, std::ios::end);
 	io::stream_offset len = psTileset->tellg();
-	// TESTED BY: tls_ddave_isinstance_c04
+	// TESTED BY: TODO
 	if (len < DD_FIRST_TILE_OFFSET) return DefinitelyNo; // too short
 
 	psTileset->seekg(0, std::ios::beg);
@@ -101,46 +94,37 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 	if ((numFiles == 0) && (len > DD_FIRST_TILE_OFFSET)) return DefinitelyNo; // invalid empty file
 
 	uint32_t offset, lastOffset = 0;
+	uint32_t firstOffset, secondOffset;
 	for (int i = 0; i < numFiles; i++) {
 		psTileset >> u32le(offset);
-
-		// The first file always starts at offset 0.
-		// TESTED BY: tls_ddave_isinstance_c01
-		//if ((i == 0) && (offset != 0)) return DefinitelyNo;
+		if (i == 0) firstOffset = offset;
+		else if (i == 1) secondOffset = offset;
 
 		// Make sure the offsets are increasing, otherwise we'd get a negative
 		// file size (or the file has been tweaked to make opening difficult, but
 		// then there's the -f option to gamegfx for that.)
-		// TESTED BY: tls_ddave_isinstance_c02
+		// TESTED BY: TODO
 		if (offset < lastOffset) return DefinitelyNo;
 
 		// Make sure the tile is contained within the file
-		// TESTED BY: tls_ddave_isinstance_c03
+		// TESTED BY: TODO
 		if (offset > len) return DefinitelyNo;
 
 		lastOffset = offset;
 	}
 
+	// Check the size of the first tile to see what format it's in.
+	if (numFiles > 0) {
+		if (numFiles == 1) {
+			// have to use EOF as second file's offset
+			secondOffset = len;
+		}
+		// Call function in DDave[CEV]GATilesetType
+		if (!this->isInstance(secondOffset - firstOffset)) return DefinitelyNo;
+	}
+
 	// TESTED BY: tls_ddave_isinstance_c00
 	return DefinitelyYes;
-}
-
-TilesetPtr DDaveTilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
-	throw (std::ios::failure)
-{
-	fnTruncate(4);
-	psTileset->seekp(0, std::ios::beg);
-	psTileset << u32le(0);
-
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate));
-}
-
-TilesetPtr DDaveTilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
-	throw (std::ios::failure)
-{
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate));
 }
 
 MP_SUPPLIST DDaveTilesetType::getRequiredSupps(
@@ -152,10 +136,144 @@ MP_SUPPLIST DDaveTilesetType::getRequiredSupps(
 }
 
 
+std::string DDaveCGATilesetType::getCode() const
+	throw ()
+{
+	return "tls-ddave-cga";
+}
+
+std::string DDaveCGATilesetType::getFriendlyName() const
+	throw ()
+{
+	return "Dangerous Dave CGA tileset";
+}
+
+TilesetPtr DDaveCGATilesetType::create(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	fnTruncate(4);
+	psTileset->seekp(0, std::ios::beg);
+	psTileset << u32le(0);
+
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, PaletteTablePtr()));
+}
+
+TilesetPtr DDaveCGATilesetType::open(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, PaletteTablePtr()));
+}
+
+bool DDaveCGATilesetType::isInstance(int firstTileSize) const
+	throw ()
+{
+	return (firstTileSize == 64);
+}
+
+
+std::string DDaveEGATilesetType::getCode() const
+	throw ()
+{
+	return "tls-ddave-ega";
+}
+
+std::string DDaveEGATilesetType::getFriendlyName() const
+	throw ()
+{
+	return "Dangerous Dave EGA tileset";
+}
+
+TilesetPtr DDaveEGATilesetType::create(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	fnTruncate(4);
+	psTileset->seekp(0, std::ios::beg);
+	psTileset << u32le(0);
+
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::EGA, PaletteTablePtr()));
+}
+
+TilesetPtr DDaveEGATilesetType::open(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::EGA, PaletteTablePtr()));
+}
+
+bool DDaveEGATilesetType::isInstance(int firstTileSize) const
+	throw ()
+{
+	return (firstTileSize == 128);
+}
+
+
+std::string DDaveVGATilesetType::getCode() const
+	throw ()
+{
+	return "tls-ddave-vga";
+}
+
+std::string DDaveVGATilesetType::getFriendlyName() const
+	throw ()
+{
+	return "Dangerous Dave VGA tileset";
+}
+
+TilesetPtr DDaveVGATilesetType::create(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	fnTruncate(4);
+	psTileset->seekp(0, std::ios::beg);
+	psTileset << u32le(0);
+
+	ImagePtr palFile(new VGAPalette(
+		suppData[SuppItem::Palette].stream,
+		suppData[SuppItem::Palette].fnTruncate
+	));
+	PaletteTablePtr pal = palFile->getPalette();
+
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::VGA, pal));
+}
+
+TilesetPtr DDaveVGATilesetType::open(iostream_sptr psTileset,
+	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	throw (std::ios::failure)
+{
+	ImagePtr palFile(new VGAPalette(
+		suppData[SuppItem::Palette].stream,
+		suppData[SuppItem::Palette].fnTruncate
+	));
+	PaletteTablePtr pal = palFile->getPalette();
+
+	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::VGA, pal));
+}
+
+MP_SUPPLIST DDaveVGATilesetType::getRequiredSupps(
+	const std::string& filenameTileset) const
+	throw ()
+{
+	MP_SUPPLIST supps;
+	supps[SuppItem::Palette] = "vga.pal";
+	return supps;
+}
+
+bool DDaveVGATilesetType::isInstance(int firstTileSize) const
+	throw ()
+{
+	return (firstTileSize == 256);
+}
+
+
 DDaveTileset::DDaveTileset(iostream_sptr data,
-	FN_TRUNCATE fnTruncate)
+	FN_TRUNCATE fnTruncate, ImageType imgType, PaletteTablePtr pal)
 	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, DD_FIRST_TILE_OFFSET)
+		FATTileset(data, fnTruncate, DD_FIRST_TILE_OFFSET),
+		imgType(imgType),
+		pal(pal)
 {
 	this->data->seekg(0, std::ios::end);
 	io::stream_offset len = this->data->tellg();
@@ -171,10 +289,8 @@ DDaveTileset::DDaveTileset(iostream_sptr data,
 	if (numTiles > DD_SAFETY_MAX_TILES) throw std::ios::failure("too many tiles");
 
 	if (numTiles > 0) {
-		//uint32_t firstOffset = (numTiles+1) * 4;
 		uint32_t nextOffset;
 		this->data >> u32le(nextOffset);
-		//nextOffset += firstOffset;
 		for (int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
@@ -188,7 +304,6 @@ DDaveTileset::DDaveTileset(iostream_sptr data,
 				nextOffset = len;
 			} else {
 				this->data >> u32le(nextOffset);
-				//nextOffset += firstOffset;
 			}
 			fat->size = nextOffset - fat->offset;
 			this->items.push_back(ep);
@@ -204,40 +319,38 @@ DDaveTileset::~DDaveTileset()
 int DDaveTileset::getCaps()
 	throw ()
 {
-	return 0;
+	return 0 | ((this->imgType == VGA) ? Tileset::HasPalette : 0);
 }
 
 ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
 	iostream_sptr content, FN_TRUNCATE fnTruncate)
 	throw (std::ios::failure)
 {
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 4;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 2;
-	planes[PLANE_INTENSITY] = 1;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 0;
-
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
 
-	if (fat->index < 53) {
-		// First 53 sprites are hard-coded as 16x16
-		ImagePtr conv(new EGARowPlanarImage(
-			content, fnTruncate, 16, 16, planes
-		));
-		return conv;
-	} else {
-		uint16_t width, height;
-		content >> u16le(width) >> u16le(height);
-
-		substream_sptr sub(new substream(content, 4, fat->size - 4));
-		ImagePtr conv(new EGARowPlanarImage(
-			sub, fnTruncate, width, height, planes
-		));
-		return conv;
+	ImagePtr conv;
+	bool fixedSize = fat->index < DD_FIRST_TILE_WITH_DIMS;
+	switch (this->imgType) {
+		case CGA:
+			conv.reset(new DDaveCGAImage(content, fnTruncate, fixedSize));
+			break;
+		case EGA:
+			conv.reset(new DDaveEGAImage(content, fnTruncate, fixedSize));
+			break;
+		case VGA: {
+			//VGAPalette vgaPal;
+			conv.reset(new DDaveVGAImage(content, fnTruncate, fixedSize, this->pal));
+			break;
+		}
 	}
+	return conv;
+}
+
+PaletteTablePtr DDaveTileset::getPalette()
+	throw ()
+{
+	return this->pal;
 }
 
 void DDaveTileset::updateFileOffset(const FATEntry *pid,

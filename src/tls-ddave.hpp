@@ -22,7 +22,7 @@
 #define _CAMOTO_TLS_DDAVE_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
+#include <camoto/gamegraphics/palettetable.hpp>
 #include "tileset-fat.hpp"
 
 namespace camoto {
@@ -31,17 +31,10 @@ namespace gamegraphics {
 class DDaveTilesetType: virtual public TilesetType {
 
 	public:
-
 		DDaveTilesetType()
 			throw ();
 
 		virtual ~DDaveTilesetType()
-			throw ();
-
-		virtual std::string getCode() const
-			throw ();
-
-		virtual std::string getFriendlyName() const
 			throw ();
 
 		virtual std::vector<std::string> getFileExtensions() const
@@ -53,6 +46,26 @@ class DDaveTilesetType: virtual public TilesetType {
 		virtual Certainty isInstance(iostream_sptr fsTileset) const
 			throw (std::ios::failure);
 
+		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+			throw ();
+
+	protected:
+		/// Given the size of the first tile (in bytes), is this a valid instance?
+		virtual bool isInstance(int firstTileSize) const
+			throw () = 0;
+
+};
+
+class DDaveCGATilesetType: virtual public DDaveTilesetType {
+
+	public:
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
 			MP_SUPPDATA& suppData) const
 			throw (std::ios::failure);
@@ -61,15 +74,72 @@ class DDaveTilesetType: virtual public TilesetType {
 			MP_SUPPDATA& suppData) const
 			throw (std::ios::failure);
 
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+	protected:
+		virtual bool isInstance(int firstTileSize) const
 			throw ();
 
 };
 
+class DDaveEGATilesetType: virtual public DDaveTilesetType {
+
+	public:
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
+		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+	protected:
+		virtual bool isInstance(int firstTileSize) const
+			throw ();
+
+};
+
+class DDaveVGATilesetType: virtual public DDaveTilesetType {
+
+	public:
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
+		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+			MP_SUPPDATA& suppData) const
+			throw (std::ios::failure);
+
+		// Extra one to add palette as supp
+		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+			throw ();
+
+	protected:
+		virtual bool isInstance(int firstTileSize) const
+			throw ();
+
+};
+
+
 class DDaveTileset: virtual public FATTileset {
 
 	public:
-		DDaveTileset(iostream_sptr data, FN_TRUNCATE fnTruncate)
+		enum ImageType {CGA, EGA, VGA};
+
+		DDaveTileset(iostream_sptr data, FN_TRUNCATE fnTruncate, ImageType imgType,
+			PaletteTablePtr pal)
 			throw (std::ios::failure);
 
 		virtual ~DDaveTileset()
@@ -81,6 +151,9 @@ class DDaveTileset: virtual public FATTileset {
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			iostream_sptr content, FN_TRUNCATE fnTruncate)
 			throw (std::ios::failure);
+
+		virtual PaletteTablePtr getPalette()
+			throw ();
 
 		virtual void updateFileOffset(const FATEntry *pid, std::streamsize offDelta)
 			throw (std::ios::failure);
@@ -96,6 +169,9 @@ class DDaveTileset: virtual public FATTileset {
 			throw (std::ios::failure);
 
 	private:
+		ImageType imgType;
+		PaletteTablePtr pal;
+
 		/// Update the number of tiles in the tileset
 		void updateFileCount(uint32_t newCount)
 			throw (std::ios_base::failure);
