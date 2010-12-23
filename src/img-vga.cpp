@@ -70,7 +70,7 @@ StdImageDataPtr VGAImage::toStandardMask()
 	// Return an entirely opaque mask
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
-	memset(imgData, 1, dataSize);
+	memset(imgData, 0, dataSize);
 
 	return ret;
 }
@@ -88,6 +88,10 @@ void VGAImage::fromStandard(StdImageDataPtr newContent,
 	// No conversion needed, write out as-is
 	uint8_t *imgData = (uint8_t *)newContent.get();
 	this->data->seekp(this->off, std::ios::beg);
+
+	// Cut off any leftover data or resize so there's enough space
+	this->fnTruncate(dataSize + this->off);
+
 	this->data->rdbuf()->sputn((char *)imgData, dataSize);
 
 	return;
