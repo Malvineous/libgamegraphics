@@ -21,8 +21,13 @@
 #ifndef _CAMOTO_IMG_EGA_COMMON_HPP_
 #define _CAMOTO_IMG_EGA_COMMON_HPP_
 
+#include <boost/iostreams/stream.hpp>
+#include <camoto/gamegraphics/image.hpp>
+
 namespace camoto {
 namespace gamegraphics {
+
+namespace io = boost::iostreams;
 
 /// Plane order description.
 /**

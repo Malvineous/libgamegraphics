@@ -180,7 +180,7 @@ struct FIXTURE_NAME: public default_sample {
 	{
 		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
 		this->fnTruncate = boost::bind<void>(
-			stringStreamTruncate, this->baseData.get(), _1);
+			camoto::stringStreamTruncate, this->baseData.get(), _1);
 #ifdef IMG_DATA_WIDTH
 		this->dataWidth = IMG_DATA_WIDTH;
 #else

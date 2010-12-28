@@ -21,7 +21,6 @@
 #ifndef _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 #define _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 
-#include <camoto/gamegraphics/image.hpp>
 #include "img-ega-common.hpp"
 
 namespace camoto {
