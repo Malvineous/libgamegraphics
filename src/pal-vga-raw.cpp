@@ -131,9 +131,6 @@ PaletteTablePtr VGAPalette::getPalette()
 	int i = 0;
 	while (i < 768) {
 		PaletteEntry p;
-		/*p.red = (buf[i] > 0x3F) ? 255 : buf[i] * 255 / 63;     i++;
-		p.green = (buf[i] > 0x3F) ? 255 : buf[i] * 255 / 63;   i++;
-		p.blue  = (buf[i] > 0x3F) ? 255 : buf[i] * 255 / 63;    i++;*/
 		p.red   = (buf[i] << 2) | (buf[i] >> 4);  i++;
 		p.green = (buf[i] << 2) | (buf[i] >> 4);  i++;
 		p.blue  = (buf[i] << 2) | (buf[i] >> 4);  i++;
@@ -150,9 +147,9 @@ void VGAPalette::setPalette(PaletteTablePtr newPalette)
 	memset(buf, 0, 768);
 	int i = 0;
 	for (PaletteTable::const_iterator p = newPalette->begin(); p < newPalette->end(); p++) {
-		buf[i++] = p->red * 63 / 255;
-		buf[i++] = p->green * 63 / 255;
-		buf[i++] = p->blue * 63 / 255;
+		buf[i++] = p->red >> 2;
+		buf[i++] = p->green >> 2;
+		buf[i++] = p->blue >> 2;
 	}
 	this->fnTruncate(768);
 	this->data->seekp(0, std::ios::beg);
