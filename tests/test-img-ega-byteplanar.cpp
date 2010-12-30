@@ -78,7 +78,7 @@ using namespace camoto;
 	planes[PLANE_RED] = 4; \
 	planes[PLANE_INTENSITY] = 5; \
 	planes[PLANE_HITMAP] = 0; \
-	planes[PLANE_OPACITY] = 1; \
+	planes[PLANE_OPACITY] = -1; \
 	EGABytePlanarImage *ega = new EGABytePlanarImage(); \
 	this->img = ImagePtr(ega); \
 	ega->setParams(this->baseStream, this->fnTruncate, 0, width, height, planes); \
