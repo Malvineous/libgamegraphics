@@ -102,10 +102,10 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
-	int planeValue[PLANE_MAX], notPlaneValue[PLANE_MAX];
+	int planeValue[PLANE_MAX];
 	bool planeMask[PLANE_MAX]; // true == use newMask, false == use newContent
+	bool planeSwap[PLANE_MAX]; // true == invert bits, false == leave alone
 	memset(planeValue, 0, PLANE_MAX);
-	memset(notPlaneValue, 0, PLANE_MAX);
 	for (int p = 0; p < PLANE_MAX; p++) {
 		// Count the plane if its order is nonzero, otherwise ignore it
 		if (this->planes[p]) numPlanes++; else continue;
@@ -140,13 +140,8 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 			default:              value = 0x00; break;
 		}
 		planeMask[order] = mask;
-		if (swap) {
-			planeValue[order] = 0;
-			notPlaneValue[order] = value;
-		} else {
-			planeValue[order] = value;
-			notPlaneValue[order] = 0;
-		}
+		planeSwap[order] = swap;
+		planeValue[order] = value;
 	}
 
 	this->data->seekp(this->offset, std::ios::beg);
@@ -161,25 +156,32 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 			// Run through each lot of eight pixels (a "cell")
 			for (int x = 0; x < (this->width + 7) / 8; x++) {
 
-				// Only perform the calculations if the plane is in use
 				uint8_t c = 0;
-				if (planeValue[p]) {
-					if (planeMask[p]) rowData = maskData;
-					else rowData = imgData;
 
-					// See how many bits we should run through.  This is only used
-					// when the image is not an even multiple of 8.
-					int bits = 8;
-					if (x * 8 + 8 > this->width) bits = this->width % 8;
+				// Work out if this plane will read from the input image or mask data.
+				if (planeMask[p]) rowData = maskData;
+				else rowData = imgData;
 
-					// Run through each pixel in the group
-					for (int b = 0; b < bits; b++) {
-						if (rowData[x * 8 + b] & planeValue[p]) {
-							// The pixel is on in this plane
-							c |= 0x80 >> b;
-						} // else the pixel is off in this plane
-					}
+				// See how many bits we should run through.  This is only used
+				// when the image is not an even multiple of 8.
+				int bits = 8;
+				if (x * 8 + 8 > this->width) bits = this->width % 8;
+
+				// Run through each pixel in the group
+				for (int b = 0; b < bits; b++) {
+					if (rowData[x * 8 + b] & planeValue[p]) {
+						// The pixel is on in this plane
+						c |= 0x80 >> b;
+					} // else the pixel is off in this plane
 				}
+				// If the plane index was negative, the bits need to be inverted.  If
+				// we invert the whole number (c = ~c, or c ^= 0xff) then we could
+				// invert too many bits (e.g. all eight bits will be inverted when an
+				// image might only be four pixels wide.)  By XORing the value below,
+				// only the bits used by the image will be flipped, with the unused
+				// bits remaining as zero.
+				if (planeSwap[p]) c ^= ~((1 << (8-bits)) - 1);
+
 				this->data << u8(c);
 			}
 		}

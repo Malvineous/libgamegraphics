@@ -2,6 +2,7 @@ check_PROGRAMS = tests
 
 tests_SOURCES = tests.cpp
 tests_SOURCES += test-img-ega-byteplanar.cpp
+tests_SOURCES += test-img-ega-rowplanar.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-img-zone66_tile.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
