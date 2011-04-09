@@ -66,6 +66,8 @@ ImagePtr FATTileset::openImage(const EntryPtr& id)
 	throw (std::ios::failure)
 {
 	iostream_sptr sub = this->openStream(id);
+	// TODO: What happens if the entry gets deleted, then the image resized?
+	//   Will id still point to a valid entry?
 	FN_TRUNCATE fnTruncate = boost::bind<void>(&FATTileset::resize, this, id, _1);
 	return this->createImageInstance(id, sub, fnTruncate);
 }

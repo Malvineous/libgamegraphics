@@ -38,5 +38,10 @@ tests/tests
 utils/dumpb800
 utils/dumppal
 
+# SWIG output files
+python/gamegraphics.py
+python/gamegraphics_wrap.*
+python/*.pyc
+
 # External code
 examples/png++/
