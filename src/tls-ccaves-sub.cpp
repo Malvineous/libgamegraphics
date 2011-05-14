@@ -124,7 +124,7 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(iostream_sptr p
 }
 
 TilesetPtr CCavesSubTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	psGraphics->seekp(0, std::ios::beg);
@@ -134,17 +134,17 @@ TilesetPtr CCavesSubTilesetType::create(iostream_sptr psGraphics,
 }
 
 TilesetPtr CCavesSubTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	return TilesetPtr(new CCavesSubTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
 }
 
-MP_SUPPLIST CCavesSubTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
 	throw ()
 {
 	// No supplemental types/empty list
-	return MP_SUPPLIST();
+	return SuppFilenames();
 }
 
 

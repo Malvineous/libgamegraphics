@@ -46,7 +46,7 @@ class DDaveTilesetType: virtual public TilesetType {
 		virtual Certainty isInstance(iostream_sptr fsTileset) const
 			throw (std::ios::failure);
 
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
 
 	protected:
@@ -67,11 +67,11 @@ class DDaveCGATilesetType: virtual public DDaveTilesetType {
 			throw ();
 
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 	protected:
@@ -91,11 +91,11 @@ class DDaveEGATilesetType: virtual public DDaveTilesetType {
 			throw ();
 
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 	protected:
@@ -115,15 +115,15 @@ class DDaveVGATilesetType: virtual public DDaveTilesetType {
 			throw ();
 
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		// Extra one to add palette as supp
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
 
 	protected:

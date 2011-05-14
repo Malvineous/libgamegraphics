@@ -84,24 +84,24 @@ ImageType::Certainty VGAPaletteImageType::isInstance(iostream_sptr psImage) cons
 }
 
 ImagePtr VGAPaletteImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	return ImagePtr(new VGAPalette(psImage, fnTruncate));
 }
 
 ImagePtr VGAPaletteImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	return ImagePtr(new VGAPalette(psImage, fnTruncate));
 }
 
-MP_SUPPLIST VGAPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
 	throw ()
 {
 	// No supplemental types/empty list
-	return MP_SUPPLIST();
+	return SuppFilenames();
 }
 
 

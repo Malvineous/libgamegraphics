@@ -26,8 +26,8 @@
 #include <map>
 
 #include <camoto/types.hpp>
+#include <camoto/suppitem.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
-#include <camoto/gamegraphics/suppitem.hpp>
 
 /// Main namespace
 namespace camoto {
@@ -117,7 +117,7 @@ class TilesetType {
 		 *   valid empty file had been opened by open().
 		 */
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure) = 0;
 
 		/// Open a tileset file.
@@ -140,7 +140,7 @@ class TilesetType {
 		 *   handler.
 		 */
 		virtual TilesetPtr open(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure) = 0;
 
 		/// Get a list of any required supplemental files.
@@ -158,10 +158,10 @@ class TilesetType {
 		 * @return A (possibly empty) map associating required supplemental file
 		 *   types with their filenames.  For each returned value the file should
 		 *   be opened and placed in a SuppItem instance.  The SuppItem is then
-		 *   added to an \ref MP_SUPPDATA map where it can be passed to
+		 *   added to an \ref SuppData map where it can be passed to
 		 *   create() or open().
 		 */
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw () = 0;
 
 };

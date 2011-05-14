@@ -78,7 +78,7 @@ ImageType::Certainty VGARawImageType::isInstance(iostream_sptr psImage) const
 }
 
 ImagePtr VGARawImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	fnTruncate(64000);
@@ -95,7 +95,7 @@ ImagePtr VGARawImageType::create(iostream_sptr psImage,
 }
 
 ImagePtr VGARawImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	ImagePtr palFile(new VGAPalette(
@@ -106,10 +106,10 @@ ImagePtr VGARawImageType::open(iostream_sptr psImage,
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
-MP_SUPPLIST VGARawImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames VGARawImageType::getRequiredSupps(const std::string& filenameImage) const
 	throw ()
 {
-	MP_SUPPLIST supps;
+	SuppFilenames supps;
 	std::string filenameBase =
 		filenameImage.substr(0, filenameImage.find_last_of('.'));
 	supps[SuppItem::Palette] = filenameBase + ".pal"; // TODO: case sensitivity?

@@ -126,7 +126,7 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 }
 
 TilesetPtr Zone66TilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	fnTruncate(4);
@@ -146,7 +146,7 @@ TilesetPtr Zone66TilesetType::create(iostream_sptr psTileset,
 }
 
 TilesetPtr Zone66TilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	PaletteTablePtr pal;
@@ -161,11 +161,11 @@ TilesetPtr Zone66TilesetType::open(iostream_sptr psTileset,
 	return TilesetPtr(new Zone66Tileset(psTileset, fnTruncate, pal));
 }
 
-MP_SUPPLIST Zone66TilesetType::getRequiredSupps(
+SuppFilenames Zone66TilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
 	throw ()
 {
-	MP_SUPPLIST supps;
+	SuppFilenames supps;
 	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
 	return supps;
 }

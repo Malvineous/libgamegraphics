@@ -54,14 +54,14 @@ class Zone66TilesetType: virtual public TilesetType {
 			throw (std::ios::failure);
 
 		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameTileset) const
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
 
 };

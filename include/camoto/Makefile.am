@@ -6,4 +6,3 @@ nobase_library_include_HEADERS += gamegraphics/image.hpp
 nobase_library_include_HEADERS += gamegraphics/imagetype.hpp
 nobase_library_include_HEADERS += gamegraphics/manager.hpp
 nobase_library_include_HEADERS += gamegraphics/palettetable.hpp
-nobase_library_include_HEADERS += gamegraphics/suppitem.hpp

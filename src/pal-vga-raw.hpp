@@ -54,14 +54,14 @@ class VGAPaletteImageType: virtual public ImageType {
 			throw (std::ios::failure);
 
 		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
 		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
-			MP_SUPPDATA& suppData) const
+			SuppData& suppData) const
 			throw (std::ios::failure);
 
-		virtual MP_SUPPLIST getRequiredSupps(const std::string& filenameImage) const
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();
 
 };

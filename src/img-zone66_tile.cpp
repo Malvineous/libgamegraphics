@@ -112,7 +112,7 @@ ImageType::Certainty Zone66TileImageType::isInstance(iostream_sptr psImage) cons
 }
 
 ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	psImage
@@ -133,7 +133,7 @@ ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
 }
 
 ImagePtr Zone66TileImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	PaletteTablePtr pal;
@@ -148,10 +148,10 @@ ImagePtr Zone66TileImageType::open(iostream_sptr psImage,
 	return ImagePtr(new Zone66TileImage(psImage, fnTruncate, pal));
 }
 
-MP_SUPPLIST Zone66TileImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames Zone66TileImageType::getRequiredSupps(const std::string& filenameImage) const
 	throw ()
 {
-	MP_SUPPLIST supps;
+	SuppFilenames supps;
 	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
 	return supps;
 }

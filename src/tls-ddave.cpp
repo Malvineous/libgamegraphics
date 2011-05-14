@@ -127,11 +127,11 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 	return DefinitelyYes;
 }
 
-MP_SUPPLIST DDaveTilesetType::getRequiredSupps(
+SuppFilenames DDaveTilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
 	throw ()
 {
-	MP_SUPPLIST supps;
+	SuppFilenames supps;
 	return supps;
 }
 
@@ -149,7 +149,7 @@ std::string DDaveCGATilesetType::getFriendlyName() const
 }
 
 TilesetPtr DDaveCGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	fnTruncate(4);
@@ -161,7 +161,7 @@ TilesetPtr DDaveCGATilesetType::create(iostream_sptr psTileset,
 }
 
 TilesetPtr DDaveCGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
@@ -188,7 +188,7 @@ std::string DDaveEGATilesetType::getFriendlyName() const
 }
 
 TilesetPtr DDaveEGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	fnTruncate(4);
@@ -199,7 +199,7 @@ TilesetPtr DDaveEGATilesetType::create(iostream_sptr psTileset,
 }
 
 TilesetPtr DDaveEGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::EGA, PaletteTablePtr()));
@@ -225,7 +225,7 @@ std::string DDaveVGATilesetType::getFriendlyName() const
 }
 
 TilesetPtr DDaveVGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	fnTruncate(4);
@@ -242,7 +242,7 @@ TilesetPtr DDaveVGATilesetType::create(iostream_sptr psTileset,
 }
 
 TilesetPtr DDaveVGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	ImagePtr palFile(new VGAPalette(
@@ -254,11 +254,11 @@ TilesetPtr DDaveVGATilesetType::open(iostream_sptr psTileset,
 	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::VGA, pal));
 }
 
-MP_SUPPLIST DDaveVGATilesetType::getRequiredSupps(
+SuppFilenames DDaveVGATilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
 	throw ()
 {
-	MP_SUPPLIST supps;
+	SuppFilenames supps;
 	supps[SuppItem::Palette] = "vga.pal";
 	return supps;
 }

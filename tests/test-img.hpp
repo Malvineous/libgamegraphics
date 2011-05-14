@@ -167,7 +167,7 @@ struct FIXTURE_NAME: public default_sample {
 	camoto::iostream_sptr baseStream;
 	FN_TRUNCATE fnTruncate;
 	ImagePtr img;
-	MP_SUPPDATA suppData;
+	SuppData suppData;
 
 	/// Number of bytes wide to display mismatched data in a failed test.
 	/// Defaults to IMG_DATA_WIDTH or can be overridden when redefining

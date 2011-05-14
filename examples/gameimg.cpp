@@ -251,16 +251,16 @@ finishTesting:
 		}
 
 		// See if the format requires any supplemental files
-		gg::MP_SUPPLIST suppList = pGfxType->getRequiredSupps(strFilename);
-		gg::MP_SUPPDATA suppData;
+		camoto::SuppFilenames suppList = pGfxType->getRequiredSupps(strFilename);
+		camoto::SuppData suppData;
 		if (suppList.size() > 0) {
-			for (gg::MP_SUPPLIST::iterator i = suppList.begin(); i != suppList.end(); i++) {
+			for (camoto::SuppFilenames::iterator i = suppList.begin(); i != suppList.end(); i++) {
 				try {
 					boost::shared_ptr<std::fstream> suppStream(new std::fstream());
 					suppStream->exceptions(std::ios::badbit | std::ios::failbit);
 					std::cout << "Opening supplemental file " << i->second << std::endl;
 					suppStream->open(i->second.c_str(), std::ios::in | std::ios::out | std::ios::binary);
-					gg::SuppItem si;
+					camoto::SuppItem si;
 					si.stream = suppStream;
 					si.fnTruncate = boost::bind<void>(truncate, i->second.c_str(), _1);
 					suppData[i->first] = si;

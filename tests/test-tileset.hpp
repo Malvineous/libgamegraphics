@@ -61,8 +61,8 @@ struct FIXTURE_NAME: public default_sample {
 	void *_do; // unused var, but allows a statement to run in constructor init
 	camoto::iostream_sptr baseStream;
 	gg::TilesetPtr pTileset;
-	gg::MP_SUPPDATA suppData;
-	std::map<gg::SuppItem::Type, sstr_ptr> suppBase;
+	camoto::SuppData suppData;
+	std::map<camoto::SuppItem::Type, sstr_ptr> suppBase;
 
 	FIXTURE_NAME() :
 		baseData(new std::stringstream),
@@ -75,7 +75,7 @@ struct FIXTURE_NAME: public default_sample {
 			suppSS->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
 			(*suppSS) << makeString(TEST_RESULT(FAT_initialstate));
 			camoto::iostream_sptr suppStream(suppSS);
-			gg::SuppItem si;
+			camoto::SuppItem si;
 			si.stream = suppStream;
 			si.fnTruncate = boost::bind<void>(stringStreamTruncate, suppSS.get(), _1);
 			this->suppData[gg::FAT] = si;
@@ -122,7 +122,7 @@ struct FIXTURE_NAME: public default_sample {
 		return ret;
 	}
 
-	boost::test_tools::predicate_result is_supp_equal(gg::SuppItem::Type type, const std::string& strExpected)
+	boost::test_tools::predicate_result is_supp_equal(camoto::SuppItem::Type type, const std::string& strExpected)
 	{
 		// Flush out any changes to the main archive before we perform the check,
 		// in case this function was called first.
@@ -205,7 +205,7 @@ ISINSTANCE_TEST(c00, test_tileset_initialstate, DefinitelyYes);
 		suppSS->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit); \
 		(*suppSS) << makeString(d); \
 		camoto::iostream_sptr suppStream(suppSS); \
-		gg::SuppItem si; \
+		camoto::SuppItem si; \
 		si.stream = suppStream; \
 		si.fnTruncate = boost::bind<void>(stringStreamTruncate, suppSS.get(), _1); \
 		suppData[gg::EST_FAT] = si; \
@@ -236,7 +236,7 @@ ISINSTANCE_TEST(c00, test_tileset_initialstate, DefinitelyYes);
 		(*psstrBase) << makeString(d); \
 		camoto::iostream_sptr psBase(psstrBase); \
 		\
-		gg::MP_SUPPDATA suppData; \
+		camoto::SuppData suppData; \
 		INVALIDDATA_FATCODE(f) \
 		\
 		BOOST_CHECK_THROW( \

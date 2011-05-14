@@ -138,7 +138,7 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(iostream_sptr
 }
 
 TilesetPtr CCavesMainTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	throw std::ios::failure("not implemented yet");
@@ -150,17 +150,17 @@ TilesetPtr CCavesMainTilesetType::create(iostream_sptr psGraphics,
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
 TilesetPtr CCavesMainTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, MP_SUPPDATA& suppData) const
+	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
 	return TilesetPtr(new CCavesMainTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
 }
 
-MP_SUPPLIST CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
 	throw ()
 {
 	// No supplemental types/empty list
-	return MP_SUPPLIST();
+	return SuppFilenames();
 }
 
 
