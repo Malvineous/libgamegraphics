@@ -6,6 +6,7 @@ tests_SOURCES += test-img-ega-rowplanar.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-img-zone66_tile.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
+tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-tls-zone66.cpp
 
 EXTRA_tests_SOURCES = tests.hpp

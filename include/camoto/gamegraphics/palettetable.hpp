@@ -3,7 +3,7 @@
  * @brief  Declaration of PaletteTable class, for accessing indexed colour maps
  *         used by game images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,21 @@ typedef std::vector<PaletteEntry> PaletteTable;
 
 /// Shared pointer to a Palette.
 typedef boost::shared_ptr<PaletteTable> PaletteTablePtr;
+
+/// Allocate memory for a palette and fill it with CGA defaults.
+/**
+ * @return Palette with 16 entries suitable for drawing CGA and EGA images.
+ */
+PaletteTablePtr createDefaultCGAPalette()
+	throw ();
+
+/// Allocate memory for a palette and fill it with EGA defaults.
+/**
+ * @return Palette with 64 entries suitable for drawing EGA images that
+ *   make use of the EGA palette.
+ */
+PaletteTablePtr createDefaultEGAPalette()
+	throw ();
 
 } // namespace gamegraphics
 } // namespace camoto
