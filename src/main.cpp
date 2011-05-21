@@ -25,6 +25,7 @@
 // Include all the file formats for the Manager to load
 #include "tls-ccaves-sub.hpp"
 #include "tls-ccaves-main.hpp"
+#include "tls-cosmo.hpp"
 #include "tls-ddave.hpp"
 #include "tls-zone66.hpp"
 #include "img-zone66_tile.hpp"
@@ -45,6 +46,8 @@ Manager::Manager()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoMaskedTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));

@@ -16,6 +16,7 @@ libgamegraphics_la_SOURCES += pal-vga-raw.cpp
 libgamegraphics_la_SOURCES += tileset-fat.cpp
 libgamegraphics_la_SOURCES += tls-ccaves-sub.cpp
 libgamegraphics_la_SOURCES += tls-ccaves-main.cpp
+libgamegraphics_la_SOURCES += tls-cosmo.cpp
 libgamegraphics_la_SOURCES += tls-ddave.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
@@ -32,6 +33,7 @@ EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ccaves-sub.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ccaves-main.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-cosmo.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ddave.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
