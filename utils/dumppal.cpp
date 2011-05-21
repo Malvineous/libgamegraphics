@@ -141,7 +141,7 @@ int main(int iArgC, char *cArgV[])
 			std::cerr << PROGNAME ": Unable to create " << dstFile << std::endl;
 			return 2;
 		}
-		gg::MP_SUPPDATA dummy;
+		camoto::SuppData dummy;
 		camoto::FN_TRUNCATE fnTruncate =
 			boost::bind<void>(truncate, dstFile.c_str(), _1);
 		gg::ImagePtr palOut = palType->create(outStream, fnTruncate, dummy);
