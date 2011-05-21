@@ -27,10 +27,12 @@
 #include "tls-ccaves-main.hpp"
 #include "tls-cosmo.hpp"
 #include "tls-ddave.hpp"
+#include "tls-harry.hpp"
 #include "tls-zone66.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
 #include "pal-vga-raw.hpp"
+#include "pal-gmf-harry.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -51,11 +53,13 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new GMFHarryPaletteImageType()));
 }
 
 Manager::~Manager()
