@@ -129,7 +129,7 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	}
 
 	png::tRNS transparency = png.get_tRNS();
-	if (transparency[0] != 0) {
+	if ((transparency.size() < 1) || (transparency[0] != 0)) {
 		throw std::ios::failure("palette entry #0 must be assigned as transparent");
 	}
 

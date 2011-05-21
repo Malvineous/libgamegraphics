@@ -36,14 +36,16 @@ class DDaveCGAImage: virtual public CGAImage {
 	public:
 		/// Constructor
 		/**
-		 * No truncate function is required as the image dimensions are fixed, so
-		 * the file size will always remain constant.
+		 * Create an image from the supplied stream.
 		 *
 		 * @param data
-		 *   VGA data
+		 *   CGA image data.
 		 *
-		 * @param pal
-		 *   Image palette
+		 * @param fnTruncate
+		 *   Callback function when stream size must be changed.
+		 *
+		 * @param fixedSize
+		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
 		DDaveCGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize)
 			throw ();
@@ -78,14 +80,16 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 	public:
 		/// Constructor
 		/**
-		 * No truncate function is required as the image dimensions are fixed, so
-		 * the file size will always remain constant.
+		 * Create an image from the supplied stream.
 		 *
 		 * @param data
-		 *   VGA data
+		 *   EGA image data.
 		 *
-		 * @param pal
-		 *   Image palette
+		 * @param fnTruncate
+		 *   Callback function when stream size must be changed.
+		 *
+		 * @param fixedSize
+		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
 		DDaveEGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize)
 			throw ();
@@ -96,13 +100,13 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 		virtual int getCaps()
 			throw ();
 
+		// getDimension and setDimensions inherited from parent class
+
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
 			throw ();
 
 	protected:
-		uint16_t width;
-		uint16_t height;
 		bool fixedSize;
 
 };
@@ -113,14 +117,19 @@ class DDaveVGAImage: virtual public VGAImage {
 	public:
 		/// Constructor
 		/**
-		 * No truncate function is required as the image dimensions are fixed, so
-		 * the file size will always remain constant.
+		 * Create an image from the supplied stream.
 		 *
 		 * @param data
-		 *   VGA data
+		 *   VGA image data.
+		 *
+		 * @param fnTruncate
+		 *   Callback function when stream size must be changed.
+		 *
+		 * @param fixedSize
+		 *   True if this image is fixed at 16x16 (no width/height header)
 		 *
 		 * @param pal
-		 *   Image palette
+		 *   Image palette.
 		 */
 		DDaveVGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize,
 			PaletteTablePtr pal)

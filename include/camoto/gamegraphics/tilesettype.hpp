@@ -44,7 +44,7 @@ class TilesetType {
 			DefinitelyNo,  ///< Definitely not in this format
 			Unsure,        ///< The checks were inconclusive, it could go either way
 			PossiblyYes,   ///< Everything checked out OK, but there's no signature
-			DefinitelyYes, ///< This format has a signature and it matched.
+			DefinitelyYes, ///< This format has a signature and it matched
 		};
 
 		/// Get a short code to identify this file format, e.g. "tls-xargon"
@@ -128,7 +128,7 @@ class TilesetType {
 		 *   The tileset file.
 		 *
 		 * @param fnTruncate
-		 *   Callback function to resize psImage if required.
+		 *   Callback function to resize psTileset if required.
 		 *
 		 * @param suppData
 		 *   Any supplemental data required by this format (see getRequiredSupps())
@@ -153,7 +153,7 @@ class TilesetType {
 		 * @param filenameTileset
 		 *   The filename of the tileset.  This is for supplemental files which
 		 *   share the same base name as the tileset, but a different filename
-		 *   extension.
+		 *   extension.  The filename should not have a path.
 		 *
 		 * @return A (possibly empty) map associating required supplemental file
 		 *   types with their filenames.  For each returned value the file should

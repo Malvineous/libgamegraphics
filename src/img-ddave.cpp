@@ -139,6 +139,8 @@ DDaveVGAImage::DDaveVGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate,
 		fixedSize(fixedSize),
 		pal(pal)
 {
+	assert(data->tellg() == 0);
+
 	if (fixedSize) this->width = this->height = 16;
 	else {
 		data >> u16le(this->width) >> u16le(this->height);

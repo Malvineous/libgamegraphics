@@ -16,8 +16,8 @@ libgamegraphics_la_SOURCES += pal-vga-raw.cpp
 libgamegraphics_la_SOURCES += tileset-fat.cpp
 libgamegraphics_la_SOURCES += tls-ccaves-sub.cpp
 libgamegraphics_la_SOURCES += tls-ccaves-main.cpp
-libgamegraphics_la_SOURCES += tls-zone66.cpp
 libgamegraphics_la_SOURCES += tls-ddave.cpp
+libgamegraphics_la_SOURCES += tls-zone66.cpp
 
 EXTRA_libgamegraphics_la_SOURCES = img-ega-common.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-byteplanar.hpp
@@ -32,8 +32,8 @@ EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ccaves-sub.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ccaves-main.hpp
-EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ddave.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(BOOST_CPPFLAGS) -I $(top_srcdir)/include $(libgamecommon_CFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS)

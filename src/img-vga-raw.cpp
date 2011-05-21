@@ -112,7 +112,7 @@ SuppFilenames VGARawImageType::getRequiredSupps(const std::string& filenameImage
 	SuppFilenames supps;
 	std::string filenameBase =
 		filenameImage.substr(0, filenameImage.find_last_of('.'));
-	supps[SuppItem::Palette] = filenameBase + ".pal"; // TODO: case sensitivity?
+	supps[SuppItem::Palette] = filenameBase + ".pal";
 	return supps;
 }
 
