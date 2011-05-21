@@ -35,6 +35,7 @@ struct PaletteEntry {
 	uint8_t red;     ///< Red value (0-255)
 	uint8_t green;   ///< Green value (0-255)
 	uint8_t blue;    ///< Blue value (0-255)
+	uint8_t alpha;   ///< Alpha value (0-255)
 
 	/// Default constructor
 	PaletteEntry();
@@ -49,8 +50,11 @@ struct PaletteEntry {
 	 *
 	 * @param blue
 	 *   Blue value (0-255)
+	 *
+	 * @param alpha
+	 *   Alpha value (0-255)
 	 */
-	PaletteEntry(uint8_t red, uint8_t green, uint8_t blue);
+		PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
 };
 
 /// Shared pointer to a Palette.

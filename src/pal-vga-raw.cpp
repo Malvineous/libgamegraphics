@@ -134,6 +134,7 @@ PaletteTablePtr VGAPalette::getPalette()
 		p.red   = (buf[i] << 2) | (buf[i] >> 4);  i++;
 		p.green = (buf[i] << 2) | (buf[i] >> 4);  i++;
 		p.blue  = (buf[i] << 2) | (buf[i] >> 4);  i++;
+		p.alpha = 255;
 		pal->push_back(p);
 	}
 

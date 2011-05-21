@@ -27,8 +27,8 @@ PaletteEntry::PaletteEntry()
 {
 }
 
-PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue) :
-	red(red), green(green), blue(blue)
+PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
+	red(red), green(green), blue(blue), alpha(alpha)
 {
 }
 
@@ -43,6 +43,7 @@ PaletteTablePtr createDefaultCGAPalette()
 		p.red   = (i & 4) ? ((i & 8) ? 0xFF : 0xAA) : ((i & 8) ? 0x55 : 0x00);
 		p.green = (i & 2) ? ((i & 8) ? 0xFF : 0xAA) : ((i & 8) ? 0x55 : 0x00);
 		p.blue  = (i & 1) ? ((i & 8) ? 0xFF : 0xAA) : ((i & 8) ? 0x55 : 0x00);
+		p.alpha = 255;
 		if (i == 6) {
 			p.green = 0x55;
 		}
@@ -65,6 +66,7 @@ PaletteTablePtr createDefaultEGAPalette()
 		p.red   = ((i & 4) ? ~low : 0) | ((i & 32) ? low : 0);
 		p.green = ((i & 2) ? ~low : 0) | ((i & 16) ? low : 0);
 		p.blue  = ((i & 1) ? ~low : 0) | ((i & 8) ? low : 0);
+		p.alpha = 255;
 		pal->push_back(p);
 	}
 
