@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_end))
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
 
 	// Open new tile and populate with image data
-	setTileData(epNew, 3, 1);
+	setTileData(epNew, 3, 0);
 
 	BOOST_CHECK_MESSAGE(
 		is_equal(makeString(TEST_RESULT(insert_end))),
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_mid))
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
 
 	// Populate the tile with image data
-	setTileData(epNew, 3, 1);
+	setTileData(epNew, 3, 0);
 
 	BOOST_CHECK_MESSAGE(
 		is_equal(makeString(TEST_RESULT(insert_mid))),
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 		"Couldn't insert first new tile in sample tileset");
 
 	// Populate the tile with image data
-	setTileData(ep1, 3, 1);
+	setTileData(ep1, 3, 0);
 
 
 	// Find the tile we're going to insert before
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 		"Couldn't insert second new tile in sample tileset");
 
 	// Populate the tile with image data
-	setTileData(ep2, 4, 1);
+	setTileData(ep2, 4, 0);
 
 	BOOST_CHECK_MESSAGE(
 		is_equal(makeString(TEST_RESULT(insert2))),
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_remove))
 		"Couldn't insert new tile in sample tileset");
 
 	// Populate the tile with image data
-	setTileData(ep1, 3, 1);
+	setTileData(ep1, 3, 0);
 
 	gg::Tileset::EntryPtr ep2 = tiles[1]; // quick hack
 
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_insert))
 		"Couldn't insert new tile in sample tileset");
 
 	// Populate the tile with image data
-	setTileData(ep2, 3, 1);
+	setTileData(ep2, 3, 0);
 
 	BOOST_CHECK_MESSAGE(
 		// This test checks against the insert_remove result instead, as the end
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 	BOOST_REQUIRE_MESSAGE(ep1->isValid, "Couldn't insert new tile after removing all tiles");
 
 	// Populate the tile with image data
-	setTileData(ep1, 1, 1);
+	setTileData(ep1, 1, 0);
 
 
 	// Insert the tile
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 	BOOST_REQUIRE_MESSAGE(ep2->isValid, "Couldn't insert new tile after removing all tiles");
 
 	// Populate the tile with image data
-	setTileData(ep2, 2, 1);
+	setTileData(ep2, 2, 0);
 
 
 	BOOST_CHECK_MESSAGE(

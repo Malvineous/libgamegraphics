@@ -103,14 +103,14 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(new_to_initialstate))
 		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
 		"Couldn't insert new tile in empty tileset");
-	setTileData(ep1, 1, 1);
+	setTileData(ep1, 1, 0);
 
 	gg::Tileset::EntryPtr ep2 =
 		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
 
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
 		"Couldn't insert second new tile in empty tileset");
-	setTileData(ep2, 2, 1);
+	setTileData(ep2, 2, 0);
 
 #ifdef testdata_get_metadata_description
 	// If this format has metadata, set it to the same value used when comparing
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	// they currently all share the same offset.  This should result in tile1
 	// keeping its original offset (same as tile2) and tile3's offset being
 	// increased.
-	setTileData(ep2, 2, 1);
+	setTileData(ep2, 2, 0);
 
 	// Make sure the first tile hasn't moved.  We can't test the other tiles as
 	// sometimes they will move, sometimes they won't (e.g. in the case of
@@ -190,12 +190,12 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	// offset.)
 	if (fat1) BOOST_REQUIRE_EQUAL(fat1->offset, off1);
 
-	setTileData(ep1, 1, 1);
+	setTileData(ep1, 1, 0);
 
 	// Make sure the first tile still hasn't moved
 	if (fat1) BOOST_REQUIRE_EQUAL(fat1->offset, off1);
 
-	setTileData(ep3, 3, 1);
+	setTileData(ep3, 3, 0);
 
 	BOOST_CHECK_MESSAGE(
 		is_equal(makeString(TEST_RESULT(insert_end))),
