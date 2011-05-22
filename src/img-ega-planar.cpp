@@ -1,5 +1,5 @@
 /**
- * @file   img-ega-byteplanar.cpp
+ * @file   img-ega-planar.cpp
  * @brief  Image implementation adding support for the EGA byte-planar format.
  *
  * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
@@ -21,22 +21,22 @@
 #include <cstring>  // memset
 #include <cassert>
 #include <camoto/iostream_helpers.hpp>
-#include "img-ega-byteplanar.hpp"
+#include "img-ega-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarImage::EGABytePlanarImage()
+EGAPlanarImage::EGAPlanarImage()
 	throw ()
 {
 }
 
-EGABytePlanarImage::~EGABytePlanarImage()
+EGAPlanarImage::~EGAPlanarImage()
 	throw ()
 {
 }
 
-void EGABytePlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
+void EGAPlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	io::stream_offset offset, int width, int height, const PLANE_LAYOUT& planes
 )
 	throw ()
@@ -50,13 +50,13 @@ void EGABytePlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	return;
 }
 
-int EGABytePlanarImage::getCaps()
+int EGAPlanarImage::getCaps()
 	throw ()
 {
 	return ColourDepthEGA;
 }
 
-void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 	throw ()
 {
 	*width = this->width;
@@ -64,11 +64,9 @@ void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height
 	return;
 }
 
-void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
+void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	throw (std::ios::failure)
 {
-	assert(this->getCaps() & Image::CanSetDimensions);
-
 	this->width = width;
 	this->height = height;
 
@@ -83,19 +81,19 @@ void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandard()
+StdImageDataPtr EGAPlanarImage::toStandard()
 	throw ()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandardMask()
+StdImageDataPtr EGAPlanarImage::toStandardMask()
 	throw ()
 {
 	return this->doConversion(true);
 }
 
-void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
+void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 	throw ()
@@ -145,16 +143,17 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	}
 
 	this->data->seekp(0, std::ios::beg);
-	uint8_t *imgData = (uint8_t *)newContent.get();
-	uint8_t *maskData = (uint8_t *)newMask.get();
 	uint8_t *rowData;
-	for (int y = 0; y < this->height; y++) {
 
-		// Run through each lot of eight pixels (a "cell")
-		for (int x = 0; x < (this->width + 7) / 8; x++) {
+	// For each pixel, set the appropriate bits in the cell
+	for (int p = 0; p < numPlanes; p++) {
+		uint8_t *imgData = (uint8_t *)newContent.get();
+		uint8_t *maskData = (uint8_t *)newMask.get();
 
-			// For each pixel, set the appropriate bits in the cell
-			for (int p = 0; p < numPlanes; p++) {
+		for (int y = 0; y < this->height; y++) {
+
+			// Run through each lot of eight pixels (a "cell")
+			for (int x = 0; x < (this->width + 7) / 8; x++) {
 
 				uint8_t c = 0;
 
@@ -184,15 +183,15 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 
 				this->data << u8(c);
 			}
+			imgData += this->width;
+			maskData += this->width;
 		}
-		imgData += this->width;
-		maskData += this->width;
 	}
 
 	return;
 }
 
-StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
+StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	throw ()
 {
 	// Sort out all the values we need to output for each plane
@@ -251,14 +250,17 @@ StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
 	memset(rowData, 0, imgSizeBytes);
 	this->data->seekg(0, std::ios::beg);
 
-	for (int y = 0; y < this->height; y++) {
-		// Run through each lot of eight pixels (a "cell")
-		// Adding 7 means a width that's not an even multiple of eight will
-		// effectively be rounded up to the next byte - so an eight pixel wide
-		// image will use one byte (8 + 7 = 15, 15 / 8 == 1) but a nine pixel
-		// wide image will use two bytes (9 + 7 = 16, 16 / 8 == 2).
-		for (int x = 0; x < (this->width + 7) / 8; x++) {
-			for (int p = 0; p < numPlanes; p++) {
+	for (int p = 0; p < numPlanes; p++) {
+		rowData = ret.get();
+
+		for (int y = 0; y < this->height; y++) {
+			// Run through each lot of eight pixels (a "cell")
+			// Adding 7 means a width that's not an even multiple of eight will
+			// effectively be rounded up to the next byte - so an eight pixel wide
+			// image will use one byte (8 + 7 = 15, 15 / 8 == 1) but a nine pixel
+			// wide image will use two bytes (9 + 7 = 16, 16 / 8 == 2).
+			for (int x = 0; x < (this->width + 7) / 8; x++) {
+
 				uint8_t nextByte;
 				this->data >> u8(nextByte);
 
@@ -273,11 +275,11 @@ StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
 				// Run through all the (valid) bits in this byte
 				for (int b = 0; b < bits; b++) {
 					rowData[x * 8 + b] |=
-					(nextByte & (0x80 >> b)) ? planeValue[p] : notPlaneValue[p];
+						(nextByte & (0x80 >> b)) ? planeValue[p] : notPlaneValue[p];
 				}
 			}
+			rowData += this->width;
 		}
-		rowData += this->width;
 	}
 	return ret;
 }

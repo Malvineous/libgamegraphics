@@ -251,16 +251,13 @@ StdImageDataPtr EGARowPlanarImage::doConversion(bool mask)
 	memset(rowData, 0, imgSizeBytes);
 	this->data->seekg(this->offset, std::ios::beg);
 
-	// Adding 7 means a width that's not an even multiple of eight will
-	// effectively be rounded up to the next byte - so an eight pixel wide
-	// image will use one byte (8 + 7 = 15, 15 / 8 == 1) but a nine pixel
-	// wide image will use two bytes (9 + 7 = 16, 16 / 8 == 2).
-	//for (int xy = 0; xy < (this->width + 7) / 8 * this->height; xy++) {
 	for (int y = 0; y < this->height; y++) {
-
 		for (int p = 0; p < numPlanes; p++) {
-
 			// Run through each lot of eight pixels (a "cell")
+			// Adding 7 means a width that's not an even multiple of eight will
+			// effectively be rounded up to the next byte - so an eight pixel wide
+			// image will use one byte (8 + 7 = 15, 15 / 8 == 1) but a nine pixel
+			// wide image will use two bytes (9 + 7 = 16, 16 / 8 == 2).
 			for (int x = 0; x < (this->width + 7) / 8; x++) {
 				uint8_t nextByte;
 				this->data >> u8(nextByte);

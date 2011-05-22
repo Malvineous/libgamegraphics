@@ -4,6 +4,7 @@ libgamegraphics_la_SOURCES = main.cpp
 libgamegraphics_la_SOURCES += tileset.cpp
 libgamegraphics_la_SOURCES += image.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
+libgamegraphics_la_SOURCES += img-ega-planar.cpp
 libgamegraphics_la_SOURCES += img-ega-byteplanar.cpp
 libgamegraphics_la_SOURCES += img-ega-rowplanar.cpp
 libgamegraphics_la_SOURCES += img-vga.cpp
@@ -23,6 +24,7 @@ libgamegraphics_la_SOURCES += tls-harry.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
 EXTRA_libgamegraphics_la_SOURCES = img-ega-common.hpp
+EXTRA_libgamegraphics_la_SOURCES += img-ega-planar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-byteplanar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-rowplanar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-vga.hpp
