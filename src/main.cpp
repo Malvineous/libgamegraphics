@@ -2,7 +2,7 @@
  * @file   main.cpp
  * @brief  Entry point for libgamegraphics.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <camoto/gamegraphics.hpp>
 
 // Include all the file formats for the Manager to load
+#include "tls-bash.hpp"
 #include "tls-ccaves-sub.hpp"
 #include "tls-ccaves-main.hpp"
 #include "tls-cosmo.hpp"
@@ -46,6 +47,8 @@ ManagerPtr getManager()
 Manager::Manager()
 	throw ()
 {
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashBackgroundTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoTilesetType()));
