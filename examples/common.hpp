@@ -128,9 +128,14 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 		throw std::ios::failure("image does not match tileset size");
 	}
 
+	bool hasTransparency = true;
+	int pixelOffset = -1; // to account for palette #0 being inserted for use as transparency
 	png::tRNS transparency = png.get_tRNS();
-	if ((transparency.size() < 1) || (transparency[0] != 0)) {
+	if ((transparency.size() > 0) && (transparency[0] != 0)) {
 		throw std::ios::failure("palette entry #0 must be assigned as transparent");
+	} else {
+		hasTransparency = false;
+		pixelOffset = 0;
 	}
 
 	int imgSizeBytes = width * height;
@@ -142,11 +147,11 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			uint8_t pixel = png[y][x];
-			if (pixel == 0) { // Palette #0 must be transparent
+			if (hasTransparency && (pixel == 0)) { // Palette #0 must be transparent
 				maskData[y * width + x] = 0x01; // transparent
 			} else {
 				maskData[y * width + x] = 0x00; // opaque
-				imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
+				imgData[y * width + x] = pixel + pixelOffset;
 			}
 		}
 	}
