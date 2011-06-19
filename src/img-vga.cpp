@@ -85,13 +85,18 @@ void VGAImage::fromStandard(StdImageDataPtr newContent,
 	assert((width != 0) && (height != 0));
 	int dataSize = width * height;
 
+	this->data->seekp(0, std::ios::end);
+	io::stream_offset len = this->data->tellp();
+
+	// Cut off any leftover data or resize so there's enough space
+	if (dataSize + this->off != len) {
+		assert(this->fnTruncate);
+		this->fnTruncate(dataSize + this->off);
+	} // else size didn't need to change, e.g. fixed-size VGA image
+
 	// No conversion needed, write out as-is
 	uint8_t *imgData = (uint8_t *)newContent.get();
 	this->data->seekp(this->off, std::ios::beg);
-
-	// Cut off any leftover data or resize so there's enough space
-	this->fnTruncate(dataSize + this->off);
-
 	this->data->rdbuf()->sputn((char *)imgData, dataSize);
 
 	return;
