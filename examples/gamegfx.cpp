@@ -23,6 +23,7 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
+#include <camoto/util.hpp>
 #include <iostream>
 #include <fstream>
 #include "common.hpp"
@@ -791,7 +792,7 @@ finishTesting:
 					suppStream->open(i->second.c_str(), std::ios::in | std::ios::out | std::ios::binary);
 					camoto::SuppItem si;
 					si.stream = suppStream;
-					si.fnTruncate = boost::bind<void>(truncate, i->second.c_str(), _1);
+					si.fnTruncate = boost::bind<void>(camoto::truncateFromString, i->second, _1);
 					suppData[i->first] = si;
 				} catch (std::ios::failure e) {
 					std::cerr << "Error opening supplemental file " << i->second.c_str() << std::endl;
@@ -805,7 +806,7 @@ finishTesting:
 
 		// Open the graphics file
 		camoto::FN_TRUNCATE fnTruncate =
-			boost::bind<void>(truncate, strFilename.c_str(), _1);
+			boost::bind<void>(camoto::truncateFromString, strFilename, _1);
 		gg::TilesetPtr pTileset(pGfxType->open(psTileset, fnTruncate, suppData));
 		assert(pTileset);
 
