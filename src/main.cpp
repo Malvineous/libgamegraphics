@@ -26,6 +26,7 @@
 #include "tls-bash.hpp"
 #include "tls-ccaves-sub.hpp"
 #include "tls-ccaves-main.hpp"
+#include "tls-ccomic.hpp"
 #include "tls-cosmo.hpp"
 #include "tls-ddave.hpp"
 #include "tls-harry.hpp"
@@ -52,6 +53,8 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesSubTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CComicSpriteType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CComicTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoMaskedTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));

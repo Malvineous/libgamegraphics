@@ -24,8 +24,9 @@ use any external palette data.
 This library is still in the preliminary stages, so only the following formats
 have been implemented:
 
-  * Crystal Caves (tiles)
+  * Captain Comic
   * Cosmo's Cosmic Adventures
+  * Crystal Caves (tiles)
   * Dangerous Dave
   * Halloween Harry
   * Monster Bash (tiles)
