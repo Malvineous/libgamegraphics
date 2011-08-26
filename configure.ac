@@ -18,7 +18,7 @@ AC_PROG_CXX
 # Checks for libraries.
 AC_PROG_LIBTOOL
 
-BOOST_REQUIRE([1.37])
+BOOST_REQUIRE([1.46])
 BOOST_PROGRAM_OPTIONS
 BOOST_TEST
 
@@ -46,6 +46,30 @@ CPPFLAGS=$SAVE_CPPFLAGS
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+
+# Check for ImageMagick and Magick++ (borrowed from zbar.sourceforge.net)
+AC_ARG_VAR([MAGICKXX_CONFIG], [full path to Magick++-config program])
+AC_CHECK_TOOL([MAGICKXX_CONFIG], [Magick++-config], [:])
+AS_IF([test "x$MAGICKXX_CONFIG" = "x:"],
+  [AC_CHECK_TOOL([CONVERT], [convert])
+   AS_IF([test "x$CONVERT" != "x" && \
+          convert -version | grep ImageMagick >/dev/null 2>&1],
+     [AC_MSG_FAILURE([test for Magick++ interface failed!
+although ImageMagick programs appear to be installed?
+
+Make sure you install any ImageMagick development packages
+provided by your distribution.
+])],
+     [AC_MSG_FAILURE([test for ImageMagick failed!
+
+Please install ImageMagick and Magick++
+])]
+)])
+AC_SUBST([MAGICK_CPPFLAGS], [`$MAGICKXX_CONFIG --cppflags`])
+AC_SUBST([MAGICK_CXXFLAGS], [`$MAGICKXX_CONFIG --cxxflags`])
+AC_SUBST([MAGICK_LDFLAGS], [`$MAGICKXX_CONFIG --ldflags`])
+AC_SUBST([MAGICK_LIBS], [`$MAGICKXX_CONFIG --libs`])
+
 
 AC_ARG_WITH([python],
 	AS_HELP_STRING([--without-python], [do not build Python interface to the library]))
