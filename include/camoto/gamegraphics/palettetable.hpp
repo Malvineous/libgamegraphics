@@ -52,7 +52,7 @@ struct PaletteEntry {
 	 *   Blue value (0-255)
 	 *
 	 * @param alpha
-	 *   Alpha value (0-255)
+	 *   Alpha value (0-255).  0 is transparent, 255 is opaque.
 	 */
 		PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
 };
