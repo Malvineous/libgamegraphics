@@ -157,9 +157,16 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	}
 
 	if (img->getCaps() & gg::Image::HasPalette) {
-		// TODO: This format supports custom palettes, so update it from the
+		// This format supports custom palettes, so update it from the
 		// PNG image.
-		//img->setPalette(...);
+		const png::palette& pngPal = png.get_palette();
+		gg::PaletteTablePtr newPal(new gg::PaletteTable());
+		newPal->reserve(pngPal.size());
+		for (png::palette::const_iterator i = pngPal.begin(); i != pngPal.end(); i++) {
+			gg::PaletteEntry p(i->red, i->green, i->blue, 255);
+			newPal->push_back(p);
+		}
+		img->setPalette(newPal);
 	}
 	img->fromStandard(stdimg, stdmask);
 
