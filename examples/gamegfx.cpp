@@ -724,29 +724,34 @@ int main(int iArgC, char *cArgV[])
 			gg::TilesetTypePtr pTestType;
 			int i = 0;
 			while ((pTestType = pManager->getTilesetType(i++))) {
-				gg::TilesetType::Certainty cert = pTestType->isInstance(psTileset);
-				switch (cert) {
-					case gg::TilesetType::DefinitelyNo:
-						// Don't print anything (TODO: Maybe unless verbose?)
-						break;
-					case gg::TilesetType::Unsure:
-						std::cout << "File could be a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						// If we haven't found a match already, use this one
-						if (!pGfxType) pGfxType = pTestType;
-						break;
-					case gg::TilesetType::PossiblyYes:
-						std::cout << "File is likely to be a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						// Take this one as it's better than an uncertain match
-						pGfxType = pTestType;
-						break;
-					case gg::TilesetType::DefinitelyYes:
-						std::cout << "File is definitely a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						pGfxType = pTestType;
-						// Don't bother checking any other formats if we got a 100% match
-						goto finishTesting;
+				try {
+					gg::TilesetType::Certainty cert = pTestType->isInstance(psTileset);
+					switch (cert) {
+						case gg::TilesetType::DefinitelyNo:
+							// Don't print anything (TODO: Maybe unless verbose?)
+							break;
+						case gg::TilesetType::Unsure:
+							std::cout << "File could be a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							// If we haven't found a match already, use this one
+							if (!pGfxType) pGfxType = pTestType;
+							break;
+						case gg::TilesetType::PossiblyYes:
+							std::cout << "File is likely to be a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							// Take this one as it's better than an uncertain match
+							pGfxType = pTestType;
+							break;
+						case gg::TilesetType::DefinitelyYes:
+							std::cout << "File is definitely a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							pGfxType = pTestType;
+							// Don't bother checking any other formats if we got a 100% match
+							goto finishTesting;
+					}
+				} catch (const std::ios::failure& e) {
+					std::cout << "Ignoring handler for " << pTestType->getFriendlyName()
+						<< " due to error: " << e.what() << std::endl;
 				}
 			}
 finishTesting:

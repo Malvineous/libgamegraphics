@@ -195,29 +195,34 @@ int main(int iArgC, char *cArgV[])
 			gg::ImageTypePtr pTestType;
 			int i = 0;
 			while ((pTestType = pManager->getImageType(i++))) {
-				gg::ImageType::Certainty cert = pTestType->isInstance(psImage);
-				switch (cert) {
-					case gg::ImageType::DefinitelyNo:
-						// Don't print anything (TODO: Maybe unless verbose?)
-						break;
-					case gg::ImageType::Unsure:
-						std::cout << "File could be a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						// If we haven't found a match already, use this one
-						if (!pGfxType) pGfxType = pTestType;
-						break;
-					case gg::ImageType::PossiblyYes:
-						std::cout << "File is likely to be a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						// Take this one as it's better than an uncertain match
-						pGfxType = pTestType;
-						break;
-					case gg::ImageType::DefinitelyYes:
-						std::cout << "File is definitely a " << pTestType->getFriendlyName()
-							<< " [" << pTestType->getCode() << "]" << std::endl;
-						pGfxType = pTestType;
-						// Don't bother checking any other formats if we got a 100% match
-						goto finishTesting;
+				try {
+					gg::ImageType::Certainty cert = pTestType->isInstance(psImage);
+					switch (cert) {
+						case gg::ImageType::DefinitelyNo:
+							// Don't print anything (TODO: Maybe unless verbose?)
+							break;
+						case gg::ImageType::Unsure:
+							std::cout << "File could be a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							// If we haven't found a match already, use this one
+							if (!pGfxType) pGfxType = pTestType;
+							break;
+						case gg::ImageType::PossiblyYes:
+							std::cout << "File is likely to be a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							// Take this one as it's better than an uncertain match
+							pGfxType = pTestType;
+							break;
+						case gg::ImageType::DefinitelyYes:
+							std::cout << "File is definitely a " << pTestType->getFriendlyName()
+								<< " [" << pTestType->getCode() << "]" << std::endl;
+							pGfxType = pTestType;
+							// Don't bother checking any other formats if we got a 100% match
+							goto finishTesting;
+					}
+				} catch (const std::ios::failure& e) {
+					std::cout << "Ignoring handler for " << pTestType->getFriendlyName()
+						<< " due to error: " << e.what() << std::endl;
 				}
 			}
 finishTesting:
