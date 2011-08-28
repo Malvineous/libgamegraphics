@@ -132,6 +132,8 @@ TilesetPtr HarryTilesetType::open(iostream_sptr psTileset,
 			suppData[SuppItem::Palette].fnTruncate
 		));
 		pal = palFile->getPalette();
+	} else {
+		throw std::ios::failure("no palette specified (missing supplementary item)");
 	}
 	return TilesetPtr(new HarryTileset(psTileset, fnTruncate, pal));
 }
@@ -156,6 +158,8 @@ HarryTileset::HarryTileset(iostream_sptr data,
 		FATTileset(data, fnTruncate, CHR_FIRST_TILE_OFFSET),
 		pal(pal)
 {
+	assert(this->pal);
+
 	for (int i = 0; i < CHR_NUM_TILES; i++) {
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
