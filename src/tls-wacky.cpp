@@ -96,7 +96,8 @@ WackyTilesetType::Certainty WackyTilesetType::isInstance(iostream_sptr psGraphic
 			(img.rows() == 200)
 		) return PossiblyYes;
 	} catch (Magick::Exception& e) {
-		throw std::ios::failure(e.what());
+		// We will end up here if ImageMagick doesn't recognise the format at all
+		return DefinitelyNo;
 	}
 	return DefinitelyNo;
 }
