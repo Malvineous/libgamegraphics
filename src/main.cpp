@@ -30,6 +30,7 @@
 #include "tls-cosmo.hpp"
 #include "tls-ddave.hpp"
 #include "tls-harry.hpp"
+#include "tls-hocus.hpp"
 #include "tls-wacky.hpp"
 #include "tls-zone66.hpp"
 #include "img-pcx.hpp"
@@ -63,6 +64,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new HocusTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 

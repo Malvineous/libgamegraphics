@@ -26,6 +26,7 @@ libgamegraphics_la_SOURCES += tls-ccomic.cpp
 libgamegraphics_la_SOURCES += tls-cosmo.cpp
 libgamegraphics_la_SOURCES += tls-ddave.cpp
 libgamegraphics_la_SOURCES += tls-harry.cpp
+libgamegraphics_la_SOURCES += tls-hocus.cpp
 libgamegraphics_la_SOURCES += tls-wacky.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
@@ -52,6 +53,7 @@ EXTRA_libgamegraphics_la_SOURCES += tls-ccomic.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-cosmo.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ddave.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-harry.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-hocus.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wacky.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
