@@ -79,7 +79,7 @@ ImageType::Certainty PCXImageType::isInstance(iostream_sptr psImage) const
 		Magick::Image img(blob);
 		if (img.magick().compare("PCX") == 0) return DefinitelyYes;
 	} catch (Magick::Exception& e) {
-		throw std::ios::failure(e.what());
+		return DefinitelyNo;
 	}
 
 	// TESTED BY: TODO
