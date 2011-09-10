@@ -73,7 +73,7 @@ StdImageDataPtr MagickImage::toStandard()
 		unsigned long dataSize = width * height;
 		uint8_t *imgData = new uint8_t[dataSize];
 		StdImageDataPtr ret(imgData);
-		for (dataSize++; dataSize > 0; dataSize--) *imgData++ = *pixels++;
+		while (dataSize-- > 0) *imgData++ = *pixels++;
 		return ret;
 
 	} catch (Magick::Exception& e) {

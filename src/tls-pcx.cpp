@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/shared_array.hpp>
 #include "img-magick.hpp"
 #include "tls-pcx.hpp"
 
@@ -39,7 +40,7 @@ PCXTileset::PCXTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	unsigned long lenData = this->data->tellg();
 	this->data->seekg(0, std::ios::beg);
 
-	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
+	boost::shared_array<uint8_t> imgData(new uint8_t[lenData]);
 	this->data->read((char *)imgData.get(), lenData);
 
 	try {

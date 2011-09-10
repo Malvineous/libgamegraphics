@@ -151,7 +151,7 @@ class Tileset: virtual public Metadata {
 		/**
 		 * @note To implementors: This function defaults to triggering an
 		 *   assertion failure, so this function only needs to be overridden if
-		 *   there are sub-tilesets available.
+		 *   there are sub-images available.
 		 *
 		 * @param id
 		 *   ID of the item to open, as returned by getItems().
