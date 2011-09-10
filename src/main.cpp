@@ -32,6 +32,7 @@
 #include "tls-harry.hpp"
 #include "tls-hocus.hpp"
 #include "tls-wacky.hpp"
+#include "tls-wordresc.hpp"
 #include "tls-zone66.hpp"
 #include "img-pcx.hpp"
 #include "img-tv-fog.hpp"
@@ -66,6 +67,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HocusTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new PCXImageType()));

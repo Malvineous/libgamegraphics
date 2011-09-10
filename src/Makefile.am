@@ -57,6 +57,7 @@ EXTRA_libgamegraphics_la_SOURCES += tls-harry.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-hocus.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-pcx.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wacky.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-wordresc.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS)
