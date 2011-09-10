@@ -21,8 +21,6 @@
 #ifndef _CAMOTO_TLS_HOCUS_HPP_
 #define _CAMOTO_TLS_HOCUS_HPP_
 
-#include <boost/enable_shared_from_this.hpp>
-#include <Magick++.h>
 #include <camoto/gamegraphics/tilesettype.hpp>
 
 namespace camoto {
@@ -62,61 +60,6 @@ class HocusTilesetType: virtual public TilesetType {
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
 			throw ();
-
-};
-
-class HocusTileset: virtual public Tileset,
-	public boost::enable_shared_from_this<HocusTileset>
-{
-
-	public:
-		struct HocusEntry: public Entry {
-			int index; ///< Zero-based index of tile
-		};
-
-		HocusTileset(iostream_sptr data, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
-
-		virtual ~HocusTileset()
-			throw ();
-
-		virtual int getCaps()
-			throw ();
-
-		virtual const VC_ENTRYPTR& getItems() const
-			throw ();
-
-		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (std::ios::failure);
-
-		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (std::ios::failure);
-
-		virtual void remove(EntryPtr& id)
-			throw (std::ios::failure);
-
-		void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure);
-
-		virtual void flush()
-			throw (std::ios::failure);
-
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
-
-		virtual unsigned int getLayoutWidth()
-			throw ();
-
-		virtual PaletteTablePtr getPalette()
-			throw ();
-
-		void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
-
-	protected:
-		iostream_sptr data;  ///< Underlying .PCX file
-		Magick::Image img;   ///< ImageMagick instance to .PCX
-		VC_ENTRYPTR items;   ///< List of tiles
 
 };
 
