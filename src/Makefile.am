@@ -29,6 +29,7 @@ libgamegraphics_la_SOURCES += tls-harry.cpp
 libgamegraphics_la_SOURCES += tls-hocus.cpp
 libgamegraphics_la_SOURCES += tls-pcx.cpp
 libgamegraphics_la_SOURCES += tls-wacky.cpp
+libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
 EXTRA_libgamegraphics_la_SOURCES = img-ega-common.hpp
