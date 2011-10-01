@@ -138,8 +138,15 @@ PCXImage::~PCXImage()
 int PCXImage::getCaps()
 	throw ()
 {
+	int numColours = this->img.colorMapSize();
+	int depth;
+	if (numColours > 16) depth = Image::ColourDepthVGA;
+	else if (numColours > 4) depth = Image::ColourDepthEGA;
+	else if (numColours > 1) depth = Image::ColourDepthCGA;
+	else depth = Image::ColourDepthMono;
+
 	return Image::CanSetDimensions | Image::HasPalette | Image::CanSetPalette
-		| Image::ColourDepthVGA;
+		| depth;
 }
 
 void PCXImage::getDimensions(unsigned int *width, unsigned int *height)
