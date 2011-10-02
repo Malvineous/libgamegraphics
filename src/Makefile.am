@@ -1,9 +1,10 @@
 lib_LTLIBRARIES = libgamegraphics.la
 
 libgamegraphics_la_SOURCES = main.cpp
-libgamegraphics_la_SOURCES += tileset.cpp
 libgamegraphics_la_SOURCES += image.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
+libgamegraphics_la_SOURCES += tileset.cpp
+libgamegraphics_la_SOURCES += tilesetFromList.cpp
 libgamegraphics_la_SOURCES += img-ega-planar.cpp
 libgamegraphics_la_SOURCES += img-ega-byteplanar.cpp
 libgamegraphics_la_SOURCES += img-ega-rowplanar.cpp
