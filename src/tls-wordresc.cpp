@@ -21,8 +21,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <Magick++.h>
 #include "tls-wordresc.hpp"
-#include "tls-pcx.hpp"
+#include "tls-img.hpp"
+#include "img-pcx.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -110,7 +112,8 @@ TilesetPtr WordrescTilesetType::open(iostream_sptr psGraphics,
 	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
-	return TilesetPtr(new PCXTileset(psGraphics, fnTruncate,
+	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	return TilesetPtr(new TilesetFromImage(img,
 		WR_TILE_WIDTH, WR_TILE_HEIGHT, WR_TILES_X, WR_TILES_Y));
 }
 

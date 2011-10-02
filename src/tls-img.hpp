@@ -1,6 +1,6 @@
 /**
- * @file   tls-pcx.hpp
- * @brief  Tiles stored in a PCX image
+ * @file   tls-img.hpp
+ * @brief  Tiles stored as a grid in an image file.
  *
  * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,30 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_PCX_HPP_
-#define _CAMOTO_TLS_PCX_HPP_
+#ifndef _CAMOTO_TLS_IMG_HPP_
+#define _CAMOTO_TLS_IMG_HPP_
 
-#include <boost/enable_shared_from_this.hpp>
-#include <Magick++.h>
 #include <camoto/gamegraphics/tileset.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-class PCXTileset: virtual public Tileset,
-	public boost::enable_shared_from_this<PCXTileset>
+class TilesetFromImage: virtual public Tileset
 {
 
 	public:
-		struct PCXEntry: public Entry {
+		struct ImageEntry: public Entry {
 			int index; ///< Zero-based index of tile
 		};
 
-		PCXTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+		TilesetFromImage(ImagePtr img,
 			int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
 			throw (std::ios::failure);
 
-		virtual ~PCXTileset()
+		virtual ~TilesetFromImage()
 			throw ();
 
 		virtual int getCaps()
@@ -78,8 +75,7 @@ class PCXTileset: virtual public Tileset,
 			throw (std::ios::failure);
 
 	protected:
-		iostream_sptr data;  ///< Underlying .PCX file
-		Magick::Image img;   ///< ImageMagick instance to .PCX
+		ImagePtr img;        ///< Underlying image file
 		VC_ENTRYPTR items;   ///< List of tiles
 		int tileWidth;       ///< Width of each tile in pixels
 		int tileHeight;      ///< Height of each tile in pixels
@@ -91,4 +87,4 @@ class PCXTileset: virtual public Tileset,
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_PCX_HPP_
+#endif // _CAMOTO_TLS_IMG_HPP_

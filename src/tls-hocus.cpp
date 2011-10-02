@@ -21,8 +21,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <Magick++.h>
 #include "tls-hocus.hpp"
-#include "tls-pcx.hpp"
+#include "tls-img.hpp"
+#include "img-pcx.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -111,7 +113,8 @@ TilesetPtr HocusTilesetType::open(iostream_sptr psGraphics,
 	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
-	return TilesetPtr(new PCXTileset(psGraphics, fnTruncate,
+	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	return TilesetPtr(new TilesetFromImage(img,
 		HP_TILE_WIDTH, HP_TILE_HEIGHT, HP_TILES_X, HP_TILES_Y));
 }
 

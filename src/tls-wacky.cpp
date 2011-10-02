@@ -21,8 +21,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <Magick++.h>
 #include "tls-wacky.hpp"
-#include "tls-pcx.hpp"
+#include "tls-img.hpp"
+#include "img-pcx.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -111,7 +113,8 @@ TilesetPtr WackyTilesetType::open(iostream_sptr psGraphics,
 	FN_TRUNCATE fnTruncate, SuppData& suppData) const
 	throw (std::ios::failure)
 {
-	return TilesetPtr(new PCXTileset(psGraphics, fnTruncate,
+	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	return TilesetPtr(new TilesetFromImage(img,
 		WW_TILE_WIDTH, WW_TILE_HEIGHT, WW_TILES_X, WW_TILES_Y));
 }
 
