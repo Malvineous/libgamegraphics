@@ -32,6 +32,7 @@ libgamegraphics_la_SOURCES += tls-hocus.cpp
 libgamegraphics_la_SOURCES += tls-img.cpp
 libgamegraphics_la_SOURCES += tls-wacky.cpp
 libgamegraphics_la_SOURCES += tls-wordresc.cpp
+libgamegraphics_la_SOURCES += tls-wordresc-extra.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
 EXTRA_libgamegraphics_la_SOURCES = img-ega-common.hpp
@@ -62,6 +63,7 @@ EXTRA_libgamegraphics_la_SOURCES += tls-hocus.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-img.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wacky.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wordresc.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-wordresc-extra.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS)
