@@ -120,12 +120,12 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	unsigned int width, height;
 	img->getDimensions(&width, &height);
 
-	png::image<png::index_pixel> png(
-		srcFile, png::require_color_space<png::index_pixel>()
-	);
+	png::image<png::index_pixel> png(srcFile);
 
 	if ((png.get_width() != width) || (png.get_height() != height)) {
-		throw std::ios::failure("image does not match tileset size");
+		throw std::ios::failure(createString("image does not match target size ("
+			<< png.get_width() << "x" << png.get_height() << " != " << width << "x"
+			<< height << ")"));
 	}
 
 	bool hasTransparency = true;
