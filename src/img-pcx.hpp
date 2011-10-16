@@ -114,7 +114,13 @@ class PCXImage: virtual public Image {
 	protected:
 		iostream_sptr data;
 		FN_TRUNCATE fnTruncate;
-		Magick::Image img;
+		PaletteTablePtr pal;
+		uint8_t ver;
+		uint8_t encoding;
+		uint8_t bitsPerPlane;
+		uint8_t numPlanes;
+		int width;
+		int height;
 
 };
 
