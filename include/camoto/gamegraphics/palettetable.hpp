@@ -25,7 +25,8 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 
 namespace camoto {
 namespace gamegraphics {

@@ -36,13 +36,12 @@ EGARowPlanarImage::~EGARowPlanarImage()
 {
 }
 
-void EGARowPlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
-	io::stream_offset offset, int width, int height, const PLANE_LAYOUT& planes
+void EGARowPlanarImage::setParams(stream::inout_sptr data,
+	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
 	throw ()
 {
 	this->data = data;
-	this->fnTruncate = fnTruncate;
 	this->offset = offset;
 	this->width = width;
 	this->height = height;
@@ -65,7 +64,7 @@ void EGARowPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 
@@ -79,7 +78,7 @@ void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	}
 
 	// TODO: Confirm this is correct
-	this->fnTruncate((this->width + 7) / 8 * this->height * numPlanes);
+	this->data->truncate((this->width + 7) / 8 * this->height * numPlanes);
 	return;
 }
 
@@ -144,7 +143,7 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 		planeValue[order] = value;
 	}
 
-	this->data->seekp(this->offset, std::ios::beg);
+	this->data->seekp(this->offset, stream::start);
 	uint8_t *imgData = (uint8_t *)newContent.get();
 	uint8_t *maskData = (uint8_t *)newMask.get();
 	uint8_t *rowData;
@@ -249,7 +248,7 @@ StdImageDataPtr EGARowPlanarImage::doConversion(bool mask)
 	uint8_t *rowData = new uint8_t[imgSizeBytes];
 	StdImageDataPtr ret(rowData);
 	memset(rowData, 0, imgSizeBytes);
-	this->data->seekg(this->offset, std::ios::beg);
+	this->data->seekg(this->offset, stream::start);
 
 	for (int y = 0; y < this->height; y++) {
 		for (int p = 0; p < numPlanes; p++) {

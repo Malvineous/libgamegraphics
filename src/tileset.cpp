@@ -3,7 +3,7 @@
  * @brief  Declaration of Tileset class, for accessing files storing multiple
  *         game images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,21 +44,21 @@ Tileset::~Tileset()
 }
 
 TilesetPtr Tileset::openTileset(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check EntryPtr->attr
 	assert(false);
-	throw std::ios::failure("this tileset has no images"
+	throw stream::error("this tileset has no images"
 		" (this is a bug - the caller should have checked the EntryPtr's"
 		" attributes to detect this)");
 }
 
 ImagePtr Tileset::openImage(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check EntryPtr->attr
 	assert(false);
-	throw std::ios::failure("this tileset has no images"
+	throw stream::error("this tileset has no images"
 		" (this is a bug - the caller should have checked the EntryPtr's"
 		" attributes to detect this)");
 }
@@ -72,11 +72,11 @@ void Tileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
 }
 
 void Tileset::setTilesetDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
-	throw std::ios::failure("this tileset cannot have its tile size changed"
+	throw stream::error("this tileset cannot have its tile size changed"
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
@@ -95,11 +95,11 @@ PaletteTablePtr Tileset::getPalette()
 }
 
 void Tileset::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
-	throw std::ios::failure("this format doesn't support palettes"
+	throw stream::error("this format doesn't support palettes"
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 	return;
 }

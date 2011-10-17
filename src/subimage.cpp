@@ -24,7 +24,7 @@ namespace camoto {
 namespace gamegraphics {
 
 SubImage::SubImage(ImagePtr img, int xOffset, int yOffset, int width, int height)
-	throw (std::ios::failure) :
+	throw (stream::error) :
 		img(img),
 		xOffset(xOffset),
 		yOffset(yOffset),
@@ -54,17 +54,17 @@ void SubImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void SubImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	if ((width != this->width) || (height != this->height)) {
-		throw std::ios::failure("this image is a fixed size");
+		throw stream::error("this image is a fixed size");
 	}
 	return;
 }
 
 StdImageDataPtr SubImage::toStandard()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (!this->parent) {
 		this->parent = this->img->toStandard();
@@ -86,7 +86,7 @@ StdImageDataPtr SubImage::toStandardMask()
 void SubImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (!this->parent) {
 		this->parent = this->img->toStandard();

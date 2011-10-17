@@ -49,16 +49,16 @@ class MonsterBashBackgroundTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsGraphics) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+			throw (stream::error);
 
-		virtual TilesetPtr create(iostream_sptr psGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
 			throw ();
@@ -87,16 +87,16 @@ class MonsterBashForegroundTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsGraphics) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+			throw (stream::error);
 
-		virtual TilesetPtr create(iostream_sptr psGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
 			throw ();
@@ -106,8 +106,8 @@ class MonsterBashForegroundTilesetType: virtual public TilesetType {
 class MonsterBashTileset: virtual public FATTileset {
 
 	public:
-		MonsterBashTileset(iostream_sptr data, FN_TRUNCATE fnTruncate, uint8_t numPlanes)
-			throw (std::ios::failure);
+		MonsterBashTileset(stream::inout_sptr data, uint8_t numPlanes)
+			throw (stream::error);
 
 		virtual ~MonsterBashTileset()
 			throw ();
@@ -116,7 +116,7 @@ class MonsterBashTileset: virtual public FATTileset {
 			throw ();
 
 		void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
 			throw ();
@@ -127,12 +127,12 @@ class MonsterBashTileset: virtual public FATTileset {
 		// FATTileset
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		int numPlanes; ///< Number of colour planes in each image

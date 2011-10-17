@@ -2,7 +2,7 @@
  * @file   tls-ccaves-main.hpp
  * @brief  Crystal Caves top-level tileset handler (containing sub tilesets)
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,16 +49,16 @@ class CCavesMainTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsGraphics) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+			throw (stream::error);
 
-		virtual TilesetPtr create(iostream_sptr psGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
 			throw ();
@@ -70,9 +70,9 @@ class CCavesMainTileset: virtual public FATTileset {
 		unsigned int numPlanes;
 
 	public:
-		CCavesMainTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+		CCavesMainTileset(stream::inout_sptr data,
 			unsigned int numPlanes)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~CCavesMainTileset()
 			throw ();
@@ -83,8 +83,8 @@ class CCavesMainTileset: virtual public FATTileset {
 		// FATTileset
 
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 };
 

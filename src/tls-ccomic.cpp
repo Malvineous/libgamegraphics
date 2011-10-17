@@ -31,7 +31,7 @@
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
 #include "img-ega-planar.hpp"
 #include "tls-ccomic.hpp"
 
@@ -93,29 +93,28 @@ std::vector<std::string> CComicTilesetType::getGameList() const
 	return vcGames;
 }
 
-CComicTilesetType::Certainty CComicTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CComicTilesetType::Certainty CComicTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len % 128 == 4) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr CComicTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CComicTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	psGraphics->seekp(0, std::ios::beg);
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CComicTileset(psGraphics, fnTruncate, NUMPLANES_TILES));
+	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_TILES));
 }
 
-TilesetPtr CComicTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CComicTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CComicTileset(psGraphics, fnTruncate, NUMPLANES_TILES));
+	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_TILES));
 }
 
 SuppFilenames CComicTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -142,29 +141,28 @@ std::string CComicSpriteType::getFriendlyName() const
 	return "Captain Comic Sprite";
 }
 
-CComicSpriteType::Certainty CComicSpriteType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CComicSpriteType::Certainty CComicSpriteType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len % 160 == 0) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr CComicSpriteType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CComicSpriteType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	psGraphics->seekp(0, std::ios::beg);
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CComicTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
-TilesetPtr CComicSpriteType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CComicSpriteType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CComicTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 
@@ -172,21 +170,18 @@ TilesetPtr CComicSpriteType::open(iostream_sptr psGraphics,
 // CComicTileset
 //
 
-CComicTileset::CComicTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+CComicTileset::CComicTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CCA_FIRST_TILE_OFFSET),
+	throw (stream::error) :
+		FATTileset(data, CCA_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
-	assert(this->data->good());
-
 	int tileSize = this->numPlanes << 5; // multiply by 32 (bytes per plane)
 	int lenHeader = (this->numPlanes == NUMPLANES_TILES) ? 4 : 0;
 
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	int numImages = len / tileSize;
 
 	this->items.reserve(numImages);
@@ -216,10 +211,10 @@ int CComicTileset::getCaps()
 }
 
 void CComicTileset::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (newSize != CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * this->numPlanes) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -239,8 +234,8 @@ unsigned int CComicTileset::getLayoutWidth()
 }
 
 ImagePtr CComicTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	int offset = (this->numPlanes == NUMPLANES_TILES) ? 1 : 0;
@@ -255,7 +250,7 @@ ImagePtr CComicTileset::createImageInstance(const EntryPtr& id,
 	EGAPlanarImage *ega = new EGAPlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, fnTruncate, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes
+		content, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes
 	);
 
 	return conv;

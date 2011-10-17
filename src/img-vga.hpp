@@ -2,7 +2,7 @@
  * @file   img-vga.hpp
  * @brief  Image implementation adding support for VGA mode 13 format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,8 @@ namespace io = boost::iostreams;
  */
 class VGAImage: virtual public Image {
 	protected:
-		iostream_sptr data;
-		FN_TRUNCATE fnTruncate;
-		io::stream_offset off; ///< Offset of image data
+		stream::inout_sptr data;
+		stream::pos off; ///< Offset of image data
 
 	public:
 		/// Constructor
@@ -53,7 +52,7 @@ class VGAImage: virtual public Image {
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		VGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, io::stream_offset off)
+		VGAImage(stream::inout_sptr data, stream::pos off)
 			throw ();
 
 		virtual ~VGAImage()
@@ -66,17 +65,17 @@ class VGAImage: virtual public Image {
 		//	throw ();
 
 		//virtual void setDimensions(unsigned int width, unsigned int height)
-		//	throw (std::ios::failure);
+		//	throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
-			throw ();
+			throw (stream::read_error);
 
 		virtual StdImageDataPtr toStandardMask()
 			throw ();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
-			throw ();
+			throw (stream::write_error);
 
 };
 

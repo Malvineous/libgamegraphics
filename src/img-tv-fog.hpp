@@ -49,16 +49,16 @@ class TVFogImageType: virtual public ImageType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsImage) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsImage) const
+			throw (stream::error);
 
-		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();

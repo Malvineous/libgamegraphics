@@ -5,7 +5,7 @@
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
 #include "tls-ccaves-main.hpp"
 #include "tls-ccaves-sub.hpp"
 
@@ -97,17 +97,16 @@ std::vector<std::string> CCavesMainTilesetType::getGameList() const
 	return vcGames;
 }
 
-CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 
 	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c02
 	if (len < 3) return DefinitelyNo; // too short
 
-	psGraphics->seekg(0, std::ios::beg);
-	io::stream_offset pos = 0;
+	psGraphics->seekg(0, stream::start);
+	stream::pos pos = 0;
 	while (pos < len) {
 		uint8_t numTiles, width, height;
 		psGraphics
@@ -130,30 +129,30 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(iostream_sptr
 		pos += delta + 3;
 		if (pos > len) return DefinitelyNo;
 
-		psGraphics->seekg(delta, std::ios::cur);
+		psGraphics->seekg(delta, stream::cur);
 	}
 
 	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c01
 	return PossiblyYes;
 }
 
-TilesetPtr CCavesMainTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CCavesMainTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	throw std::ios::failure("not implemented yet");
-	psGraphics->seekp(0, std::ios::beg);
+	throw stream::error("not implemented yet");
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
 	psGraphics->write("\x00\x01\x08", 3);
-	return TilesetPtr(new CCavesMainTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr CCavesMainTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CCavesMainTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CCavesMainTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -168,22 +167,21 @@ SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenam
 // CCavesMainTileset
 //
 
-CCavesMainTileset::CCavesMainTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 	unsigned int numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CC_FIRST_TILESET_OFFSET),
+	throw (stream::error) :
+		FATTileset(data, CC_FIRST_TILESET_OFFSET),
 		numPlanes(numPlanes)
 {
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
-	if (len < 3) throw std::ios::failure("file too short");
+	if (len < 3) throw stream::error("file too short");
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 
-	io::stream_offset pos = 0;
+	stream::pos pos = 0;
 	for (int i = 0; pos < len; i++) {
 		uint8_t numTiles, width, height;
 		this->data
@@ -204,11 +202,11 @@ CCavesMainTileset::CCavesMainTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
 		if (pos + fat->size > len) break;
 		this->items.push_back(ep);
 
-		this->data->seekg(fat->size-3, std::ios::cur);
+		this->data->seekg(fat->size-3, stream::cur);
 		pos += fat->size;
 
 		if (i >= CC_SAFETY_MAX_TILESETCOUNT) {
-			throw std::ios::failure("too many tilesets or corrupted graphics file");
+			throw stream::error("too many tilesets or corrupted graphics file");
 		}
 	}
 }
@@ -225,13 +223,11 @@ int CCavesMainTileset::getCaps()
 }
 
 TilesetPtr CCavesMainTileset::createTilesetInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
-	assert(content->good());
-
 	return TilesetPtr(
-		new CCavesSubTileset(content, fnTruncate, this->numPlanes)
+		new CCavesSubTileset(content, this->numPlanes)
 	);
 }
 

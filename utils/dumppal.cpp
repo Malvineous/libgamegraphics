@@ -2,7 +2,7 @@
  * @file   dumppal.cpp
  * @brief  Extract the palette from a .png image such as a screenshot.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,16 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
+#include <camoto/stream_file.hpp>
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include "../examples/png++/png.hpp"
 
 #define PROGNAME "dumppal"
 
 namespace po = boost::program_options;
 namespace gg = camoto::gamegraphics;
+namespace stream = camoto::stream;
 
 int main(int iArgC, char *cArgV[])
 {
@@ -135,16 +137,17 @@ int main(int iArgC, char *cArgV[])
 			srcFile, png::require_color_space<png::index_pixel>()
 		);
 
-		camoto::iostream_sptr outStream(new std::fstream(dstFile.c_str(),
-			std::ios::out | std::ios::binary | std::ios::trunc));
-		if (!outStream->good()) {
-			std::cerr << PROGNAME ": Unable to create " << dstFile << std::endl;
+		stream::file_sptr outStream(new stream::file());
+		try {
+			outStream->create(dstFile.c_str());
+		} catch (const stream::open_error& e) {
+			std::cerr << PROGNAME ": Unable to create " << dstFile << ": " << e.what()
+				<< std::endl;
 			return 2;
 		}
+
 		camoto::SuppData dummy;
-		camoto::FN_TRUNCATE fnTruncate =
-			boost::bind<void>(truncate, dstFile.c_str(), _1);
-		gg::ImagePtr palOut = palType->create(outStream, fnTruncate, dummy);
+		gg::ImagePtr palOut = palType->create(outStream, dummy);
 
 		gg::PaletteTablePtr pal(new gg::PaletteTable());
 		png::palette pngPal = png.get_palette();
@@ -157,11 +160,11 @@ int main(int iArgC, char *cArgV[])
 		}
 		palOut->setPalette(pal);
 
-	} catch (po::unknown_option& e) {
+	} catch (const po::unknown_option& e) {
 		std::cerr << PROGNAME ": " << e.what()
 			<< ".  Use --help for help." << std::endl;
 		return 1;
-	} catch (po::invalid_command_line_syntax& e) {
+	} catch (const po::invalid_command_line_syntax& e) {
 		std::cerr << PROGNAME ": " << e.what()
 			<< ".  Use --help for help." << std::endl;
 		return 1;

@@ -3,7 +3,7 @@
  * @brief  TilesetType class, used to identify and open an instance of a
  *         particular tileset format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@
 #include <vector>
 #include <map>
 
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 #include <camoto/suppitem.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
@@ -92,8 +93,8 @@ class TilesetType {
 		 * @note Many tileset formats lack a file header, so Unsure will be a
 		 *   common return value, especially with small files.
 		 */
-		virtual Certainty isInstance(iostream_sptr psTileset) const
-			throw (std::ios::failure) = 0;
+		virtual Certainty isInstance(stream::inout_sptr psTileset) const
+			throw (stream::error) = 0;
 
 		/// Create a blank tileset file in this format.
 		/**
@@ -116,9 +117,9 @@ class TilesetType {
 		 * @return A pointer to an instance of the Tileset class, just as if a
 		 *   valid empty file had been opened by open().
 		 */
-		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Open a tileset file.
 		/**
@@ -139,9 +140,9 @@ class TilesetType {
 		 *   make it possible to "force" a file to be opened by a particular format
 		 *   handler.
 		 */
-		virtual TilesetPtr open(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Get a list of any required supplemental files.
 		/**

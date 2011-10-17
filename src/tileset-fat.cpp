@@ -2,7 +2,7 @@
  * @file   tileset-fat.cpp
  * @brief  Generic FAT-based tileset handler.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,15 +32,13 @@ FATTileset::FATEntry::~FATEntry()
 {
 }
 
-FATTileset::FATTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
-	io::stream_offset offFirstTile)
-	throw (std::ios::failure) :
-		data(new segmented_stream(data)),
-		fnTruncate(fnTruncate),
+FATTileset::FATTileset(stream::inout_sptr data,
+	stream::pos offFirstTile)
+	throw (stream::error) :
+		data(new stream::seg()),
 		offFirstTile(offFirstTile)
 {
-	// Make sure the stream is ready
-	assert(data->good());
+	this->data->open(data);
 }
 
 FATTileset::~FATTileset()
@@ -55,25 +53,23 @@ const FATTileset::VC_ENTRYPTR& FATTileset::getItems(void) const
 }
 
 TilesetPtr FATTileset::openTileset(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	iostream_sptr sub = this->openStream(id);
-	FN_TRUNCATE fnTruncate = boost::bind<void>(&FATTileset::resize, this, id, _1);
-	return this->createTilesetInstance(id, sub, fnTruncate);
+	stream::inout_sptr sub = this->openStream(id);
+	return this->createTilesetInstance(id, sub);
 }
 
 ImagePtr FATTileset::openImage(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	iostream_sptr sub = this->openStream(id);
-	// TODO: What happens if the entry gets deleted, then the image resized?
-	//   Will id still point to a valid entry?
-	FN_TRUNCATE fnTruncate = boost::bind<void>(&FATTileset::resize, this, id, _1);
-	return this->createImageInstance(id, sub, fnTruncate);
+	stream::inout_sptr sub = this->openStream(id);
+	/// @todo What happens if the entry gets deleted, then the image resized?
+	///   Will id still point to a valid entry?
+	return this->createImageInstance(id, sub);
 }
 
 FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	FATEntry *pNewFile = this->createNewFATEntry();
 	EntryPtr ep(pNewFile);
@@ -143,7 +139,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	// (e.g. embedded FAT) then preInsertFile() will have inserted space for
 	// this and written the data, so our insert should start just after the
 	// header.
-	this->data->seekp(pNewFile->offset + pNewFile->lenHeader);
+	this->data->seekp(pNewFile->offset + pNewFile->lenHeader, stream::start);
 	this->data->insert(pNewFile->size);
 
 	this->postInsertFile(pNewFile);
@@ -152,7 +148,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 }
 
 void FATTileset::remove(EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Make sure the caller doesn't try to remove something that doesn't exist!
 	assert(id->isValid);
@@ -179,7 +175,7 @@ void FATTileset::remove(EntryPtr& id)
 	);
 
 	// Remove the file's data from the archive
-	this->data->seekp(pFATDel->offset);
+	this->data->seekp(pFATDel->offset, stream::start);
 	this->data->remove(pFATDel->size + pFATDel->lenHeader);
 
 	// Mark it as invalid in case some other code is still holding on to it.
@@ -190,24 +186,24 @@ void FATTileset::remove(EntryPtr& id)
 	return;
 }
 
-void FATTileset::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+void FATTileset::resize(EntryPtr& id, stream::len newSize)
+	throw (stream::error)
 {
 	FATEntry *pFAT = dynamic_cast<FATEntry *>(id.get());
 	assert(pFAT);
-	std::streamsize delta = newSize - pFAT->size;
+	stream::delta delta = newSize - pFAT->size;
 
 	// Add or remove the data in the underlying stream
-	io::stream_offset start;
+	stream::pos start;
 	if (delta > 0) { // inserting data
 		// TESTED BY: tls_zone66_insert*
 		start = pFAT->offset + pFAT->lenHeader + pFAT->size;
-		this->data->seekp(start);
+		this->data->seekp(start, stream::start);
 		this->data->insert(delta);
 	} else if (delta < 0) { // removing data
 		// TESTED BY: TODO
 		start = pFAT->offset + pFAT->lenHeader + newSize;
-		this->data->seekp(start);
+		this->data->seekp(start, stream::start);
 		this->data->remove(-delta);
 	} else {
 		return; // no change
@@ -221,39 +217,38 @@ void FATTileset::resize(EntryPtr& id, size_t newSize)
 	// including any open streams.
 	this->shiftFiles(pFAT, start, delta, 0);
 
-	// Resize any open substreams
+	// Resize any open stream::subs
 	bool clean = false;
 	for (OPEN_ITEMS::iterator i = this->openItems.begin();
 		i != this->openItems.end();
 		i++
 	) {
 		if (i->first.get() == pFAT) {
-			if (substream_sptr sub = i->second.lock()) {
-				sub->setSize(newSize);
+			if (stream::sub_sptr sub = i->second.lock()) {
+				sub->resize(newSize);
 				// no break, could be multiple opens for same entry
 			} else clean = true;
 		}
 	}
 
-	// If one substream has closed, clean up
+	// If one stream::sub has closed, clean up
 	if (clean) this->cleanOpenSubstreams();
 
 	return;
 }
 
 void FATTileset::flush()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Write out to the underlying stream
-	assert(this->fnTruncate);
-	this->data->commit(this->fnTruncate);
+	this->data->flush();
 
 	return;
 }
 
-void FATTileset::shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
-	std::streamsize deltaOffset, int deltaIndex)
-	throw (std::ios::failure)
+void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
+	stream::len deltaOffset, int deltaIndex)
+	throw (stream::error)
 {
 	for (VC_ENTRYPTR::iterator i = this->items.begin(); i != this->items.end(); i++) {
 		FATEntry *pFAT = dynamic_cast<FATEntry *>(i->get());
@@ -271,7 +266,7 @@ void FATTileset::shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
 		}
 	}
 
-	// Relocate any open substreams
+	// Relocate any open stream::subs
 	bool clean = false;
 	for (OPEN_ITEMS::iterator i = this->openItems.begin();
 		i != this->openItems.end();
@@ -279,44 +274,44 @@ void FATTileset::shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
 	) {
 		if (i->first->isValid) {
 			if (this->entryInRange(i->first.get(), offStart, fatSkip)) {
-				if (substream_sptr sub = i->second.lock()) {
+				if (stream::sub_sptr sub = i->second.lock()) {
 					sub->relocate(deltaOffset);
 				}
 			}
 		} else clean = true;
 	}
 
-	// If one substream has closed, clean up
+	// If one stream::sub has closed, clean up
 	if (clean) this->cleanOpenSubstreams();
 
 	return;
 }
 
 TilesetPtr FATTileset::createTilesetInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	// Caller didn't check id->attr
 	assert(false);
-	throw std::ios::failure("this tileset format doesn't have any sub-tilesets"
+	throw stream::error("this tileset format doesn't have any sub-tilesets"
 		" (this is a bug - the caller should have checked the EntryPtr's"
 		" attributes to detect this)");
 }
 
 ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	// Caller didn't check id->attr
 	assert(false);
-	throw std::ios::failure("this tileset format doesn't have any sub-tilesets"
+	throw stream::error("this tileset format doesn't have any sub-tilesets"
 		" (this is a bug - the caller should have checked the EntryPtr's"
 		" attributes to detect this)");
 }
 
 void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
-	std::streamsize offDelta)
-	throw (std::ios::failure)
+	stream::len offDelta)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
@@ -324,8 +319,8 @@ void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
 
 /// Adjust the size of the given file in the on-disk FAT.
 void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
-	std::streamsize sizeDelta)
-	throw (std::ios::failure)
+	stream::len sizeDelta)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
@@ -333,28 +328,28 @@ void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
 
 FATTileset::FATEntry *FATTileset::preInsertFile(
 	const FATTileset::FATEntry *idBeforeThis, FATTileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return pNewEntry;
 }
 
 void FATTileset::postInsertFile(FATTileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
 }
 
 void FATTileset::preRemoveFile(const FATTileset::FATEntry *pid)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
 }
 
 void FATTileset::postRemoveFile(const FATTileset::FATEntry *pid)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
@@ -366,7 +361,7 @@ FATTileset::FATEntry *FATTileset::createNewFATEntry()
 	return new FATEntry();
 }
 
-iostream_sptr FATTileset::openStream(const EntryPtr& id)
+stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
 	throw ()
 {
 	assert(id->isValid);
@@ -378,21 +373,23 @@ iostream_sptr FATTileset::openStream(const EntryPtr& id)
 	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
 	assert(pFAT);
 
-	substream_sptr psSub(
-		new substream(
-			this->data,
-			pFAT->offset + pFAT->lenHeader,
-			pFAT->size
-		)
+	stream::fn_truncate fnTruncate = boost::bind<void>(&FATTileset::resize, this, id, _1);
+
+	stream::sub_sptr sub(new stream::sub);
+	sub->open(
+		this->data,
+		pFAT->offset + pFAT->lenHeader,
+		pFAT->size,
+		fnTruncate
 	);
 
-	// Add it to the list of open files, in case we need to shift the substream
+	// Add it to the list of open files, in case we need to shift the stream::sub
 	// around later on as files are added/removed/resized.
 	this->openItems.insert(OPEN_ITEM(
 		pFAT,
-		psSub
+		sub
 	));
-	return psSub;
+	return sub;
 }
 
 void FATTileset::cleanOpenSubstreams()
@@ -419,7 +416,7 @@ void FATTileset::cleanOpenSubstreams()
 	return;
 }
 
-bool FATTileset::entryInRange(const FATEntry *fat, io::stream_offset offStart,
+bool FATTileset::entryInRange(const FATEntry *fat, stream::pos offStart,
 	const FATEntry *fatSkip) const
 	throw ()
 {

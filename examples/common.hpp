@@ -21,6 +21,7 @@
 #include <camoto/gamegraphics.hpp>
 #include "png++/png.hpp"
 
+namespace stream = camoto::stream;
 namespace gg = camoto::gamegraphics;
 
 /// Export an image to a .png file.
@@ -115,7 +116,7 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
  * @param  srcFile  Filename of source (including ".png")
  */
 void pngToImage(gg::ImagePtr img, const std::string& srcFile)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	unsigned int width, height;
 	img->getDimensions(&width, &height);
@@ -123,7 +124,7 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	png::image<png::index_pixel> png(srcFile);
 
 	if ((png.get_width() != width) || (png.get_height() != height)) {
-		throw std::ios::failure(createString("image does not match target size ("
+		throw stream::error(createString("image does not match target size ("
 			<< png.get_width() << "x" << png.get_height() << " != " << width << "x"
 			<< height << ")"));
 	}
@@ -132,7 +133,7 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	int pixelOffset = -1; // to account for palette #0 being inserted for use as transparency
 	png::tRNS transparency = png.get_tRNS();
 	if ((transparency.size() > 0) && (transparency[0] != 0)) {
-		throw std::ios::failure("palette entry #0 must be assigned as transparent");
+		throw stream::error("palette entry #0 must be assigned as transparent");
 	} else {
 		hasTransparency = false;
 		pixelOffset = 0;

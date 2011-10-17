@@ -64,16 +64,16 @@ std::vector<std::string> GMFHarryPaletteImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty GMFHarryPaletteImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::beg);
+	psImage->seekg(0, stream::start);
 
 	char sig[0x12];
 	psImage->read(sig, 0x12);
 	if (strncmp(sig, "\x11SubZero Game File", 0x12) != 0) return DefinitelyNo;
 
-	psImage->seekg(0x1D, std::ios::beg);
+	psImage->seekg(0x1D, stream::start);
 
 	// Check palette is within range
 	char pal[768];
@@ -86,18 +86,18 @@ ImageType::Certainty GMFHarryPaletteImageType::isInstance(iostream_sptr psImage)
 	return DefinitelyYes;
 }
 
-ImagePtr GMFHarryPaletteImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr GMFHarryPaletteImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return ImagePtr(new GMFHarryPalette(psImage, fnTruncate));
+	return ImagePtr(new GMFHarryPalette(psImage));
 }
 
-ImagePtr GMFHarryPaletteImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr GMFHarryPaletteImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return ImagePtr(new GMFHarryPalette(psImage, fnTruncate));
+	return ImagePtr(new GMFHarryPalette(psImage));
 }
 
 SuppFilenames GMFHarryPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
@@ -108,10 +108,9 @@ SuppFilenames GMFHarryPaletteImageType::getRequiredSupps(const std::string& file
 }
 
 
-GMFHarryPalette::GMFHarryPalette(iostream_sptr data, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure) :
-		data(data),
-		fnTruncate(fnTruncate)
+GMFHarryPalette::GMFHarryPalette(stream::inout_sptr data)
+	throw (stream::error) :
+		data(data)
 {
 }
 
@@ -121,14 +120,14 @@ GMFHarryPalette::~GMFHarryPalette()
 }
 
 PaletteTablePtr GMFHarryPalette::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
-	data->seekg(0x1d, std::ios::beg);
+	data->seekg(0x1d, stream::start);
 	data->read((char *)buf, 768);
 	// If the palette data is cut off (short read) the rest of the entries will
 	// be black.
@@ -146,7 +145,7 @@ PaletteTablePtr GMFHarryPalette::getPalette()
 }
 
 void GMFHarryPalette::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);
@@ -156,11 +155,9 @@ void GMFHarryPalette::setPalette(PaletteTablePtr newPalette)
 		buf[i++] = p->green >> 2;
 		buf[i++] = p->blue >> 2;
 	}
-	this->fnTruncate(768);
-	this->data->seekp(0x1D, std::ios::beg);
-	if (this->data->rdbuf()->sputn((char *)buf, 768) != 768) {
-		throw std::ios::failure("Unable to write palette to stream (disk full?)");
-	}
+	this->data->truncate(768);
+	this->data->seekp(0x1D, stream::start);
+	this->data->write(buf, 768);
 	return;
 }
 

@@ -43,7 +43,7 @@ class TilesetFromList: virtual public Tileset
 		};
 
 		TilesetFromList(const TileList& tileList)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~TilesetFromList()
 			throw ();
@@ -55,25 +55,25 @@ class TilesetFromList: virtual public Tileset
 			throw ();
 
 		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void remove(EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure);
+		void resize(EntryPtr& id, stream::len newSize)
+			throw (stream::error);
 
 		virtual void flush()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual PaletteTablePtr getPalette()
 			throw ();
 
 		void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		TileList tileList;   ///< List of underlying images

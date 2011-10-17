@@ -2,7 +2,7 @@
  * @file   tests.hpp
  * @brief  Test code code.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 #define _CAMOTO_GAMEGRAPHICS_TESTS_HPP_
 
 #include <boost/test/unit_test.hpp>
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 
 // Allow a string constant to be passed around with embedded nulls
 #define makeString(x)  std::string((x), sizeof((x)) - 1)

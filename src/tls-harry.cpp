@@ -85,11 +85,10 @@ std::vector<std::string> HarryTilesetType::getGameList() const
 }
 
 HarryTilesetType::Certainty HarryTilesetType::isInstance(
-	iostream_sptr psTileset) const
-	throw (std::ios::failure)
+	stream::inout_sptr psTileset) const
+	throw (stream::error)
 {
-	psTileset->seekg(0, std::ios::end);
-	io::stream_offset len = psTileset->tellg();
+	stream::pos len = psTileset->size();
 
 	// TESTED BY: tls_zone66_isinstance_c01
 	if (len != CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return DefinitelyNo; // wrong size
@@ -98,12 +97,12 @@ HarryTilesetType::Certainty HarryTilesetType::isInstance(
 	return PossiblyYes;
 }
 
-TilesetPtr HarryTilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr HarryTilesetType::create(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(CHR_WIDTH * CHR_HEIGHT * 256);
-	psTileset->seekp(0, std::ios::beg);
+	psTileset->truncate(CHR_WIDTH * CHR_HEIGHT * 256);
+	psTileset->seekp(0, stream::start);
 	char empty[CHR_WIDTH * CHR_HEIGHT];
 	memset(empty, 0x00, CHR_WIDTH * CHR_HEIGHT);
 	for (int i = 0; i < 256; i++) psTileset->write(empty, CHR_WIDTH * CHR_HEIGHT);
@@ -111,31 +110,25 @@ TilesetPtr HarryTilesetType::create(iostream_sptr psTileset,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new HarryTileset(psTileset, fnTruncate, pal));
+	return TilesetPtr(new HarryTileset(psTileset, pal));
 }
 
-TilesetPtr HarryTilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr HarryTilesetType::open(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new GMFHarryPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	} else {
-		throw std::ios::failure("no palette specified (missing supplementary item)");
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
-	return TilesetPtr(new HarryTileset(psTileset, fnTruncate, pal));
+	return TilesetPtr(new HarryTileset(psTileset, pal));
 }
 
 SuppFilenames HarryTilesetType::getRequiredSupps(
@@ -152,10 +145,10 @@ SuppFilenames HarryTilesetType::getRequiredSupps(
 }
 
 
-HarryTileset::HarryTileset(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, PaletteTablePtr pal)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CHR_FIRST_TILE_OFFSET),
+HarryTileset::HarryTileset(stream::inout_sptr data,
+	PaletteTablePtr pal)
+	throw (stream::error) :
+		FATTileset(data, CHR_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	assert(this->pal);
@@ -185,8 +178,8 @@ int HarryTileset::getCaps()
 }
 
 ImagePtr HarryTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	ImagePtr img(new VGARawImage(content, CHR_WIDTH, CHR_HEIGHT, this->pal));
 	return img;
@@ -199,7 +192,7 @@ PaletteTablePtr HarryTileset::getPalette()
 }
 
 void HarryTileset::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;

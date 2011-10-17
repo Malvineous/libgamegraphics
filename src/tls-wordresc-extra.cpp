@@ -62,31 +62,31 @@ std::vector<std::string> WordrescExtraTilesetType::getGameList() const
 	return vcGames;
 }
 
-WordrescExtraTilesetType::Certainty WordrescExtraTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+WordrescExtraTilesetType::Certainty WordrescExtraTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
 	return Unsure;
 }
 
-TilesetPtr WordrescExtraTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WordrescExtraTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	// TODO
-	throw std::ios::failure("Not yet implemented");
+	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr WordrescExtraTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WordrescExtraTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	if (suppData.find(SuppItem::Extra1) == suppData.end()) {
-		throw std::ios::failure("Missing supp item type Extra1");
+		throw stream::error("Missing supp item type Extra1");
 	}
 
 	TilesetFromList::TileList tileList;
 
-	ImagePtr img1(new PCXImage(psGraphics, fnTruncate));
+	ImagePtr img1(new PCXImage(psGraphics));
 	TilesetFromList::Tile t;
 
 	t.img = img1; t.xOffset = 209; t.yOffset =  40; t.width =  23; t.height =  23; tileList.push_back(t);
@@ -127,8 +127,7 @@ TilesetPtr WordrescExtraTilesetType::open(iostream_sptr psGraphics,
 
 	t.img = img1; t.xOffset = 208; t.yOffset =  72; t.width =  71; t.height =  72; tileList.push_back(t);
 
-	SuppItem *next = &suppData[SuppItem::Extra1];
-	ImagePtr img2(new PCXImage(next->stream, next->fnTruncate));
+	ImagePtr img2(new PCXImage(suppData[SuppItem::Extra1]));
 
 	t.img = img2; t.xOffset =   0; t.yOffset =   0; t.width =  16; t.height =  16; tileList.push_back(t);
 	t.img = img2; t.xOffset =  16; t.yOffset =   0; t.width =  16; t.height =  16; tileList.push_back(t);

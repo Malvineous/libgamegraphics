@@ -74,12 +74,12 @@ std::vector<std::string> WordrescTilesetType::getGameList() const
 	return vcGames;
 }
 
-WordrescTilesetType::Certainty WordrescTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
+	psGraphics->seekg(0, stream::end);
 	unsigned long lenData = psGraphics->tellg();
-	psGraphics->seekg(0, std::ios::beg);
+	psGraphics->seekg(0, stream::start);
 
 	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
 	psGraphics->read((char *)imgData.get(), lenData);
@@ -100,19 +100,19 @@ WordrescTilesetType::Certainty WordrescTilesetType::isInstance(iostream_sptr psG
 	return DefinitelyNo;
 }
 
-TilesetPtr WordrescTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WordrescTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	// TODO
-	throw std::ios::failure("Not yet implemented");
+	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr WordrescTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WordrescTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	ImagePtr img(new PCXImage(psGraphics));
 	return TilesetPtr(new TilesetFromImage(img,
 		WR_TILE_WIDTH, WR_TILE_HEIGHT, WR_TILES_X, WR_TILES_Y));
 }

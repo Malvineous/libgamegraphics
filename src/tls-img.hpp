@@ -36,7 +36,7 @@ class TilesetFromImage: virtual public Tileset
 
 		TilesetFromImage(ImagePtr img,
 			int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~TilesetFromImage()
 			throw ();
@@ -48,19 +48,19 @@ class TilesetFromImage: virtual public Tileset
 			throw ();
 
 		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void remove(EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure);
+		void resize(EntryPtr& id, stream::len newSize)
+			throw (stream::error);
 
 		virtual void flush()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
 			throw ();
@@ -72,7 +72,7 @@ class TilesetFromImage: virtual public Tileset
 			throw ();
 
 		void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		ImagePtr img;        ///< Underlying image file

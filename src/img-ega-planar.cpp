@@ -2,7 +2,7 @@
  * @file   img-ega-planar.cpp
  * @brief  Image implementation adding support for the EGA byte-planar format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,13 +36,12 @@ EGAPlanarImage::~EGAPlanarImage()
 {
 }
 
-void EGAPlanarImage::setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
-	io::stream_offset offset, int width, int height, const PLANE_LAYOUT& planes
+void EGAPlanarImage::setParams(stream::inout_sptr data,
+	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
 	throw ()
 {
 	this->data = data;
-	this->fnTruncate = fnTruncate;
 	this->offset = offset;
 	this->width = width;
 	this->height = height;
@@ -65,7 +64,7 @@ void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	this->width = width;
 	this->height = height;
@@ -77,7 +76,7 @@ void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	}
 
 	// TODO: Confirm this is correct
-	this->fnTruncate((this->width + 7) / 8 * this->height * numPlanes);
+	this->data->truncate((this->width + 7) / 8 * this->height * numPlanes);
 	return;
 }
 
@@ -142,7 +141,7 @@ void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 		planeValue[order] = value;
 	}
 
-	this->data->seekp(0, std::ios::beg);
+	this->data->seekp(0, stream::start);
 	uint8_t *rowData;
 
 	// For each pixel, set the appropriate bits in the cell
@@ -248,7 +247,7 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	uint8_t *rowData = new uint8_t[imgSizeBytes];
 	StdImageDataPtr ret(rowData);
 	memset(rowData, 0, imgSizeBytes);
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 
 	for (int p = 0; p < numPlanes; p++) {
 		rowData = ret.get();

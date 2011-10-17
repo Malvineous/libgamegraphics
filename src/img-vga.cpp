@@ -2,7 +2,7 @@
  * @file   img-vga.cpp
  * @brief  Image implementation adding support for VGA mode 13 format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,10 @@
 namespace camoto {
 namespace gamegraphics {
 
-VGAImage::VGAImage(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, io::stream_offset off)
+VGAImage::VGAImage(stream::inout_sptr data,
+	stream::pos off)
 	throw () :
 		data(data),
-		fnTruncate(fnTruncate),
 		off(off)
 {
 }
@@ -44,7 +43,7 @@ int VGAImage::getCaps()
 }
 
 StdImageDataPtr VGAImage::toStandard()
-	throw ()
+	throw (stream::read_error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -53,8 +52,8 @@ StdImageDataPtr VGAImage::toStandard()
 
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
-	this->data->seekg(this->off, std::ios::beg);
-	this->data->rdbuf()->sgetn((char *)imgData, dataSize);
+	this->data->seekg(this->off, stream::start);
+	this->data->read(imgData, dataSize);
 
 	return ret;
 }
@@ -78,26 +77,24 @@ StdImageDataPtr VGAImage::toStandardMask()
 void VGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
+	throw (stream::write_error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
 	assert((width != 0) && (height != 0));
 	int dataSize = width * height;
 
-	this->data->seekp(0, std::ios::end);
-	io::stream_offset len = this->data->tellp();
+	stream::pos len = this->data->size();
 
 	// Cut off any leftover data or resize so there's enough space
 	if (dataSize + this->off != len) {
-		assert(this->fnTruncate);
-		this->fnTruncate(dataSize + this->off);
+		this->data->truncate(dataSize + this->off);
 	} // else size didn't need to change, e.g. fixed-size VGA image
 
 	// No conversion needed, write out as-is
 	uint8_t *imgData = (uint8_t *)newContent.get();
-	this->data->seekp(this->off, std::ios::beg);
-	this->data->rdbuf()->sputn((char *)imgData, dataSize);
+	this->data->seekp(this->off, stream::start);
+	this->data->write(imgData, dataSize);
 
 	return;
 }

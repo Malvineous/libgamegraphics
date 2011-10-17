@@ -2,7 +2,7 @@
  * @file   image.cpp
  * @brief  Standard Image functions.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,26 +35,26 @@ Image::~Image()
 }
 
 void Image::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
-	throw std::ios::failure("this image format can't have its dimensions changed"
+	throw stream::error("this image format can't have its dimensions changed"
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
 PaletteTablePtr Image::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return PaletteTablePtr();
 }
 
 void Image::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
-	throw std::ios::failure("this format doesn't support palettes"
+	throw stream::error("this format doesn't support palettes"
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 

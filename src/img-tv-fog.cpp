@@ -73,17 +73,16 @@ std::vector<std::string> TVFogImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty TVFogImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty TVFogImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::end);
-	io::stream_offset len = psImage->tellg();
+	stream::pos len = psImage->size();
 
 	// TESTED BY: TODO
 	if (len != 4096) return DefinitelyNo;
 
 	uint8_t start[256];
-	psImage->seekg(0, std::ios::beg);
+	psImage->seekg(0, stream::start);
 	psImage->read((char *)start, 256);
 	for (int i = 0; i < 256; i++) {
 		// TESTED BY: TODO
@@ -94,33 +93,27 @@ ImageType::Certainty TVFogImageType::isInstance(iostream_sptr psImage) const
 	return DefinitelyYes;
 }
 
-ImagePtr TVFogImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
+	psImage->truncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
 	uint8_t buf;
 	for (int i = 0; i < TV_FOG_WIDTH * TV_FOG_HEIGHT; i++) {
 		buf = i % 256;
 		psImage->write((char *)&buf, 1);
 	}
 
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }
 
-ImagePtr TVFogImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr TVFogImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }

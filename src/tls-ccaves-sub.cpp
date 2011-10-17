@@ -5,7 +5,7 @@
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
 #include "img-ega-byteplanar.hpp"
 #include "tls-ccaves-sub.hpp"
 
@@ -97,17 +97,16 @@ std::vector<std::string> CCavesSubTilesetType::getGameList() const
 	return vcGames;
 }
 
-CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 
 	// TESTED BY: tls_ccaves_sub_isinstance_c02
 	if (len < 3) return DefinitelyNo; // too short
 
-	psGraphics->seekg(0, std::ios::beg);
-	io::stream_offset pos = 0;
+	psGraphics->seekg(0, stream::start);
+	stream::pos pos = 0;
 	uint8_t numTiles, width, height;
 	psGraphics
 		>> u8(numTiles)
@@ -123,21 +122,21 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(iostream_sptr p
 	return PossiblyYes;
 }
 
-TilesetPtr CCavesSubTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CCavesSubTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	psGraphics->seekp(0, std::ios::beg);
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	psGraphics->write("\x00\x00\x00", 3);
-	return TilesetPtr(new CCavesSubTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesSubTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
-TilesetPtr CCavesSubTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CCavesSubTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CCavesSubTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesSubTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -152,30 +151,25 @@ SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filename
 // CCavesSubTileset
 //
 
-CCavesSubTileset::CCavesSubTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CC_FIRST_TILE_OFFSET),
+	throw (stream::error) :
+		FATTileset(data, CC_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
-	assert(this->data->good());
-
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
-	if (len < 3) throw std::ios::failure("file too short");
+	if (len < 3) throw stream::error("file too short");
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	uint8_t numImages;
 	this->data
 		>> u8(numImages)
 		>> u8(this->width)
 		>> u8(this->height)
 	;
-
-	if (!this->data->good()) throw std::ios::failure("unable to read header");
 
 	int tileSize = this->width * this->height * this->numPlanes;
 	this->items.reserve(numImages);
@@ -205,10 +199,10 @@ int CCavesSubTileset::getCaps()
 }
 
 void CCavesSubTileset::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (newSize != this->width * this->height * this->numPlanes) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -222,22 +216,22 @@ void CCavesSubTileset::getTilesetDimensions(unsigned int *width, unsigned int *h
 }
 
 void CCavesSubTileset::setTilesetDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// TODO: confirm this, it could just leave the unused bits blank
-	if (width % 8) throw std::ios::failure("width must be a multiple of 8");
+	if (width % 8) throw stream::error("width must be a multiple of 8");
 	this->width = width / 8;
 	this->height = height;
 
 	// Update the header
-	this->data->seekp(1);
+	this->data->seekp(1, stream::start);
 	this->data
 		<< u8(this->width)
 		<< u8(this->height)
 	;
 
 	// Resize our containing stream to fit the new dimensions
-	this->fnTruncate(3 + this->items.size() * this->numPlanes *
+	this->data->truncate(3 + this->items.size() * this->numPlanes *
 		this->width * this->height);
 
 	return;
@@ -250,8 +244,8 @@ unsigned int CCavesSubTileset::getLayoutWidth()
 }
 
 ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	planes[PLANE_BLUE] = 2;
@@ -264,7 +258,7 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	EGABytePlanarImage *ega = new EGABytePlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, fnTruncate, 0, this->width * 8, this->height, planes
+		content, 0, this->width * 8, this->height, planes
 	);
 
 	return conv;
@@ -272,27 +266,27 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 
 CCavesSubTileset::FATEntry *CCavesSubTileset::preInsertFile(
 	const CCavesSubTileset::FATEntry *idBeforeThis, CCavesSubTileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (this->items.size() >= 255) {
-		throw std::ios::failure("maximum number of tiles reached");
+		throw stream::error("maximum number of tiles reached");
 	}
 
 	// All tiles are a fixed size in this format.
 	pNewEntry->size = this->width * this->height * this->numPlanes;
 
 	// Update the header
-	this->data->seekp(0);
+	this->data->seekp(0, stream::start);
 	this->data << u8(this->items.size() + 1);
 
 	return pNewEntry;
 }
 
 void CCavesSubTileset::postRemoveFile(const FATEntry *pid)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Update the header
-	this->data->seekp(0);
+	this->data->seekp(0, stream::start);
 	this->data << u8(this->items.size());
 	return;
 }

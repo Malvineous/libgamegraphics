@@ -25,7 +25,7 @@ namespace camoto {
 namespace gamegraphics {
 
 TilesetFromList::TilesetFromList(const TileList& tileList)
-	throw (std::ios::failure) :
+	throw (stream::error) :
 		tileList(tileList)
 {
 	int numImages = this->tileList.size();
@@ -65,13 +65,13 @@ const Tileset::VC_ENTRYPTR& TilesetFromList::getItems() const
 }
 
 ImagePtr TilesetFromList::openImage(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 
 	if (fat->index >= this->tileList.size()) {
-		throw std::ios::failure("tile no longer exists/out of range");
+		throw stream::error("tile no longer exists/out of range");
 	}
 
 	Tile& t = this->tileList[fat->index];
@@ -88,36 +88,36 @@ ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 }
 
 Tileset::EntryPtr TilesetFromList::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	throw std::ios::failure("tiles in this tileset cannot be rearranged");
+	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
 void TilesetFromList::remove(EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	throw std::ios::failure("tiles in this tileset cannot be rearranged");
+	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
 void TilesetFromList::flush()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return;
 }
 
-void TilesetFromList::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
+	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 
 	if (fat->index >= this->tileList.size()) {
-		throw std::ios::failure("tile no longer exists/out of range");
+		throw stream::error("tile no longer exists/out of range");
 	}
 
 	Tile& t = this->tileList[fat->index];
 	if (newSize != t.width * t.height) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -131,7 +131,7 @@ PaletteTablePtr TilesetFromList::getPalette()
 }
 
 void TilesetFromList::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Set the palette for all subimages that support it
 	ImagePtr lastImage;

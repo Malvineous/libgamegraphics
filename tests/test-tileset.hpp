@@ -2,7 +2,7 @@
  * @file  test-tileset.hpp
  * @brief Generic test code for Tileset class descendents.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +19,9 @@
  */
 
 #include <boost/test/unit_test.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/bind.hpp>
-#include <camoto/segmented_stream.hpp>
+#include <camoto/stream_string.hpp>
+#include <camoto/stream_seg.hpp>
 #include <camoto/gamegraphics.hpp>
-#include <iostream>
-#include <iomanip>
 
 #include "tests.hpp"
 
@@ -33,7 +30,8 @@
 // to DefinitelyYes.
 //#define TILESET_DETECTION_UNCERTAIN
 
-namespace gg = camoto::gamegraphics;
+using namespace camoto;
+using namespace camoto::gamegraphics;
 
 // Defines to allow code reuse
 #define COMBINE_CLASSNAME_EXP(c, n)  c ## _ ## n
@@ -48,59 +46,39 @@ namespace gg = camoto::gamegraphics;
 #define SUITE_NAME         TEST_VAR(suite)
 #define EMPTY_SUITE_NAME   TEST_VAR(suite_empty)
 
-// Allow a string constant to be passed around with embedded nulls
-#define makeString(x)  std::string((x), sizeof((x)) - 1)
-
 #include "../src/tileset-fat.hpp"
 
 struct FIXTURE_NAME: public default_sample {
 
-	typedef boost::shared_ptr<std::stringstream> sstr_ptr;
-
-	sstr_ptr baseData;
-	void *_do; // unused var, but allows a statement to run in constructor init
-	camoto::iostream_sptr baseStream;
-	gg::TilesetPtr pTileset;
-	camoto::SuppData suppData;
-	std::map<camoto::SuppItem::Type, sstr_ptr> suppBase;
+	stream::string_sptr base;
+	TilesetPtr pTileset;
+	SuppData suppData;
 
 	FIXTURE_NAME() :
-		baseData(new std::stringstream),
-		_do((*this->baseData) << makeString(test_tileset_initialstate)),
-		baseStream(this->baseData)
+		base(new stream::string())
 	{
+		this->base << makeString(test_tileset_initialstate);
 		#ifdef HAS_FAT
 		{
-			boost::shared_ptr<std::stringstream> suppSS(new std::stringstream);
-			suppSS->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-			(*suppSS) << makeString(TEST_RESULT(FAT_initialstate));
-			camoto::iostream_sptr suppStream(suppSS);
-			camoto::SuppItem si;
-			si.stream = suppStream;
-			si.fnTruncate = boost::bind<void>(stringStreamTruncate, suppSS.get(), _1);
-			this->suppData[gg::FAT] = si;
-			this->suppBase[gg::FAT] = suppSS;
+			stream::string_sptr supp(new stream::string());
+			supp << makeString(TEST_RESULT(FAT_initialstate));
+			this->suppData[FAT] = supp;
 		}
 		#endif
 
 		BOOST_REQUIRE_NO_THROW(
-			this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-
-			gg::ManagerPtr pManager(gg::getManager());
-			gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
+			ManagerPtr pManager(gamegraphics::getManager());
+			TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
 			BOOST_REQUIRE_MESSAGE(pTestType, "Could not find tileset code " TILESET_TYPE);
-			camoto::FN_TRUNCATE fnTruncate = boost::bind<void>(
-				stringStreamTruncate, this->baseData.get(), _1);
-			this->pTileset = pTestType->open(this->baseStream, fnTruncate, this->suppData);
+
+			this->pTileset = pTestType->open(this->base, this->suppData);
 			BOOST_REQUIRE_MESSAGE(this->pTileset, "Could not open initialstate as tileset");
 		);
 	}
 
 	FIXTURE_NAME(int i) :
-		baseData(new std::stringstream),
-		baseStream(this->baseData)
+		base(new stream::string())
 	{
-		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
 	}
 
 	boost::test_tools::predicate_result is_equal(const std::string& strExpected)
@@ -110,7 +88,7 @@ struct FIXTURE_NAME: public default_sample {
 			this->pTileset->flush()
 		);
 
-		std::string baseStr = this->baseData->str();
+		std::string baseStr = this->base->str();
 
 		int len = strExpected.length();
 		if (baseStr.length() > len) len = baseStr.length();
@@ -130,7 +108,8 @@ struct FIXTURE_NAME: public default_sample {
 			this->pTileset->flush()
 		);
 
-		std::string baseStr = this->suppBase[type]->str();
+		stream::string_sptr sstr = boost::dynamic_pointer_cast<stream::string>(this->suppData[type]);
+		std::string baseStr = sstr->str();
 		boost::test_tools::predicate_result ret =
 			this->default_sample::is_equal((uint8_t *)strExpected.c_str(),
 				(uint8_t *)baseStr.c_str(), baseStr.length(), 8);
@@ -141,7 +120,7 @@ struct FIXTURE_NAME: public default_sample {
 // Make an image of the standard size with each pixel set to n, and the very
 // last pixel set to 0x0e.
 #define MAKE_MASK(var, n) \
-	gg::StdImageDataPtr var(new uint8_t[DATA_TILE_WIDTH * DATA_TILE_HEIGHT]); \
+	StdImageDataPtr var(new uint8_t[DATA_TILE_WIDTH * DATA_TILE_HEIGHT]); \
 	memset(var.get(), n, \
 		DATA_TILE_WIDTH * DATA_TILE_HEIGHT);
 
@@ -150,11 +129,11 @@ struct FIXTURE_NAME: public default_sample {
 	/* Last pixel is different */ \
 	var[DATA_TILE_WIDTH * DATA_TILE_HEIGHT - 1] = 0x0e;
 
-	void setTileData(gg::Tileset::EntryPtr ep, int imgVal, int maskVal)
+	void setTileData(Tileset::EntryPtr ep, int imgVal, int maskVal)
 	{
 		// Open new tile and populate with image data
-		gg::ImagePtr img(pTileset->openImage(ep));
-		if (img->getCaps() & gg::Image::CanSetDimensions) {
+		ImagePtr img(pTileset->openImage(ep));
+		if (img->getCaps() & Image::CanSetDimensions) {
 			img->setDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
 		}
 
@@ -177,15 +156,14 @@ BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
 	{ \
 		BOOST_TEST_MESSAGE("isInstance check (" TILESET_TYPE "; " #c ")"); \
 		\
-		gg::ManagerPtr pManager(gg::getManager()); \
-		gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE)); \
+		ManagerPtr pManager(getManager()); \
+		TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE)); \
 		BOOST_REQUIRE_MESSAGE(pTestType, "Could not find tileset code " TILESET_TYPE); \
 		\
-		boost::shared_ptr<std::stringstream> psstrBase(new std::stringstream); \
-		(*psstrBase) << makeString(d); \
-		camoto::iostream_sptr psBase(psstrBase); \
+		stream::string_sptr test(new stream::string()); \
+		test << makeString(d); \
 		\
-		BOOST_CHECK_EQUAL(pTestType->isInstance(psBase), gg::TilesetType::r); \
+		BOOST_CHECK_EQUAL(pTestType->isInstance(test), TilesetType::r); \
 	}
 
 #ifdef TILESET_DETECTION_UNCERTAIN
@@ -204,11 +182,11 @@ ISINSTANCE_TEST(c00, test_tileset_initialstate, DefinitelyYes);
 		boost::shared_ptr<std::stringstream> suppSS(new std::stringstream); \
 		suppSS->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit); \
 		(*suppSS) << makeString(d); \
-		camoto::iostream_sptr suppStream(suppSS); \
+		camoto::stream::inout_sptr suppStream(suppSS); \
 		camoto::SuppItem si; \
 		si.stream = suppStream; \
 		si.fnTruncate = boost::bind<void>(stringStreamTruncate, suppSS.get(), _1); \
-		suppData[gg::EST_FAT] = si; \
+		suppData[EST_FAT] = si; \
 	}
 #else
 #	define INVALIDDATA_FATCODE(d)
@@ -222,26 +200,26 @@ ISINSTANCE_TEST(c00, test_tileset_initialstate, DefinitelyYes);
 
 #define INVALIDDATA_TEST_FULL(c, d, f) \
 	/* Run an isInstance test first to make sure the data is accepted */ \
-	ISINSTANCE_TEST(invaliddata_ ## c, d, gg::EC_DEFINITELY_YES); \
+	ISINSTANCE_TEST(invaliddata_ ## c, d, EC_DEFINITELY_YES); \
 	\
 	BOOST_AUTO_TEST_CASE(TEST_NAME(invaliddata_ ## c)) \
 	{ \
 		BOOST_TEST_MESSAGE("invalidData check (" TILESET_TYPE "; " #c ")"); \
 		\
-		boost::shared_ptr<gg::Manager> pManager(gg::getManager()); \
-		gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE)); \
+		boost::shared_ptr<Manager> pManager(getManager()); \
+		TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE)); \
 		\
 		/* Prepare an invalid tileset */ \
 		boost::shared_ptr<std::stringstream> psstrBase(new std::stringstream); \
 		(*psstrBase) << makeString(d); \
-		camoto::iostream_sptr psBase(psstrBase); \
+		camoto::stream::inout_sptr psBase(psstrBase); \
 		\
 		camoto::SuppData suppData; \
 		INVALIDDATA_FATCODE(f) \
 		\
 		BOOST_CHECK_THROW( \
-			gg::TilesetPtr pTileset(pTestType->open(psBase, suppData)), \
-			std::ios::failure \
+			TilesetPtr pTileset(pTestType->open(psBase, suppData)), \
+			stream::error \
 		); \
 	}
 
@@ -250,10 +228,10 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(open))
 {
 	BOOST_TEST_MESSAGE("Opening image in tileset");
 
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
 
-	gg::ImagePtr img(pTileset->openImage(tiles[0]));
-	gg::StdImageDataPtr output = img->toStandard();
+	ImagePtr img(pTileset->openImage(tiles[0]));
+	StdImageDataPtr output = img->toStandard();
 	MAKE_IMAGE(rawImage, 1);
 
 	BOOST_CHECK_MESSAGE(
@@ -273,8 +251,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_end))
 	BOOST_TEST_MESSAGE("Inserting image into tileset");
 
 	// Insert tile
-	gg::Tileset::EntryPtr epNew =
-		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	Tileset::EntryPtr epNew =
+		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
@@ -289,7 +267,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_end))
 
 #ifdef EXTERNAL_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert_end))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_end))),
 		"Error inserting tile at end of tileset"
 	);
 #endif
@@ -300,16 +278,16 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_mid))
 	BOOST_TEST_MESSAGE("Inserting tile into middle of tileset");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr epBefore = tiles[1]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr epBefore = tiles[1]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(epBefore->isValid,
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	gg::Tileset::EntryPtr epNew =
-		pTileset->insert(epBefore, gg::Tileset::None);
+	Tileset::EntryPtr epNew =
+		pTileset->insert(epBefore, Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
@@ -324,7 +302,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_mid))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert_mid))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_mid))),
 		"Error inserting tile in middle of tileset"
 	);
 #endif
@@ -335,15 +313,15 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 	BOOST_TEST_MESSAGE("Inserting multiple tiles");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr epBefore = tiles[1]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr epBefore = tiles[1]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(epBefore->isValid,
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	gg::Tileset::EntryPtr ep1 = pTileset->insert(epBefore, gg::Tileset::None);
+	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -361,7 +339,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	gg::Tileset::EntryPtr ep2 = pTileset->insert(epBefore, gg::Tileset::None);
+	Tileset::EntryPtr ep2 = pTileset->insert(epBefore, Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -377,7 +355,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert2))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert2))),
 		"Error inserting two tiles"
 	);
 #endif
@@ -388,8 +366,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove))
 	BOOST_TEST_MESSAGE("Removing tile from tileset");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr ep = tiles[0]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep = tiles[0]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep->isValid,
@@ -405,7 +383,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_remove))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_remove))),
 		"Error removing tile"
 	);
 #endif
@@ -416,9 +394,9 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove2))
 	BOOST_TEST_MESSAGE("Removing multiple tiles from tileset");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr ep1 = tiles[0]; // quick hack
-	gg::Tileset::EntryPtr ep2 = tiles[1]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep1 = tiles[0]; // quick hack
+	Tileset::EntryPtr ep2 = tiles[1]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -437,7 +415,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove2))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_remove2))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_remove2))),
 		"Error removing multiple tiles"
 	);
 #endif
@@ -448,15 +426,15 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_remove))
 	BOOST_TEST_MESSAGE("Insert then remove tile from tileset");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr epBefore = tiles[0]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr epBefore = tiles[0]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(epBefore->isValid,
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	gg::Tileset::EntryPtr ep1 = pTileset->insert(epBefore, gg::Tileset::None);
+	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -465,7 +443,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_remove))
 	// Populate the tile with image data
 	setTileData(ep1, 3, 0);
 
-	gg::Tileset::EntryPtr ep2 = tiles[1]; // quick hack
+	Tileset::EntryPtr ep2 = tiles[1]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -481,7 +459,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_remove))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert_remove))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_remove))),
 		"Error inserting then removing tile"
 	);
 #endif
@@ -492,8 +470,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_insert))
 	BOOST_TEST_MESSAGE("Remove then insert tile from tileset");
 
 	// Find the tile we're going to insert before
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr ep1 = tiles[0]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep1 = tiles[0]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -510,7 +488,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_insert))
 		"Couldn't find first tile in sample tileset");
 
 	// Insert the tile
-	gg::Tileset::EntryPtr ep2 = pTileset->insert(ep1, gg::Tileset::None);
+	Tileset::EntryPtr ep2 = pTileset->insert(ep1, Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -529,7 +507,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_insert))
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
 		// Again, use insert_remove result instead
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert_remove))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_remove))),
 		"Error removing then inserting tile"
 	);
 #endif
@@ -542,8 +520,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 {
 	BOOST_TEST_MESSAGE("Remove all tiles then add them again");
 
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
-	gg::Tileset::EntryPtr ep1 = tiles[0]; // quick hack
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep1 = tiles[0]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -553,7 +531,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 	pTileset->remove(ep1);
 
 
-	gg::Tileset::EntryPtr ep2 = tiles[0]; // quick hack
+	Tileset::EntryPtr ep2 = tiles[0]; // quick hack
 
 	// Make sure we found it
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -566,7 +544,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 
 
 	// Insert the tile
-	ep1 = pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	ep1 = pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid, "Couldn't insert new tile after removing all tiles");
@@ -576,7 +554,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 
 
 	// Insert the tile
-	ep2 = pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	ep2 = pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid, "Couldn't insert new tile after removing all tiles");
@@ -592,7 +570,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_initialstate))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_initialstate))),
 		"Error removing all tiles then reinserting them again"
 	);
 #endif
@@ -654,7 +632,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(set_metadata_description_larger))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_set_metadata_description_larger))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_set_metadata_description_larger))),
 		"Error setting 'description' metadata field"
 	);
 #endif
@@ -677,7 +655,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(set_metadata_description_smaller))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_set_metadata_description_smaller))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_set_metadata_description_smaller))),
 		"Error setting 'description' metadata field"
 	);
 #endif

@@ -24,8 +24,8 @@
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
 #include <camoto/util.hpp>
+#include <camoto/stream_file.hpp>
 #include <iostream>
-#include <fstream>
 #include "common.hpp"
 
 namespace po = boost::program_options;
@@ -209,7 +209,7 @@ bool explodeId(std::vector<int> *id, const std::string& name)
  */
 void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	const std::string& destFile)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (widthTiles == 0) {
 		widthTiles = tileset->getLayoutWidth();
@@ -224,7 +224,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	unsigned int width, height;
 	tileset->getTilesetDimensions(&width, &height);
 	if ((width == 0) || (height == 0)) {
-		throw std::ios::failure("this only works with tilesets where all tiles "
+		throw stream::error("this only works with tilesets where all tiles "
 			"are the same size");
 	}
 
@@ -318,7 +318,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
  * @param  srcFile  Filename of source (including ".png")
  */
 void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	png::image<png::index_pixel> png(
 		srcFile, png::require_color_space<png::index_pixel>()
@@ -327,20 +327,20 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 	unsigned int width, height;
 	tileset->getTilesetDimensions(&width, &height);
 	if ((width == 0) || (height == 0)) {
-		throw std::ios::failure("this only works with tilesets where all tiles "
+		throw stream::error("this only works with tilesets where all tiles "
 			"are the same size");
 	}
 
 	if ((png.get_width() % width) != 0) {
-		throw std::ios::failure("image width must be a multiple of the tile width");
+		throw stream::error("image width must be a multiple of the tile width");
 	}
 	if ((png.get_height() % height) != 0) {
-		throw std::ios::failure("image height must be a multiple of the tile height");
+		throw stream::error("image height must be a multiple of the tile height");
 	}
 
 	png::tRNS transparency = png.get_tRNS();
 	if (transparency[0] != 0) {
-		throw std::ios::failure("palette entry #0 must be assigned as transparent");
+		throw stream::error("palette entry #0 must be assigned as transparent");
 	}
 
 	unsigned int tilesX = png.get_width() / width;
@@ -706,15 +706,12 @@ int main(int iArgC, char *cArgV[])
 		std::cout << "Opening " << strFilename << " as type "
 			<< (strType.empty() ? "<autodetect>" : strType) << std::endl;
 
-		boost::shared_ptr<std::fstream> psTileset(new std::fstream());
-		psTileset->exceptions(std::ios::badbit | std::ios::failbit);
+		stream::file_sptr psTileset(new stream::file());
 		try {
-			psTileset->open(strFilename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
-		} catch (std::ios::failure& e) {
-			std::cerr << "Error opening " << strFilename << std::endl;
-			#ifdef DEBUG
-				std::cerr << "e.what(): " << e.what() << std::endl;
-			#endif
+			psTileset->open(strFilename.c_str());
+		} catch (const stream::open_error& e) {
+			std::cerr << "Error opening " << strFilename << ": " << e.what()
+				<< std::endl;
 			return RET_SHOWSTOPPER;
 		}
 
@@ -749,7 +746,7 @@ int main(int iArgC, char *cArgV[])
 							// Don't bother checking any other formats if we got a 100% match
 							goto finishTesting;
 					}
-				} catch (const std::ios::failure& e) {
+				} catch (const stream::error& e) {
 					std::cout << "Ignoring handler for " << pTestType->getFriendlyName()
 						<< " due to error: " << e.what() << std::endl;
 				}
@@ -791,28 +788,20 @@ finishTesting:
 		if (suppList.size() > 0) {
 			for (camoto::SuppFilenames::iterator i = suppList.begin(); i != suppList.end(); i++) {
 				try {
-					boost::shared_ptr<std::fstream> suppStream(new std::fstream());
-					suppStream->exceptions(std::ios::badbit | std::ios::failbit);
+					stream::file_sptr suppStream(new stream::file());
 					std::cout << "Opening supplemental file " << i->second << std::endl;
-					suppStream->open(i->second.c_str(), std::ios::in | std::ios::out | std::ios::binary);
-					camoto::SuppItem si;
-					si.stream = suppStream;
-					si.fnTruncate = boost::bind<void>(camoto::truncateFromString, i->second, _1);
-					suppData[i->first] = si;
-				} catch (std::ios::failure e) {
-					std::cerr << "Error opening supplemental file " << i->second.c_str() << std::endl;
-					#ifdef DEBUG
-						std::cerr << "e.what(): " << e.what() << std::endl;
-					#endif
+					suppStream->open(i->second.c_str());
+					suppData[i->first] = suppStream;
+				} catch (const stream::open_error& e) {
+					std::cerr << "Error opening supplemental file " << i->second.c_str()
+						<< ": " << e.what() << std::endl;
 					return RET_SHOWSTOPPER;
 				}
 			}
 		}
 
 		// Open the graphics file
-		camoto::FN_TRUNCATE fnTruncate =
-			boost::bind<void>(camoto::truncateFromString, strFilename, _1);
-		gg::TilesetPtr pTileset(pGfxType->open(psTileset, fnTruncate, suppData));
+		gg::TilesetPtr pTileset(pGfxType->open(psTileset, suppData));
 		assert(pTileset);
 
 		int iRet = RET_OK;

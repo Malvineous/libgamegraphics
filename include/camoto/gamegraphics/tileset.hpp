@@ -3,7 +3,7 @@
  * @brief  Declaration of top-level Tileset class, for accessing files
  *         storing game images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,8 @@
 #include <exception>
 #include <vector>
 
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 #include <camoto/metadata.hpp>
 #include <camoto/gamegraphics/palettetable.hpp>
 #include <camoto/gamegraphics/image.hpp>
@@ -145,7 +146,7 @@ class Tileset: virtual public Metadata {
 		 * @return A shared pointer to another Tileset instance.
 		 */
 		virtual TilesetPtr openTileset(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Export/import the given tile.
 		/**
@@ -159,7 +160,7 @@ class Tileset: virtual public Metadata {
 		 * @return A shared pointer to an instance of the Image class.
 		 */
 		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Insert a new image/subtileset into the tileset.
 		/**
@@ -185,7 +186,7 @@ class Tileset: virtual public Metadata {
 		 *   passed to open() if needed.
 		 */
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Delete the given entry from the tileset.
 		/**
@@ -201,7 +202,7 @@ class Tileset: virtual public Metadata {
 		 * @post Existing EntryPtrs become invalid.  Any open files remain valid.
 		 */
 		virtual void remove(EntryPtr& id)
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Enlarge or shrink an existing entry.
 		/**
@@ -221,8 +222,8 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @post Existing EntryPtrs remain valid.
 		 */
-		virtual void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure) = 0;
+		virtual void resize(EntryPtr& id, stream::len newSize)
+			throw (stream::error) = 0;
 
 		/// Write out any cached changes to the underlying stream.
 		/**
@@ -243,7 +244,7 @@ class Tileset: virtual public Metadata {
 		 *   root tileset last.
 		 */
 		virtual void flush()
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Get the dimensions of all images in this tileset.
 		/**
@@ -284,7 +285,7 @@ class Tileset: virtual public Metadata {
 		 * @note Default implementation triggers assertion failure.
 		 */
 		virtual void setTilesetDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Get the preferred layout size for this tileset.
 		/**
@@ -318,7 +319,7 @@ class Tileset: virtual public Metadata {
 		 *   New palette data
 		 */
 		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 };
 

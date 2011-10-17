@@ -24,8 +24,8 @@
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
 #include <camoto/util.hpp>
+#include <camoto/stream_file.hpp>
 #include <iostream>
-#include <fstream>
 #include "common.hpp"
 
 namespace po = boost::program_options;
@@ -177,15 +177,12 @@ int main(int iArgC, char *cArgV[])
 		std::cout << "Opening " << strFilename << " as type "
 			<< (strType.empty() ? "<autodetect>" : strType) << std::endl;
 
-		boost::shared_ptr<std::fstream> psImage(new std::fstream());
-		psImage->exceptions(std::ios::badbit | std::ios::failbit);
+		stream::file_sptr psImage(new stream::file());
 		try {
-			psImage->open(strFilename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
-		} catch (std::ios::failure& e) {
-			std::cerr << "Error opening " << strFilename << std::endl;
-			#ifdef DEBUG
-				std::cerr << "e.what(): " << e.what() << std::endl;
-			#endif
+			psImage->open(strFilename.c_str());
+		} catch (const stream::open_error& e) {
+			std::cerr << "Error opening " << strFilename << ": " << e.what()
+				<< std::endl;
 			return RET_SHOWSTOPPER;
 		}
 
@@ -220,7 +217,7 @@ int main(int iArgC, char *cArgV[])
 							// Don't bother checking any other formats if we got a 100% match
 							goto finishTesting;
 					}
-				} catch (const std::ios::failure& e) {
+				} catch (const stream::error& e) {
 					std::cout << "Ignoring handler for " << pTestType->getFriendlyName()
 						<< " due to error: " << e.what() << std::endl;
 				}
@@ -262,28 +259,20 @@ finishTesting:
 		if (suppList.size() > 0) {
 			for (camoto::SuppFilenames::iterator i = suppList.begin(); i != suppList.end(); i++) {
 				try {
-					boost::shared_ptr<std::fstream> suppStream(new std::fstream());
-					suppStream->exceptions(std::ios::badbit | std::ios::failbit);
+					stream::file_sptr suppStream(new stream::file());
 					std::cout << "Opening supplemental file " << i->second << std::endl;
-					suppStream->open(i->second.c_str(), std::ios::in | std::ios::out | std::ios::binary);
-					camoto::SuppItem si;
-					si.stream = suppStream;
-					si.fnTruncate = boost::bind<void>(camoto::truncateFromString, i->second, _1);
-					suppData[i->first] = si;
-				} catch (std::ios::failure e) {
-					std::cerr << "Error opening supplemental file " << i->second.c_str() << std::endl;
-					#ifdef DEBUG
-						std::cerr << "e.what(): " << e.what() << std::endl;
-					#endif
+					suppStream->open(i->second.c_str());
+					suppData[i->first] = suppStream;
+				} catch (const stream::open_error& e) {
+					std::cerr << "Error opening supplemental file " << i->second.c_str()
+						<< ": " << e.what() << std::endl;
 					return RET_SHOWSTOPPER;
 				}
 			}
 		}
 
 		// Open the image file
-		camoto::FN_TRUNCATE fnTruncate =
-			boost::bind<void>(camoto::truncateFromString, strFilename, _1);
-		gg::ImagePtr img(pGfxType->open(psImage, fnTruncate, suppData));
+		gg::ImagePtr img(pGfxType->open(psImage, suppData));
 		assert(img);
 
 		int iRet = RET_OK;

@@ -19,9 +19,6 @@
  */
 
 #include <boost/pointer_cast.hpp>
-#include <boost/iostreams/invert.hpp>
-#include <camoto/filteredstream.hpp>
-//#include <camoto/substream.hpp>
 #include <camoto/bitstream.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp>
@@ -45,7 +42,7 @@ class pcx_unrle_filter: public io::multichar_input_filter {
 		};
 
 		template<typename Source>
-		std::streamsize read(Source& src, char* s, std::streamsize n)
+		stream::len read(Source& src, char* s, stream::len n)
 		{
 			int r = 0;
 			while (r < n) {
@@ -71,7 +68,7 @@ class pcx_unrle_filter: public io::multichar_input_filter {
 
 };
 
-int nextChar(istream_sptr src, uint8_t *out)
+int nextChar(stream::input_sptr src, uint8_t *out)
 {
 	src->read((char *)out, 1);
 	return 1;
@@ -96,7 +93,7 @@ class pcx_rle_filter: public io::multichar_input_filter {
 		};
 
 		template<typename Source>
-		std::streamsize read(Source& src, char* s, std::streamsize n)
+		stream::len read(Source& src, char* s, stream::len n)
 		{
 			int r = 0;
 			n -= 2; // make sure there's always enough room to write one RLE pair
@@ -163,7 +160,7 @@ class pcx_rle_filter: public io::multichar_input_filter {
 
 };
 
-int putNextChar(ostream_sptr src, uint8_t out)
+int putNextChar(stream::output_sptr src, uint8_t out)
 {
 	src->write((char *)&out, 1);
 	return 1;
@@ -208,12 +205,12 @@ std::vector<std::string> PCXImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty PCXImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty PCXImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::end);
+	psImage->seekg(0, stream::end);
 	unsigned long lenData = psImage->tellg();
-	psImage->seekg(0, std::ios::beg);
+	psImage->seekg(0, stream::start);
 
 	uint8_t sig, ver;
 	psImage >> u8(sig) >> u8(ver);
@@ -233,19 +230,19 @@ ImageType::Certainty PCXImageType::isInstance(iostream_sptr psImage) const
 	return PossiblyYes;
 }
 
-ImagePtr PCXImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr PCXImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	// TODO: Create blank PCX
-	return ImagePtr(new PCXImage(psImage, fnTruncate));
+	return ImagePtr(new PCXImage(psImage));
 }
 
-ImagePtr PCXImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr PCXImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return ImagePtr(new PCXImage(psImage, fnTruncate));
+	return ImagePtr(new PCXImage(psImage));
 }
 
 SuppFilenames PCXImageType::getRequiredSupps(const std::string& filenameImage) const
@@ -255,15 +252,14 @@ SuppFilenames PCXImageType::getRequiredSupps(const std::string& filenameImage) c
 }
 
 
-PCXImage::PCXImage(iostream_sptr data, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure) :
-		data(data),
-		fnTruncate(fnTruncate)
+PCXImage::PCXImage(stream::inout_sptr data)
+	throw (stream::error) :
+		data(data)
 {
-	this->data->seekg(0, std::ios::end);
+	this->data->seekg(0, stream::end);
 	unsigned long lenData = this->data->tellg();
 
-	this->data->seekg(1, std::ios::beg);
+	this->data->seekg(1, stream::start);
 	uint16_t xmin, ymin, xmax, ymax;
 	this->data
 		>> u8(this->ver)
@@ -277,7 +273,7 @@ PCXImage::PCXImage(iostream_sptr data, FN_TRUNCATE fnTruncate)
 	this->width = xmax - xmin + 1;
 	this->height = ymax - ymin + 1;
 
-	this->data->seekg(65, std::ios::beg);
+	this->data->seekg(65, stream::start);
 	this->data
 		>> u8(this->numPlanes)
 	;
@@ -311,7 +307,7 @@ void PCXImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void PCXImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -320,7 +316,7 @@ void PCXImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr PCXImage::toStandard()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -330,31 +326,33 @@ StdImageDataPtr PCXImage::toStandard()
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
 
-	this->data->seekg(66, std::ios::beg);
+	this->data->seekg(66, stream::start);
 	int16_t bytesPerPlaneScanline;
 	this->data
 		>> u16le(bytesPerPlaneScanline)
 	;
 
-	this->data->seekg(128, std::ios::beg);
+	this->data->seekg(128, stream::start);
 /*
-	this->data->seekg(0, std::ios::end);
+	this->data->seekg(0, stream::end);
 	unsigned long lenData = this->data->tellg();
-	substream_sptr sub(new substream(this->data, 128, lenData - 128));
+	stream::sub_sptr sub(new stream::sub(this->data, 128, lenData - 128));
 */
 
-	filtered_istream_sptr pinf(new filtered_istream());
+/* TEMP
+	filtered_stream::input_sptr pinf(new filtered_istream());
 	if (this->encoding == 1) {
 		pinf->push(pcx_unrle_filter());
 	}
-	pinf->pushShared(this->data); // TODO: make substream?
+	pinf->pushShared(this->data); // TODO: make stream::sub?
 	//pinf->pushShared(sub);
-
+*/
 	uint8_t *line = imgData;
 	int repeat = 0;
 	uint8_t byte;
 	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
-	fn_getnextchar cbNext = boost::bind(nextChar, boost::dynamic_pointer_cast<std::istream>(pinf), _1);
+//TEMP	fn_getnextchar cbNext = boost::bind(nextChar, boost::dynamic_pointer_cast<std::istream>(pinf), _1);
+	fn_getnextchar cbNext;
 	int val;
 	for (int y = 0; y < height; y++) {
 		memset(line, 0, width); // blank out line
@@ -394,9 +392,8 @@ StdImageDataPtr PCXImage::toStandardMask()
 void PCXImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	assert(this->fnTruncate);
 	// Remember the current palette before we start overwriting things, in case
 	// it hasn't been set
 	if (!this->pal) this->getPalette();
@@ -410,9 +407,9 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	bytesPerPlaneScanline += bytesPerPlaneScanline % 4;
 
 	// Assume worst case and enlarge file enough to fit complete data
-	this->fnTruncate(128+bytesPerPlaneScanline*2 * this->numPlanes * height + 768+1);
+	this->data->truncate(128+bytesPerPlaneScanline*2 * this->numPlanes * height + 768+1);
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	this->data
 		<< u8(0x0A)
 		<< u8(this->ver)
@@ -456,17 +453,20 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 
 	assert(this->data->tellp() == 128);
 
-	filtered_ostream_sptr poutf(new filtered_ostream());
+	stream::output_sptr poutf;
+/* TEMP
+	filtered_stream::output_sptr poutf(new filtered_ostream());
 	pcx_rle_filter rle;
 	if (this->encoding == 1) poutf->push(io::invert(rle));
-	poutf->pushShared(this->data); // TODO: make substream?
+	poutf->pushShared(this->data); // TODO: make stream::sub?
 	//pinf->pushShared(sub);
-
+*/
 	uint8_t *line = newContent.get();
 	int repeat = 0;
 	uint8_t byte;
 	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
-	fn_putnextchar cbNext = boost::bind(putNextChar, boost::dynamic_pointer_cast<std::ostream>(poutf), _1);
+//TEMP	fn_putnextchar cbNext = boost::bind(putNextChar, boost::dynamic_pointer_cast<std::ostream>(poutf), _1);
+	fn_putnextchar cbNext;
 	int val;
 
 	int planeMask = (1 << this->bitsPerPlane) - 1;
@@ -505,18 +505,20 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	}
 
 	poutf->flush();
-	poutf->seekp(0, std::ios::cur); // workaround for boost
+	poutf->seekp(0, stream::cur); // workaround for boost
 	poutf.reset(); // force flush
 	this->data->flush();
-	//io::stream_offset pos = this->data->tellp();
-	io::stream_offset pos = 128 + rle.getBytesWritten(); // TODO: plus VGA pal
-	this->fnTruncate(pos);
+	//stream::pos pos = this->data->tellp();
+/*TEMP
+	stream::pos pos = 128 + rle.getBytesWritten(); // TODO: plus VGA pal
+	this->data->truncate(pos);
 std::cout << "trunc to " << pos << "\n";
+*/
 	return;
 }
 
 PaletteTablePtr PCXImage::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (!this->pal) {
 
@@ -530,10 +532,9 @@ PaletteTablePtr PCXImage::getPalette()
 		uint8_t palSig = 0;
 		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
 			try {
-				this->data->seekg(-769, std::ios::end);
+				this->data->seekg(-769, stream::end);
 				this->data >> u8(palSig);
-			} catch (std::ios::failure) {
-				this->data->clear(); // clear error
+			} catch (const stream::error&) {
 				palSig = 0;
 			}
 		}
@@ -545,7 +546,7 @@ PaletteTablePtr PCXImage::getPalette()
 		} else {
 			// Default to EGA palette in file header
 			palSize = 16;
-			this->data->seekg(16, std::ios::beg);
+			this->data->seekg(16, stream::start);
 		}
 
 		uint8_t *rawPal = new uint8_t[palSize * 3];
@@ -567,7 +568,7 @@ PaletteTablePtr PCXImage::getPalette()
 }
 
 void PCXImage::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	this->pal = newPalette;
 	return;

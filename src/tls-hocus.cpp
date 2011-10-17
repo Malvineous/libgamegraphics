@@ -74,12 +74,12 @@ std::vector<std::string> HocusTilesetType::getGameList() const
 	return vcGames;
 }
 
-HocusTilesetType::Certainty HocusTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
+	psGraphics->seekg(0, stream::end);
 	unsigned long lenData = psGraphics->tellg();
-	psGraphics->seekg(0, std::ios::beg);
+	psGraphics->seekg(0, stream::start);
 
 	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
 	psGraphics->read((char *)imgData.get(), lenData);
@@ -101,19 +101,19 @@ HocusTilesetType::Certainty HocusTilesetType::isInstance(iostream_sptr psGraphic
 	return DefinitelyNo;
 }
 
-TilesetPtr HocusTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr HocusTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	// TODO
-	throw std::ios::failure("Not yet implemented");
+	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr HocusTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr HocusTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	ImagePtr img(new PCXImage(psGraphics));
 	return TilesetPtr(new TilesetFromImage(img,
 		HP_TILE_WIDTH, HP_TILE_HEIGHT, HP_TILES_X, HP_TILES_Y));
 }

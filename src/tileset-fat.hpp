@@ -2,7 +2,7 @@
  * @file   tileset-fat.hpp
  * @brief  Generic FAT-based tileset handler.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/weak_ptr.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
-#include <camoto/substream.hpp>
-#include <camoto/segmented_stream.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
+#include <camoto/stream_seg.hpp>
+#include <camoto/stream_sub.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -51,9 +51,9 @@ class FATTileset: virtual public Tileset {
 			 */
 			int index;
 
-			io::stream_offset offset;
-			io::stream_offset size;
-			io::stream_offset lenHeader; ///< Size of embedded FAT
+			stream::pos offset;
+			stream::pos size;
+			stream::pos lenHeader; ///< Size of embedded FAT
 
 			FATEntry();
 			virtual ~FATEntry();
@@ -66,8 +66,7 @@ class FATTileset: virtual public Tileset {
 		typedef boost::shared_ptr<FATEntry> FATEntryPtr;
 
 	protected:
-		mutable segstream_sptr data;
-		FN_TRUNCATE fnTruncate;
+		mutable stream::seg_sptr data;
 
 		/// Offset of the first tile in an empty archive.
 		uint8_t offFirstTile;
@@ -84,25 +83,25 @@ class FATTileset: virtual public Tileset {
 		 */
 		VC_ENTRYPTR items;
 
-		/// Vector of substream references.
+		/// Vector of stream::sub references.
 		/**
 		 * These are weak pointers so that we don't hold a file open simply because
 		 * we're keeping track of it.  We need to keep track of it so that open
 		 * files can be moved around as other files are inserted, resized, etc.
 		 */
-		typedef std::multimap< FATEntryPtr, boost::weak_ptr<substream> > OPEN_ITEMS;
+		typedef std::multimap< FATEntryPtr, boost::weak_ptr<stream::sub> > OPEN_ITEMS;
 
 		/// Helper type when inserting elements into openFiles.
-		typedef std::pair< FATEntryPtr, boost::weak_ptr<substream> > OPEN_ITEM;
+		typedef std::pair< FATEntryPtr, boost::weak_ptr<stream::sub> > OPEN_ITEM;
 
-		/// List of substreams currently open.
+		/// List of stream::subs currently open.
 		OPEN_ITEMS openItems;
 
 	public:
 
-		FATTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
-			io::stream_offset offFirstTile)
-			throw (std::ios::failure);
+		FATTileset(stream::inout_sptr data,
+			stream::pos offFirstTile)
+			throw (stream::error);
 
 		virtual ~FATTileset()
 			throw ();
@@ -111,22 +110,22 @@ class FATTileset: virtual public Tileset {
 			throw ();
 
 		virtual TilesetPtr openTileset(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void remove(EntryPtr& id)
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual void resize(EntryPtr& id, size_t newSize)
-			throw (std::ios::failure);
+		virtual void resize(EntryPtr& id, stream::len newSize)
+			throw (stream::error);
 
 		virtual void flush()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Shift any files *starting* at or after offStart by delta bytes.
 		/**
@@ -136,9 +135,9 @@ class FATTileset: virtual public Tileset {
 		 * following it.  This function must notify any open files that their offset
 		 * has moved.
 		 */
-		virtual void shiftFiles(const FATEntry *fatSkip, io::stream_offset offStart,
-			std::streamsize deltaOffset, int deltaIndex)
-			throw (std::ios::failure);
+		virtual void shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
+			stream::len deltaOffset, int deltaIndex)
+			throw (stream::error);
 
 		// Methods to be filled out by descendent classes
 
@@ -154,8 +153,8 @@ class FATTileset: virtual public Tileset {
 		 *   Truncate function to resize the supplied stream.
 		 */
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 		/// Create an Image instance for the given item.
 		/**
@@ -169,8 +168,8 @@ class FATTileset: virtual public Tileset {
 		 *   Truncate function to resize the supplied stream.
 		 */
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 		/// Adjust the offset of the given entry in the on-disk FAT.
 		/**
@@ -183,8 +182,8 @@ class FATTileset: virtual public Tileset {
 		 * @note pid->offset is already set to the new offset, do not add offDelta
 		 *   to this or you will get the wrong offset!
 		 */
-		virtual void updateFileOffset(const FATEntry *pid, std::streamsize offDelta)
-			throw (std::ios::failure);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
+			throw (stream::error);
 
 		/// Adjust the size of the given entry in the on-disk FAT.
 		/**
@@ -197,8 +196,8 @@ class FATTileset: virtual public Tileset {
 		 * @note pid->size is already set to the new size, do not add sizeDelta
 		 *   to this or you will get the wrong size!
 		 */
-		virtual void updateFileSize(const FATEntry *pid, std::streamsize sizeDelta)
-			throw (std::ios::failure);
+		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta)
+			throw (stream::error);
 
 		/// Insert a new entry in the on-disk FAT.
 		/**
@@ -231,7 +230,7 @@ class FATTileset: virtual public Tileset {
 		 */
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Called after the file data has been inserted.
 		/**
@@ -244,7 +243,7 @@ class FATTileset: virtual public Tileset {
 		 * postInsertFile() immediately called.
 		 */
 		virtual void postInsertFile(FATEntry *pNewEntry)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Remove the entry from the FAT.
 		/**
@@ -259,7 +258,7 @@ class FATTileset: virtual public Tileset {
 		 * Invalidates existing EntryPtrs.
 		 */
 		virtual void preRemoveFile(const FATEntry *pid)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Called after the file data has been removed and the FAT has been
 		/// updated.
@@ -270,7 +269,7 @@ class FATTileset: virtual public Tileset {
 		 * it was at, its size, etc.)
 		 */
 		virtual void postRemoveFile(const FATEntry *pid)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Allocate a new, empty FAT entry.
 		/**
@@ -287,16 +286,16 @@ class FATTileset: virtual public Tileset {
 
 	private:
 
-		/// Create a substream containing the item's data.
-		iostream_sptr openStream(const EntryPtr& id)
+		/// Create a stream::sub containing the item's data.
+		stream::inout_sptr openStream(const EntryPtr& id)
 			throw ();
 
-		/// Remove any substreams from the cached list if they have closed.
+		/// Remove any stream::subs from the cached list if they have closed.
 		void cleanOpenSubstreams()
 			throw ();
 
 		/// Should the given entry be moved during an insert/resize operation?
-		bool entryInRange(const FATEntry *fat, io::stream_offset offStart,
+		bool entryInRange(const FATEntry *fat, stream::pos offStart,
 			const FATEntry *fatSkip) const
 			throw ();
 

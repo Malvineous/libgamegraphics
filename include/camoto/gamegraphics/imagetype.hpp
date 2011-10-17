@@ -3,7 +3,7 @@
  * @brief  ImageType class, used to identify and open an instance of a
  *         particular image format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@
 #include <vector>
 #include <map>
 
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 #include <camoto/suppitem.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
@@ -92,8 +93,8 @@ class ImageType {
 		 * @note Many image formats lack a file header, so %Unsure will be a common
 		 *   return value, especially with small files.
 		 */
-		virtual Certainty isInstance(iostream_sptr psImage) const
-			throw (std::ios::failure) = 0;
+		virtual Certainty isInstance(stream::inout_sptr psImage) const
+			throw (stream::error) = 0;
 
 		/// Create a blank image file in this format.
 		/**
@@ -107,18 +108,15 @@ class ImageType {
 		 * @param psImage
 		 *   A blank stream to store the new image in.
 		 *
-		 * @param fnTruncate
-		 *   Callback function to resize psImage if required.
-		 *
 		 * @param suppData
 		 *   Any supplemental data required by this format (see getRequiredSupps())
 		 *
 		 * @return A pointer to an instance of the Image class, just as if a
 		 *   valid empty file had been opened by open().
 		 */
-		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Open a image file.
 		/**
@@ -126,9 +124,6 @@ class ImageType {
 		 *
 		 * @param psImage
 		 *   The image file.
-		 *
-		 * @param fnTruncate
-		 *   Callback function to resize psImage if required.
 		 *
 		 * @param suppData
 		 *   Any supplemental data required by this format (see getRequiredSupps())
@@ -139,9 +134,9 @@ class ImageType {
 		 *   make it possible to "force" a file to be opened by a particular format
 		 *   handler.
 		 */
-		virtual ImagePtr open(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr open(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Get a list of any required supplemental files.
 		/**

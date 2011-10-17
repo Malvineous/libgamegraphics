@@ -50,16 +50,16 @@ class HarryTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsTileset) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsTileset) const
+			throw (stream::error);
 
-		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
@@ -70,9 +70,9 @@ class HarryTileset: virtual public FATTileset {
 
 	public:
 
-		HarryTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+		HarryTileset(stream::inout_sptr data,
 			PaletteTablePtr pal)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~HarryTileset()
 			throw ();
@@ -81,14 +81,14 @@ class HarryTileset: virtual public FATTileset {
 			throw ();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 		PaletteTablePtr getPalette()
 			throw ();
 
 		void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 

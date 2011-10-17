@@ -54,7 +54,7 @@ class SubImage: virtual public Image {
 		 *   underlying image.
 		 */
 		SubImage(ImagePtr img, int xOffset, int yOffset, int width, int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~SubImage()
 			throw ();
@@ -66,17 +66,17 @@ class SubImage: virtual public Image {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandardMask()
 			throw ();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		/// Common code between toStandard() and toStandardMask()

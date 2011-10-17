@@ -47,16 +47,16 @@ class WordrescTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsGraphics) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+			throw (stream::error);
 
-		virtual TilesetPtr create(iostream_sptr psGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsGraphics, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
 			throw ();

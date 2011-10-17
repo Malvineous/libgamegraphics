@@ -6,7 +6,7 @@
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,27 +44,27 @@ int Palette::getCaps()
 }
 
 void Palette::getDimensions(unsigned int *width, unsigned int *height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	*width = 0;
 	*height = 0;
 }
 
 StdImageDataPtr Palette::toStandard()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return StdImageDataPtr();
 }
 
 StdImageDataPtr Palette::toStandardMask()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return StdImageDataPtr();
 }
 
 void Palette::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return;
 }

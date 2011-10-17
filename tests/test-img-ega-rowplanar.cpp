@@ -2,7 +2,7 @@
  * @file   test-img-ega-rowplanar.cpp
  * @brief  Test code for conversion to and from row-planar EGA data.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ using namespace camoto;
 	planes[PLANE_OPACITY] = -1; \
 	EGARowPlanarImage *ega = new EGARowPlanarImage(); \
 	this->img = ImagePtr(ega); \
-	ega->setParams(this->baseStream, this->fnTruncate, 0, width, height, planes); \
+	ega->setParams(this->base, 0, width, height, planes); \
 	this->dataWidth = width / 8 * height * 5; // 5 == numplanes
 
 // Same code for creating empty images

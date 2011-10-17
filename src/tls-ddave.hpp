@@ -2,7 +2,7 @@
  * @file   tls-ddave.hpp
  * @brief  Dangerous Dave tileset handler.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,8 +43,8 @@ class DDaveTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsTileset) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsTileset) const
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
@@ -66,13 +66,13 @@ class DDaveCGATilesetType: virtual public DDaveTilesetType {
 		virtual std::string getFriendlyName() const
 			throw ();
 
-		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		virtual bool isInstance(int firstTileSize) const
@@ -90,13 +90,13 @@ class DDaveEGATilesetType: virtual public DDaveTilesetType {
 		virtual std::string getFriendlyName() const
 			throw ();
 
-		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		virtual bool isInstance(int firstTileSize) const
@@ -114,13 +114,13 @@ class DDaveVGATilesetType: virtual public DDaveTilesetType {
 		virtual std::string getFriendlyName() const
 			throw ();
 
-		virtual TilesetPtr create(iostream_sptr psTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr create(stream::inout_sptr psTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual TilesetPtr open(iostream_sptr fsTileset, FN_TRUNCATE fnTruncate,
+		virtual TilesetPtr open(stream::inout_sptr fsTileset,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		// Extra one to add palette as supp
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
@@ -138,9 +138,9 @@ class DDaveTileset: virtual public FATTileset {
 	public:
 		enum ImageType {CGA, EGA, VGA};
 
-		DDaveTileset(iostream_sptr data, FN_TRUNCATE fnTruncate, ImageType imgType,
+		DDaveTileset(stream::inout_sptr data, ImageType imgType,
 			PaletteTablePtr pal)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual ~DDaveTileset()
 			throw ();
@@ -149,24 +149,24 @@ class DDaveTileset: virtual public FATTileset {
 			throw ();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			iostream_sptr content, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+			stream::inout_sptr content)
+			throw (stream::error);
 
 		virtual PaletteTablePtr getPalette()
 			throw ();
 
-		virtual void updateFileOffset(const FATEntry *pid, std::streamsize offDelta)
-			throw (std::ios::failure);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
+			throw (stream::error);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void postInsertFile(FATEntry *pNewEntry)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void postRemoveFile(const FATEntry *pid)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	private:
 		ImageType imgType;

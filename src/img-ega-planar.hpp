@@ -38,9 +38,8 @@ namespace gamegraphics {
  */
 class EGAPlanarImage: virtual public Image {
 	protected:
-		iostream_sptr data;
-		FN_TRUNCATE fnTruncate;
-		io::stream_offset offset;
+		stream::inout_sptr data;
+		stream::pos offset;
 		int width, height;
 		PLANE_LAYOUT planes;
 
@@ -53,8 +52,8 @@ class EGAPlanarImage: virtual public Image {
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.
-		virtual void setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
-			io::stream_offset offset, int width, int height,
+		virtual void setParams(stream::inout_sptr data,
+			stream::pos offset, int width, int height,
 			const PLANE_LAYOUT& planes)
 			throw ();
 
@@ -65,7 +64,7 @@ class EGAPlanarImage: virtual public Image {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
 			throw ();

@@ -2,7 +2,7 @@
  * @file   img-vga-raw.hpp
  * @brief  VGAImage specialisation for fixed-size headerless images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,16 +50,16 @@ class VGARawImageType: virtual public ImageType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsImage) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsImage) const
+			throw (stream::error);
 
-		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();
@@ -91,7 +91,7 @@ class VGARawImage: virtual public VGAImage {
 		 * @param pal
 		 *   Image palette
 		 */
-		VGARawImage(iostream_sptr data, int width, int height, PaletteTablePtr pal)
+		VGARawImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal)
 			throw ();
 
 		virtual ~VGARawImage()
@@ -104,10 +104,10 @@ class VGARawImage: virtual public VGAImage {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 };
 

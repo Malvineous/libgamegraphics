@@ -79,15 +79,14 @@ std::vector<std::string> DDaveTilesetType::getGameList() const
 }
 
 DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
-	iostream_sptr psTileset) const
-	throw (std::ios::failure)
+	stream::inout_sptr psTileset) const
+	throw (stream::error)
 {
-	psTileset->seekg(0, std::ios::end);
-	io::stream_offset len = psTileset->tellg();
+	stream::pos len = psTileset->size();
 	// TESTED BY: TODO
 	if (len < DD_FIRST_TILE_OFFSET) return DefinitelyNo; // too short
 
-	psTileset->seekg(0, std::ios::beg);
+	psTileset->seekg(0, stream::start);
 	uint32_t numFiles;
 	psTileset >> u32le(numFiles);
 
@@ -148,24 +147,24 @@ std::string DDaveCGATilesetType::getFriendlyName() const
 	return "Dangerous Dave CGA tileset";
 }
 
-TilesetPtr DDaveCGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(4);
-	psTileset->seekp(0, std::ios::beg);
+	psTileset->truncate(4);
+	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
 	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, pal));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
 }
 
-TilesetPtr DDaveCGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::CGA, pal));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
 }
 
 bool DDaveCGATilesetType::isInstance(int firstTileSize) const
@@ -187,22 +186,22 @@ std::string DDaveEGATilesetType::getFriendlyName() const
 	return "Dangerous Dave EGA tileset";
 }
 
-TilesetPtr DDaveEGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(4);
-	psTileset->seekp(0, std::ios::beg);
+	psTileset->truncate(4);
+	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::EGA, PaletteTablePtr()));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::EGA, PaletteTablePtr()));
 }
 
-TilesetPtr DDaveEGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveEGATilesetType::open(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::EGA, PaletteTablePtr()));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::EGA, PaletteTablePtr()));
 }
 
 bool DDaveEGATilesetType::isInstance(int firstTileSize) const
@@ -224,34 +223,28 @@ std::string DDaveVGATilesetType::getFriendlyName() const
 	return "Dangerous Dave VGA tileset";
 }
 
-TilesetPtr DDaveVGATilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(4);
-	psTileset->seekp(0, std::ios::beg);
+	psTileset->truncate(4);
+	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::VGA, pal));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
 }
 
-TilesetPtr DDaveVGATilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 
-	return TilesetPtr(new DDaveTileset(psTileset, fnTruncate, DDaveTileset::VGA, pal));
+	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
 }
 
 SuppFilenames DDaveVGATilesetType::getRequiredSupps(
@@ -270,25 +263,24 @@ bool DDaveVGATilesetType::isInstance(int firstTileSize) const
 }
 
 
-DDaveTileset::DDaveTileset(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, ImageType imgType, PaletteTablePtr pal)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, DD_FIRST_TILE_OFFSET),
+DDaveTileset::DDaveTileset(stream::inout_sptr data,
+	ImageType imgType, PaletteTablePtr pal)
+	throw (stream::error) :
+		FATTileset(data, DD_FIRST_TILE_OFFSET),
 		imgType(imgType),
 		pal(pal)
 {
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
-	if (len < DD_FIRST_TILE_OFFSET) throw std::ios::failure("file too short");
+	if (len < DD_FIRST_TILE_OFFSET) throw stream::error("file too short");
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	uint32_t numTiles;
 	this->data >> u32le(numTiles);
 	this->items.reserve(numTiles);
-	if (numTiles > DD_SAFETY_MAX_TILES) throw std::ios::failure("too many tiles");
+	if (numTiles > DD_SAFETY_MAX_TILES) throw stream::error("too many tiles");
 
 	if (numTiles > 0) {
 		uint32_t nextOffset;
@@ -325,8 +317,8 @@ int DDaveTileset::getCaps()
 }
 
 ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
@@ -335,14 +327,14 @@ ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
 	bool fixedSize = fat->index < DD_FIRST_TILE_WITH_DIMS;
 	switch (this->imgType) {
 		case CGA:
-			conv.reset(new DDaveCGAImage(content, fnTruncate, fixedSize));
+			conv.reset(new DDaveCGAImage(content, fixedSize));
 			break;
 		case EGA:
-			conv.reset(new DDaveEGAImage(content, fnTruncate, fixedSize));
+			conv.reset(new DDaveEGAImage(content, fixedSize));
 			break;
 		case VGA: {
 			//VGAPalette vgaPal;
-			conv.reset(new DDaveVGAImage(content, fnTruncate, fixedSize, this->pal));
+			conv.reset(new DDaveVGAImage(content, fixedSize, this->pal));
 			break;
 		}
 	}
@@ -356,8 +348,8 @@ PaletteTablePtr DDaveTileset::getPalette()
 }
 
 void DDaveTileset::updateFileOffset(const FATEntry *pid,
-	std::streamsize offDelta)
-	throw (std::ios::failure)
+	stream::len offDelta)
+	throw (stream::error)
 {
 	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
 
@@ -365,14 +357,14 @@ void DDaveTileset::updateFileOffset(const FATEntry *pid,
 	// will always say offset 0) we need to adjust the value we will be writing.
 	uint32_t fatOffset = pid->offset - fatSize;
 
-	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, std::ios::beg);
+	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
 	this->data << u32le(fatOffset);
 	return;
 }
 
 DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 	const DDaveTileset::FATEntry *idBeforeThis, DDaveTileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
 
@@ -380,7 +372,7 @@ DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 	// will always say offset 0) we need to adjust the value we will be writing.
 	//uint32_t fatOffset = pNewEntry->offset - fatSize;
 
-	this->data->seekp(DD_FAT_OFFSET + pNewEntry->index * DD_FAT_ENTRY_LEN);
+	this->data->seekp(DD_FAT_OFFSET + pNewEntry->index * DD_FAT_ENTRY_LEN, stream::start);
 	this->data->insert(DD_FAT_ENTRY_LEN);
 	//this->data << u32le(fatOffset);
 	// No need to write the offset now as it will be wrong, and will be updated
@@ -404,7 +396,7 @@ DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 }
 
 void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
@@ -414,7 +406,7 @@ void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
 }
 
 void DDaveTileset::postRemoveFile(const FATEntry *pid)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -428,8 +420,9 @@ void DDaveTileset::postRemoveFile(const FATEntry *pid)
 	);
 
 	// Remove the last FAT entry now it is no longer in use
-	//this->data->seekp(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN);
-	this->data->seekp(DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN);
+	//this->data->seekp(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
+	this->data->seekp(DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN,
+		stream::start);
 	this->data->remove(DD_FAT_ENTRY_LEN);
 
 	this->updateFileCount(this->items.size());
@@ -439,7 +432,7 @@ void DDaveTileset::postRemoveFile(const FATEntry *pid)
 void DDaveTileset::updateFileCount(uint32_t newCount)
 	throw (std::ios_base::failure)
 {
-	this->data->seekp(DD_TILECOUNT_OFFSET);
+	this->data->seekp(DD_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);
 	return;
 }

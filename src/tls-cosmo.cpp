@@ -31,7 +31,7 @@
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
 #include "img-ega-byteplanar.hpp"
 #include "tls-cosmo.hpp"
 
@@ -94,29 +94,28 @@ std::vector<std::string> CosmoTilesetType::getGameList() const
 	return vcGames;
 }
 
-CosmoTilesetType::Certainty CosmoTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len == 2000 * 32) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr CosmoTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CosmoTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	psGraphics->seekp(0, std::ios::beg);
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CosmoTileset(psGraphics, fnTruncate, NUMPLANES_TILE));
+	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_TILE));
 }
 
-TilesetPtr CosmoTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CosmoTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CosmoTileset(psGraphics, fnTruncate, NUMPLANES_TILE));
+	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_TILE));
 }
 
 SuppFilenames CosmoTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -143,29 +142,28 @@ std::string CosmoMaskedTilesetType::getFriendlyName() const
 	return "Cosmo's Cosmic Adventures Masked Tileset";
 }
 
-CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len == 1000 * 40) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr CosmoMaskedTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CosmoMaskedTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	psGraphics->seekp(0, std::ios::beg);
+	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CosmoTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
-TilesetPtr CosmoMaskedTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr CosmoMaskedTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new CosmoTileset(psGraphics, fnTruncate, NUMPLANES_SPRITE));
+	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 
@@ -173,20 +171,17 @@ TilesetPtr CosmoMaskedTilesetType::open(iostream_sptr psGraphics,
 // CosmoTileset
 //
 
-CosmoTileset::CosmoTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+CosmoTileset::CosmoTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, CCA_FIRST_TILE_OFFSET),
+	throw (stream::error) :
+		FATTileset(data, CCA_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
-	assert(this->data->good());
-
 	int tileSize = this->numPlanes << 3; // multiply by eight (bytes per plane)
 
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	int numImages = len / tileSize;
 
 	this->items.reserve(numImages);
@@ -216,10 +211,10 @@ int CosmoTileset::getCaps()
 }
 
 void CosmoTileset::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (newSize != CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * this->numPlanes) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -239,8 +234,8 @@ unsigned int CosmoTileset::getLayoutWidth()
 }
 
 ImagePtr CosmoTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	int offset = (this->numPlanes == NUMPLANES_TILE) ? 1 : 0;
@@ -254,7 +249,7 @@ ImagePtr CosmoTileset::createImageInstance(const EntryPtr& id,
 	EGABytePlanarImage *ega = new EGABytePlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, fnTruncate, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes
+		content, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes
 	);
 
 	return conv;

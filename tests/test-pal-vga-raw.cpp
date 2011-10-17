@@ -2,7 +2,7 @@
  * @file   test-pal-vga-raw.cpp
  * @brief  Test code for reading raw VGA palette files.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
-#include <iostream>
-#include <sstream>
+#include <camoto/stream_string.hpp>
 
 #include "../src/pal-vga-raw.hpp"
 
@@ -39,11 +38,11 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_read)
 	data[3] = data[4] = data[5] = 0x3F;
 	data[6] = data[7] = data[8] = 0x40;
 
-	std::stringstream *pss = new std::stringstream();
-	iostream_sptr ss(pss);
-	ss->write((char *)data, 768);
-	FN_TRUNCATE fnTruncate = boost::bind<void>(stringStreamTruncate, pss, _1);
-	VGAPalette img(ss, fnTruncate);
+	stream::string_sptr ss(new stream::string());
+	ss->write(data, 768);
+	// Don't seek to 0 here to make sure VGAPalette handles it correctly
+
+	VGAPalette img(ss);
 
 	PaletteTablePtr pal = img.getPalette();
 
@@ -68,13 +67,12 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	pal->push_back(PaletteEntry(  0,   0,   0));
 	pal->push_back(PaletteEntry(255, 255, 255));
 
-	std::stringstream *pss = new std::stringstream();
-	iostream_sptr ss(pss);
-	FN_TRUNCATE fnTruncate = boost::bind<void>(stringStreamTruncate, pss, _1);
-	VGAPalette img(ss, fnTruncate);
+	stream::string_sptr ss(new stream::string());
+	VGAPalette img(ss);
 	img.setPalette(pal);
+	ss->flush();
 
-	std::string s = pss->str();
+	std::string s = ss->str();
 	uint8_t *buf = (uint8_t *)s.c_str();
 
 	BOOST_REQUIRE_EQUAL(buf[0], 0);

@@ -2,7 +2,7 @@
  * @file   img-ddave.hpp
  * @brief  Image specialisation for Dangerous Dave CGA/EGA/VGA images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class DDaveCGAImage: virtual public CGAImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveCGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize)
+		DDaveCGAImage(stream::inout_sptr data, bool fixedSize)
 			throw ();
 
 		virtual ~DDaveCGAImage()
@@ -60,7 +60,7 @@ class DDaveCGAImage: virtual public CGAImage {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
@@ -69,7 +69,7 @@ class DDaveCGAImage: virtual public CGAImage {
 	protected:
 		uint16_t width;
 		uint16_t height;
-		iostream_sptr stream_data; // iostream_sptr copy, as inherited one is a bitstream
+		stream::inout_sptr stream_data; // stream::inout_sptr copy, as inherited one is a bitstream
 		bool fixedSize;
 
 };
@@ -91,7 +91,7 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveEGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize)
+		DDaveEGAImage(stream::inout_sptr data, bool fixedSize)
 			throw ();
 
 		virtual ~DDaveEGAImage()
@@ -131,7 +131,7 @@ class DDaveVGAImage: virtual public VGAImage {
 		 * @param pal
 		 *   Image palette.
 		 */
-		DDaveVGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, bool fixedSize,
+		DDaveVGAImage(stream::inout_sptr data, bool fixedSize,
 			PaletteTablePtr pal)
 			throw ();
 
@@ -145,14 +145,14 @@ class DDaveVGAImage: virtual public VGAImage {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
 			throw ();
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
 		uint16_t width;

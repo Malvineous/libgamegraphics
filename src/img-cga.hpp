@@ -2,7 +2,7 @@
  * @file   img-cga.hpp
  * @brief  Image implementation adding support for CGA graphics.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class CGAImage: virtual public Image {
 		 * @param cgaPal
 		 *   CGA palette to use.  See generatePalette() for details.
 		 */
-		CGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate, io::stream_offset off,
+		CGAImage(stream::inout_sptr data, stream::pos off,
 			CGAPaletteType cgaPal)
 			throw ();
 
@@ -80,7 +80,7 @@ class CGAImage: virtual public Image {
 		//	throw ();
 
 		//virtual void setDimensions(unsigned int width, unsigned int height)
-		//	throw (std::ios::failure);
+		//	throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
 			throw ();
@@ -93,7 +93,7 @@ class CGAImage: virtual public Image {
 			throw ();
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Generate a CGA palette.
 		/**
@@ -108,9 +108,9 @@ class CGAImage: virtual public Image {
 			throw ();
 
 	protected:
+		stream::inout_sptr parent; ///< Parent stream under the bitstream
 		bitstream_sptr data;     ///< CGA image data
-		FN_TRUNCATE fnTruncate;  ///< Truncate function for data stream
-		io::stream_offset off;   ///< Offset of image data
+		stream::pos off;   ///< Offset of image data
 		CGAPaletteType cgaPal;   ///< CGA palette to use
 
 };

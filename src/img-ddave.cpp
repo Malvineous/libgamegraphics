@@ -2,7 +2,7 @@
  * @file   img-ddave.cpp
  * @brief  Image specialisation for Dangerous Dave CGA/EGA/VGA images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 namespace camoto {
 namespace gamegraphics {
 
-DDaveCGAImage::DDaveCGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate,
+DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 	bool fixedSize)
 	throw () :
-		CGAImage(data, fnTruncate, fixedSize ? 0 : 4, CGAImage::CyanMagentaBright),
+		CGAImage(data, fixedSize ? 0 : 4, CGAImage::CyanMagentaBright),
 		stream_data(data),
 		fixedSize(fixedSize)
 {
@@ -58,7 +58,7 @@ void DDaveCGAImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void DDaveCGAImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -75,14 +75,14 @@ void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,
 
 	if (!this->fixedSize) {
 		// Update offset
-		this->stream_data->seekp(0, std::ios::beg);
+		this->stream_data->seekp(0, stream::start);
 		this->stream_data << u16le(this->width) << u16le(this->height);
 	}
 	return;
 }
 
 
-DDaveEGAImage::DDaveEGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate,
+DDaveEGAImage::DDaveEGAImage(stream::inout_sptr data,
 	bool fixedSize)
 	throw () :
 		fixedSize(fixedSize)
@@ -99,7 +99,7 @@ DDaveEGAImage::DDaveEGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate,
 	planes[PLANE_INTENSITY] = 1;
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 0;
-	this->setParams(data, fnTruncate, fixedSize ? 0 : 4,
+	this->setParams(data, fixedSize ? 0 : 4,
 		this->width, this->height, planes);
 }
 
@@ -124,7 +124,7 @@ void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
 
 	if (!this->fixedSize) {
 		// Update offset
-		this->data->seekp(0, std::ios::beg);
+		this->data->seekp(0, stream::start);
 		this->data << u16le(this->width) << u16le(this->height);
 	}
 	return;
@@ -132,10 +132,10 @@ void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
 
 
 
-DDaveVGAImage::DDaveVGAImage(iostream_sptr data, FN_TRUNCATE fnTruncate,
+DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
 	bool fixedSize, PaletteTablePtr pal)
 	throw () :
-		VGAImage(data, fnTruncate, fixedSize ? 0 : 4),
+		VGAImage(data, fixedSize ? 0 : 4),
 		fixedSize(fixedSize),
 		pal(pal)
 {
@@ -169,7 +169,7 @@ void DDaveVGAImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -186,14 +186,14 @@ void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
 
 	if (!this->fixedSize) {
 		// Update offset
-		this->data->seekp(0, std::ios::beg);
+		this->data->seekp(0, stream::start);
 		this->data << u16le(this->width) << u16le(this->height);
 	}
 	return;
 }
 
 PaletteTablePtr DDaveVGAImage::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return this->pal;
 }

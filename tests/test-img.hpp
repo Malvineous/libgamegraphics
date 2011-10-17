@@ -2,7 +2,7 @@
  * @file   test-img.hpp
  * @brief  Generic image conversion test code.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,7 @@
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
 #include <camoto/util.hpp> // for TOSTRING macro
-#include <iostream>
-#include <sstream>
+#include <camoto/stream_string.hpp>
 
 #include "tests.hpp"
 
@@ -161,11 +160,7 @@ const uint8_t stdformat_test_mask_8x4[] = {
 
 struct FIXTURE_NAME: public default_sample {
 
-	typedef boost::shared_ptr<std::stringstream> sstr_ptr;
-
-	sstr_ptr baseData;
-	camoto::iostream_sptr baseStream;
-	FN_TRUNCATE fnTruncate;
+	stream::string_sptr base;
 	ImagePtr img;
 	SuppData suppData;
 
@@ -175,12 +170,8 @@ struct FIXTURE_NAME: public default_sample {
 	int dataWidth;
 
 	FIXTURE_NAME() :
-		baseData(new std::stringstream),
-		baseStream(this->baseData)
+		base(new stream::string())
 	{
-		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-		this->fnTruncate = boost::bind<void>(
-			camoto::stringStreamTruncate, this->baseData.get(), _1);
 #ifdef IMG_DATA_WIDTH
 		this->dataWidth = IMG_DATA_WIDTH;
 #else
@@ -196,7 +187,7 @@ struct FIXTURE_NAME: public default_sample {
 		ManagerPtr pManager(getManager());
 		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE));
 		BOOST_REQUIRE_MESSAGE(pTestType, "Invalid image code " IMG_TYPE);
-		this->img = pTestType->open(this->baseStream, this->fnTruncate, this->suppData);
+		this->img = pTestType->open(this->base, this->suppData);
 #endif
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
 	}
@@ -209,7 +200,7 @@ struct FIXTURE_NAME: public default_sample {
 		ManagerPtr pManager(getManager());
 		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE));
 		BOOST_REQUIRE_MESSAGE(pTestType, "Invalid image code " IMG_TYPE);
-		this->img = pTestType->create(this->baseStream, this->fnTruncate, this->suppData);
+		this->img = pTestType->create(this->base, this->suppData);
 #endif
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not create image instance");
 	}
@@ -223,7 +214,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_ ## w ## x ## h)) \
 { \
 	BOOST_TEST_MESSAGE("Converting " TOSTRING(IMG_CLASS) " to stdformat " __STRING(w) "x" __STRING(h)); \
 \
-	baseData->str(makeString(TESTDATA_INITIAL_ ## w ## x ## h)); \
+	std::string d = makeString(TESTDATA_INITIAL_ ## w ## x ## h); \
+	this->base->open(&d); \
 	this->openImage(w, h); \
 \
 	StdImageDataPtr output = this->img->toStandard(); \
@@ -254,7 +246,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_mask_ ## w ## x ## h)) \
 { \
 	BOOST_TEST_MESSAGE("Converting " TOSTRING(IMG_CLASS) " to stdmask " __STRING(w) "x" __STRING(h)); \
 \
-	baseData->str(makeString(TESTDATA_INITIAL_ ## w ## x ## h)); \
+	std::string d = makeString(TESTDATA_INITIAL_ ## w ## x ## h); \
+	this->base->open(&d); \
 	this->openImage(w, h); \
 \
 	StdImageDataPtr output = this->img->toStandardMask(); \
@@ -299,7 +292,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 	BOOST_CHECK_MESSAGE( \
 		default_sample::is_equal( \
 			(const uint8_t *)TESTDATA_INITIAL_ ## w ## x ## h, \
-			(const uint8_t *)(this->baseData->str().c_str()), \
+			(const uint8_t *)(this->base->str().c_str()), \
 			targetSize, \
 			this->dataWidth \
 		), \
@@ -307,7 +300,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 	); \
 \
 	/* Make sure the right amount of data was written out */ \
-	BOOST_REQUIRE_EQUAL(baseData->str().length(), targetSize); \
+	BOOST_REQUIRE_EQUAL(this->base->str().length(), targetSize); \
 }
 
 FROM_STANDARD_TEST(8, 8)

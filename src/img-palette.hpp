@@ -3,7 +3,7 @@
  * @brief  Image implementation of a Palette file.  This will be inherited by
  *         classes implementing a specific palette file formats.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,23 +41,23 @@ class Palette: virtual public Image {
 			throw ();
 
 		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandardMask()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 };
 

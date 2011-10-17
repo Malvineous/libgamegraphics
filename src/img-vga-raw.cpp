@@ -2,7 +2,7 @@
  * @file   img-vga-raw.cpp
  * @brief  VGAImage specialisation for fixed-size headerless images.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,11 +64,10 @@ std::vector<std::string> VGARawImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty VGARawImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty VGARawImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::end);
-	io::stream_offset len = psImage->tellg();
+	stream::pos len = psImage->size();
 
 	// TESTED BY: TODO
 	if (len == 64000) return PossiblyYes;
@@ -77,31 +76,25 @@ ImageType::Certainty VGARawImageType::isInstance(iostream_sptr psImage) const
 	return DefinitelyNo;
 }
 
-ImagePtr VGARawImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr VGARawImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(64000);
+	psImage->truncate(64000);
 	char buf[64];
 	memset(buf, 0, 64);
 	for (int i = 0; i < 1000; i++) psImage->write(buf, 64);
 
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
-ImagePtr VGARawImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr VGARawImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr palFile(new VGAPalette(
-		suppData[SuppItem::Palette].stream,
-		suppData[SuppItem::Palette].fnTruncate
-	));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
@@ -117,10 +110,10 @@ SuppFilenames VGARawImageType::getRequiredSupps(const std::string& filenameImage
 }
 
 
-VGARawImage::VGARawImage(iostream_sptr data, int width, int height,
+VGARawImage::VGARawImage(stream::inout_sptr data, int width, int height,
 	PaletteTablePtr pal)
 	throw () :
-		VGAImage(data, NULL, 0),
+		VGAImage(data, 0),
 		width(width),
 		height(height),
 		pal(pal)
@@ -147,13 +140,13 @@ void VGARawImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void VGARawImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	throw std::ios::failure("this image is a fixed size");
+	throw stream::error("this image is a fixed size");
 }
 
 PaletteTablePtr VGARawImage::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return this->pal;
 }

@@ -5,7 +5,7 @@
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Zone_66_Tileset_Format
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,13 +69,12 @@ std::vector<std::string> Zone66TileImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty Zone66TileImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty Zone66TileImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::end);
-	io::stream_offset len = psImage->tellg();
+	stream::pos len = psImage->size();
 
-	psImage->seekg(0, std::ios::beg);
+	psImage->seekg(0, stream::start);
 	uint16_t width, height;
 	psImage >> u16le(width) >> u16le(height);
 	int imgSize = width * height;
@@ -111,9 +110,9 @@ ImageType::Certainty Zone66TileImageType::isInstance(iostream_sptr psImage) cons
 	return DefinitelyNo;
 }
 
-ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr Zone66TileImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	psImage
 		<< u16le(0)  // width
@@ -123,29 +122,23 @@ ImagePtr Zone66TileImageType::create(iostream_sptr psImage,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new Zone66TileImage(psImage, fnTruncate, pal));
+	return ImagePtr(new Zone66TileImage(psImage, pal));
 }
 
-ImagePtr Zone66TileImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr Zone66TileImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new Zone66TileImage(psImage, fnTruncate, pal));
+	return ImagePtr(new Zone66TileImage(psImage, pal));
 }
 
 SuppFilenames Zone66TileImageType::getRequiredSupps(const std::string& filenameImage) const
@@ -157,19 +150,17 @@ SuppFilenames Zone66TileImageType::getRequiredSupps(const std::string& filenameI
 }
 
 
-Zone66TileImage::Zone66TileImage(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, PaletteTablePtr pal)
+Zone66TileImage::Zone66TileImage(stream::inout_sptr data,
+	PaletteTablePtr pal)
 	throw () :
 		data(data),
-		fnTruncate(fnTruncate),
 		pal(pal)
 {
-	this->data->seekg(0, std::ios::beg);
-	this->data >> u16le(this->width) >> u16le(this->height);
-	if ((!this->data->good()) || this->data->eof()) {
+	try {
+		this->data >> u16le(this->width) >> u16le(this->height);
+	} catch (const stream::incomplete_read&) {
 		this->width = 0;
 		this->height = 0;
-		this->data->clear(); // clear errors
 	}
 }
 
@@ -194,25 +185,23 @@ void Zone66TileImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	assert(this->data->good());
-	this->data->seekg(0, std::ios::end);
+	this->data->seekg(0, stream::end);
 	if (this->data->tellg() < 4) {
 		// Need to enlarge stream to write image size
-		this->fnTruncate(4);
+		this->data->truncate(4);
 	}
 
-	this->data->seekp(0, std::ios::beg);
+	this->data->seekp(0, stream::start);
 	this->data << u16le(width) << u16le(height);
 	this->width = width;
 	this->height = height;
-	assert(this->data->good());
 	return;
 }
 
 StdImageDataPtr Zone66TileImage::toStandard()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert((this->width != 0) && (this->height != 0));
 
@@ -220,7 +209,7 @@ StdImageDataPtr Zone66TileImage::toStandard()
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
 
-	this->data->seekg(Z66_IMG_OFFSET, std::ios::beg);
+	this->data->seekg(Z66_IMG_OFFSET, stream::start);
 	bool justDidReset = false;
 	for (int i = 0; i < dataSize; ) {
 		uint8_t code;
@@ -249,14 +238,14 @@ StdImageDataPtr Zone66TileImage::toStandard()
 				break;
 
 			case 0x00: // shouldn't happen
-				throw std::ios::failure("corrupted data");
+				throw stream::error("corrupted data");
 
 			default:
 				if (i + code <= dataSize) {
-					this->data->rdbuf()->sgetn((char *)&imgData[i], code);
+					this->data->read(&imgData[i], code);
 					i += code;
 				} else {
-					throw std::ios::failure("bad data, tried to write past end of image");
+					throw stream::error("bad data, tried to write past end of image");
 				}
 				break;
 		}
@@ -283,17 +272,16 @@ StdImageDataPtr Zone66TileImage::toStandardMask()
 void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	assert((this->width != 0) && (this->height != 0));
-	assert(this->data->good());
-	this->data->seekp(0, std::ios::beg);
+	this->data->seekp(0, stream::start);
 
 	// Start off with enough space for the worst-case size
-	this->fnTruncate(4 + (this->width + 2) * this->height + 1);
+	this->data->truncate(4 + (this->width + 2) * this->height + 1);
 	int finalSize = 4; // for header
 
-	this->data->seekp(Z66_IMG_OFFSET, std::ios::beg);
+	this->data->seekp(Z66_IMG_OFFSET, stream::start);
 	uint8_t *imgData = (uint8_t *)newContent.get();
 
 	// Find the last non-black pixel in the image
@@ -365,7 +353,7 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 				}
 			}
 			this->data << u8(amt);
-			this->data->rdbuf()->sputn((char *)imgData, amt);
+			this->data->write(imgData, amt);
 			imgData += amt;
 			dw -= amt;
 			finalSize += amt + 1;
@@ -385,7 +373,7 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 	this->data->flush();
 
 	// Then shrink back to actual size
-	this->fnTruncate(finalSize);
+	this->data->truncate(finalSize);
 
 	return;
 }
@@ -397,7 +385,7 @@ PaletteTablePtr Zone66TileImage::getPalette()
 }
 
 void Zone66TileImage::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;

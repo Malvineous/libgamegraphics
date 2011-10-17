@@ -26,7 +26,7 @@ namespace gamegraphics {
 
 TilesetFromImage::TilesetFromImage(ImagePtr img,
 	int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
-	throw (std::ios::failure) :
+	throw (stream::error) :
 		img(img),
 		tileWidth(tileWidth),
 		tileHeight(tileHeight),
@@ -66,7 +66,7 @@ const Tileset::VC_ENTRYPTR& TilesetFromImage::getItems() const
 }
 
 ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
@@ -85,28 +85,28 @@ ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
 }
 
 Tileset::EntryPtr TilesetFromImage::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	throw std::ios::failure("tiles in this tileset cannot be rearranged (yet?)");
+	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
 void TilesetFromImage::remove(EntryPtr& id)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
-	throw std::ios::failure("tiles in this tileset cannot be rearranged (yet?)");
+	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
 void TilesetFromImage::flush()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return;
 }
 
-void TilesetFromImage::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+void TilesetFromImage::resize(EntryPtr& id, stream::len newSize)
+	throw (stream::error)
 {
 	if (newSize != this->tileWidth * this->tileHeight) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -132,7 +132,7 @@ PaletteTablePtr TilesetFromImage::getPalette()
 }
 
 void TilesetFromImage::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	this->img->setPalette(newPalette);
 	return;

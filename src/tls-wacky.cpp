@@ -74,12 +74,12 @@ std::vector<std::string> WackyTilesetType::getGameList() const
 	return vcGames;
 }
 
-WackyTilesetType::Certainty WackyTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+WackyTilesetType::Certainty WackyTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
+	psGraphics->seekg(0, stream::end);
 	unsigned long lenData = psGraphics->tellg();
-	psGraphics->seekg(0, std::ios::beg);
+	psGraphics->seekg(0, stream::start);
 
 	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
 	psGraphics->read((char *)imgData.get(), lenData);
@@ -101,19 +101,19 @@ WackyTilesetType::Certainty WackyTilesetType::isInstance(iostream_sptr psGraphic
 	return DefinitelyNo;
 }
 
-TilesetPtr WackyTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WackyTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	// TODO
-	throw std::ios::failure("Not yet implemented");
+	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr WackyTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr WackyTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics, fnTruncate));
+	ImagePtr img(new PCXImage(psGraphics));
 	return TilesetPtr(new TilesetFromImage(img,
 		WW_TILE_WIDTH, WW_TILE_HEIGHT, WW_TILES_X, WW_TILES_Y));
 }

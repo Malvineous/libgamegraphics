@@ -50,16 +50,16 @@ class PCXImageType: virtual public ImageType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsImage) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsImage) const
+			throw (stream::error);
 
-		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();
@@ -80,8 +80,8 @@ class PCXImage: virtual public Image {
 		 * @param fnTruncate
 		 *   Callback function when stream size must be changed.
 		 */
-		PCXImage(iostream_sptr data, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+		PCXImage(stream::inout_sptr data)
+			throw (stream::error);
 
 		virtual ~PCXImage()
 			throw ();
@@ -93,27 +93,26 @@ class PCXImage: virtual public Image {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandardMask()
 			throw ();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 	protected:
-		iostream_sptr data;
-		FN_TRUNCATE fnTruncate;
+		stream::inout_sptr data;
 		PaletteTablePtr pal;
 		uint8_t ver;
 		uint8_t encoding;

@@ -2,7 +2,7 @@
  * @file   img-ega-byteplanar.hpp
  * @brief  Image implementation adding support for the EGA byte-planar format.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,9 +36,8 @@ namespace gamegraphics {
  */
 class EGABytePlanarImage: virtual public Image {
 	protected:
-		iostream_sptr data;
-		FN_TRUNCATE fnTruncate;
-		io::stream_offset offset;
+		stream::inout_sptr data;
+		stream::pos offset;
 		int width, height;
 		PLANE_LAYOUT planes;
 
@@ -51,8 +50,8 @@ class EGABytePlanarImage: virtual public Image {
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.
-		virtual void setParams(iostream_sptr data, FN_TRUNCATE fnTruncate,
-			io::stream_offset offset, int width, int height,
+		virtual void setParams(stream::inout_sptr data,
+			stream::pos offset, int width, int height,
 			const PLANE_LAYOUT& planes)
 			throw ();
 
@@ -63,7 +62,7 @@ class EGABytePlanarImage: virtual public Image {
 			throw ();
 
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
 			throw ();

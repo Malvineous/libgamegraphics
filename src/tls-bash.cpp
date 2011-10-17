@@ -27,7 +27,7 @@
 #include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/byteorder.hpp>
-#include <camoto/substream.hpp>
+#include <camoto/stream_sub.hpp>
 #include "img-ega-planar.hpp"
 #include "tls-bash.hpp"
 
@@ -109,34 +109,33 @@ std::vector<std::string> MonsterBashBackgroundTilesetType::getGameList() const
 	return vcGames;
 }
 
-MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return PossiblyYes;
 	// Some tiles are one byte larger for some reason
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG + 1) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr MonsterBashBackgroundTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr MonsterBashBackgroundTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	char empty[MB_TILE_LEN_BG];
 	memset(empty, 0x00, sizeof(empty));
 	for (int i = 0; i < MB_NUM_TILES_BG; i++) {
 		psGraphics->write(empty, MB_TILE_LEN_BG);
 	}
-	return TilesetPtr(new MonsterBashTileset(psGraphics, fnTruncate, MB_NUMPLANES_TILE));
+	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_TILE));
 }
 
-TilesetPtr MonsterBashBackgroundTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr MonsterBashBackgroundTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new MonsterBashTileset(psGraphics, fnTruncate, MB_NUMPLANES_TILE));
+	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_TILE));
 }
 
 SuppFilenames MonsterBashBackgroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -189,34 +188,33 @@ std::vector<std::string> MonsterBashForegroundTilesetType::getGameList() const
 	return vcGames;
 }
 
-MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(iostream_sptr psGraphics) const
-	throw (std::ios::failure)
+MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(stream::inout_sptr psGraphics) const
+	throw (stream::error)
 {
-	psGraphics->seekg(0, std::ios::end);
-	io::stream_offset len = psGraphics->tellg();
+	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return PossiblyYes;
 	// Some tiles are one byte larger for some reason
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG + 1) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr MonsterBashForegroundTilesetType::create(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr MonsterBashForegroundTilesetType::create(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	char empty[MB_TILE_LEN_FG];
 	memset(empty, 0x00, sizeof(empty));
 	for (int i = 0; i < MB_NUM_TILES_FG; i++) {
 		psGraphics->write(empty, MB_TILE_LEN_FG);
 	}
-	return TilesetPtr(new MonsterBashTileset(psGraphics, fnTruncate, MB_NUMPLANES_SPRITE));
+	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_SPRITE));
 }
 
-TilesetPtr MonsterBashForegroundTilesetType::open(iostream_sptr psGraphics,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr MonsterBashForegroundTilesetType::open(stream::inout_sptr psGraphics,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return TilesetPtr(new MonsterBashTileset(psGraphics, fnTruncate, MB_NUMPLANES_SPRITE));
+	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_SPRITE));
 }
 
 SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -231,16 +229,13 @@ SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::stri
 // MonsterBashTileset
 //
 
-MonsterBashTileset::MonsterBashTileset(iostream_sptr data, FN_TRUNCATE fnTruncate,
+MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, MB_FIRST_TILE_OFFSET),
+	throw (stream::error) :
+		FATTileset(data, MB_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
-	assert(this->data->good());
-
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
 	this->lenTile = (MB_TILE_WIDTH * MB_TILE_HEIGHT / 8) * numPlanes;
 	int numImages = len / this->lenTile;
@@ -272,10 +267,10 @@ int MonsterBashTileset::getCaps()
 }
 
 void MonsterBashTileset::resize(EntryPtr& id, size_t newSize)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	if (newSize != this->lenTile) {
-		throw std::ios::failure("tiles in this tileset are a fixed size");
+		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
@@ -296,8 +291,8 @@ unsigned int MonsterBashTileset::getLayoutWidth()
 }
 
 ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	int offset = (this->numPlanes == MB_NUMPLANES_SPRITE) ? 1 : 0;
@@ -311,7 +306,7 @@ ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 	EGAPlanarImage *ega = new EGAPlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, fnTruncate, 0, MB_TILE_WIDTH, MB_TILE_HEIGHT, planes
+		content, 0, MB_TILE_WIDTH, MB_TILE_HEIGHT, planes
 	);
 
 	return conv;
@@ -319,7 +314,7 @@ ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 
 MonsterBashTileset::FATEntry *MonsterBashTileset::preInsertFile(
 	const MonsterBashTileset::FATEntry *idBeforeThis, MonsterBashTileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// All tiles are a fixed size in this format.
 	pNewEntry->size = this->lenTile;

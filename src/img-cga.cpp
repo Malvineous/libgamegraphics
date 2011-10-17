@@ -2,7 +2,7 @@
  * @file   img-cga.cpp
  * @brief  Image implementation adding support for CGA graphics.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-CGAImage::CGAImage(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, io::stream_offset off, CGAPaletteType cgaPal)
+CGAImage::CGAImage(stream::inout_sptr data,
+	stream::pos off, CGAPaletteType cgaPal)
 	throw () :
+		parent(data),
 		data(new bitstream(data, bitstream::bigEndian)),
-		fnTruncate(fnTruncate),
 		off(off),
 		cgaPal(cgaPal)
 {
@@ -54,7 +54,7 @@ StdImageDataPtr CGAImage::toStandard()
 
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
-	this->data->seek(this->off << 3, std::ios::beg);
+	this->data->seek(this->off << 3, stream::start);
 
 	// Read the data as 2bpp and write it to the buffer as 8bpp
 	while (dataSize--) {
@@ -92,14 +92,14 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 	assert((width != 0) && (height != 0));
 	int dataSize = width * height;
 
+	// Cut off any leftover data or resize so there's enough space
+	this->parent->truncate((dataSize >> 2) + this->off);
+
 	// No conversion needed, write out as-is
 	uint8_t *imgData = (uint8_t *)newContent.get();
-	this->data->seek(this->off << 3, std::ios::beg);
+	this->data->seek(this->off << 3, stream::start);
 
-	// Cut off any leftover data or resize so there's enough space
-	this->fnTruncate((dataSize >> 2) + this->off);
-
-	// Read the data as 2bpp and write it to the buffer as 8bpp
+	// Write the data as 2bpp
 	while (dataSize--) {
 		this->data->write(2, *imgData++);
 	}
@@ -108,7 +108,7 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr CGAImage::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	return CGAImage::generatePalette(this->cgaPal);
 }

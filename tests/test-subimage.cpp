@@ -22,6 +22,7 @@
 #include <boost/bind.hpp>
 #include <camoto/gamegraphics/image.hpp>
 #include <camoto/util.hpp>
+#include <camoto/stream_string.hpp>
 #include "../src/img-ega-byteplanar.hpp"
 #include "../src/subimage.hpp"
 #include "tests.hpp"
@@ -47,26 +48,18 @@ using namespace camoto;
 	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
 	"\xFF\x7F\x00\x80\xFF" "\xFF\xFE\x01\x00\xFF"
 
-// Allow a string constant to be passed around with embedded nulls
-#define makeString(x)  std::string((x), sizeof((x)) - 1)
-
 struct subimage: public default_sample {
 
-	typedef boost::shared_ptr<std::stringstream> sstr_ptr;
-
-	sstr_ptr baseData;
-	camoto::iostream_sptr baseStream;
-	FN_TRUNCATE fnTruncate;
+	std::string d;
+	stream::string_sptr base;
 	ImagePtr img;
 	SuppData suppData;
 
 	subimage() :
-		baseData(new std::stringstream),
-		baseStream(this->baseData)
+		base(new stream::string())
 	{
-		this->baseData->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-		this->fnTruncate = boost::bind<void>(
-			camoto::stringStreamTruncate, this->baseData.get(), _1);
+		this->d = makeString(TESTDATA_INITIAL);
+		this->base->open(&this->d);
 	}
 
 	void openImage(int width, int height)
@@ -80,7 +73,7 @@ struct subimage: public default_sample {
 		planes[PLANE_OPACITY] = -1;
 		EGABytePlanarImage *ega = new EGABytePlanarImage();
 		this->img.reset(ega);
-		ega->setParams(baseStream, fnTruncate, 0, width, height, planes);
+		ega->setParams(this->base, 0, width, height, planes);
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
 	}
 
@@ -92,7 +85,6 @@ BOOST_AUTO_TEST_CASE(subimage_open)
 {
 	BOOST_TEST_MESSAGE("Opening subimage");
 
-	baseData->str(makeString(TESTDATA_INITIAL));
 	this->openImage(16, 16);
 
 	int subWidth = 4, subHeight = 2;
@@ -117,7 +109,6 @@ BOOST_AUTO_TEST_CASE(subimage_open2)
 {
 	BOOST_TEST_MESSAGE("Opening subimage 2");
 
-	baseData->str(makeString(TESTDATA_INITIAL));
 	this->openImage(16, 16);
 
 	int subWidth = 4, subHeight = 2;
@@ -142,7 +133,6 @@ BOOST_AUTO_TEST_CASE(subimage_open_mask)
 {
 	BOOST_TEST_MESSAGE("Opening subimage mask");
 
-	baseData->str(makeString(TESTDATA_INITIAL));
 	this->openImage(16, 16);
 
 	int subWidth = 4, subHeight = 2;
@@ -167,7 +157,6 @@ BOOST_AUTO_TEST_CASE(subimage_edit)
 {
 	BOOST_TEST_MESSAGE("Editing subimage");
 
-	baseData->str(makeString(TESTDATA_INITIAL));
 	this->openImage(16, 16);
 
 	int subWidth = 4, subHeight = 2;

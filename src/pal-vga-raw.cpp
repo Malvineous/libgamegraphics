@@ -2,7 +2,7 @@
  * @file   pal-vga-raw.cpp
  * @brief  Palette interface to 768-byte raw 6-bit VGA palette files.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,17 +64,16 @@ std::vector<std::string> VGAPaletteImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty VGAPaletteImageType::isInstance(iostream_sptr psImage) const
-	throw (std::ios::failure)
+ImageType::Certainty VGAPaletteImageType::isInstance(stream::inout_sptr psImage) const
+	throw (stream::error)
 {
-	psImage->seekg(0, std::ios::end);
-	io::stream_offset len = psImage->tellg();
+	stream::pos len = psImage->size();
 
 	if (len != 768) return DefinitelyNo;
 
 	// See if the first colour is black, which is even more likely to mean it's
 	// a VGA palette.
-	psImage->seekg(0, std::ios::beg);
+	psImage->seekg(0, stream::start);
 	uint8_t buf[3];
 	psImage->read((char *)buf, 3);
 	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return DefinitelyYes;
@@ -83,18 +82,18 @@ ImageType::Certainty VGAPaletteImageType::isInstance(iostream_sptr psImage) cons
 	return PossiblyYes;
 }
 
-ImagePtr VGAPaletteImageType::create(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr VGAPaletteImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return ImagePtr(new VGAPalette(psImage, fnTruncate));
+	return ImagePtr(new VGAPalette(psImage));
 }
 
-ImagePtr VGAPaletteImageType::open(iostream_sptr psImage,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+ImagePtr VGAPaletteImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	return ImagePtr(new VGAPalette(psImage, fnTruncate));
+	return ImagePtr(new VGAPalette(psImage));
 }
 
 SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
@@ -105,10 +104,9 @@ SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameI
 }
 
 
-VGAPalette::VGAPalette(iostream_sptr data, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure) :
-		data(data),
-		fnTruncate(fnTruncate)
+VGAPalette::VGAPalette(stream::inout_sptr data)
+	throw (stream::error) :
+		data(data)
 {
 }
 
@@ -118,14 +116,15 @@ VGAPalette::~VGAPalette()
 }
 
 PaletteTablePtr VGAPalette::getPalette()
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
-	data->read((char *)buf, 768);
+	this->data->seekg(0, stream::start);
+	this->data->read(buf, 768);
 	// If the palette data is cut off (short read) the rest of the entries will
 	// be black.
 	int i = 0;
@@ -142,7 +141,7 @@ PaletteTablePtr VGAPalette::getPalette()
 }
 
 void VGAPalette::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);
@@ -152,11 +151,9 @@ void VGAPalette::setPalette(PaletteTablePtr newPalette)
 		buf[i++] = p->green >> 2;
 		buf[i++] = p->blue >> 2;
 	}
-	this->fnTruncate(768);
-	this->data->seekp(0, std::ios::beg);
-	if (this->data->rdbuf()->sputn((char *)buf, 768) != 768) {
-		throw std::ios::failure("Unable to write palette to stream (disk full?)");
-	}
+	this->data->truncate(768);
+	this->data->seekp(0, stream::start);
+	this->data->write(buf, 768);
 	return;
 }
 

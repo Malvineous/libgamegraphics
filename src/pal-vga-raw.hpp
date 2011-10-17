@@ -2,7 +2,7 @@
  * @file   pal-vga-raw.hpp
  * @brief  Palette interface to 768-byte raw 6-bit VGA palette files.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,16 +50,16 @@ class VGAPaletteImageType: virtual public ImageType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(iostream_sptr fsImage) const
-			throw (std::ios::failure);
+		virtual Certainty isInstance(stream::inout_sptr fsImage) const
+			throw (stream::error);
 
-		virtual ImagePtr create(iostream_sptr psImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
-		virtual ImagePtr open(iostream_sptr fsImage, FN_TRUNCATE fnTruncate,
+		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();
@@ -70,21 +70,20 @@ class VGAPaletteImageType: virtual public ImageType {
 class VGAPalette: virtual public Palette {
 
 	private:
-		iostream_sptr data;
-		FN_TRUNCATE fnTruncate;
+		stream::inout_sptr data;
 
 	public:
-		VGAPalette(iostream_sptr data, FN_TRUNCATE fnTruncate)
-			throw (std::ios::failure);
+		VGAPalette(stream::inout_sptr data)
+			throw (stream::error);
 
 		virtual ~VGAPalette()
 			throw ();
 
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 };
 
 } // namespace gamegraphics

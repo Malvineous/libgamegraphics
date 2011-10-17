@@ -4,7 +4,7 @@
  *         formats and a standard image data format.  Actual format conversions
  *         are handled by other classes which implement this interface.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 
-#include <camoto/types.hpp>
+#include <camoto/stream.hpp>
+#include <stdint.h>
 #include <camoto/gamegraphics/palettetable.hpp>
 
 namespace camoto {
@@ -107,10 +108,10 @@ class Image {
 		 * @param height
 		 *   Pointer to a variable that will receive the image's height.
 		 *
-		 * @throw std::ios::failure on I/O error.
+		 * @throw stream::error on I/O error.
 		 */
 		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Set the size of this image in pixels.
 		/**
@@ -124,10 +125,10 @@ class Image {
 		 *
 		 * @post Image content is undefined, fromStandard() must be called.
 		 *
-		 * @throw std::ios::failure on I/O error.
+		 * @throw stream::error on I/O error.
 		 */
 		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Convert the image into a standard format.
 		/**
@@ -137,7 +138,7 @@ class Image {
 		 * @return A shared pointer to a byte array of image data.
 		 */
 		virtual StdImageDataPtr toStandard()
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Convert the image mask into a standard format.
 		/**
@@ -153,7 +154,7 @@ class Image {
 		 * @return A shared pointer to a byte array of mask data.
 		 */
 		virtual StdImageDataPtr toStandardMask()
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Replace the image with new content.
 		/**
@@ -179,7 +180,7 @@ class Image {
 		 */
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
-			throw (std::ios::failure) = 0;
+			throw (stream::error) = 0;
 
 		/// Get the indexed colour map from the file.
 		/**
@@ -188,7 +189,7 @@ class Image {
 		 * @return Shared pointer to a Palette.
 		 */
 		virtual PaletteTablePtr getPalette()
-			throw (std::ios::failure);
+			throw (stream::error);
 
 		/// Set the indexed colour map used by the file.
 		/**
@@ -198,7 +199,7 @@ class Image {
 		 *   New palette data
 		 */
 		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (std::ios::failure);
+			throw (stream::error);
 
 };
 

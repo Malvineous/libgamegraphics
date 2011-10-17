@@ -2,7 +2,7 @@
  * @tile   test-tileset_new.hpp
  * @brief  Generic test code for creating new tilesets from scratch.
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,36 +24,27 @@ struct EMPTY_FIXTURE_NAME: public FIXTURE_NAME {
 	{
 		#ifdef HAS_FAT
 		{
-			boost::shared_ptr<std::stringstream> suppSS(new std::stringstream);
-			suppSS->exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
-			camoto::iostream_sptr suppStream(suppSS);
-			gg::SuppItem si;
-			si.stream = suppStream;
-			si.fnTruncate = boost::bind<void>(stringStreamTruncate, suppSS.get(), _1);
-			this->suppData[gg::EST_FAT] = si;
-			this->suppBase[gg::EST_FAT] = suppSS;
+			stream::string_sptr supp(new stream::string());
+			supp << makeString(TEST_RESULT(FAT_initialstate));
+			this->suppData[FAT] = supp;
 		}
 		#endif
 
-		boost::shared_ptr<gg::Manager> pManager(gg::getManager());
-		gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
+		ManagerPtr pManager(gamegraphics::getManager());
+		TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
 
 		BOOST_TEST_CHECKPOINT("About to call newTileset()");
-
-		camoto::FN_TRUNCATE fnTruncate = boost::bind<void>(
-			stringStreamTruncate, this->baseData.get(), _1);
 
 		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
 		// informative without it.
 		//BOOST_REQUIRE_NO_THROW(
-		this->pTileset = pTestType->create(this->baseStream, fnTruncate,
-			this->suppData);
+		this->pTileset = pTestType->create(this->base, this->suppData);
 		//);
 		BOOST_REQUIRE_MESSAGE(this->pTileset, "Could not create new tileset");
 
 		BOOST_TEST_CHECKPOINT("New tileset resized successfully");
 
-		if (this->pTileset->getCaps() & gg::Tileset::ChangeDimensions) {
+		if (this->pTileset->getCaps() & Tileset::ChangeDimensions) {
 			this->pTileset->setTilesetDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
 			BOOST_TEST_CHECKPOINT("New tileset created successfully");
 		}
@@ -70,24 +61,22 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(new_isinstance))
 
 	pTileset->flush();
 
-	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
-	gg::TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
+	boost::shared_ptr<Manager> pManager(getManager());
+	TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
 
-	BOOST_REQUIRE_MESSAGE(pTestType->isInstance(baseStream),
+	BOOST_REQUIRE_MESSAGE(pTestType->isInstance(this->base),
 		"Newly created tileset was not recognised as a valid instance");
 
 	BOOST_TEST_CHECKPOINT("New tileset reported valid, trying to open");
 
-	camoto::FN_TRUNCATE fnTruncate = boost::bind<void>(
-		stringStreamTruncate, this->baseData.get(), _1);
 	// This should really use BOOST_REQUIRE_NO_THROW but the message is more
 	// informative without it.
 	//BOOST_REQUIRE_NO_THROW(
-		gg::TilesetPtr pTileset(pTestType->open(baseStream, fnTruncate, suppData));
+		TilesetPtr pTileset(pTestType->open(this->base, suppData));
 	//);
 
 	// Make sure there are now no tiles in the tileset
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
 	BOOST_REQUIRE_EQUAL(tiles.size(), 0);
 }
 
@@ -95,18 +84,18 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(new_to_initialstate))
 {
 	BOOST_TEST_MESSAGE("Creating tileset from scratch");
 
-	const gg::Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
 	BOOST_REQUIRE_EQUAL(tiles.size(), 0);
 
 	// Add the tiles to the new tileset
-	gg::Tileset::EntryPtr ep1 =
-		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	Tileset::EntryPtr ep1 =
+		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
 		"Couldn't insert new tile in empty tileset");
 	setTileData(ep1, 1, 0);
 
-	gg::Tileset::EntryPtr ep2 =
-		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	Tileset::EntryPtr ep2 =
+		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
 		"Couldn't insert second new tile in empty tileset");
@@ -129,7 +118,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(new_to_initialstate))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_initialstate))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_initialstate))),
 		"Error inserting tiles in new/empty tileset"
 	);
 #endif
@@ -149,32 +138,32 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 #endif
 
 	// Insert the tile
-	gg::Tileset::EntryPtr ep3 =
-		pTileset->insert(gg::Tileset::EntryPtr(), gg::Tileset::None);
+	Tileset::EntryPtr ep3 =
+		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
 	BOOST_REQUIRE_MESSAGE(ep3->isValid,
 		"Couldn't insert new tile in empty tileset");
-	gg::ImagePtr img3(pTileset->openImage(ep3));
+	ImagePtr img3(pTileset->openImage(ep3));
 	// Get offsets of each tile for later testing
-	gg::FATTileset::FATEntryPtr fat3 =
-		boost::dynamic_pointer_cast<gg::FATTileset::FATEntry>(ep3);
+	FATTileset::FATEntryPtr fat3 =
+		boost::dynamic_pointer_cast<FATTileset::FATEntry>(ep3);
 	int off3;
 	if (fat3) off3 = fat3->offset;
 
-	gg::Tileset::EntryPtr ep1 =
-		pTileset->insert(ep3, gg::Tileset::None);
+	Tileset::EntryPtr ep1 =
+		pTileset->insert(ep3, Tileset::None);
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
 		"Couldn't insert new tile in empty tileset");
-	gg::ImagePtr img1(pTileset->openImage(ep1));
+	ImagePtr img1(pTileset->openImage(ep1));
 
-	gg::Tileset::EntryPtr ep2 =
-		pTileset->insert(ep3, gg::Tileset::None);
+	Tileset::EntryPtr ep2 =
+		pTileset->insert(ep3, Tileset::None);
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
 		"Couldn't insert new tile in empty tileset");
-	gg::ImagePtr img2(pTileset->openImage(ep2));
+	ImagePtr img2(pTileset->openImage(ep2));
 
 	// Get offsets of first tile for later testing
-	gg::FATTileset::FATEntryPtr fat1 =
-		boost::dynamic_pointer_cast<gg::FATTileset::FATEntry>(ep1);
+	FATTileset::FATEntryPtr fat1 =
+		boost::dynamic_pointer_cast<FATTileset::FATEntry>(ep1);
 	int off1;
 	if (fat1) off1 = fat1->offset;
 
@@ -204,7 +193,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(gg::EST_FAT, makeString(TEST_RESULT(FAT_insert_end))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_end))),
 		"Error manipulating zero-length tiles"
 	);
 #endif

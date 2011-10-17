@@ -5,7 +5,7 @@
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Zone_66_Tileset_Format
  *
- * Copyright (C) 2010 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,15 +86,14 @@ std::vector<std::string> Zone66TilesetType::getGameList() const
 }
 
 Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
-	iostream_sptr psTileset) const
-	throw (std::ios::failure)
+	stream::inout_sptr psTileset) const
+	throw (stream::error)
 {
-	psTileset->seekg(0, std::ios::end);
-	io::stream_offset len = psTileset->tellg();
+	stream::pos len = psTileset->size();
 	// TESTED BY: tls_zone66_isinstance_c04
 	if (len < Z66_FIRST_TILE_OFFSET) return DefinitelyNo; // too short
 
-	psTileset->seekg(0, std::ios::beg);
+	psTileset->seekg(0, stream::start);
 	uint32_t numFiles;
 	psTileset >> u32le(numFiles);
 
@@ -125,40 +124,34 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 	return DefinitelyYes;
 }
 
-TilesetPtr Zone66TilesetType::create(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
-	fnTruncate(4);
-	psTileset->seekp(0, std::ios::beg);
+	psTileset->truncate(4);
+	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66Tileset(psTileset, fnTruncate, pal));
+	return TilesetPtr(new Zone66Tileset(psTileset, pal));
 }
 
-TilesetPtr Zone66TilesetType::open(iostream_sptr psTileset,
-	FN_TRUNCATE fnTruncate, SuppData& suppData) const
-	throw (std::ios::failure)
+TilesetPtr Zone66TilesetType::open(stream::inout_sptr psTileset,
+	SuppData& suppData) const
+	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(
-			suppData[SuppItem::Palette].stream,
-			suppData[SuppItem::Palette].fnTruncate
-		));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66Tileset(psTileset, fnTruncate, pal));
+	return TilesetPtr(new Zone66Tileset(psTileset, pal));
 }
 
 SuppFilenames Zone66TilesetType::getRequiredSupps(
@@ -171,24 +164,23 @@ SuppFilenames Zone66TilesetType::getRequiredSupps(
 }
 
 
-Zone66Tileset::Zone66Tileset(iostream_sptr data,
-	FN_TRUNCATE fnTruncate, PaletteTablePtr pal)
-	throw (std::ios::failure) :
-		FATTileset(data, fnTruncate, Z66_FIRST_TILE_OFFSET),
+Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
+	PaletteTablePtr pal)
+	throw (stream::error) :
+		FATTileset(data, Z66_FIRST_TILE_OFFSET),
 		pal(pal)
 {
-	this->data->seekg(0, std::ios::end);
-	io::stream_offset len = this->data->tellg();
+	stream::pos len = this->data->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
-	if (len < Z66_FIRST_TILE_OFFSET) throw std::ios::failure("file too short");
+	if (len < Z66_FIRST_TILE_OFFSET) throw stream::error("file too short");
 
-	this->data->seekg(0, std::ios::beg);
+	this->data->seekg(0, stream::start);
 	uint32_t numTiles;
 	this->data >> u32le(numTiles);
 	this->items.reserve(numTiles);
-	if (numTiles > Z66_SAFETY_MAX_TILES) throw std::ios::failure("too many tiles");
+	if (numTiles > Z66_SAFETY_MAX_TILES) throw stream::error("too many tiles");
 
 	if (numTiles > 0) {
 		uint32_t firstOffset = (numTiles+1) * 4;
@@ -228,10 +220,10 @@ int Zone66Tileset::getCaps()
 }
 
 ImagePtr Zone66Tileset::createImageInstance(const EntryPtr& id,
-	iostream_sptr content, FN_TRUNCATE fnTruncate)
-	throw (std::ios::failure)
+	stream::inout_sptr content)
+	throw (stream::error)
 {
-	ImagePtr img(new Zone66TileImage(content, fnTruncate, this->pal));
+	ImagePtr img(new Zone66TileImage(content, this->pal));
 	return img;
 }
 
@@ -242,7 +234,7 @@ PaletteTablePtr Zone66Tileset::getPalette()
 }
 
 void Zone66Tileset::setPalette(PaletteTablePtr newPalette)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;
@@ -250,8 +242,8 @@ void Zone66Tileset::setPalette(PaletteTablePtr newPalette)
 }
 
 void Zone66Tileset::updateFileOffset(const FATEntry *pid,
-	std::streamsize offDelta)
-	throw (std::ios::failure)
+	stream::len offDelta)
+	throw (stream::error)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
 
@@ -259,14 +251,14 @@ void Zone66Tileset::updateFileOffset(const FATEntry *pid,
 	// will always say offset 0) we need to adjust the value we will be writing.
 	uint32_t fatOffset = pid->offset - fatSize;
 
-	this->data->seekg(Z66_FAT_OFFSET + pid->index * Z66_FAT_ENTRY_LEN, std::ios::beg);
+	this->data->seekg(Z66_FAT_OFFSET + pid->index * Z66_FAT_ENTRY_LEN, stream::start);
 	this->data << u32le(fatOffset);
 	return;
 }
 
 Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 	const Zone66Tileset::FATEntry *idBeforeThis, Zone66Tileset::FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
 
@@ -274,7 +266,7 @@ Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 	// will always say offset 0) we need to adjust the value we will be writing.
 	//uint32_t fatOffset = pNewEntry->offset - fatSize;
 
-	this->data->seekp(Z66_FAT_OFFSET + pNewEntry->index * Z66_FAT_ENTRY_LEN);
+	this->data->seekp(Z66_FAT_OFFSET + pNewEntry->index * Z66_FAT_ENTRY_LEN, stream::start);
 	this->data->insert(Z66_FAT_ENTRY_LEN);
 	//this->data << u32le(fatOffset);
 	// No need to write the offset now as it will be wrong, and will be updated
@@ -298,7 +290,7 @@ Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 }
 
 void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
@@ -308,7 +300,7 @@ void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
 }
 
 void Zone66Tileset::postRemoveFile(const FATEntry *pid)
-	throw (std::ios::failure)
+	throw (stream::error)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -322,8 +314,9 @@ void Zone66Tileset::postRemoveFile(const FATEntry *pid)
 	);
 
 	// Remove the last FAT entry now it is no longer in use
-	//this->data->seekp(Z66_FAT_OFFSET + pid->index * Z66_FAT_ENTRY_LEN);
-	this->data->seekp(Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN);
+	//this->data->seekp(Z66_FAT_OFFSET + pid->index * Z66_FAT_ENTRY_LEN, stream::start);
+	this->data->seekp(Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN,
+		stream::start);
 	this->data->remove(Z66_FAT_ENTRY_LEN);
 
 	this->updateFileCount(this->items.size());
@@ -333,7 +326,7 @@ void Zone66Tileset::postRemoveFile(const FATEntry *pid)
 void Zone66Tileset::updateFileCount(uint32_t newCount)
 	throw (std::ios_base::failure)
 {
-	this->data->seekp(Z66_TILECOUNT_OFFSET);
+	this->data->seekp(Z66_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);
 	return;
 }
