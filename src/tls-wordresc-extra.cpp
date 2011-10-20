@@ -86,7 +86,8 @@ TilesetPtr WordrescExtraTilesetType::open(stream::inout_sptr psGraphics,
 
 	TilesetFromList::TileList tileList;
 
-	ImagePtr img1(new PCXImage(psGraphics));
+	PCX_PlanarEGA_ImageType pcx;
+	ImagePtr img1 = pcx.open(psGraphics, suppData);
 	TilesetFromList::Tile t;
 
 	t.img = img1; t.xOffset = 209; t.yOffset =  40; t.width =  23; t.height =  23; tileList.push_back(t);
@@ -127,7 +128,7 @@ TilesetPtr WordrescExtraTilesetType::open(stream::inout_sptr psGraphics,
 
 	t.img = img1; t.xOffset = 208; t.yOffset =  72; t.width =  71; t.height =  72; tileList.push_back(t);
 
-	ImagePtr img2(new PCXImage(suppData[SuppItem::Extra1]));
+	ImagePtr img2 = pcx.open(suppData[SuppItem::Extra1], suppData);
 
 	t.img = img2; t.xOffset =   0; t.yOffset =   0; t.width =  16; t.height =  16; tileList.push_back(t);
 	t.img = img2; t.xOffset =  16; t.yOffset =   0; t.width =  16; t.height =  16; tileList.push_back(t);

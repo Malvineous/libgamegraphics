@@ -77,9 +77,18 @@ std::vector<std::string> WackyTilesetType::getGameList() const
 WackyTilesetType::Certainty WackyTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
+	PCX_LinearVGA_ImageType pcx;
+	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
+/*
+	SuppData sd;
+	ImagePtr img = pcx.open(psGraphics, sd);
 
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+	if ((width != 320) || (height != 200)) return DefinitelyNo;
+*/
 	return PossiblyYes; // best we can hope for
 }
 
@@ -95,7 +104,7 @@ TilesetPtr WackyTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics));
+	ImagePtr img(new PCXImage(psGraphics, 8, 1));
 	return TilesetPtr(new TilesetFromImage(img,
 		WW_TILE_WIDTH, WW_TILE_HEIGHT, WW_TILES_X, WW_TILES_Y));
 }

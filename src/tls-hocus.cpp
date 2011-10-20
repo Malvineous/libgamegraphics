@@ -77,13 +77,17 @@ std::vector<std::string> HocusTilesetType::getGameList() const
 HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
-	psGraphics->seekg(0, stream::end);
-	unsigned long lenData = psGraphics->tellg();
-	psGraphics->seekg(0, stream::start);
+	PCX_LinearVGA_ImageType pcx;
+	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
 /*
+	SuppData sd;
+	ImagePtr img = pcx.open(psGraphics, sd);
 
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+	if ((width != 320) || (height != 200)) return DefinitelyNo;
 */
 	return PossiblyYes; // best we can hope for
 }
@@ -100,7 +104,7 @@ TilesetPtr HocusTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics));
+	ImagePtr img(new PCXImage(psGraphics, 8, 1));
 	return TilesetPtr(new TilesetFromImage(img,
 		HP_TILE_WIDTH, HP_TILE_HEIGHT, HP_TILES_X, HP_TILES_Y));
 }

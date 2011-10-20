@@ -40,8 +40,9 @@ struct default_sample {
 	boost::test_tools::predicate_result is_equal(const uint8_t *expected,
 		const uint8_t *check, unsigned int len, unsigned int width);
 
-};
+	boost::test_tools::predicate_result is_equal(const uint8_t *expected,
+		unsigned int len, const std::string& strCheck, unsigned int width);
 
-void stringStreamTruncate(std::stringstream *ss, int len);
+};
 
 #endif // _CAMOTO_GAMEGRAPHICS_TESTS_HPP_

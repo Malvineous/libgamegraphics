@@ -155,9 +155,6 @@ const uint8_t stdformat_test_mask_8x4[] = {
 #define EMPTY_SUITE_NAME   TEST_VAR(suite_empty)
 #define INITIALSTATE_NAME  TEST_RESULT(initialstate)
 
-// Allow a string constant to be passed around with embedded nulls
-#define makeString(x)  std::string((x), sizeof((x)) - 1)
-
 struct FIXTURE_NAME: public default_sample {
 
 	stream::string_sptr base;
@@ -292,8 +289,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 	BOOST_CHECK_MESSAGE( \
 		default_sample::is_equal( \
 			(const uint8_t *)TESTDATA_INITIAL_ ## w ## x ## h, \
-			(const uint8_t *)(this->base->str().c_str()), \
 			targetSize, \
+			this->base->str(), \
 			this->dataWidth \
 		), \
 		"Error converting " __STRING(w) "x" __STRING(h) " standard format to " TOSTRING(IMG_CLASS) \
@@ -307,5 +304,23 @@ FROM_STANDARD_TEST(8, 8)
 FROM_STANDARD_TEST(16, 16)
 FROM_STANDARD_TEST(9, 9)
 FROM_STANDARD_TEST(8, 4)
+
+// Define an ISINSTANCE_TEST macro which we use to confirm the initial state
+// is a valid instance of this format.  This is defined as a macro so the
+// format-specific code can reuse it later to test various invalid formats.
+#define ISINSTANCE_TEST(c, d, r) \
+	BOOST_AUTO_TEST_CASE(TEST_NAME(isinstance_ ## c)) \
+	{ \
+		BOOST_TEST_MESSAGE("isInstance check (" IMG_TYPE "; " #c ")"); \
+		\
+		ManagerPtr pManager(getManager()); \
+		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE)); \
+		BOOST_REQUIRE_MESSAGE(pTestType, "Could not find image type " IMG_TYPE); \
+		\
+		stream::string_sptr ss(new stream::string()); \
+		ss->write(makeString(d)); \
+		\
+		BOOST_CHECK_EQUAL(pTestType->isInstance(ss), ImageType::r); \
+	}
 
 BOOST_AUTO_TEST_SUITE_END()

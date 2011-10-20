@@ -18,178 +18,194 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/pointer_cast.hpp>
+#include <boost/bind.hpp>
 #include <camoto/bitstream.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp>
-#include <camoto/lzw.hpp> // for bitstream helper functions
+#include <camoto/stream_filtered.hpp>
+#include <camoto/stream_sub.hpp>
 #include "img-pcx.hpp"
+
+/// Pad out to a multiple of two bytes
+/// @todo Does this work for files where it was four?
+#define PLANE_PAD 2
 
 namespace camoto {
 namespace gamegraphics {
 
-class pcx_unrle_filter: public io::multichar_input_filter {
+/// Resize a stream when the end part of it has been turned into a substream
+void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
+	stream::pos off, stream::len len)
+	throw (stream::write_error)
+{
+	parent->truncate(off + len);
+	sub->resize(len);
+	return;
+}
+
+class filter_pcx_unrle: public filter {
 
 	protected:
-		int val;   ///< Previous byte read
-		int count; ///< How many times to repeat prev
+		uint8_t val;  ///< Previous byte read
+		int count;    ///< How many times to repeat prev
 
 	public:
 
-		pcx_unrle_filter() :
+		filter_pcx_unrle() :
 			count(0)
 		{
 		};
 
-		template<typename Source>
-		stream::len read(Source& src, char* s, stream::len n)
+		void transform(uint8_t *out, stream::len *lenOut,
+			const uint8_t *in, stream::len *lenIn)
+			throw (filter_error)
 		{
-			int r = 0;
-			while (r < n) {
-				while (this->count == 0) {
-					this->val = boost::iostreams::get(src);
-					if (this->val < 0) return (r == 0) ? this->val : r; // if no bytes read return error, otherwise # bytes read
-					if ((this->val & 0xC0) == 0xC0) { // RLE trigger
-						this->count = this->val & 0x3F;
-						this->val = boost::iostreams::get(src);
-						if (this->val < 0) return (r == 0) ? this->val : r; // if no bytes read return error, otherwise # bytes read
+			stream::len r = 0, w = 0;
+			// While there's more space to write, and either more data to read or
+			// more data to write
+			while (              // while there is...
+				(w < *lenOut)      // more space to write into, and
+				&& (
+					(r < *lenIn)     // more data to read, or
+					|| (this->count) // more data to write
+				)
+			) {
+
+				// Loop while there's no bytes to write but more to read
+				while ((this->count == 0) && (r < *lenIn)) {
+					if ((*in & 0xC0) == 0xC0) { // RLE trigger
+						if (*lenIn - r < 2) {
+							// No value byte following the count we just peeked at
+							*lenOut = w;
+							*lenIn = r;
+							if (r == 0) {
+								// We haven't read any bytes yet, so this is the start of the
+								// buffer and we've only got this one byte!
+								throw filter_error("PCX data ended in the middle of an RLE code.");
+							} else {
+								// We've already read some bytes, so the buffer probably just
+								// ends in the middle of the code.  We'll return what we've got
+								// and pick up the next time we're called.
+								return;
+							}
+						}
+						this->count = *in & 0x3F;
+						in++; // count the byte above
+						this->val = *in;
+						in++;
+						r += 2;
 					} else {
+						this->val = *in;
+						in++; // count the byte read above
+						r++;
 						this->count = 1;
 					}
 				}
-				assert(this->count > 0);
 
-				*s++ = this->val;
-				this->count--;
-				r++;
+				// Write out any repeats we've got stored up
+				while ((w < *lenOut) && (this->count)) {
+					*out++ = this->val;
+					this->count--;
+					w++;
+				}
+
+				// Now we've either written out all the repeats (count == 0) or we've
+				// filled the output buffer (w == *lenOut), or both
 			}
-			return r;
+			*lenOut = w;
+			*lenIn = r;
+			return;
 		}
 
 };
 
-int nextChar(stream::input_sptr src, uint8_t *out)
-{
-	src->read((char *)out, 1);
-	return 1;
-}
-
-class pcx_rle_filter: public io::multichar_input_filter {
+class filter_pcx_rle: public filter {
 
 	protected:
-		int val;   ///< Previous byte read
-		int count; ///< How many times to repeat prev
-		int written; ///< Total bytes written
+		uint8_t val;  ///< Previous byte read
+		int count;    ///< How many times to repeat prev
 
 	public:
 
-		struct category: io::multichar_input_filter_tag, io::flushable_tag { };
-
-		pcx_rle_filter() :
+		filter_pcx_rle() :
 			count(0),
-			val(0),
-			written(0)
+			val(0)
 		{
 		};
 
-		template<typename Source>
-		stream::len read(Source& src, char* s, stream::len n)
+		void transform(uint8_t *out, stream::len *lenOut,
+			const uint8_t *in, stream::len *lenIn)
+			throw (filter_error)
 		{
-			int r = 0;
-			n -= 2; // make sure there's always enough room to write one RLE pair
-			while (r < n) {
-				if (this->count > 62) {
-					// Have to write now
-					*s++ = 0xC0 | this->count;
-					*s++ = this->val;
-					r += 2;
-					this->written += 2;
-					this->count = 0;
-					continue; // in case we've reached read limit
-				}
-				int c = boost::iostreams::get(src);
-				if (c < 0) return (r == 0) ? c : r; // if no bytes read return error, otherwise # bytes read
-				if (c == this->val) {
+			stream::len r = 0, w = 0;
+			// +2 == make sure there's always enough room to write one RLE pair
+			bool eof = false;
+			while ((w + 2 < *lenOut) && ((r < *lenIn) || (this->count))) {
+				eof = (r >= *lenIn);
+				if ((!eof) && (this->count < 63) && (*in == this->val)) {
+					in++;
+					r++;
 					this->count++;
 				} else {
-					// Byte changed, write out old byte
+					// Byte changed or max count reached, write out old byte
 					if ((this->count > 2) || (this->val >= 0xC0)) {
-						*s++ = 0xC0 | this->count;
-						*s++ = this->val;
-						r += 2;
-						this->written += 2;
+						assert(this->count < 64);
+						*out++ = 0xC0 | this->count;
+						*out++ = this->val;
+						w += 2;
 					} else if (this->count == 2) {
-						*s++ = this->val;
-						*s++ = this->val;
-						r += 2;
-						this->written += 2;
-					} else { // this->count == 1
-						*s++ = this->val;
+						assert((this->val & 0xC0) != 0xC0);
+						*out++ = this->val;
+						*out++ = this->val;
+						w += 2;
+					} else if (this->count == 1) {
+						assert((this->val & 0xC0) != 0xC0);
+						*out++ = this->val;
+						w++;
+					} // else count == 0, it's the first byte, ignore the change
+					if (!eof) {
+						this->val = *in++;
 						r++;
-						this->written++;
-					}
-					this->val = c;
-					this->count = 1;
+						this->count = 1;
+					} else this->count = 0;
 				}
 			}
-			return r;
-		}
-
-		template<typename Sink>
-		bool flush(Sink& dst)
-		{
-			if ((this->count > 2) || (this->val >= 0xC0)) {
-				boost::iostreams::put(dst, 0xC0 | this->count);
-				boost::iostreams::put(dst, this->val);
-				this->written += 2;
-			} else if (this->count == 2) {
-				boost::iostreams::put(dst, this->val);
-				boost::iostreams::put(dst, this->val);
-				this->written += 2;
-			} else if (this->count == 1) {
-				boost::iostreams::put(dst, this->val);
-				this->written++;
-			}
-			return true;
-		}
-
-		int getBytesWritten()
-		{
-			return this->written;
+			*lenOut = w;
+			*lenIn = r;
+			return;
 		}
 
 };
 
-int putNextChar(stream::output_sptr src, uint8_t out)
+stream::len putNextChar(stream::output_sptr src, uint8_t *lastChar, uint8_t out)
 {
-	src->write((char *)&out, 1);
-	return 1;
+	*lastChar = out;
+	return src->try_write(&out, 1);
 }
 
-PCXImageType::PCXImageType()
+
+PCXBaseImageType::PCXBaseImageType(int bitsPerPlane, int numPlanes)
+	throw () :
+		bitsPerPlane(bitsPerPlane),
+		numPlanes(numPlanes)
+{
+}
+
+PCXBaseImageType::~PCXBaseImageType()
 	throw ()
 {
 }
 
-PCXImageType::~PCXImageType()
+std::string PCXBaseImageType::getCode() const
 	throw ()
 {
+	std::stringstream code;
+	code << "img-pcx-" << (int)this->bitsPerPlane << "b"
+		<< (int)this->numPlanes << "p";
+	return code.str();
 }
 
-std::string PCXImageType::getCode() const
-	throw ()
-{
-	return "img-pcx";
-}
-
-std::string PCXImageType::getFriendlyName() const
-	throw ()
-{
-	return "PCX image";
-}
-
-// Get a list of the known file extensions for this format.
-std::vector<std::string> PCXImageType::getFileExtensions() const
+std::vector<std::string> PCXBaseImageType::getFileExtensions() const
 	throw ()
 {
 	std::vector<std::string> vcExtensions;
@@ -197,28 +213,23 @@ std::vector<std::string> PCXImageType::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> PCXImageType::getGameList() const
-	throw ()
-{
-	std::vector<std::string> vcGames;
-	// Too many to bother listing, and format used outside of games anyway
-	return vcGames;
-}
-
-ImageType::Certainty PCXImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty PCXBaseImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
-	psImage->seekg(0, stream::end);
-	unsigned long lenData = psImage->tellg();
 	psImage->seekg(0, stream::start);
 
-	uint8_t sig, ver;
-	psImage >> u8(sig) >> u8(ver);
+	uint8_t sig, ver, enc, bpp;
+	psImage
+		>> u8(sig)
+		>> u8(ver)
+		>> u8(enc)
+		>> u8(bpp)
+	;
 
-	// TESTED BY: img_pcx_isinstance_c01
+	// TESTED BY: img_pcx_*_isinstance_c01
 	if (sig != 0x0A) return DefinitelyNo;
 
-	// TESTED BY: img_pcx_isinstance_c02
+	// TESTED BY: img_pcx_*_isinstance_c02
 	if (
 		(ver != 0x00) &&
 		(ver != 0x02) &&
@@ -226,45 +237,152 @@ ImageType::Certainty PCXImageType::isInstance(stream::inout_sptr psImage) const
 		(ver != 0x05)
 	) return DefinitelyNo; // unsupported version
 
-	// TESTED BY: img_pcx_isinstance_c00
-	return PossiblyYes;
+	uint8_t pln;
+	psImage->seekg(65, stream::start);
+	psImage >> u8(pln);
+
+	// TESTED BY: img_pcx_*_isinstance_c03
+	if (bpp != this->bitsPerPlane) return DefinitelyNo;
+
+	// TESTED BY: img_pcx_*_isinstance_c04
+	if (pln != this->numPlanes) return DefinitelyNo;
+
+	// TESTED BY: img_pcx_*_isinstance_c00
+	return DefinitelyYes;
 }
 
-ImagePtr PCXImageType::create(stream::inout_sptr psImage,
+ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	// TODO: Create blank PCX
-	return ImagePtr(new PCXImage(psImage));
+	// Create a 16-colour 1-bit-per-plane image
+	psImage->write(
+		"\x0A" // sig
+		"\x05" // ver
+		"\x01" // encoding
+		, 3);
+	psImage << u8(this->bitsPerPlane);
+	psImage->write(
+		"\x00\x00" // xmin
+		"\x00\x00" // ymin
+		"\x00\x00" // xmax
+		"\x00\x00" // ymax
+		"\x00\x00" // xdpi
+		"\x00\x00" // ydpi
+		, 12
+	);
+
+	PaletteTablePtr pal = createDefaultCGAPalette();
+	assert(pal->size() == 16);
+	for (int i = 0; i < 16; i++) {
+		psImage
+			<< u8(pal->at(i).red)
+			<< u8(pal->at(i).green)
+			<< u8(pal->at(i).blue)
+		;
+	}
+
+	psImage
+		<< u8(0) // reserved
+		<< u8(this->numPlanes)
+	;
+	psImage->write(
+		"\x00\x00" // bytes per scanline
+		"\x01\x00" // palette flag
+		"\x00\x00" // x scroll
+		"\x00\x00" // y scroll
+		, 8
+	);
+
+	// Padding
+	for (int i = 0; i < 54; i++) {
+		psImage->write("\0", 1);
+	}
+
+	return ImagePtr(new PCXImage(psImage, this->bitsPerPlane, this->numPlanes));
 }
 
-ImagePtr PCXImageType::open(stream::inout_sptr psImage,
+ImagePtr PCXBaseImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	return ImagePtr(new PCXImage(psImage));
+	return ImagePtr(new PCXImage(psImage, this->bitsPerPlane, this->numPlanes));
 }
 
-SuppFilenames PCXImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames PCXBaseImageType::getRequiredSupps(const std::string& filenameImage) const
 	throw ()
 {
 	return SuppFilenames();
 }
 
 
-PCXImage::PCXImage(stream::inout_sptr data)
-	throw (stream::error) :
-		data(data)
+PCX_PlanarEGA_ImageType::PCX_PlanarEGA_ImageType()
+	throw () :
+		PCXBaseImageType(1, 4)
 {
-	this->data->seekg(0, stream::end);
-	unsigned long lenData = this->data->tellg();
+}
+
+PCX_PlanarEGA_ImageType::~PCX_PlanarEGA_ImageType()
+	throw ()
+{
+}
+
+std::string PCX_PlanarEGA_ImageType::getFriendlyName() const
+	throw ()
+{
+	return "PCX image (16-colour planar EGA)";
+}
+
+std::vector<std::string> PCX_PlanarEGA_ImageType::getGameList() const
+	throw ()
+{
+	std::vector<std::string> vcGames;
+	vcGames.push_back("Word Rescue");
+	return vcGames;
+}
+
+
+PCX_LinearVGA_ImageType::PCX_LinearVGA_ImageType()
+	throw () :
+		PCXBaseImageType(8, 1)
+{
+}
+
+PCX_LinearVGA_ImageType::~PCX_LinearVGA_ImageType()
+	throw ()
+{
+}
+
+std::string PCX_LinearVGA_ImageType::getFriendlyName() const
+	throw ()
+{
+	return "PCX image (256-colour linear VGA)";
+}
+
+std::vector<std::string> PCX_LinearVGA_ImageType::getGameList() const
+	throw ()
+{
+	std::vector<std::string> vcGames;
+	vcGames.push_back("Halloween Harry");
+	return vcGames;
+}
+
+
+PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
+	throw (stream::error) :
+		data(data),
+		bitsPerPlane(bitsPerPlane),
+		numPlanes(numPlanes)
+{
+	stream::len lenData = this->data->size();
 
 	this->data->seekg(1, stream::start);
+	uint8_t bpp, pln;
 	uint16_t xmin, ymin, xmax, ymax;
 	this->data
 		>> u8(this->ver)
 		>> u8(this->encoding)
-		>> u8(this->bitsPerPlane)
+		>> u8(bpp)
 		>> u16le(xmin)
 		>> u16le(ymin)
 		>> u16le(xmax)
@@ -275,8 +393,14 @@ PCXImage::PCXImage(stream::inout_sptr data)
 
 	this->data->seekg(65, stream::start);
 	this->data
-		>> u8(this->numPlanes)
+		>> u8(pln)
 	;
+
+	if ((bpp != this->bitsPerPlane) || (pln != this->numPlanes)) {
+		throw stream::error(createString("This file is in PCX " << (int)bpp << "b"
+			<< (int)pln << "p format, cannot open as PCX " << (int)this->bitsPerPlane
+			<< "b" << (int)this->numPlanes << "p."));
+	}
 }
 
 PCXImage::~PCXImage()
@@ -331,40 +455,61 @@ StdImageDataPtr PCXImage::toStandard()
 	this->data
 		>> u16le(bytesPerPlaneScanline)
 	;
+	if (bytesPerPlaneScanline % 2) throw stream::error("Invalid PCX file (bytes "
+		"per scanline is not an even number)");
 
-	this->data->seekg(128, stream::start);
-/*
-	this->data->seekg(0, stream::end);
-	unsigned long lenData = this->data->tellg();
-	stream::sub_sptr sub(new stream::sub(this->data, 128, lenData - 128));
-*/
-
-/* TEMP
-	filtered_stream::input_sptr pinf(new filtered_istream());
+	// Decode the RLE image data if necessary
+	stream::input_sptr filtered;
 	if (this->encoding == 1) {
-		pinf->push(pcx_unrle_filter());
+		// Find the end of the RLE data
+		stream::len lenRLE = this->data->size() - 128; // 128 == header
+		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
+			try {
+				uint8_t palSig = 0;
+				this->data->seekg(-769, stream::end);
+				this->data >> u8(palSig);
+				if (palSig == 0x0C) {
+					// There is a VGA palette
+					lenRLE -= 769;
+				}
+			} catch (const stream::error&) {
+				// no palette
+			}
+		}
+
+		stream::input_sub_sptr sub(new stream::input_sub());
+		sub->open(this->data, 128, lenRLE);
+		filter_sptr filt(new filter_pcx_unrle());
+		stream::input_filtered_sptr fs(new stream::input_filtered());
+		fs->open(sub, filt);
+		filtered = fs;
+	} else {
+		filtered = this->data;
 	}
-	pinf->pushShared(this->data); // TODO: make stream::sub?
-	//pinf->pushShared(sub);
-*/
+
 	uint8_t *line = imgData;
 	int repeat = 0;
 	uint8_t byte;
 	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
-//TEMP	fn_getnextchar cbNext = boost::bind(nextChar, boost::dynamic_pointer_cast<std::istream>(pinf), _1);
-	fn_getnextchar cbNext;
+	/// @todo write bitstream version that takes input- and output-only streams (rather than r/w ones only)
+	//bitstream_sptr bits(new bitstream(filtered, bitstream::bigEndian));
+
+	fn_getnextchar cbNext = boost::bind(&stream::input::try_read, filtered, _1, 1);
 	int val;
 	for (int y = 0; y < height; y++) {
 		memset(line, 0, width); // blank out line
 		for (int p = 0; p < this->numPlanes; p++) {
 			for (int x = 0; x < width; x++) {
-				bits->read(cbNext, this->bitsPerPlane, &val);
+				if (bits->read(cbNext, this->bitsPerPlane, &val) != this->bitsPerPlane) {
+					throw stream::error("PCX data stopped mid-stream - perhaps the file has been truncated?");
+				}
 				line[x] |= val << (p * this->bitsPerPlane);
 			}
-			// Skip over any EOL padding.  Doing it this way avoids the need to
-			// write a seek() function in the unrle filter.
+			// Skip over any EOL padding.
 			bits->flushByte();
 			int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * width + 7) / 8);
+			if (pad < 0) throw stream::error("Corrupted PCX file - bad value for "
+				"'bytes per scanline'");
 			uint8_t dummy;
 			while (pad--) cbNext(&dummy);
 		}
@@ -403,11 +548,12 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	assert((width != 0) && (height != 0));
 
 	int16_t bytesPerPlaneScanline = width * this->bitsPerPlane / 8;
-	// Pad out to a multiple of four bytes
-	bytesPerPlaneScanline += bytesPerPlaneScanline % 4;
+	// Pad out to a multiple of PLANE_PAD bytes
+	bytesPerPlaneScanline += bytesPerPlaneScanline % PLANE_PAD;
 
 	// Assume worst case and enlarge file enough to fit complete data
-	this->data->truncate(128+bytesPerPlaneScanline*2 * this->numPlanes * height + 768+1);
+	stream::len maxSize = 128+bytesPerPlaneScanline*2 * this->numPlanes * height + 768+1;
+	this->data->truncate(maxSize);
 
 	this->data->seekg(0, stream::start);
 	this->data
@@ -423,7 +569,7 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 		<< u16le(75)
 	;
 
-	// TODO: CGA palette
+	/// @todo Handle CGA graphics-mode palette
 
 	int palSize = this->pal->size();
 	for (int i = 0; i < std::min(palSize, 16); i++) {
@@ -452,25 +598,26 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	}
 
 	assert(this->data->tellp() == 128);
+	// Encode the RLE image data if necessary
+	stream::output_sptr filtered;
+	if (this->encoding == 1) {
+		stream::output_sub_sptr sub(new stream::output_sub());
+		sub->open(this->data, 128, maxSize - 128, boost::bind(&truncateParent, this->data, sub, 128, _1));
+		filter_sptr filt(new filter_pcx_rle());
+		stream::output_filtered_sptr fs(new stream::output_filtered());
+		fs->open(sub, filt);
+		filtered = fs;
+	} else {
+		filtered = this->data;
+	}
 
-	stream::output_sptr poutf;
-/* TEMP
-	filtered_stream::output_sptr poutf(new filtered_ostream());
-	pcx_rle_filter rle;
-	if (this->encoding == 1) poutf->push(io::invert(rle));
-	poutf->pushShared(this->data); // TODO: make stream::sub?
-	//pinf->pushShared(sub);
-*/
 	uint8_t *line = newContent.get();
-	int repeat = 0;
-	uint8_t byte;
 	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
-//TEMP	fn_putnextchar cbNext = boost::bind(putNextChar, boost::dynamic_pointer_cast<std::ostream>(poutf), _1);
-	fn_putnextchar cbNext;
-	int val;
-
+	uint8_t lastChar;
+	fn_putnextchar cbNext = boost::bind(putNextChar, filtered, &lastChar, _1);
 	int planeMask = (1 << this->bitsPerPlane) - 1;
 	int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * width + 7) / 8);
+	int val;
 
 	for (int y = 0; y < height; y++) {
 		for (int p = 0; p < this->numPlanes; p++) {
@@ -479,14 +626,28 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 				val = (line[x] >> bitsInPlane) & planeMask;
 				bits->write(cbNext, this->bitsPerPlane, val);
 			}
+			uint8_t next, mask;
+			bits->peekByte(&next, &mask);
+			if (mask) {
+				// Have to pad up to the next byte boundary, so try to find the most
+				// efficient way to do so.
+				int prevBits = lastChar & ~mask;
+				if ((next | prevBits) == lastChar) {
+					int bitpad = 8 - ((this->bitsPerPlane * width) % 8);
+					assert(bitpad != 0);
+					bits->write(cbNext, bitpad, prevBits);
+				}
+			}
 			// Pad up to next byte boundary
 			bits->flushByte(cbNext);
 
-			// Pad scanline to multiple of four bytes
-			for (int z = 0; z < pad; z++) cbNext(0x00);
+			// Pad scanline to multiple of PLANE_PAD bytes
+			for (int z = 0; z < pad; z++) cbNext(lastChar);
 		}
 		line += width;
 	}
+	filtered->flush();
+	filtered.reset();
 
 	// Write the VGA palette if ver 5 and 256 colour pal
 	if ((this->ver >= 5) && (palSize > 16)) {
@@ -504,16 +665,7 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 		}
 	}
 
-	poutf->flush();
-	poutf->seekp(0, stream::cur); // workaround for boost
-	poutf.reset(); // force flush
-	this->data->flush();
-	//stream::pos pos = this->data->tellp();
-/*TEMP
-	stream::pos pos = 128 + rle.getBytesWritten(); // TODO: plus VGA pal
-	this->data->truncate(pos);
-std::cout << "trunc to " << pos << "\n";
-*/
+	this->data->truncate_here();
 	return;
 }
 
@@ -527,7 +679,7 @@ PaletteTablePtr PCXImage::getPalette()
 			return this->pal;
 		}
 
-		// TODO: Handle CGA palette
+		/// @todo Handle CGA graphics-mode palette
 
 		uint8_t palSig = 0;
 		if (this->ver >= 5) { // 3.0 or better, look for VGA pal

@@ -72,7 +72,8 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescExtraTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
-	this->vcImageTypes.push_back(ImageTypePtr(new PCXImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));

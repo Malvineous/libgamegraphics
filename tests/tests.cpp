@@ -22,7 +22,6 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include <boost/algorithm/string.hpp> // for case-insensitive string compare
 #include <iostream>
 #include <iomanip>
 
@@ -75,11 +74,15 @@ void default_sample::print_wrong(boost::test_tools::predicate_result& res,
 
 boost::test_tools::predicate_result default_sample::is_equal(const uint8_t *expected,
 	const uint8_t *check, unsigned int len, unsigned int width)
-//boost::test_tools::predicate_result default_sample::is_equal(
-//	const std::string& strExpected, const std::string& strCheck)
+{
+	std::string strCheck((char *)check, len);
+	return this->is_equal(expected, len, strCheck, width);
+}
+
+boost::test_tools::predicate_result default_sample::is_equal(const uint8_t *expected,
+	unsigned int len, const std::string& strCheck, unsigned int width)
 {
 	std::string strExpected((char *)expected, len);
-	std::string strCheck((char *)check, len);
 	if (strExpected.compare(strCheck)) {
 		boost::test_tools::predicate_result res(false);
 		this->print_wrong(res, strExpected, strCheck, width);

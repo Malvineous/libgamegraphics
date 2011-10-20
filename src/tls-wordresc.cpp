@@ -77,7 +77,18 @@ std::vector<std::string> WordrescTilesetType::getGameList() const
 WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
+	PCX_PlanarEGA_ImageType pcx;
+	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
+
 /// @todo Implement this when TilesetType::open() can take a read-only stream
+/*
+	SuppData sd;
+	ImagePtr img = pcx.open(psGraphics, sd);
+
+	unsigned int width, height;
+	img->getDimensions(&width, &height);
+	if ((width != 320) || (height != 200)) return DefinitelyNo;
+*/
 	return PossiblyYes; // best we can hope for
 }
 
@@ -93,7 +104,8 @@ TilesetPtr WordrescTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	ImagePtr img(new PCXImage(psGraphics));
+	PCX_PlanarEGA_ImageType pcx;
+	ImagePtr img = pcx.open(psGraphics, suppData);//(new PCXImage(psGraphics));
 	return TilesetPtr(new TilesetFromImage(img,
 		WR_TILE_WIDTH, WR_TILE_HEIGHT, WR_TILES_X, WR_TILES_Y));
 }
