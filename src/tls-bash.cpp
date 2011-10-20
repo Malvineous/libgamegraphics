@@ -109,7 +109,7 @@ std::vector<std::string> MonsterBashBackgroundTilesetType::getGameList() const
 	return vcGames;
 }
 
-MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(stream::inout_sptr psGraphics) const
+MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
@@ -188,7 +188,7 @@ std::vector<std::string> MonsterBashForegroundTilesetType::getGameList() const
 	return vcGames;
 }
 
-MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(stream::inout_sptr psGraphics) const
+MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();

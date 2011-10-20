@@ -93,7 +93,7 @@ std::vector<std::string> CComicTilesetType::getGameList() const
 	return vcGames;
 }
 
-CComicTilesetType::Certainty CComicTilesetType::isInstance(stream::inout_sptr psGraphics) const
+CComicTilesetType::Certainty CComicTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
@@ -141,7 +141,7 @@ std::string CComicSpriteType::getFriendlyName() const
 	return "Captain Comic Sprite";
 }
 
-CComicSpriteType::Certainty CComicSpriteType::isInstance(stream::inout_sptr psGraphics) const
+CComicSpriteType::Certainty CComicSpriteType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();

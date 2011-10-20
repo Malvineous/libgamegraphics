@@ -85,7 +85,7 @@ std::vector<std::string> HarryTilesetType::getGameList() const
 }
 
 HarryTilesetType::Certainty HarryTilesetType::isInstance(
-	stream::inout_sptr psTileset) const
+	stream::input_sptr psTileset) const
 	throw (stream::error)
 {
 	stream::pos len = psTileset->size();

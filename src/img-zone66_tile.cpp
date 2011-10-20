@@ -69,7 +69,7 @@ std::vector<std::string> Zone66TileImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty Zone66TileImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty Zone66TileImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
 	stream::pos len = psImage->size();

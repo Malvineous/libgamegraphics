@@ -50,7 +50,7 @@ class VGARawImageType: virtual public ImageType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(stream::inout_sptr fsImage) const
+		virtual Certainty isInstance(stream::input_sptr fsImage) const
 			throw (stream::error);
 
 		virtual ImagePtr create(stream::inout_sptr psImage,

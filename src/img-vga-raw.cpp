@@ -64,7 +64,7 @@ std::vector<std::string> VGARawImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty VGARawImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty VGARawImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
 	stream::pos len = psImage->size();

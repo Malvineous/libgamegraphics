@@ -74,30 +74,11 @@ std::vector<std::string> WordrescTilesetType::getGameList() const
 	return vcGames;
 }
 
-WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::inout_sptr psGraphics) const
+WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
-	psGraphics->seekg(0, stream::end);
-	unsigned long lenData = psGraphics->tellg();
-	psGraphics->seekg(0, stream::start);
-
-	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
-	psGraphics->read((char *)imgData.get(), lenData);
-	try {
-		Magick::Blob blob;
-		blob.update(imgData.get(), lenData);
-		Magick::Image img(blob);
-		if (
-			(img.magick().compare("PCX") == 0) &&
-			(img.columns() == 320) &&
-			(img.rows() == 200) &&
-			(img.colorMapSize() == 16)
-		) return PossiblyYes;
-	} catch (Magick::Exception& e) {
-		// We will end up here if ImageMagick doesn't recognise the format at all
-		return DefinitelyNo;
-	}
-	return DefinitelyNo;
+/// @todo Implement this when TilesetType::open() can take a read-only stream
+	return PossiblyYes; // best we can hope for
 }
 
 TilesetPtr WordrescTilesetType::create(stream::inout_sptr psGraphics,

@@ -64,7 +64,7 @@ std::vector<std::string> VGAPaletteImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty VGAPaletteImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
 	stream::pos len = psImage->size();

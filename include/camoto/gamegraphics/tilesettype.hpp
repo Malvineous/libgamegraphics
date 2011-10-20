@@ -86,14 +86,14 @@ class TilesetType {
 		/// Check a stream to see if it's in this tileset format.
 		/**
 		 * @param psTileset
-		 *   A C++ iostream of the file to test.
+		 *   A stream of the file to test.
 		 *
 		 * @return A single confidence value from \ref Certainty.
 		 *
 		 * @note Many tileset formats lack a file header, so Unsure will be a
 		 *   common return value, especially with small files.
 		 */
-		virtual Certainty isInstance(stream::inout_sptr psTileset) const
+		virtual Certainty isInstance(stream::input_sptr psTileset) const
 			throw (stream::error) = 0;
 
 		/// Create a blank tileset file in this format.

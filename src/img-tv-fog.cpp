@@ -73,7 +73,7 @@ std::vector<std::string> TVFogImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty TVFogImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty TVFogImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
 	stream::pos len = psImage->size();

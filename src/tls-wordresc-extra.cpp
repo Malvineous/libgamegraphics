@@ -62,7 +62,7 @@ std::vector<std::string> WordrescExtraTilesetType::getGameList() const
 	return vcGames;
 }
 
-WordrescExtraTilesetType::Certainty WordrescExtraTilesetType::isInstance(stream::inout_sptr psGraphics) const
+WordrescExtraTilesetType::Certainty WordrescExtraTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	return Unsure;

@@ -86,7 +86,7 @@ std::vector<std::string> Zone66TilesetType::getGameList() const
 }
 
 Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
-	stream::inout_sptr psTileset) const
+	stream::input_sptr psTileset) const
 	throw (stream::error)
 {
 	stream::pos len = psTileset->size();

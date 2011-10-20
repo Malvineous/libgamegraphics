@@ -64,7 +64,7 @@ std::vector<std::string> GMFHarryPaletteImageType::getGameList() const
 	return vcGames;
 }
 
-ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::inout_sptr psImage) const
+ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::input_sptr psImage) const
 	throw (stream::error)
 {
 	psImage->seekg(0, stream::start);

@@ -50,7 +50,7 @@ class Zone66TilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(stream::inout_sptr fsTileset) const
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const
 			throw (stream::error);
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,

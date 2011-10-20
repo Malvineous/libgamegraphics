@@ -97,7 +97,7 @@ std::vector<std::string> CCavesSubTilesetType::getGameList() const
 	return vcGames;
 }
 
-CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::inout_sptr psGraphics) const
+CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();

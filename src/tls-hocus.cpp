@@ -74,31 +74,18 @@ std::vector<std::string> HocusTilesetType::getGameList() const
 	return vcGames;
 }
 
-HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::inout_sptr psGraphics) const
+HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	psGraphics->seekg(0, stream::end);
 	unsigned long lenData = psGraphics->tellg();
 	psGraphics->seekg(0, stream::start);
 
-	boost::shared_ptr<uint8_t> imgData(new uint8_t[lenData]);
-	psGraphics->read((char *)imgData.get(), lenData);
+/// @todo Implement this when TilesetType::open() can take a read-only stream
+/*
 
-	try {
-		Magick::Blob blob;
-		blob.update(imgData.get(), lenData);
-		Magick::Image img(blob);
-		if (
-			(img.magick().compare("PCX") == 0) &&
-			(img.columns() == 320) &&
-			(img.rows() == 200) &&
-			(img.colorMapSize() == 256)
-		) return PossiblyYes;
-	} catch (Magick::Exception& e) {
-		// We will end up here if ImageMagick doesn't recognise the format at all
-		return DefinitelyNo;
-	}
-	return DefinitelyNo;
+*/
+	return PossiblyYes; // best we can hope for
 }
 
 TilesetPtr HocusTilesetType::create(stream::inout_sptr psGraphics,

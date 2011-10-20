@@ -43,7 +43,7 @@ class DDaveTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(stream::inout_sptr fsTileset) const
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const
 			throw (stream::error);
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const

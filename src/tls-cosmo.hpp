@@ -48,7 +48,7 @@ class CosmoTilesetType: virtual public TilesetType {
 		virtual std::vector<std::string> getGameList() const
 			throw ();
 
-		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
 			throw (stream::error);
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
@@ -73,7 +73,7 @@ class CosmoMaskedTilesetType: virtual public CosmoTilesetType {
 		virtual std::string getFriendlyName() const
 			throw ();
 
-		virtual Certainty isInstance(stream::inout_sptr fsGraphics) const
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
 			throw (stream::error);
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,

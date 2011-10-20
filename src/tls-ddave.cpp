@@ -79,7 +79,7 @@ std::vector<std::string> DDaveTilesetType::getGameList() const
 }
 
 DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
-	stream::inout_sptr psTileset) const
+	stream::input_sptr psTileset) const
 	throw (stream::error)
 {
 	stream::pos len = psTileset->size();

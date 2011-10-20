@@ -94,7 +94,7 @@ std::vector<std::string> CosmoTilesetType::getGameList() const
 	return vcGames;
 }
 
-CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::inout_sptr psGraphics) const
+CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
@@ -142,7 +142,7 @@ std::string CosmoMaskedTilesetType::getFriendlyName() const
 	return "Cosmo's Cosmic Adventures Masked Tileset";
 }
 
-CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(stream::inout_sptr psGraphics) const
+CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(stream::input_sptr psGraphics) const
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();

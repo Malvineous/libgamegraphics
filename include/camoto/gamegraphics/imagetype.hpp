@@ -93,7 +93,7 @@ class ImageType {
 		 * @note Many image formats lack a file header, so %Unsure will be a common
 		 *   return value, especially with small files.
 		 */
-		virtual Certainty isInstance(stream::inout_sptr psImage) const
+		virtual Certainty isInstance(stream::input_sptr psImage) const
 			throw (stream::error) = 0;
 
 		/// Create a blank image file in this format.
