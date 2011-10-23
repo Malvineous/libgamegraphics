@@ -283,5 +283,93 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	return ret;
 }
 
+EGARawPlanarImageType::EGARawPlanarImageType()
+	throw ()
+{
+}
+
+EGARawPlanarImageType::~EGARawPlanarImageType()
+	throw ()
+{
+}
+
+std::string EGARawPlanarImageType::getCode() const
+	throw ()
+{
+	return "img-ega-raw-planar-fullscreen";
+}
+
+std::string EGARawPlanarImageType::getFriendlyName() const
+	throw ()
+{
+	return "Raw Planar EGA fullscreen image";
+}
+
+// Get a list of the known file extensions for this format.
+std::vector<std::string> EGARawPlanarImageType::getFileExtensions() const
+	throw ()
+{
+	std::vector<std::string> vcExtensions;
+	return vcExtensions;
+}
+
+std::vector<std::string> EGARawPlanarImageType::getGameList() const
+	throw ()
+{
+	std::vector<std::string> vcGames;
+	return vcGames;
+}
+
+ImageType::Certainty EGARawPlanarImageType::isInstance(stream::input_sptr psImage) const
+	throw (stream::error)
+{
+	stream::pos len = psImage->size();
+
+	// TESTED BY: TODO
+	if (len == 32000) return PossiblyYes;
+
+	// TESTED BY: TODO
+	return DefinitelyNo;
+}
+
+ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
+{
+	psImage->truncate(32000);
+	char buf[64];
+	memset(buf, 0, 64);
+	for (int i = 0; i < 500; i++) psImage->write(buf, 64);
+
+	SuppData dummy;
+	return this->open(psImage, dummy);
+}
+
+ImagePtr EGARawPlanarImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
+{
+	EGAPlanarImage *ega = new EGAPlanarImage();
+	ImagePtr img(ega);
+
+	PLANE_LAYOUT planes;
+	planes[PLANE_BLUE] = 1;
+	planes[PLANE_GREEN] = 2;
+	planes[PLANE_RED] = 3;
+	planes[PLANE_INTENSITY] = 4;
+	planes[PLANE_HITMAP] = 0;
+	planes[PLANE_OPACITY] = 0;
+	ega->setParams(psImage, 0, 320, 200, planes);
+
+	return img;
+}
+
+SuppFilenames EGARawPlanarImageType::getRequiredSupps(const std::string& filenameImage) const
+	throw ()
+{
+	return SuppFilenames();
+}
+
+
 } // namespace gamegraphics
 } // namespace camoto

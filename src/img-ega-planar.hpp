@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_EGA_PLANAR_HPP_
 #define _CAMOTO_IMG_EGA_PLANAR_HPP_
 
+#include <camoto/gamegraphics/imagetype.hpp>
 #include "img-ega-common.hpp"
 
 namespace camoto {
@@ -78,6 +79,45 @@ class EGAPlanarImage: virtual public Image {
 
 	protected:
 		StdImageDataPtr doConversion(bool mask)
+			throw ();
+
+};
+
+/// Filetype handler for full screen raw EGA images.
+class EGARawPlanarImageType: virtual public ImageType {
+
+	public:
+
+		EGARawPlanarImageType()
+			throw ();
+
+		virtual ~EGARawPlanarImageType()
+			throw ();
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
+		virtual std::vector<std::string> getFileExtensions() const
+			throw ();
+
+		virtual std::vector<std::string> getGameList() const
+			throw ();
+
+		virtual Certainty isInstance(stream::input_sptr fsImage) const
+			throw (stream::error);
+
+		virtual ImagePtr create(stream::inout_sptr psImage,
+			SuppData& suppData) const
+			throw (stream::error);
+
+		virtual ImagePtr open(stream::inout_sptr fsImage,
+			SuppData& suppData) const
+			throw (stream::error);
+
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
 			throw ();
 
 };
