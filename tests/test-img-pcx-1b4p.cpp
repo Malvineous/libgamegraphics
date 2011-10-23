@@ -142,6 +142,105 @@ using namespace camoto;
 #define IMG_CLASS img_pcx_1b4p
 #include "test-img.hpp"
 
+#define TESTDATA_INITIAL_8x8_BADRLE \
+	"\x0A\x05\x01" \
+	"\x01" \
+	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00" \
+	"\x4B\x00" "\x4B\x00" \
+	PCX_PAL \
+	"\x00" \
+	"\x04" \
+	"\x02\x00" "\x01\x00" \
+	"\x00\x00" "\x00\x00" \
+	PCX_PAD \
+	"\xC8\xFF" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF\xC0"
+
+// Some special tests
+
+BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
+
+BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_bad_rle))
+{
+	BOOST_TEST_MESSAGE("Converting img-pcx-1b4p to stdformat with bad RLE code");
+
+	std::string d = makeString(TESTDATA_INITIAL_8x8_BADRLE);
+	this->base->open(&d);
+	this->openImage(8, 8);
+
+	StdImageDataPtr output = this->img->toStandard();
+
+	BOOST_CHECK_MESSAGE(
+		default_sample::is_equal(
+			stdformat_test_image_8x8,
+			output.get(),
+			8 * 8,
+			8
+		),
+		"Error converting image with bad RLE code to standard format"
+	);
+}
+
+#define TESTDATA_INITIAL_8x8_TRUNCATED \
+	"\x0A\x05\x01" \
+	"\x01" \
+	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00" \
+	"\x4B\x00" "\x4B\x00" \
+	PCX_PAL \
+	"\x00" \
+	"\x04" \
+	"\x02\x00" "\x01\x00" \
+	"\x00\x00" "\x00\x00" \
+	PCX_PAD \
+	"\xC8\xFF" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x00\x00\x01\x01\x80\x80\x81\x81" \
+	"\x7E\x7E\x01\x01\x80\x80"
+
+const uint8_t stdformat_test_image_8x8_truncated[] = {
+	0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
+	0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02
+};
+
+BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_truncated))
+{
+	BOOST_TEST_MESSAGE("Converting truncated img-pcx-1b4p to stdformat");
+
+	std::string d = makeString(TESTDATA_INITIAL_8x8_TRUNCATED);
+	this->base->open(&d);
+	this->openImage(8, 8);
+
+	StdImageDataPtr output = this->img->toStandard();
+
+	BOOST_CHECK_MESSAGE(
+		default_sample::is_equal(
+			stdformat_test_image_8x8_truncated,
+			output.get(),
+			8 * 8,
+			8
+		),
+		"Error converting image with bad RLE code to standard format"
+	);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 // Test some invalid formats to make sure they're not identified as valid
 // files.  Note that they can still be opened though (by 'force'), this
 // only checks whether they look like valid files or not.

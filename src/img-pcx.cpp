@@ -81,13 +81,14 @@ class filter_pcx_unrle: public filter {
 							if (r == 0) {
 								// We haven't read any bytes yet, so this is the start of the
 								// buffer and we've only got this one byte!
-								throw filter_error("PCX data ended in the middle of an RLE code.");
+								std::cerr << "[img-pcx] PCX data ended in the middle of an RLE "
+									"code!  Returning partial image." << std::endl;
 							} else {
 								// We've already read some bytes, so the buffer probably just
 								// ends in the middle of the code.  We'll return what we've got
 								// and pick up the next time we're called.
-								return;
 							}
+							return;
 						}
 						this->count = *in & 0x3F;
 						in++; // count the byte above
@@ -496,12 +497,19 @@ StdImageDataPtr PCXImage::toStandard()
 
 	fn_getnextchar cbNext = boost::bind(&stream::input::try_read, filtered, _1, 1);
 	int val;
+	bool eof = false;
 	for (int y = 0; y < height; y++) {
 		memset(line, 0, width); // blank out line
 		for (int p = 0; p < this->numPlanes; p++) {
 			for (int x = 0; x < width; x++) {
-				if (bits->read(cbNext, this->bitsPerPlane, &val) != this->bitsPerPlane) {
-					throw stream::error("PCX data stopped mid-stream - perhaps the file has been truncated?");
+				if (!eof) {
+					if (bits->read(cbNext, this->bitsPerPlane, &val) != this->bitsPerPlane) {
+						std::cerr << "[img-pcx] PCX data ended early!  Returning "
+							"partial image." << std::endl;
+						val = 0;
+						eof = true;
+						// Just read zero for the rest of the missing data
+					}
 				}
 				line[x] |= val << (p * this->bitsPerPlane);
 			}
@@ -605,7 +613,7 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 		sub->open(this->data, 128, maxSize - 128, boost::bind(&truncateParent, this->data, sub, 128, _1));
 		filter_sptr filt(new filter_pcx_rle());
 		stream::output_filtered_sptr fs(new stream::output_filtered());
-		fs->open(sub, filt);
+		fs->open(sub, filt, NULL);
 		filtered = fs;
 	} else {
 		filtered = this->data;
