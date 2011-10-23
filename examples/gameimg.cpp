@@ -261,10 +261,10 @@ finishTesting:
 				try {
 					stream::file_sptr suppStream(new stream::file());
 					std::cout << "Opening supplemental file " << i->second << std::endl;
-					suppStream->open(i->second.c_str());
+					suppStream->open(i->second);
 					suppData[i->first] = suppStream;
 				} catch (const stream::open_error& e) {
-					std::cerr << "Error opening supplemental file " << i->second.c_str()
+					std::cerr << "Error opening supplemental file " << i->second
 						<< ": " << e.what() << std::endl;
 					return RET_SHOWSTOPPER;
 				}
