@@ -98,7 +98,13 @@ CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGr
 	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
+
+	// Standard tileset
 	if (len == 2000 * 32) return PossiblyYes;
+
+	// Map backdrop
+	if (len == 720 * 32) return PossiblyYes;
+
 	return DefinitelyNo;
 }
 
