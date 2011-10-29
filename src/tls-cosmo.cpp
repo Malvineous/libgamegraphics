@@ -204,7 +204,7 @@ int CosmoTileset::getCaps()
 	return 0;
 }
 
-void CosmoTileset::resize(EntryPtr& id, size_t newSize)
+void CosmoTileset::resize(EntryPtr& id, stream::len newSize)
 	throw (stream::error)
 {
 	if (newSize != CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * this->numPlanes) {

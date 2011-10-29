@@ -258,7 +258,7 @@ int MonsterBashTileset::getCaps()
 	return 0;
 }
 
-void MonsterBashTileset::resize(EntryPtr& id, size_t newSize)
+void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)
 	throw (stream::error)
 {
 	if (newSize != this->lenTile) {

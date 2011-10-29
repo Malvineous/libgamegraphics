@@ -185,7 +185,7 @@ int CCavesSubTileset::getCaps()
 	return ChangeDimensions;
 }
 
-void CCavesSubTileset::resize(EntryPtr& id, size_t newSize)
+void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)
 	throw (stream::error)
 {
 	if (newSize != (unsigned)(this->width * this->height * this->numPlanes)) {

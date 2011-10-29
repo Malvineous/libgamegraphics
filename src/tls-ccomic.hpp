@@ -98,7 +98,7 @@ class CComicTileset: virtual public FATTileset {
 		virtual int getCaps()
 			throw ();
 
-		void resize(EntryPtr& id, size_t newSize)
+		void resize(EntryPtr& id, stream::len newSize)
 			throw (stream::error);
 
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
