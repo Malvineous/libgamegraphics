@@ -114,7 +114,7 @@ class CosmoTileset: virtual public FATTileset {
 			throw (stream::error);
 
 	protected:
-		int numPlanes;
+		unsigned int numPlanes;
 
 };
 

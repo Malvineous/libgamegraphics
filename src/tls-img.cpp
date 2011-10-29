@@ -25,7 +25,7 @@ namespace camoto {
 namespace gamegraphics {
 
 TilesetFromImage::TilesetFromImage(ImagePtr img,
-	int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+	unsigned int tileWidth, unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
 	throw (stream::error) :
 		img(img),
 		tileWidth(tileWidth),
@@ -33,9 +33,9 @@ TilesetFromImage::TilesetFromImage(ImagePtr img,
 		tilesWide(tilesWide),
 		tilesHigh(tilesHigh)
 {
-	int numImages = this->tilesWide * this->tilesHigh;
+	unsigned int numImages = this->tilesWide * this->tilesHigh;
 	this->items.reserve(numImages);
-	for (int i = 0; i < numImages; i++) {
+	for (unsigned int i = 0; i < numImages; i++) {
 		ImageEntry *fat = new ImageEntry();
 		EntryPtr ep(fat);
 		fat->isValid = true;

@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/iostreams/stream.hpp>
 #include "img-tv-fog.hpp"
 #include "pal-vga-raw.hpp"
 #include "img-vga-raw.hpp"
@@ -31,8 +30,6 @@
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 TVFogImageType::TVFogImageType()
 	throw ()

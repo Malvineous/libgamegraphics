@@ -46,8 +46,8 @@ void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
 class filter_pcx_unrle: public filter {
 
 	protected:
-		uint8_t val;  ///< Previous byte read
-		int count;    ///< How many times to repeat prev
+		uint8_t val;        ///< Previous byte read
+		unsigned int count; ///< How many times to repeat prev
 
 	public:
 
@@ -123,14 +123,14 @@ class filter_pcx_unrle: public filter {
 class filter_pcx_rle: public filter {
 
 	protected:
-		uint8_t val;  ///< Previous byte read
-		int count;    ///< How many times to repeat prev
+		uint8_t val;        ///< Previous byte read
+		unsigned int count; ///< How many times to repeat prev
 
 	public:
 
 		filter_pcx_rle() :
-			count(0),
-			val(0)
+			val(0),
+			count(0)
 		{
 		};
 
@@ -375,8 +375,6 @@ PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPla
 		bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
 {
-	stream::len lenData = this->data->size();
-
 	this->data->seekg(1, stream::start);
 	uint8_t bpp, pln;
 	uint16_t xmin, ymin, xmax, ymax;
@@ -489,8 +487,6 @@ StdImageDataPtr PCXImage::toStandard()
 	}
 
 	uint8_t *line = imgData;
-	int repeat = 0;
-	uint8_t byte;
 	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
 	/// @todo write bitstream version that takes input- and output-only streams (rather than r/w ones only)
 	//bitstream_sptr bits(new bitstream(filtered, bitstream::bigEndian));
@@ -498,10 +494,10 @@ StdImageDataPtr PCXImage::toStandard()
 	fn_getnextchar cbNext = boost::bind(&stream::input::try_read, filtered, _1, 1);
 	int val;
 	bool eof = false;
-	for (int y = 0; y < height; y++) {
+	for (unsigned int y = 0; y < height; y++) {
 		memset(line, 0, width); // blank out line
-		for (int p = 0; p < this->numPlanes; p++) {
-			for (int x = 0; x < width; x++) {
+		for (unsigned int p = 0; p < this->numPlanes; p++) {
+			for (unsigned int x = 0; x < width; x++) {
 				if (!eof) {
 					if (bits->read(cbNext, this->bitsPerPlane, &val) != this->bitsPerPlane) {
 						std::cerr << "[img-pcx] PCX data ended early!  Returning "
@@ -627,10 +623,10 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * width + 7) / 8);
 	int val;
 
-	for (int y = 0; y < height; y++) {
-		for (int p = 0; p < this->numPlanes; p++) {
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int p = 0; p < this->numPlanes; p++) {
 			int bitsInPlane = (p * this->bitsPerPlane);
-			for (int x = 0; x < width; x++) {
+			for (unsigned int x = 0; x < width; x++) {
 				val = (line[x] >> bitsInPlane) & planeMask;
 				bits->write(cbNext, this->bitsPerPlane, val);
 			}

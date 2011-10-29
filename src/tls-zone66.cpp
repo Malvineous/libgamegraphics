@@ -21,9 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/bind.hpp>
 #include <camoto/iostream_helpers.hpp>
-
 #include "img-zone66_tile.hpp"
 #include "tls-zone66.hpp"
 
@@ -44,8 +42,6 @@
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 Zone66TilesetType::Zone66TilesetType()
 	throw ()
@@ -100,7 +96,7 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 	if ((numFiles == 0) && (len > 8)) return DefinitelyNo; // invalid empty file
 
 	uint32_t offset, lastOffset = 0;
-	for (int i = 0; i < numFiles; i++) {
+	for (unsigned int i = 0; i < numFiles; i++) {
 		psTileset >> u32le(offset);
 
 		// The first file always starts at offset 0.
@@ -187,7 +183,7 @@ Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
 		uint32_t nextOffset;
 		this->data >> u32le(nextOffset);
 		nextOffset += firstOffset;
-		for (int i = 0; i < numTiles; i++) {
+		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
 			fat->isValid = true;

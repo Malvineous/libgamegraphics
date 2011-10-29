@@ -88,7 +88,7 @@ Manager::~Manager()
 {
 }
 
-TilesetTypePtr Manager::getTilesetType(int iIndex)
+TilesetTypePtr Manager::getTilesetType(unsigned int iIndex)
 	throw ()
 {
 	if (iIndex >= this->vcTilesetTypes.size()) return TilesetTypePtr();
@@ -107,7 +107,7 @@ TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
 	return TilesetTypePtr();
 }
 
-ImageTypePtr Manager::getImageType(int iIndex)
+ImageTypePtr Manager::getImageType(unsigned int iIndex)
 	throw ()
 {
 	if (iIndex >= this->vcImageTypes.size()) return ImageTypePtr();

@@ -31,15 +31,15 @@ class TilesetFromList: virtual public Tileset
 	public:
 		struct Tile {
 			ImagePtr img;
-			int xOffset;
-			int yOffset;
-			int width;
-			int height;
+			unsigned int xOffset;
+			unsigned int yOffset;
+			unsigned int width;
+			unsigned int height;
 		};
 		typedef std::vector<Tile> TileList;
 
 		struct ImageEntry: public Entry {
-			int index; ///< Zero-based index of tile
+			unsigned int index; ///< Zero-based index of tile
 		};
 
 		TilesetFromList(const TileList& tileList)

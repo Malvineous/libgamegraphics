@@ -64,13 +64,17 @@ EXTRA_libgamegraphics_la_SOURCES += tls-wordresc.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wordresc-extra.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
 
-AM_CPPFLAGS = $(DEBUG_CPPFLAGS)
+WARNINGS = -Wall -Wextra -Wno-unused-parameter
+
+AM_CPPFLAGS  = $(DEBUG_CPPFLAGS)
 AM_CPPFLAGS += $(BOOST_CPPFLAGS)
 AM_CPPFLAGS += -I $(top_srcdir)/include
 AM_CPPFLAGS += $(libgamecommon_CFLAGS)
+AM_CPPFLAGS += $(WARNINGS)
+
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS)
 
 libgamegraphics_la_LDFLAGS = $(AM_LDFLAGS) -release @VERSION@ -version-info 0
-libgamegraphics_la_LIBADD = $(BOOST_SYSTEM_LIBS)
+libgamegraphics_la_LIBADD  = $(BOOST_SYSTEM_LIBS)
 libgamegraphics_la_LIBADD += $(MAGICK_LIBS)
 libgamegraphics_la_LIBADD += $(libgamecommon_LIBS)

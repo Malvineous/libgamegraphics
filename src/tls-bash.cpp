@@ -21,20 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/shared_array.hpp>
-#include <boost/bind.hpp>
-
-#include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
-#include <camoto/byteorder.hpp>
-#include <camoto/stream_sub.hpp>
 #include "img-ega-planar.hpp"
 #include "tls-bash.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 /// Number of planes in each image
 #define MB_NUMPLANES_SPRITE  5

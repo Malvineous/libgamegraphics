@@ -49,7 +49,7 @@ class FATTileset: virtual public Tileset {
 			 * We can't use the index into the vector as entries are passed around
 			 * outside the vector.
 			 */
-			int index;
+			unsigned int index;
 
 			stream::pos offset;
 			stream::pos size;

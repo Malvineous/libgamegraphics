@@ -23,7 +23,8 @@
 namespace camoto {
 namespace gamegraphics {
 
-SubImage::SubImage(ImagePtr img, int xOffset, int yOffset, int width, int height)
+SubImage::SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
+	unsigned int width, unsigned int height)
 	throw (stream::error) :
 		img(img),
 		xOffset(xOffset),
@@ -109,10 +110,10 @@ void SubImage::fromStandard(StdImageDataPtr newContent,
 	// Copy the data out of the subimage
 	parentData += this->yOffset * parentWidth;
 	parentMask += this->yOffset * parentWidth;
-	for (int y = 0; y < this->height; y++) {
+	for (unsigned int y = 0; y < this->height; y++) {
 		parentData += this->xOffset;
 		parentMask += this->xOffset;
-		for (int x = 0; x < this->width; x++) {
+		for (unsigned int x = 0; x < this->width; x++) {
 			*parentData++ = *imgData++;
 			*parentMask++ = *imgMask++;
 		}
@@ -143,9 +144,9 @@ StdImageDataPtr SubImage::extractPortion(const StdImageDataPtr& source)
 
 	// Copy the data out of the subimage
 	parentData += this->yOffset * parentWidth;
-	for (int y = 0; y < this->height; y++) {
+	for (unsigned int y = 0; y < this->height; y++) {
 		parentData += this->xOffset;
-		for (int x = 0; x < this->width; x++) {
+		for (unsigned int x = 0; x < this->width; x++) {
 			*imgData++ = *parentData++;
 		}
 		parentData += remX;

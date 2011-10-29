@@ -21,9 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/bind.hpp>
 #include <camoto/iostream_helpers.hpp>
-
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
 #include "tls-harry.hpp"
@@ -42,8 +40,6 @@
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 HarryTilesetType::HarryTilesetType()
 	throw ()

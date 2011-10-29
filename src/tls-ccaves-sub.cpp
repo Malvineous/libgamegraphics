@@ -21,24 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <exception>
-#include <cstring>
-#include <boost/shared_array.hpp>
-#include <boost/iostreams/positioning.hpp>  // stream_offset
-#include <boost/bind.hpp>
-
-#include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
-#include <camoto/byteorder.hpp>
-#include <camoto/stream_sub.hpp>
 #include "img-ega-byteplanar.hpp"
 #include "tls-ccaves-sub.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 /// Number of planes in each image
 #define NUMPLANES_SPRITE  5
@@ -106,7 +94,6 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_s
 	if (len < 3) return DefinitelyNo; // too short
 
 	psGraphics->seekg(0, stream::start);
-	stream::pos pos = 0;
 	uint8_t numTiles, width, height;
 	psGraphics
 		>> u8(numTiles)
@@ -115,7 +102,7 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_s
 	;
 
 	// TESTED BY: tls_ccaves_sub_isinstance_c01
-	if (3 + width * height * NUMPLANES_SPRITE * numTiles != len)
+	if ((unsigned)(3 + width * height * NUMPLANES_SPRITE * numTiles) != len)
 		return DefinitelyNo;
 
 	// TESTED BY: tls_ccaves_sub_isinstance_c00
@@ -201,7 +188,7 @@ int CCavesSubTileset::getCaps()
 void CCavesSubTileset::resize(EntryPtr& id, size_t newSize)
 	throw (stream::error)
 {
-	if (newSize != this->width * this->height * this->numPlanes) {
+	if (newSize != (unsigned)(this->width * this->height * this->numPlanes)) {
 		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;

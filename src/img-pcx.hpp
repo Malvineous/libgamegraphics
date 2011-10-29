@@ -176,8 +176,8 @@ class PCXImage: virtual public Image {
 		uint8_t encoding;
 		uint8_t bitsPerPlane;
 		uint8_t numPlanes;
-		int width;
-		int height;
+		unsigned int width;
+		unsigned int height;
 
 };
 

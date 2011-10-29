@@ -21,9 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/bind.hpp>
 #include <camoto/iostream_helpers.hpp>
-
 #include "img-ega-rowplanar.hpp"
 #include "tls-ddave.hpp"
 #include "img-ddave.hpp"
@@ -49,8 +47,6 @@
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 DDaveTilesetType::DDaveTilesetType()
 	throw ()
@@ -94,7 +90,7 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 
 	uint32_t offset, lastOffset = 0;
 	uint32_t firstOffset, secondOffset;
-	for (int i = 0; i < numFiles; i++) {
+	for (unsigned int i = 0; i < numFiles; i++) {
 		psTileset >> u32le(offset);
 		if (i == 0) firstOffset = offset;
 		else if (i == 1) secondOffset = offset;
@@ -285,7 +281,7 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 	if (numTiles > 0) {
 		uint32_t nextOffset;
 		this->data >> u32le(nextOffset);
-		for (int i = 0; i < numTiles; i++) {
+		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
 			fat->isValid = true;

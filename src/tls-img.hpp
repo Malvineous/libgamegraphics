@@ -34,8 +34,8 @@ class TilesetFromImage: virtual public Tileset
 			int index; ///< Zero-based index of tile
 		};
 
-		TilesetFromImage(ImagePtr img,
-			int tileWidth, int tileHeight, int tilesWide, int tilesHigh)
+		TilesetFromImage(ImagePtr img, unsigned int tileWidth,
+			unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
 			throw (stream::error);
 
 		virtual ~TilesetFromImage()
@@ -75,12 +75,12 @@ class TilesetFromImage: virtual public Tileset
 			throw (stream::error);
 
 	protected:
-		ImagePtr img;        ///< Underlying image file
-		VC_ENTRYPTR items;   ///< List of tiles
-		int tileWidth;       ///< Width of each tile in pixels
-		int tileHeight;      ///< Height of each tile in pixels
-		int tilesWide;       ///< Number of tiles horizontally in each .PCX
-		int tilesHigh;       ///< Number of tiles vertically in each .PCX
+		ImagePtr img;            ///< Underlying image file
+		VC_ENTRYPTR items;       ///< List of tiles
+		unsigned int tileWidth;  ///< Width of each tile in pixels
+		unsigned int tileHeight; ///< Height of each tile in pixels
+		unsigned int tilesWide;  ///< Number of tiles horizontally in each .PCX
+		unsigned int tilesHigh;  ///< Number of tiles vertically in each .PCX
 
 };
 

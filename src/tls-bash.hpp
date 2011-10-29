@@ -135,8 +135,8 @@ class MonsterBashTileset: virtual public FATTileset {
 			throw (stream::error);
 
 	protected:
-		int numPlanes; ///< Number of colour planes in each image
-		int lenTile;   ///< Length of each image, in bytes
+		unsigned int numPlanes; ///< Number of colour planes in each image
+		unsigned int lenTile;   ///< Length of each image, in bytes
 
 };
 

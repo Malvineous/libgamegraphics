@@ -21,24 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <exception>
-#include <cstring>
-#include <boost/shared_array.hpp>
-#include <boost/iostreams/positioning.hpp>  // stream_offset
-#include <boost/bind.hpp>
-
-#include <camoto/debug.hpp>
 #include <camoto/iostream_helpers.hpp>
-#include <camoto/byteorder.hpp>
-#include <camoto/stream_sub.hpp>
 #include "tls-ccaves-main.hpp"
 #include "tls-ccaves-sub.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-namespace io = boost::iostreams;
 
 /// Number of planes in each image
 #define NUMPLANES_SPRITE  5

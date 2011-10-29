@@ -86,7 +86,7 @@ class Manager {
 		 *         an empty pointer once iIndex goes out of range.
 		 * @todo Remove this and replace it with a function that just returns the vector.
 		 */
-		TilesetTypePtr getTilesetType(int iIndex)
+		TilesetTypePtr getTilesetType(unsigned int iIndex)
 			throw ();
 
 		/// Get an TilesetType instance by its code.
@@ -107,7 +107,7 @@ class Manager {
 		 *         an empty pointer once iIndex goes out of range.
 		 * @todo Remove this and replace it with a function that just returns the vector.
 		 */
-		ImageTypePtr getImageType(int iIndex)
+		ImageTypePtr getImageType(unsigned int iIndex)
 			throw ();
 
 		/// Get an ImageType instance by its code.

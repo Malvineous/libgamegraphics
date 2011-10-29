@@ -28,9 +28,9 @@ TilesetFromList::TilesetFromList(const TileList& tileList)
 	throw (stream::error) :
 		tileList(tileList)
 {
-	int numImages = this->tileList.size();
+	unsigned int numImages = this->tileList.size();
 	this->items.reserve(numImages);
-	for (int i = 0; i < numImages; i++) {
+	for (unsigned int i = 0; i < numImages; i++) {
 		ImageEntry *fat = new ImageEntry();
 		EntryPtr ep(fat);
 		fat->isValid = true;

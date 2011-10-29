@@ -53,7 +53,8 @@ class SubImage: virtual public Image {
 		 *   Height of this image.  y + height must not exceed the width of the
 		 *   underlying image.
 		 */
-		SubImage(ImagePtr img, int xOffset, int yOffset, int width, int height)
+		SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
+			unsigned int width, unsigned int height)
 			throw (stream::error);
 
 		virtual ~SubImage()
@@ -86,10 +87,10 @@ class SubImage: virtual public Image {
 		ImagePtr img;               ///< Underlying image
 		StdImageDataPtr parent;     ///< Pixel data cache
 		StdImageDataPtr parentMask; ///< Pixel data cache for mask
-		int xOffset;
-		int yOffset;
-		int width;
-		int height;
+		unsigned int xOffset;
+		unsigned int yOffset;
+		unsigned int width;
+		unsigned int height;
 
 };
 
