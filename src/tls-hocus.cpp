@@ -21,7 +21,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Magick++.h>
 #include "tls-hocus.hpp"
 #include "tls-img.hpp"
 #include "img-pcx.hpp"
