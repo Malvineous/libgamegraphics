@@ -64,7 +64,6 @@ std::string CosmoTilesetType::getFriendlyName() const
 	return "Cosmo's Cosmic Adventures Tileset";
 }
 
-// Get a list of the known file extensions for this format.
 std::vector<std::string> CosmoTilesetType::getFileExtensions() const
 	throw ()
 {

@@ -185,7 +185,7 @@ void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
 	this->VGAImage::fromStandard(newContent, newMask);
 
 	if (!this->fixedSize) {
-		// Update offset
+		// Update dimensions
 		this->data->seekp(0, stream::start);
 		this->data << u16le(this->width) << u16le(this->height);
 	}

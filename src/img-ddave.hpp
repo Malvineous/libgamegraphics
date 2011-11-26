@@ -41,9 +41,6 @@ class DDaveCGAImage: virtual public CGAImage {
 		 * @param data
 		 *   CGA image data.
 		 *
-		 * @param fnTruncate
-		 *   Callback function when stream size must be changed.
-		 *
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
@@ -85,9 +82,6 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 		 * @param data
 		 *   EGA image data.
 		 *
-		 * @param fnTruncate
-		 *   Callback function when stream size must be changed.
-		 *
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
@@ -121,9 +115,6 @@ class DDaveVGAImage: virtual public VGAImage {
 		 *
 		 * @param data
 		 *   VGA image data.
-		 *
-		 * @param fnTruncate
-		 *   Callback function when stream size must be changed.
 		 *
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)

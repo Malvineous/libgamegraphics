@@ -186,7 +186,7 @@ class Image {
 		/**
 		 * @pre getCaps() return value includes HasPalette.
 		 *
-		 * @return Shared pointer to a Palette.
+		 * @return Shared pointer to a PaletteTable.
 		 */
 		virtual PaletteTablePtr getPalette()
 			throw (stream::error);

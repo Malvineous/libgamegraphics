@@ -304,7 +304,7 @@ ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
 {
 	// Caller didn't check id->attr
 	assert(false);
-	throw stream::error("this tileset format doesn't have any sub-tilesets"
+	throw stream::error("this tileset format doesn't have any top-level images"
 		" (this is a bug - the caller should have checked the EntryPtr's"
 		" attributes to detect this)");
 }

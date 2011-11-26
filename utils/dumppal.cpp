@@ -121,7 +121,7 @@ int main(int iArgC, char *cArgV[])
 			return 1;
 		}
 		// Get the format handler for this file format
-		boost::shared_ptr<gg::Manager> pManager(gg::getManager());
+		gg::ManagerPtr pManager(gg::getManager());
 
 		gg::ImageTypePtr palType(pManager->getImageTypeByCode(strType));
 		if (!palType) {
