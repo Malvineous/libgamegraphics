@@ -164,7 +164,7 @@ CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
 		fat->isValid = true;
-		fat->attr = None;
+		fat->attr = 0;
 		fat->index = i;
 		fat->offset = 3 + i * tileSize;
 		fat->size = tileSize;

@@ -34,7 +34,7 @@ TilesetFromList::TilesetFromList(const TileList& tileList)
 		ImageEntry *fat = new ImageEntry();
 		EntryPtr ep(fat);
 		fat->isValid = true;
-		fat->attr = None;
+		fat->attr = 0;
 		fat->index = i;
 		this->items.push_back(ep);
 	}

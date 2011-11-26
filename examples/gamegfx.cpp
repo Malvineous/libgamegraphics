@@ -946,8 +946,7 @@ finishTesting:
 					iRet = RET_NONCRITICAL_FAILURE;
 				}
 				try {
-					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore,
-						gg::Tileset::None);
+					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore, 0);
 
 					gg::ImagePtr img = nextTileset->openImage(ep);
 					if (!img) {
