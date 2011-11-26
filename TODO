@@ -3,3 +3,5 @@ Outstanding tasks
  - Add test code for CGA images
  - See if there's some way to combine EGA byte and row planar data, as the
    code is identical apart from two for loops being in a different order.
+
+ - Jill of the Jungle: Implement image writing (need to handle colourmaps somehow)

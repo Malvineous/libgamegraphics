@@ -31,6 +31,7 @@
 #include "tls-ddave.hpp"
 #include "tls-harry.hpp"
 #include "tls-hocus.hpp"
+#include "tls-jill.hpp"
 #include "tls-wacky.hpp"
 #include "tls-wordresc.hpp"
 #include "tls-wordresc-extra.hpp"
@@ -68,6 +69,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HocusTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new JillTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescExtraTilesetType()));
