@@ -89,7 +89,8 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 	if ((numFiles == 0) && (len > DD_FIRST_TILE_OFFSET)) return DefinitelyNo; // invalid empty file
 
 	uint32_t offset, lastOffset = 0;
-	uint32_t firstOffset, secondOffset;
+	uint32_t firstOffset;
+	uint32_t secondOffset = len; // default to EOF as second file's offset
 	for (unsigned int i = 0; i < numFiles; i++) {
 		psTileset >> u32le(offset);
 		if (i == 0) firstOffset = offset;
@@ -110,10 +111,6 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 
 	// Check the size of the first tile to see what format it's in.
 	if (numFiles > 0) {
-		if (numFiles == 1) {
-			// have to use EOF as second file's offset
-			secondOffset = len;
-		}
 		// Call function in DDave[CEV]GATilesetType
 		if (!this->isInstance(secondOffset - firstOffset)) return DefinitelyNo;
 	}
