@@ -99,7 +99,7 @@ void Tileset::setPalette(PaletteTablePtr newPalette)
 {
 	// Caller didn't check getCaps()
 	assert(false);
-	throw stream::error("this format doesn't support palettes"
+	throw stream::error("this format can't have its palette changed"
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 	return;
 }

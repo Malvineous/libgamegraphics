@@ -80,6 +80,9 @@ class Tileset: virtual public Metadata {
 
 			/// Set if there is a tileset palette that applies to all tiles.
 			HasPalette        = 0x08,
+
+			/// Set if the palette can be changed
+			ChangePalette     = 0x10,
 		};
 
 		/// Base class to represent entries in a tileset.
@@ -312,7 +315,7 @@ class Tileset: virtual public Metadata {
 		/**
 		 * This doesn't modify any pixels, only the colours those pixels map to.
 		 *
-		 * @pre getCaps() return value includes HasPalette.
+		 * @pre getCaps() return value includes ChangePalette.
 		 *
 		 * @param newPalette
 		 *   New palette data
