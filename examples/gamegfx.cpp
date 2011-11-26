@@ -116,21 +116,22 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 		i != tiles.end();
 		i++
 	) {
-		// If this entry is a tileset, open it and dump its contents recursively
-		if ((*i)->attr & gg::Tileset::SubTileset) {
-			gg::TilesetPtr tileset = pTileset->openTileset(*i);
-			std::ostringstream ss;
-			ss << prefix << '.' << j;
-			printTilesetList(ss.str(), tileset, bScript);
-
-		// Otherwise if it's an image just dump the specs
-		} else if ((*i)->attr & gg::Tileset::EmptySlot) {
+		// If this is an empty slot skip it, because we can't open it of course
+		if ((*i)->attr & gg::Tileset::EmptySlot) {
 			if (bScript) {
 				std::cout << "id=" << prefix << '+' << j
 					<< ";type=empty\n";
 			} else {
 				std::cout << prefix << '.' << j << ": Empty slot\n";
 			}
+		// If this entry is a tileset, open it and dump its contents recursively
+		} else if ((*i)->attr & gg::Tileset::SubTileset) {
+			gg::TilesetPtr tileset = pTileset->openTileset(*i);
+			std::ostringstream ss;
+			ss << prefix << '.' << j;
+			printTilesetList(ss.str(), tileset, bScript);
+
+		// Otherwise if it's an image just dump the specs
 		} else {
 			gg::ImagePtr img = pTileset->openImage(*i);
 			unsigned int iwidth, iheight;
@@ -138,7 +139,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 			if (bScript) {
 				std::cout << "id=" << prefix << '+' << j
 					<< ";type=image;width=" << iwidth
-					<< ";iheight=" << iheight << '\n';
+					<< ";height=" << iheight << '\n';
 			} else {
 				std::cout << prefix << '.' << j << ": Image (" << iwidth << "x"
 					<< iheight << ")\n";
@@ -1070,6 +1071,10 @@ finishTesting:
 
 		// Save changes
 		pTileset->flush();
+
+	} catch (const stream::error& e) {
+		std::cerr << PROGNAME ": I/O error - " << e.what() << std::endl;
+		return RET_SHOWSTOPPER;
 
 	} catch (po::unknown_option& e) {
 		std::cerr << PROGNAME ": " << e.what()
