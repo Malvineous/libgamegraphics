@@ -19,7 +19,7 @@
  */
 
 #include <camoto/gamegraphics.hpp>
-#include "png++/png.hpp"
+#include <png++/png.hpp>
 
 namespace stream = camoto::stream;
 namespace gg = camoto::gamegraphics;

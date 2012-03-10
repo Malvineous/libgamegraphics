@@ -18,10 +18,6 @@ AC_PROG_CXX
 # Checks for libraries.
 AC_PROG_LIBTOOL
 
-BOOST_REQUIRE([1.46])
-BOOST_PROGRAM_OPTIONS
-BOOST_TEST
-
 PKG_CHECK_MODULES([libgamecommon], [libgamecommon])
 PKG_CHECK_MODULES([libpng], [libpng])
 
@@ -29,19 +25,35 @@ SAVE_CPPFLAGS=$CPPFLAGS
 CPPFLAGS="$CPPFLAGS $libpng_CFLAGS"
 
 # Checks for header files.
-AC_CACHE_CHECK([for png++ in examples folder],
+AC_CACHE_CHECK([for png++],
 	[ac_cv_pngpp],
 	[AC_COMPILE_IFELSE(
-		[AC_LANG_PROGRAM([#include "examples/png++/png.hpp"], [return 0;])],
+		[AC_LANG_PROGRAM([#include <png++/png.hpp>], [return 0;])],
 		[ac_cv_pngpp=yes],
-		[AC_MSG_ERROR([examples/png++/png.hpp not found or unusable.
+		[AC_MSG_ERROR([<png++/png.hpp> not found or unusable.
 
-Please download png++ and extract into ./examples/png++/ as per README.  See config.log for failure messages if required.])
+Please download and install png++.  See config.log for failure messages if required.])
+		]
+	)]
+)
+
+AC_CACHE_CHECK([if png++ is new enough],
+	[ac_cv_pngpp_ver],
+	[AC_COMPILE_IFELSE(
+		[AC_LANG_PROGRAM([#include <png++/png.hpp>], [std::string fn; png::image<png::index_pixel> png(fn); return 0;])],
+		[ac_cv_pngpp_ver=yes],
+		[AC_MSG_ERROR([png++ is too old.
+
+Please download and install png++ newer than 0.2.5.])
 		]
 	)]
 )
 
 CPPFLAGS=$SAVE_CPPFLAGS
+
+BOOST_REQUIRE([1.46])
+BOOST_PROGRAM_OPTIONS
+BOOST_TEST
 
 # Checks for typedefs, structures, and compiler characteristics.
 

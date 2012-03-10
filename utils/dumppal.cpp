@@ -26,7 +26,7 @@
 #include <camoto/stream_file.hpp>
 #include <iostream>
 //#include <fstream>
-#include "../examples/png++/png.hpp"
+#include <png++/png.hpp>
 
 #define PROGNAME "dumppal"
 

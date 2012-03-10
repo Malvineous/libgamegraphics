@@ -78,5 +78,4 @@ AM_CXXFLAGS = $(DEBUG_CXXFLAGS)
 
 libgamegraphics_la_LDFLAGS = $(AM_LDFLAGS) -release @VERSION@ -version-info 0
 libgamegraphics_la_LIBADD  = $(BOOST_SYSTEM_LIBS)
-libgamegraphics_la_LIBADD += $(MAGICK_LIBS)
 libgamegraphics_la_LIBADD += $(libgamecommon_LIBS)
