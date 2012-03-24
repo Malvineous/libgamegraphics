@@ -2,7 +2,7 @@
  * @file   common.hpp
  * @brief  Functions shared between gamegfx and gameimg
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,8 +89,8 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
 		png.set_tRNS(transparency);
 	}
 
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int x = 0; x < width; x++) {
 			if (useMask) {
 				if (mask[y*width+x] & 0x01) {
 					png[y][x] = png::index_pixel(0);
@@ -145,8 +145,8 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 	gg::StdImageDataPtr stdimg(imgData);
 	gg::StdImageDataPtr stdmask(maskData);
 
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int x = 0; x < width; x++) {
 			uint8_t pixel = png[y][x];
 			if (hasTransparency && (pixel == 0)) { // Palette #0 must be transparent
 				maskData[y * width + x] = 0x01; // transparent
@@ -191,9 +191,9 @@ void imageToANSI(gg::ImagePtr img)
 	bool bright = false, xp = false;
 	std::cout << "\x1B[0;7m";
 	bool bFirst = true;
-	for (int y = 0; y < height; y++) {
+	for (unsigned int y = 0; y < height; y++) {
 		if (!bFirst) std::cout << "\n"; else bFirst = false;
-		for (int x = 0; x < width; x++, pos++) {
+		for (unsigned int x = 0; x < width; x++, pos++) {
 			uint8_t pixel = data[pos], maskpixel = mask[pos];
 			std::cout << "\x1B[";
 			if (pixel & 0x08) {

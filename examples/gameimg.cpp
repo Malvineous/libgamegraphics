@@ -2,7 +2,7 @@
  * @file   gameimg.cpp
  * @brief  Command-line interface to single image parts of libgamegraphics.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,7 +103,6 @@ int main(int iArgC, char *cArgV[])
 
 	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
 
-	bool bScript = false; // show output suitable for script parsing?
 	bool bForceOpen = false; // open anyway even if archive not in given format?
 	try {
 		po::parsed_options pa = po::parse_command_line(iArgC, cArgV, poComplete);
@@ -122,7 +121,7 @@ int main(int iArgC, char *cArgV[])
 				strFilename = i->value[0];
 			} else if (i->string_key.compare("help") == 0) {
 				std::cout <<
-					"Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>\n"
+					"Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>\n"
 					"This program comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
 					"and you are welcome to change and redistribute it under certain conditions;\n"
 					"see <http://www.gnu.org/licenses/> for details.\n"
@@ -157,11 +156,6 @@ int main(int iArgC, char *cArgV[])
 					return RET_BADARGS;
 				}
 				strType = i->value[0];
-			} else if (
-				(i->string_key.compare("s") == 0) ||
-				(i->string_key.compare("script") == 0)
-			) {
-				bScript = true;
 			} else if (
 				(i->string_key.compare("f") == 0) ||
 				(i->string_key.compare("force") == 0)
@@ -274,8 +268,6 @@ finishTesting:
 		// Open the image file
 		gg::ImagePtr img(pGfxType->open(psImage, suppData));
 		assert(img);
-
-		int iRet = RET_OK;
 
 		// Run through the actions on the command line
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {

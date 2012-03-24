@@ -2,7 +2,7 @@
  * @file   gamegfx.cpp
  * @brief  Command-line interface to libgamegraphics.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -166,11 +166,11 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
  *
  * @return true on success, false on an invalid ID
  */
-bool explodeId(std::vector<int> *id, const std::string& name)
+bool explodeId(std::vector<unsigned int> *id, const std::string& name)
 {
 	int next = 0;
 	bool img = false; // is the next number an image? (if not, it's a tileset)
-	for (int i = 0; i < name.length(); i++) {
+	for (unsigned int i = 0; i < name.length(); i++) {
 		if ((name[i] == '.') || (name[i] == '+')) {
 			// Separator
 			id->push_back(next);
@@ -288,8 +288,8 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 		unsigned int offX = (t % widthTiles) * width;
 		unsigned int offY = (t / widthTiles) * height;
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
+		for (unsigned int y = 0; y < height; y++) {
+			for (unsigned int x = 0; x < width; x++) {
 				if (useMask) {
 					if (mask[y*width+x] & 0x01) {
 						png[offY+y][offX+x] = png::index_pixel(0);
@@ -370,8 +370,8 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 		unsigned int offX = (t % tilesX) * width;
 		unsigned int offY = (t / tilesX) * height;
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
+		for (unsigned int y = 0; y < height; y++) {
+			for (unsigned int x = 0; x < width; x++) {
 				uint8_t pixel = png[offY + y][offX + x];
 				if (pixel == 0) { // Palette #0 must be transparent
 					maskData[y * width + x] = 0x01; // transparent
@@ -510,11 +510,11 @@ gg::Tileset::EntryPtr idToEntryPtr(const std::string& idText,
 	gg::TilesetPtr& tileset
 ) {
 	gg::Tileset::EntryPtr ep;
-	std::vector<int> id;
+	std::vector<unsigned int> id;
 	if (explodeId(&id, idText)) {
 		// TODO: Make sure the next line's +1 condition works when it == id.end(),
 		//       i.e. there's only images here, no subtilesets
-		for (std::vector<int>::iterator i = id.begin() + 1; i != id.end(); i++) {
+		for (std::vector<unsigned int>::iterator i = id.begin() + 1; i != id.end(); i++) {
 
 			if (ep) {
 				// An image has already been found but there are more ID components,
@@ -618,6 +618,7 @@ int main(int iArgC, char *cArgV[])
 
 	gg::ManagerPtr pManager(gg::getManager());
 
+	int iRet = RET_OK;
 	bool bScript = false; // show output suitable for script parsing?
 	bool bForceOpen = false; // open anyway even if archive not in given format?
 	int iTilesetExportWidth = 0;  // Width when exporting whole tileset as single file (0 == entire tileset on one line)
@@ -638,7 +639,7 @@ int main(int iArgC, char *cArgV[])
 				strFilename = i->value[0];
 			} else if (i->string_key.compare("help") == 0) {
 				std::cout <<
-					"Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>\n"
+					"Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>\n"
 					"This program comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
 					"and you are welcome to change and redistribute it under certain conditions;\n"
 					"see <http://www.gnu.org/licenses/> for details.\n"
@@ -804,8 +805,6 @@ finishTesting:
 		// Open the graphics file
 		gg::TilesetPtr pTileset(pGfxType->open(psTileset, suppData));
 		assert(pTileset);
-
-		int iRet = RET_OK;
 
 		// Run through the actions on the command line
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
@@ -1087,5 +1086,5 @@ finishTesting:
 		return RET_BADARGS;
 	}
 
-	return RET_OK;
+	return iRet;
 }
