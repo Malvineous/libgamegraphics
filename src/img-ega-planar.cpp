@@ -66,6 +66,7 @@ void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	throw (stream::error)
 {
+	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
 	this->height = height;
 
@@ -89,6 +90,22 @@ StdImageDataPtr EGAPlanarImage::toStandard()
 StdImageDataPtr EGAPlanarImage::toStandardMask()
 	throw ()
 {
+	if ((this->planes[PLANE_OPACITY] == 0) && (this->planes[PLANE_HITMAP] == 0)) {
+		// Mask is unused, skip the conversion and return an opaque mask
+		unsigned int width, height;
+		this->getDimensions(&width, &height);
+		assert((width != 0) && (height != 0));
+		int dataSize = width * height;
+
+		// Return an entirely opaque mask
+		uint8_t *imgData = new uint8_t[dataSize];
+		StdImageDataPtr ret(imgData);
+		memset(imgData, 0, dataSize);
+
+		return ret;
+	}
+
+	// Otherwise decode the mask
 	return this->doConversion(true);
 }
 
@@ -262,7 +279,13 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 			for (int x = 0; x < (this->width + 7) / 8; x++) {
 
 				uint8_t nextByte;
-				this->data >> u8(nextByte);
+				try {
+					this->data >> u8(nextByte);
+				} catch (const stream::incomplete_read) {
+					std::cerr << "ERROR: Incomplete read converting image to standard "
+						"format.  Returning partial conversion." << std::endl;
+					return ret;
+				}
 
 				// Don't waste time processing a plane we're ignoring
 				if (!(planeValue[p] || notPlaneValue[p])) continue;
