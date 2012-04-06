@@ -89,13 +89,13 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(new_to_initialstate))
 
 	// Add the tiles to the new tileset
 	Tileset::EntryPtr ep1 =
-		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+		pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
 		"Couldn't insert new tile in empty tileset");
 	setTileData(ep1, 1, 0);
 
 	Tileset::EntryPtr ep2 =
-		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+		pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
 		"Couldn't insert second new tile in empty tileset");
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 
 	// Insert the tile
 	Tileset::EntryPtr ep3 =
-		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+		pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 	BOOST_REQUIRE_MESSAGE(ep3->isValid,
 		"Couldn't insert new tile in empty tileset");
 	ImagePtr img3(pTileset->openImage(ep3));
@@ -150,13 +150,13 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	if (fat3) off3 = fat3->offset;
 
 	Tileset::EntryPtr ep1 =
-		pTileset->insert(ep3, Tileset::None);
+		pTileset->insert(ep3, Tileset::Default);
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
 		"Couldn't insert new tile in empty tileset");
 	ImagePtr img1(pTileset->openImage(ep1));
 
 	Tileset::EntryPtr ep2 =
-		pTileset->insert(ep3, Tileset::None);
+		pTileset->insert(ep3, Tileset::Default);
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
 		"Couldn't insert new tile in empty tileset");
 	ImagePtr img2(pTileset->openImage(ep2));

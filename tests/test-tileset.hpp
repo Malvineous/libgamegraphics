@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_end))
 
 	// Insert tile
 	Tileset::EntryPtr epNew =
-		pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+		pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_mid))
 
 	// Insert the tile
 	Tileset::EntryPtr epNew =
-		pTileset->insert(epBefore, Tileset::None);
+		pTileset->insert(epBefore, Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(epNew->isValid, "Couldn't insert new tile");
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::None);
+	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert2))
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	Tileset::EntryPtr ep2 = pTileset->insert(epBefore, Tileset::None);
+	Tileset::EntryPtr ep2 = pTileset->insert(epBefore, Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(insert_remove))
 		"Couldn't find second tile in sample tileset");
 
 	// Insert the tile
-	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::None);
+	Tileset::EntryPtr ep1 = pTileset->insert(epBefore, Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid,
@@ -488,7 +488,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_insert))
 		"Couldn't find first tile in sample tileset");
 
 	// Insert the tile
-	Tileset::EntryPtr ep2 = pTileset->insert(ep1, Tileset::None);
+	Tileset::EntryPtr ep2 = pTileset->insert(ep1, Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid,
@@ -544,7 +544,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 
 
 	// Insert the tile
-	ep1 = pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+	ep1 = pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep1->isValid, "Couldn't insert new tile after removing all tiles");
@@ -554,7 +554,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 
 
 	// Insert the tile
-	ep2 = pTileset->insert(Tileset::EntryPtr(), Tileset::None);
+	ep2 = pTileset->insert(Tileset::EntryPtr(), Tileset::Default);
 
 	// Make sure it went in ok
 	BOOST_REQUIRE_MESSAGE(ep2->isValid, "Couldn't insert new tile after removing all tiles");

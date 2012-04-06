@@ -69,6 +69,7 @@ class Tileset: virtual public Metadata {
 
 		/// File attribute flags.  Can be OR'd together.
 		enum Attributes {
+			Default       = 0x00,  ///< Default/none
 			EmptySlot     = 0x01,  ///< There's currently no image at this location
 			SubTileset    = 0x80,  ///< This entry contains a tileset/animation
 		};
