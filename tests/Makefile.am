@@ -1,6 +1,9 @@
 check_PROGRAMS = tests
 
 tests_SOURCES = tests.cpp
+tests_SOURCES += test-filter.cpp
+tests_SOURCES += test-filter-ccomic.cpp
+tests_SOURCES += test-img-ccomic.cpp
 tests_SOURCES += test-img-ega-planar.cpp
 tests_SOURCES += test-img-ega-byteplanar.cpp
 tests_SOURCES += test-img-ega-rowplanar.cpp
@@ -14,6 +17,7 @@ tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-tls-zone66.cpp
 
 EXTRA_tests_SOURCES = tests.hpp
+EXTRA_tests_SOURCES += test-filter.hpp
 EXTRA_tests_SOURCES += test-img.hpp
 EXTRA_tests_SOURCES += test-tls.hpp
 

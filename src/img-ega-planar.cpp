@@ -186,7 +186,8 @@ void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 			maskData += this->width;
 		}
 	}
-
+	this->data->flush();
+	this->data->truncate_here();
 	return;
 }
 
@@ -337,6 +338,7 @@ ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
 	throw (stream::error)
 {
 	psImage->truncate(32000);
+	psImage->seekp(0, stream::start);
 	char buf[64];
 	memset(buf, 0, 64);
 	for (int i = 0; i < 500; i++) psImage->write(buf, 64);

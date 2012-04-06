@@ -18,13 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
-#include <camoto/gamegraphics.hpp>
-#include <camoto/util.hpp> // for TOSTRING macro
-#include <camoto/stream_string.hpp>
-
-#include "tests.hpp"
+#include "test-img-defines.hpp"
 
 // These constants should be defined in the file that #includes this one.
 
@@ -140,20 +135,6 @@ const uint8_t stdformat_test_mask_8x4[] = {
 	0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
-// Defines to allow code reuse
-#define COMBINE_CLASSNAME_EXP(c, n)  c ## _ ## n
-#define COMBINE_CLASSNAME(c, n)  COMBINE_CLASSNAME_EXP(c, n)
-
-#define TEST_VAR(n)        COMBINE_CLASSNAME(IMG_CLASS, n)
-#define TEST_NAME(n)       TEST_VAR(n)
-#define TEST_RESULT(n)     testdata_ ## n
-
-#define FIXTURE_NAME       TEST_VAR(sample)
-#define EMPTY_FIXTURE_NAME TEST_VAR(sample_empty)
-#define SUITE_NAME         TEST_VAR(suite)
-#define EMPTY_SUITE_NAME   TEST_VAR(suite_empty)
-#define INITIALSTATE_NAME  TEST_RESULT(initialstate)
 
 struct FIXTURE_NAME: public default_sample {
 
@@ -304,23 +285,5 @@ FROM_STANDARD_TEST(8, 8)
 FROM_STANDARD_TEST(16, 16)
 FROM_STANDARD_TEST(9, 9)
 FROM_STANDARD_TEST(8, 4)
-
-// Define an ISINSTANCE_TEST macro which we use to confirm the initial state
-// is a valid instance of this format.  This is defined as a macro so the
-// format-specific code can reuse it later to test various invalid formats.
-#define ISINSTANCE_TEST(c, d, r) \
-	BOOST_AUTO_TEST_CASE(TEST_NAME(isinstance_ ## c)) \
-	{ \
-		BOOST_TEST_MESSAGE("isInstance check (" IMG_TYPE "; " #c ")"); \
-		\
-		ManagerPtr pManager(getManager()); \
-		ImageTypePtr pTestType(pManager->getImageTypeByCode(IMG_TYPE)); \
-		BOOST_REQUIRE_MESSAGE(pTestType, "Could not find image type " IMG_TYPE); \
-		\
-		stream::string_sptr ss(new stream::string()); \
-		ss->write(makeString(d)); \
-		\
-		BOOST_CHECK_EQUAL(pTestType->isInstance(ss), ImageType::r); \
-	}
 
 BOOST_AUTO_TEST_SUITE_END()

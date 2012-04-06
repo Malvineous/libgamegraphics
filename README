@@ -24,7 +24,7 @@ use any external palette data.
 This library is still in the preliminary stages, so only the following formats
 have been implemented:
 
-  * Captain Comic (tiles)
+  * Captain Comic (tiles, sprites and fullscreen images)
   * Cosmo's Cosmic Adventures (tiles)
   * Crystal Caves (tiles)
   * Dangerous Dave (tiles)
