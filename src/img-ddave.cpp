@@ -2,7 +2,7 @@
  * @file   img-ddave.cpp
  * @brief  Image specialisation for Dangerous Dave CGA/EGA/VGA images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,12 @@ namespace gamegraphics {
 
 DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 	bool fixedSize)
-	throw () :
-		CGAImage(data, fixedSize ? 0 : 4, CGAImage::CyanMagentaBright),
-		stream_data(data),
-		fixedSize(fixedSize)
+	throw ()
+	: CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAImage::CyanMagentaBright),
+	  stream_data(data),
+	  fixedSize(fixedSize)
 {
-	if (fixedSize) this->width = this->height = 16;
-	else {
+	if (!fixedSize) {
 		data >> u16le(this->width) >> u16le(this->height);
 	}
 }
@@ -47,23 +46,6 @@ int DDaveCGAImage::getCaps()
 {
 	return this->CGAImage::getCaps()
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
-}
-
-void DDaveCGAImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
-{
-	*width = this->width;
-	*height = this->height;
-	return;
-}
-
-void DDaveCGAImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
-{
-	assert(this->getCaps() & Image::CanSetDimensions);
-	this->width = width;
-	this->height = height;
-	return;
 }
 
 void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,

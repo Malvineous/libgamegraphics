@@ -2,7 +2,7 @@
  * @file   img-ddave.hpp
  * @brief  Image specialisation for Dangerous Dave CGA/EGA/VGA images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,19 +53,11 @@ class DDaveCGAImage: virtual public CGAImage {
 		virtual int getCaps()
 			throw ();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
-
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
-
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask)
 			throw ();
 
 	protected:
-		uint16_t width;
-		uint16_t height;
 		stream::inout_sptr stream_data; // stream::inout_sptr copy, as inherited one is a bitstream
 		bool fixedSize;
 

@@ -2,7 +2,7 @@
  * @file   img-cga.hpp
  * @brief  Image implementation adding support for CGA graphics.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +65,8 @@ class CGAImage: virtual public Image {
 		 * @param cgaPal
 		 *   CGA palette to use.  See generatePalette() for details.
 		 */
-		CGAImage(stream::inout_sptr data, stream::pos off,
-			CGAPaletteType cgaPal)
+		CGAImage(stream::inout_sptr data, stream::pos off, unsigned int width,
+			unsigned int height, CGAPaletteType cgaPal)
 			throw ();
 
 		/// Destructor.
@@ -76,11 +76,11 @@ class CGAImage: virtual public Image {
 		virtual int getCaps()
 			throw ();
 
-		//virtual void getDimensions(unsigned int *width, unsigned int *height)
-		//	throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height)
+			throw ();
 
-		//virtual void setDimensions(unsigned int width, unsigned int height)
-		//	throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height)
+			throw (stream::error);
 
 		virtual StdImageDataPtr toStandard()
 			throw ();
@@ -109,9 +109,11 @@ class CGAImage: virtual public Image {
 
 	protected:
 		stream::inout_sptr parent; ///< Parent stream under the bitstream
-		bitstream_sptr data;     ///< CGA image data
-		stream::pos off;   ///< Offset of image data
-		CGAPaletteType cgaPal;   ///< CGA palette to use
+		bitstream_sptr data;       ///< CGA image data
+		stream::pos off;           ///< Offset of image data
+		unsigned int width;        ///< Image width in pixels
+		unsigned int height;       ///< Image height in pixels
+		CGAPaletteType cgaPal;     ///< CGA palette to use
 
 };
 

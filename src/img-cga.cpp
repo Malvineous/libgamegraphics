@@ -2,7 +2,7 @@
  * @file   img-cga.cpp
  * @brief  Image implementation adding support for CGA graphics.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-CGAImage::CGAImage(stream::inout_sptr data,
-	stream::pos off, CGAPaletteType cgaPal)
-	throw () :
-		parent(data),
-		data(new bitstream(data, bitstream::bigEndian)),
-		off(off),
-		cgaPal(cgaPal)
+CGAImage::CGAImage(stream::inout_sptr data, stream::pos off,
+	unsigned int width, unsigned int height, CGAPaletteType cgaPal)
+	throw ()
+	: parent(data),
+	  data(new bitstream(data, bitstream::bigEndian)),
+	  off(off),
+	  width(width),
+	  height(height),
+	  cgaPal(cgaPal)
 {
 }
 
@@ -42,6 +44,23 @@ int CGAImage::getCaps()
 	throw ()
 {
 	return ColourDepthCGA | HasPalette;
+}
+
+void CGAImage::getDimensions(unsigned int *width, unsigned int *height)
+	throw ()
+{
+	*width = this->width;
+	*height = this->height;
+	return;
+}
+
+void CGAImage::setDimensions(unsigned int width, unsigned int height)
+	throw (stream::error)
+{
+	assert(this->getCaps() & Image::CanSetDimensions);
+	this->width = width;
+	this->height = height;
+	return;
 }
 
 StdImageDataPtr CGAImage::toStandard()
