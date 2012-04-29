@@ -24,6 +24,7 @@
 #include <boost/iostreams/stream.hpp>
 #include <camoto/bitstream.hpp>
 #include <camoto/gamegraphics/image.hpp>
+#include <camoto/gamegraphics/imagetype.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -114,6 +115,44 @@ class CGAImage: virtual public Image {
 		unsigned int width;        ///< Image width in pixels
 		unsigned int height;       ///< Image height in pixels
 		CGAPaletteType cgaPal;     ///< CGA palette to use
+
+};
+
+/// Filetype handler for full screen raw CGA images.
+class CGARawLinearImageType: virtual public ImageType
+{
+	public:
+		CGARawLinearImageType()
+			throw ();
+
+		virtual ~CGARawLinearImageType()
+			throw ();
+
+		virtual std::string getCode() const
+			throw ();
+
+		virtual std::string getFriendlyName() const
+			throw ();
+
+		virtual std::vector<std::string> getFileExtensions() const
+			throw ();
+
+		virtual std::vector<std::string> getGameList() const
+			throw ();
+
+		virtual Certainty isInstance(stream::input_sptr fsImage) const
+			throw (stream::error);
+
+		virtual ImagePtr create(stream::inout_sptr psImage,
+			SuppData& suppData) const
+			throw (stream::error);
+
+		virtual ImagePtr open(stream::inout_sptr fsImage,
+			SuppData& suppData) const
+			throw (stream::error);
+
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
+			throw ();
 
 };
 

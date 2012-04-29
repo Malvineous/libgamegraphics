@@ -38,6 +38,7 @@
 #include "tls-wordresc-extra.hpp"
 #include "tls-zone66.hpp"
 #include "img-ccomic.hpp"
+#include "img-cga.hpp"
 #include "img-ega-planar.hpp"
 #include "img-pcx.hpp"
 #include "img-tv-fog.hpp"
@@ -80,6 +81,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new EGARawPlanarImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));

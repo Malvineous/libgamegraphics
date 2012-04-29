@@ -307,6 +307,11 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	return ret;
 }
 
+
+//
+// EGARawPlanarImageType
+//
+
 EGARawPlanarImageType::EGARawPlanarImageType()
 	throw ()
 {

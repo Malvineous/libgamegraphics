@@ -191,5 +191,89 @@ PaletteTablePtr CGAImage::generatePalette(CGAPaletteType cgaPal)
 	return pal;
 }
 
+
+//
+// CGARawLinearImageType
+//
+
+CGARawLinearImageType::CGARawLinearImageType()
+	throw ()
+{
+}
+
+CGARawLinearImageType::~CGARawLinearImageType()
+	throw ()
+{
+}
+
+std::string CGARawLinearImageType::getCode() const
+	throw ()
+{
+	return "img-cga-raw-linear-fullscreen";
+}
+
+std::string CGARawLinearImageType::getFriendlyName() const
+	throw ()
+{
+	return "Raw Linear CGA fullscreen image";
+}
+
+// Get a list of the known file extensions for this format.
+std::vector<std::string> CGARawLinearImageType::getFileExtensions() const
+	throw ()
+{
+	std::vector<std::string> vcExtensions;
+	return vcExtensions;
+}
+
+std::vector<std::string> CGARawLinearImageType::getGameList() const
+	throw ()
+{
+	std::vector<std::string> vcGames;
+	return vcGames;
+}
+
+ImageType::Certainty CGARawLinearImageType::isInstance(stream::input_sptr psImage) const
+	throw (stream::error)
+{
+	stream::pos len = psImage->size();
+
+	// TESTED BY: TODO
+	if (len == 16000) return PossiblyYes;
+
+	// TESTED BY: TODO
+	return DefinitelyNo;
+}
+
+ImagePtr CGARawLinearImageType::create(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
+{
+	psImage->truncate(16000);
+	psImage->seekp(0, stream::start);
+	char buf[64];
+	memset(buf, 0, 64);
+	for (int i = 0; i < 250; i++) psImage->write(buf, 64);
+
+	SuppData dummy;
+	return this->open(psImage, dummy);
+}
+
+ImagePtr CGARawLinearImageType::open(stream::inout_sptr psImage,
+	SuppData& suppData) const
+	throw (stream::error)
+{
+	CGAImage *cga = new CGAImage(psImage, 0, 320, 200,
+		CGAImage::CyanMagentaBright);
+	ImagePtr img(cga);
+	return img;
+}
+
+SuppFilenames CGARawLinearImageType::getRequiredSupps(const std::string& filenameImage) const
+	throw ()
+{
+	return SuppFilenames();
+}
+
 } // namespace gamegraphics
 } // namespace camoto
