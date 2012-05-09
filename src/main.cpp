@@ -40,6 +40,7 @@
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
 #include "img-ega-planar.hpp"
+#include "img-nukem2.hpp"
 #include "img-pcx.hpp"
 #include "img-tv-fog.hpp"
 #include "img-zone66_tile.hpp"
@@ -83,13 +84,15 @@ Manager::Manager()
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new EGARawPlanarImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new Nukem2ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
-	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
-	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
+
 	this->vcImageTypes.push_back(ImageTypePtr(new GMFHarryPaletteImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
 }
 
 Manager::~Manager()
