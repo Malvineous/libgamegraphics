@@ -29,8 +29,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-namespace io = boost::iostreams;
-
 /// CGA Image implementation.
 /**
  * This class adds support for converting to and from CGA format.  It
