@@ -1,8 +1,8 @@
 /**
- * @file   tls-harry.hpp
- * @brief  Halloween Harry tileset handler.
+ * @file   tls-harry-chr.hpp
+ * @brief  Halloween Harry .CHR tileset handler.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_HARRY_HPP_
-#define _CAMOTO_TLS_HARRY_HPP_
+#ifndef _CAMOTO_TLS_HARRY_CHR_HPP_
+#define _CAMOTO_TLS_HARRY_CHR_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include "pal-vga-raw.hpp"
@@ -28,14 +28,13 @@
 namespace camoto {
 namespace gamegraphics {
 
-class HarryTilesetType: virtual public TilesetType {
-
+class HarryCHRTilesetType: virtual public TilesetType
+{
 	public:
-
-		HarryTilesetType()
+		HarryCHRTilesetType()
 			throw ();
 
-		virtual ~HarryTilesetType()
+		virtual ~HarryCHRTilesetType()
 			throw ();
 
 		virtual std::string getCode() const
@@ -63,18 +62,16 @@ class HarryTilesetType: virtual public TilesetType {
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
-
 };
 
-class HarryTileset: virtual public FATTileset {
-
+class HarryCHRTileset: virtual public FATTileset
+{
 	public:
-
-		HarryTileset(stream::inout_sptr data,
+		HarryCHRTileset(stream::inout_sptr data,
 			PaletteTablePtr pal)
 			throw (stream::error);
 
-		virtual ~HarryTileset()
+		virtual ~HarryCHRTileset()
 			throw ();
 
 		virtual int getCaps()
@@ -91,12 +88,10 @@ class HarryTileset: virtual public FATTileset {
 			throw (stream::error);
 
 	protected:
-
 		PaletteTablePtr pal;
-
 };
 
 } // namespace gamearchive
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_HARRY_HPP_
+#endif // _CAMOTO_TLS_HARRY_CHR_HPP_

@@ -1,11 +1,11 @@
 /**
- * @file   tls-harry.cpp
- * @brief  Halloween Harry tileset handler.
+ * @file   tls-harry-chr.cpp
+ * @brief  Halloween Harry .CHR tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/CHR_Format_(Halloween_Harry)
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <camoto/iostream_helpers.hpp>
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
-#include "tls-harry.hpp"
+#include "tls-harry-chr.hpp"
 
 /// Offset of first tile in an empty tileset
 #define CHR_FIRST_TILE_OFFSET  0
@@ -41,29 +41,29 @@
 namespace camoto {
 namespace gamegraphics {
 
-HarryTilesetType::HarryTilesetType()
+HarryCHRTilesetType::HarryCHRTilesetType()
 	throw ()
 {
 }
 
-HarryTilesetType::~HarryTilesetType()
+HarryCHRTilesetType::~HarryCHRTilesetType()
 	throw ()
 {
 }
 
-std::string HarryTilesetType::getCode() const
+std::string HarryCHRTilesetType::getCode() const
 	throw ()
 {
-	return "tls-harry";
+	return "tls-harry-chr";
 }
 
-std::string HarryTilesetType::getFriendlyName() const
+std::string HarryCHRTilesetType::getFriendlyName() const
 	throw ()
 {
-	return "Halloween Harry tileset";
+	return "Halloween Harry CHR tileset";
 }
 
-std::vector<std::string> HarryTilesetType::getFileExtensions() const
+std::vector<std::string> HarryCHRTilesetType::getFileExtensions() const
 	throw ()
 {
 	std::vector<std::string> vcExtensions;
@@ -71,7 +71,7 @@ std::vector<std::string> HarryTilesetType::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> HarryTilesetType::getGameList() const
+std::vector<std::string> HarryCHRTilesetType::getGameList() const
 	throw ()
 {
 	std::vector<std::string> vcGames;
@@ -80,20 +80,20 @@ std::vector<std::string> HarryTilesetType::getGameList() const
 	return vcGames;
 }
 
-HarryTilesetType::Certainty HarryTilesetType::isInstance(
+HarryCHRTilesetType::Certainty HarryCHRTilesetType::isInstance(
 	stream::input_sptr psTileset) const
 	throw (stream::error)
 {
 	stream::pos len = psTileset->size();
 
-	// TESTED BY: tls_zone66_isinstance_c01
+	// TESTED BY: tls_harry_chr_isinstance_c01
 	if (len != CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return DefinitelyNo; // wrong size
 
-	// TESTED BY: tls_zone66_isinstance_c00
+	// TESTED BY: tls_harry_chr_isinstance_c00
 	return PossiblyYes;
 }
 
-TilesetPtr HarryTilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr HarryCHRTilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 	throw (stream::error)
 {
@@ -109,10 +109,10 @@ TilesetPtr HarryTilesetType::create(stream::inout_sptr psTileset,
 		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new HarryTileset(psTileset, pal));
+	return TilesetPtr(new HarryCHRTileset(psTileset, pal));
 }
 
-TilesetPtr HarryTilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr HarryCHRTilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 	throw (stream::error)
 {
@@ -124,10 +124,10 @@ TilesetPtr HarryTilesetType::open(stream::inout_sptr psTileset,
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
-	return TilesetPtr(new HarryTileset(psTileset, pal));
+	return TilesetPtr(new HarryCHRTileset(psTileset, pal));
 }
 
-SuppFilenames HarryTilesetType::getRequiredSupps(
+SuppFilenames HarryCHRTilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
 	throw ()
 {
@@ -141,7 +141,7 @@ SuppFilenames HarryTilesetType::getRequiredSupps(
 }
 
 
-HarryTileset::HarryTileset(stream::inout_sptr data,
+HarryCHRTileset::HarryCHRTileset(stream::inout_sptr data,
 	PaletteTablePtr pal)
 	throw (stream::error) :
 		FATTileset(data, CHR_FIRST_TILE_OFFSET),
@@ -162,18 +162,18 @@ HarryTileset::HarryTileset(stream::inout_sptr data,
 	}
 }
 
-HarryTileset::~HarryTileset()
+HarryCHRTileset::~HarryCHRTileset()
 	throw ()
 {
 }
 
-int HarryTileset::getCaps()
+int HarryCHRTileset::getCaps()
 	throw ()
 {
 	return HasPalette;
 }
 
-ImagePtr HarryTileset::createImageInstance(const EntryPtr& id,
+ImagePtr HarryCHRTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 	throw (stream::error)
 {
@@ -181,13 +181,13 @@ ImagePtr HarryTileset::createImageInstance(const EntryPtr& id,
 	return img;
 }
 
-PaletteTablePtr HarryTileset::getPalette()
+PaletteTablePtr HarryCHRTileset::getPalette()
 	throw ()
 {
 	return this->pal;
 }
 
-void HarryTileset::setPalette(PaletteTablePtr newPalette)
+void HarryCHRTileset::setPalette(PaletteTablePtr newPalette)
 	throw (stream::error)
 {
 	// This doesn't save anything to the file as the palette is stored externally.

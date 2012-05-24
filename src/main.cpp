@@ -30,7 +30,7 @@
 #include "tls-ccomic.hpp"
 #include "tls-cosmo.hpp"
 #include "tls-ddave.hpp"
-#include "tls-harry.hpp"
+#include "tls-harry-chr.hpp"
 #include "tls-harry-ico.hpp"
 #include "tls-hocus.hpp"
 #include "tls-jill.hpp"
@@ -74,7 +74,7 @@ Manager::Manager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryCHRTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryICOTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HocusTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new JillTilesetType()));
