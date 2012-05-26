@@ -27,7 +27,7 @@ namespace gamegraphics {
 DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 	bool fixedSize)
 	throw ()
-	: CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAImage::CyanMagentaBright),
+	: CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
 	  stream_data(data),
 	  fixedSize(fixedSize)
 {

@@ -129,66 +129,7 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 PaletteTablePtr CGAImage::getPalette()
 	throw (stream::error)
 {
-	return CGAImage::generatePalette(this->cgaPal);
-}
-
-PaletteTablePtr CGAImage::generatePalette(CGAPaletteType cgaPal)
-	throw ()
-{
-	PaletteTablePtr pal(new PaletteTable());
-	pal->reserve(4);
-	switch (cgaPal & 0x0F) {
-		case 0: pal->push_back(PaletteEntry(0x00, 0x00, 0x00)); break;
-		case 1: pal->push_back(PaletteEntry(0x00, 0x00, 0xAA)); break;
-		case 2: pal->push_back(PaletteEntry(0x00, 0xAA, 0x00)); break;
-		case 3: pal->push_back(PaletteEntry(0x00, 0xAA, 0xAA)); break;
-		case 4: pal->push_back(PaletteEntry(0xAA, 0x00, 0x00)); break;
-		case 5: pal->push_back(PaletteEntry(0xAA, 0x00, 0xAA)); break;
-		case 6: pal->push_back(PaletteEntry(0xAA, 0x55, 0x00)); break;
-		case 7: pal->push_back(PaletteEntry(0xAA, 0xAA, 0xAA)); break;
-		case 8: pal->push_back(PaletteEntry(0x55, 0x55, 0x55)); break;
-		case 9: pal->push_back(PaletteEntry(0x55, 0x55, 0xFF)); break;
-		case 10: pal->push_back(PaletteEntry(0x55, 0xFF, 0x55)); break;
-		case 11: pal->push_back(PaletteEntry(0x55, 0xFF, 0xFF)); break;
-		case 12: pal->push_back(PaletteEntry(0xFF, 0x55, 0x55)); break;
-		case 13: pal->push_back(PaletteEntry(0xFF, 0x55, 0xFF)); break;
-		case 14: pal->push_back(PaletteEntry(0xFF, 0xFF, 0x55)); break;
-		case 15: pal->push_back(PaletteEntry(0xFF, 0xFF, 0xFF)); break;
-	}
-
-	switch (cgaPal & 0xF0) {
-		case GreenRed:
-			pal->push_back(PaletteEntry(0x00, 0xAA, 0x00));
-			pal->push_back(PaletteEntry(0xAA, 0x00, 0x00));
-			pal->push_back(PaletteEntry(0xAA, 0xAA, 0x00));
-			break;
-		case GreenRedBright:
-			pal->push_back(PaletteEntry(0x00, 0xFF, 0x00));
-			pal->push_back(PaletteEntry(0xFF, 0x00, 0x00));
-			pal->push_back(PaletteEntry(0xFF, 0xFF, 0x00));
-			break;
-		case CyanMagenta:
-			pal->push_back(PaletteEntry(0x00, 0xAA, 0xAA));
-			pal->push_back(PaletteEntry(0xAA, 0x00, 0xAA));
-			pal->push_back(PaletteEntry(0xAA, 0xAA, 0xAA));
-			break;
-		case CyanMagentaBright:
-			pal->push_back(PaletteEntry(0x00, 0xFF, 0xFF));
-			pal->push_back(PaletteEntry(0xFF, 0x00, 0xFF));
-			pal->push_back(PaletteEntry(0xFF, 0xFF, 0xFF));
-			break;
-		case CyanRed:
-			pal->push_back(PaletteEntry(0x00, 0xAA, 0xAA));
-			pal->push_back(PaletteEntry(0xAA, 0x00, 0x00));
-			pal->push_back(PaletteEntry(0xAA, 0xAA, 0xAA));
-			break;
-		case CyanRedBright:
-			pal->push_back(PaletteEntry(0x00, 0xFF, 0xFF));
-			pal->push_back(PaletteEntry(0xFF, 0x00, 0x00));
-			pal->push_back(PaletteEntry(0xFF, 0xFF, 0xFF));
-			break;
-	}
-	return pal;
+	return createPalette_CGA(this->cgaPal);
 }
 
 
@@ -264,7 +205,7 @@ ImagePtr CGARawLinearImageType::open(stream::inout_sptr psImage,
 	throw (stream::error)
 {
 	CGAImage *cga = new CGAImage(psImage, 0, 320, 200,
-		CGAImage::CyanMagentaBright);
+		CGAPal_CyanMagentaBright);
 	ImagePtr img(cga);
 	return img;
 }

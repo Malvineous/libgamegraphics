@@ -273,7 +273,7 @@ ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
 		, 12
 	);
 
-	PaletteTablePtr pal = createDefaultCGAPalette();
+	PaletteTablePtr pal = createPalette_DefaultEGA();
 	assert(pal->size() == 16);
 	for (int i = 0; i < 16; i++) {
 		psImage
@@ -679,7 +679,7 @@ PaletteTablePtr PCXImage::getPalette()
 	if (!this->pal) {
 
 		if (this->ver == 3) { // 2.8 w/out palette
-			this->pal = createDefaultCGAPalette();
+			this->pal = createPalette_DefaultEGA();
 			return this->pal;
 		}
 

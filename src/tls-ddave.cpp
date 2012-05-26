@@ -148,7 +148,7 @@ TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
+	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
 }
 
@@ -156,7 +156,7 @@ TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	PaletteTablePtr pal = CGAImage::generatePalette(CGAImage::CyanMagentaBright);
+	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
 }
 

@@ -299,7 +299,7 @@ ImagePtr CatacombTileset::createImageInstance(const EntryPtr& id,
 		}
 		case CAT_CGA: {
 			CGAImage *cga = new CGAImage(content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT,
-				CGAImage::CyanMagentaBright);
+				CGAPal_CyanMagentaBright);
 			conv.reset(cga);
 			break;
 		}

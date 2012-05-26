@@ -37,19 +37,9 @@ namespace gamegraphics {
  *
  * Currently it only supports one format - 2bpp packed (not planar)
  */
-class CGAImage: virtual public Image {
-
+class CGAImage: virtual public Image
+{
 	public:
-		/// Base palette type.  Lower four bits are background colour.
-		enum CGAPaletteType {
-			GreenRed          = 0x00,
-			GreenRedBright    = 0x80,
-			CyanMagenta       = 0x10,
-			CyanMagentaBright = 0x90,
-			CyanRed           = 0x20,
-			CyanRedBright     = 0xA0,
-		};
-
 		/// Constructor
 		/**
 		 * @param data
@@ -94,18 +84,6 @@ class CGAImage: virtual public Image {
 		virtual PaletteTablePtr getPalette()
 			throw (stream::error);
 
-		/// Generate a CGA palette.
-		/**
-		 * @param cgaPal
-		 *   CGA palette to use.  One of the CGAPaletteType values.  The lower
-		 *   eight bits are used to represent the background colour.  If this is
-		 *   not the default black, it can be specified here, e.g. for a background
-		 *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
-		 *   only needs to be specified when the background colour is not black.
-		 */
-		static PaletteTablePtr generatePalette(CGAPaletteType cgaPal)
-			throw ();
-
 	protected:
 		stream::inout_sptr parent; ///< Parent stream under the bitstream
 		bitstream_sptr data;       ///< CGA image data
@@ -113,7 +91,6 @@ class CGAImage: virtual public Image {
 		unsigned int width;        ///< Image width in pixels
 		unsigned int height;       ///< Image height in pixels
 		CGAPaletteType cgaPal;     ///< CGA palette to use
-
 };
 
 /// Filetype handler for full screen raw CGA images.

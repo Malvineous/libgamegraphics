@@ -1,9 +1,8 @@
 /**
  * @file   palettetable.hpp
- * @brief  Declaration of PaletteTable class, for accessing indexed colour maps
- *         used by game images.
+ * @brief  Palette functions, for accessing indexed colour maps used by images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,19 +63,52 @@ typedef std::vector<PaletteEntry> PaletteTable;
 /// Shared pointer to a Palette.
 typedef boost::shared_ptr<PaletteTable> PaletteTablePtr;
 
+/// Base palette type.  Lower four bits are background colour.
+enum CGAPaletteType {
+	CGAPal_GreenRed          = 0x00,
+	CGAPal_GreenRedBright    = 0x80,
+	CGAPal_CyanMagenta       = 0x10,
+	CGAPal_CyanMagentaBright = 0x90,
+	CGAPal_CyanRed           = 0x20,
+	CGAPal_CyanRedBright     = 0xA0,
+};
+
+/// Generate a black and white palette.
+PaletteTablePtr createPalette_DefaultMono()
+	throw ();
+
+/// Generate a CGA palette.
+/**
+ * @param cgaPal
+ *   CGA palette to use.  One of the CGAPaletteType values.  The lower
+ *   eight bits are used to represent the background colour.  If this is
+ *   not the default black, it can be specified here, e.g. for a background
+ *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
+ *   only needs to be specified when the background colour is not black.
+ */
+PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
+	throw ();
+
 /// Allocate memory for a palette and fill it with CGA defaults.
 /**
  * @return Palette with 16 entries suitable for drawing CGA and EGA images.
  */
-PaletteTablePtr createDefaultCGAPalette()
+PaletteTablePtr createPalette_FullCGA()
 	throw ();
+
+/// The default EGA palette is the same as the full CGA one.
+#define createPalette_DefaultEGA createPalette_FullCGA
 
 /// Allocate memory for a palette and fill it with EGA defaults.
 /**
  * @return Palette with 64 entries suitable for drawing EGA images that
  *   make use of the EGA palette.
  */
-PaletteTablePtr createDefaultEGAPalette()
+PaletteTablePtr createPalette_FullEGA()
+	throw ();
+
+/// Generate the default VGA mode 13 palette.
+PaletteTablePtr createPalette_DefaultVGA()
 	throw ();
 
 } // namespace gamegraphics
