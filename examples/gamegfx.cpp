@@ -232,47 +232,44 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	png::image<png::index_pixel> png(width * widthTiles, height * heightTiles);
 
 	bool useMask;
+	gg::PaletteTablePtr srcPal;
 	if (tileset->getCaps() & gg::Tileset::HasPalette) {
-		gg::PaletteTablePtr srcPal = tileset->getPalette();
-		png::palette pal(srcPal->size());
-		int j = 0;
-		//pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-		for (gg::PaletteTable::iterator i = srcPal->begin();
-			i != srcPal->end();
-			i++, j++
-		) {
-			pal[j] = png::color(i->red, i->green, i->blue);
-		}
-		png.set_palette(pal);
-		useMask = false; // not enough room in the palette for transparent entry
+		srcPal = tileset->getPalette();
 	} else {
-		// Standard EGA palette
-		png::palette pal(17);
-		pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-		pal[ 1] = png::color(0x00, 0x00, 0x00);
-		pal[ 2] = png::color(0x00, 0x00, 0xAA);
-		pal[ 3] = png::color(0x00, 0xAA, 0x00);
-		pal[ 4] = png::color(0x00, 0xAA, 0xAA);
-		pal[ 5] = png::color(0xAA, 0x00, 0x00);
-		pal[ 6] = png::color(0xAA, 0x00, 0xAA);
-		pal[ 7] = png::color(0xAA, 0x55, 0x00);
-		pal[ 8] = png::color(0xAA, 0xAA, 0xAA);
-		pal[ 9] = png::color(0x55, 0x55, 0x55);
-		pal[10] = png::color(0x55, 0x55, 0xFF);
-		pal[11] = png::color(0x55, 0xFF, 0x55);
-		pal[12] = png::color(0x55, 0xFF, 0xFF);
-		pal[13] = png::color(0xFF, 0x55, 0x55);
-		pal[14] = png::color(0xFF, 0x55, 0xFF);
-		pal[15] = png::color(0xFF, 0xFF, 0x55);
-		pal[16] = png::color(0xFF, 0xFF, 0xFF);
-		png.set_palette(pal);
-		useMask = true;
-
-		// Make first colour transparent
-		png::tRNS transparency;
-		transparency.push_back(0);
-		png.set_tRNS(transparency);
+		// Need to use the default palette
+		srcPal = gg::createPalette_DefaultVGA();
 	}
+
+	unsigned int palSize = srcPal->size();
+	int j = 0;
+
+	// Figure out whether there's enough room in the palette to use the image
+	// mask for transparency, or whether we have to fall back to palette index
+	// transparency only.
+	png::tRNS transparency;
+	if (palSize < 256) {
+		transparency.push_back(j);
+		j++;
+		palSize++;
+		useMask = true;
+	} else {
+		// Not enough room in the palette for masked transparent entry
+		useMask = false;
+	}
+	png::palette pal(palSize);
+
+	// Set a colour for the transparent palette entry, for apps which can't
+	// display transparent pixels (we couldn't set this above.)
+	if (useMask) pal[0] = png::color(0xFF, 0x00, 0xFF);
+
+	for (gg::PaletteTable::iterator
+		i = srcPal->begin(); i != srcPal->end(); i++, j++
+	) {
+		pal[j] = png::color(i->red, i->green, i->blue);
+		if (i->alpha == 0x00) transparency.push_back(j);
+	}
+	png.set_palette(pal);
+	if (transparency.size()) png.set_tRNS(transparency);
 
 	int t = 0;
 	for (gg::Tileset::VC_ENTRYPTR::const_iterator i = tiles.begin();
