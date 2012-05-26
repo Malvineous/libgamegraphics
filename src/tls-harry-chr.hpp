@@ -77,14 +77,12 @@ class HarryCHRTileset: virtual public FATTileset
 		virtual int getCaps()
 			throw ();
 
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
 
 		PaletteTablePtr getPalette()
 			throw ();
 
-		void setPalette(PaletteTablePtr newPalette)
+		virtual ImagePtr createImageInstance(const EntryPtr& id,
+			stream::inout_sptr content)
 			throw (stream::error);
 
 	protected:

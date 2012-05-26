@@ -22,9 +22,9 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include "tls-harry-hsb.hpp"
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
-#include "tls-harry-hsb.hpp"
 
 /// Offset of first tile in an empty tileset
 #define HSB_FIRST_TILE_OFFSET  0
@@ -128,10 +128,11 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 
 	PaletteTablePtr pal;
-	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
+	} else {
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }
@@ -141,10 +142,11 @@ TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
 	throw (stream::error)
 {
 	PaletteTablePtr pal;
-	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
+	} else {
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }
@@ -154,6 +156,7 @@ SuppFilenames HarryHSBTilesetType::getRequiredSupps(
 	throw ()
 {
 	SuppFilenames supps;
+	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file
 	return supps;
 }
 
@@ -163,6 +166,7 @@ HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
 		VGAImage(data, HSB_HEADER_LEN),
 		pal(pal)
 {
+	assert(this->pal);
 	assert(data->tellg() == 0);
 	if (data->size() == 0) {
 		// Newly inserted tile
@@ -188,6 +192,7 @@ int HarryHSBImage::getCaps()
 	throw ()
 {
 	return this->VGAImage::getCaps()
+		| Image::HasPalette
 		| Image::CanSetDimensions;
 }
 
@@ -282,14 +287,7 @@ HarryHSBTileset::~HarryHSBTileset()
 int HarryHSBTileset::getCaps()
 	throw ()
 {
-	return 0;
-}
-
-ImagePtr HarryHSBTileset::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
-	throw (stream::error)
-{
-	return ImagePtr(new HarryHSBImage(content, this->pal));
+	return HasPalette;
 }
 
 PaletteTablePtr HarryHSBTileset::getPalette()
@@ -298,12 +296,11 @@ PaletteTablePtr HarryHSBTileset::getPalette()
 	return this->pal;
 }
 
-void HarryHSBTileset::setPalette(PaletteTablePtr newPalette)
+ImagePtr HarryHSBTileset::createImageInstance(const EntryPtr& id,
+	stream::inout_sptr content)
 	throw (stream::error)
 {
-	// This doesn't save anything to the file as the palette is stored externally.
-	this->pal = newPalette;
-	return;
+	return ImagePtr(new HarryHSBImage(content, this->pal));
 }
 
 } // namespace gamegraphics

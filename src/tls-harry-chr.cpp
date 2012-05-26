@@ -22,9 +22,9 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include "tls-harry-chr.hpp"
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
-#include "tls-harry-chr.hpp"
 
 /// Offset of first tile in an empty tileset
 #define CHR_FIRST_TILE_OFFSET  0
@@ -104,10 +104,11 @@ TilesetPtr HarryCHRTilesetType::create(stream::inout_sptr psTileset,
 	for (int i = 0; i < 256; i++) psTileset->write(empty, CHR_WIDTH * CHR_HEIGHT);
 
 	PaletteTablePtr pal;
-	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
+	} else {
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
 	return TilesetPtr(new HarryCHRTileset(psTileset, pal));
 }
@@ -117,7 +118,6 @@ TilesetPtr HarryCHRTilesetType::open(stream::inout_sptr psTileset,
 	throw (stream::error)
 {
 	PaletteTablePtr pal;
-	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
@@ -173,26 +173,18 @@ int HarryCHRTileset::getCaps()
 	return HasPalette;
 }
 
-ImagePtr HarryCHRTileset::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
-	throw (stream::error)
-{
-	ImagePtr img(new VGARawImage(content, CHR_WIDTH, CHR_HEIGHT, this->pal));
-	return img;
-}
-
 PaletteTablePtr HarryCHRTileset::getPalette()
 	throw ()
 {
 	return this->pal;
 }
 
-void HarryCHRTileset::setPalette(PaletteTablePtr newPalette)
+ImagePtr HarryCHRTileset::createImageInstance(const EntryPtr& id,
+	stream::inout_sptr content)
 	throw (stream::error)
 {
-	// This doesn't save anything to the file as the palette is stored externally.
-	this->pal = newPalette;
-	return;
+	ImagePtr img(new VGARawImage(content, CHR_WIDTH, CHR_HEIGHT, this->pal));
+	return img;
 }
 
 } // namespace gamegraphics

@@ -23,8 +23,8 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include "tls-harry-ico.hpp"
+#include "pal-gmf-harry.hpp"
 #include "img-ddave.hpp"
-#include "pal-vga-raw.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -126,11 +126,12 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 	psGraphics->truncate(0);
 	psGraphics->seekp(0, stream::start);
 
-	// Only load the palette if one was given
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
+	} else {
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
@@ -140,11 +141,12 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	// Only load the palette if one was given
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
+	} else {
+		throw stream::error("no palette specified (missing supplementary item)");
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
@@ -153,8 +155,9 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
 	throw ()
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	SuppFilenames supps;
+	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file
+	return supps;
 }
 
 
@@ -167,6 +170,7 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	: FATTileset(data, ICO_FIRST_TILE_OFFSET),
 	  pal(pal)
 {
+	assert(this->pal);
 	stream::pos len = this->data->size();
 
 	this->data->seekg(0, stream::start);
@@ -209,13 +213,19 @@ HarryICOTileset::~HarryICOTileset()
 int HarryICOTileset::getCaps()
 	throw ()
 {
-	return 0;
+	return HasPalette;
 }
 
 unsigned int HarryICOTileset::getLayoutWidth()
 	throw ()
 {
 	return 16;
+}
+
+PaletteTablePtr HarryICOTileset::getPalette()
+	throw ()
+{
+	return this->pal;
 }
 
 ImagePtr HarryICOTileset::createImageInstance(const EntryPtr& id,

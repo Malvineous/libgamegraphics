@@ -129,9 +129,6 @@ class HarryHSBTileset: virtual public FATTileset
 		PaletteTablePtr getPalette()
 			throw ();
 
-		void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
-
 	protected:
 		PaletteTablePtr pal;
 };

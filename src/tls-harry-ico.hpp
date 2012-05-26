@@ -27,10 +27,9 @@
 namespace camoto {
 namespace gamegraphics {
 
-class HarryICOTilesetType: virtual public TilesetType {
-
+class HarryICOTilesetType: virtual public TilesetType
+{
 	public:
-
 		HarryICOTilesetType()
 			throw ();
 
@@ -62,7 +61,6 @@ class HarryICOTilesetType: virtual public TilesetType {
 
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
 			throw ();
-
 };
 
 class HarryICOTileset: virtual public FATTileset
@@ -80,7 +78,8 @@ class HarryICOTileset: virtual public FATTileset
 		virtual unsigned int getLayoutWidth()
 			throw ();
 
-		// FATTileset
+		PaletteTablePtr getPalette()
+			throw ();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content)
