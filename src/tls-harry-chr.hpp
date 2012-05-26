@@ -77,6 +77,11 @@ class HarryCHRTileset: virtual public FATTileset
 		virtual int getCaps()
 			throw ();
 
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
+			throw ();
+
+		virtual unsigned int getLayoutWidth()
+			throw ();
 
 		PaletteTablePtr getPalette()
 			throw ();

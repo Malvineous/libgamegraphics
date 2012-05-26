@@ -173,6 +173,20 @@ int HarryCHRTileset::getCaps()
 	return HasPalette;
 }
 
+void HarryCHRTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+	throw ()
+{
+	*width = CHR_WIDTH;
+	*height = CHR_HEIGHT;
+	return;
+}
+
+unsigned int HarryCHRTileset::getLayoutWidth()
+	throw ()
+{
+	return 18;
+}
+
 PaletteTablePtr HarryCHRTileset::getPalette()
 	throw ()
 {
