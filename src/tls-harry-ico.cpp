@@ -29,8 +29,11 @@
 namespace camoto {
 namespace gamegraphics {
 
+/// Offset of first tile in an empty tileset
+#define ICO_FIRST_TILE_OFFSET  0
+
 /// Size of each image's header (2x UINT16LE)
-#define HEADER_LEN  4
+#define ICO_HEADER_LEN  4
 
 //
 // HarryICOTilesetType
@@ -81,22 +84,32 @@ HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_spt
 {
 	stream::pos len = psGraphics->size();
 
+	// Since there's no header, an empty file could mean an empty tileset.
+	// TESTED BY: tls_harry_ico_new_isinstance
+	if (len == 0) return PossiblyYes;
+
 	// Make sure the file is large enough
 	// TESTED BY: fmt_harry_ico_isinstance_c01
-	if (len < 4) return DefinitelyNo;
+	if (len < ICO_HEADER_LEN) return DefinitelyNo;
 
 	psGraphics->seekg(0, stream::start);
 	stream::pos pos = 0;
 	while (pos < len) {
 		uint16_t width, height;
-		psGraphics
-			>> u16le(width)
-			>> u16le(height)
-		;
+		try {
+			psGraphics
+				>> u16le(width)
+				>> u16le(height)
+			;
+		} catch (const stream::incomplete_read& e) {
+			// If EOF is encountered here it's not a valid file
+			// TESTED BY: fmt_harry_ico_isinstance_c02
+			return DefinitelyNo;
+		}
 		int delta = width * height;
 		// If this pushes us past EOF it's not a valid file
-		// TESTED BY: fmt_harry_ico_isinstance_c02
-		pos += delta + HEADER_LEN;
+		// TESTED BY: fmt_harry_ico_isinstance_c03
+		pos += delta + ICO_HEADER_LEN;
 		if (pos > len) return DefinitelyNo;
 
 		psGraphics->seekg(delta, stream::cur);
@@ -110,8 +123,8 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 	throw (stream::error)
 {
+	psGraphics->truncate(0);
 	psGraphics->seekp(0, stream::start);
-	psGraphics->write("\0\0\0\0", 4);
 
 	// Only load the palette if one was given
 	PaletteTablePtr pal;
@@ -151,7 +164,7 @@ SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameG
 
 HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	throw (stream::error)
-	: FATTileset(data, 0),
+	: FATTileset(data, ICO_FIRST_TILE_OFFSET),
 	  pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -175,7 +188,7 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 		fat->attr = 0;
 		fat->index = i;
 		fat->offset = pos;
-		fat->size = delta + HEADER_LEN;
+		fat->size = delta + ICO_HEADER_LEN;
 		fat->lenHeader = 0;
 		this->items.push_back(ep);
 

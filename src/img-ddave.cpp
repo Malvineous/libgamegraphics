@@ -125,7 +125,12 @@ DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
 
 	if (fixedSize) this->width = this->height = 16;
 	else {
-		data >> u16le(this->width) >> u16le(this->height);
+		if (data->size() == 0) {
+			// New tile
+			this->width = this->height = 0;
+		} else {
+			data >> u16le(this->width) >> u16le(this->height);
+		}
 	}
 }
 

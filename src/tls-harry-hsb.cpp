@@ -80,6 +80,10 @@ HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
 {
 	stream::pos len = psTileset->size();
 
+	// Since there's no header, an empty file could mean an empty tileset.
+	// TESTED BY: tls_harry_hsb_new_isinstance
+	if (len == 0) return PossiblyYes;
+
 	// Make sure the file is large enough
 	// TESTED BY: fmt_harry_hsb_isinstance_c01
 	if (len < HSB_HEADER_LEN) return DefinitelyNo;
@@ -89,16 +93,22 @@ HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
 	while (pos < len) {
 		uint16_t unk1, unk2;
 		uint16_t width, height;
-		psTileset
-			>> u16le(unk1)
-			>> u16le(unk2)
-			>> u16le(width)
-			>> u16le(height)
-		;
+		try {
+			psTileset
+				>> u16le(unk1)
+				>> u16le(unk2)
+				>> u16le(width)
+				>> u16le(height)
+			;
+		} catch (const stream::incomplete_read& e) {
+			// If EOF is encountered here it's not a valid file
+			// TESTED BY: fmt_harry_hsb_isinstance_c02
+			return DefinitelyNo;
+		}
 		int delta = width * height;
 
 		// If this pushes us past EOF it's not a valid file
-		// TESTED BY: fmt_harry_hsb_isinstance_c02
+		// TESTED BY: fmt_harry_hsb_isinstance_c03
 		pos += delta + HSB_HEADER_LEN;
 		if (pos > len) return DefinitelyNo;
 
@@ -114,9 +124,8 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 	throw (stream::error)
 {
-	psTileset->truncate(HSB_HEADER_LEN);
+	psTileset->truncate(0);
 	psTileset->seekp(0, stream::start);
-	psTileset->write("\0\0\0\0\0\0\0\0", 8);
 
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
@@ -150,19 +159,24 @@ SuppFilenames HarryHSBTilesetType::getRequiredSupps(
 
 
 HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
-	throw () :
+	throw (stream::error) :
 		VGAImage(data, HSB_HEADER_LEN),
 		pal(pal)
 {
 	assert(data->tellg() == 0);
-
-	uint16_t unk1, unk2;
-	data
-		>> u16le(unk1)
-		>> u16le(unk2)
-		>> u16le(this->width)
-		>> u16le(this->height)
-	;
+	if (data->size() == 0) {
+		// Newly inserted tile
+		this->width = 0;
+		this->height = 0;
+	} else {
+		uint16_t unk1, unk2;
+		data
+			>> u16le(unk1)
+			>> u16le(unk2)
+			>> u16le(this->width)
+			>> u16le(this->height)
+		;
+	}
 }
 
 HarryHSBImage::~HarryHSBImage()

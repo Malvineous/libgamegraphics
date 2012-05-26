@@ -81,7 +81,7 @@ class HarryHSBImage: virtual public VGAImage
 		 *   Image palette.
 		 */
 		HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
-			throw ();
+			throw (stream::error);
 
 		virtual ~HarryHSBImage()
 			throw ();
