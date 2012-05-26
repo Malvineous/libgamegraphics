@@ -46,49 +46,60 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
 
 	bool useMask;
 
+	gg::PaletteTablePtr srcPal;
+
 	if (img->getCaps() & gg::Image::HasPalette) {
-		gg::PaletteTablePtr srcPal = img->getPalette();
-		png::palette pal(srcPal->size());
-		int j = 0;
-		//pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-		for (gg::PaletteTable::iterator i = srcPal->begin();
-			i != srcPal->end();
-			i++, j++
-		) {
-			pal[j] = png::color(i->red, i->green, i->blue);
-		}
-		png.set_palette(pal);
-		useMask = false; // not enough room in the palette for transparent entry
+		srcPal = img->getPalette();
 	} else {
-		// Standard EGA palette
-		png::palette pal(17);
-		pal[ 0] = png::color(0xFF, 0x00, 0xFF); // transparent
-		pal[ 1] = png::color(0x00, 0x00, 0x00);
-		pal[ 2] = png::color(0x00, 0x00, 0xAA);
-		pal[ 3] = png::color(0x00, 0xAA, 0x00);
-		pal[ 4] = png::color(0x00, 0xAA, 0xAA);
-		pal[ 5] = png::color(0xAA, 0x00, 0x00);
-		pal[ 6] = png::color(0xAA, 0x00, 0xAA);
-		pal[ 7] = png::color(0xAA, 0x55, 0x00);
-		pal[ 8] = png::color(0xAA, 0xAA, 0xAA);
-		pal[ 9] = png::color(0x55, 0x55, 0x55);
-		pal[10] = png::color(0x55, 0x55, 0xFF);
-		pal[11] = png::color(0x55, 0xFF, 0x55);
-		pal[12] = png::color(0x55, 0xFF, 0xFF);
-		pal[13] = png::color(0xFF, 0x55, 0x55);
-		pal[14] = png::color(0xFF, 0x55, 0xFF);
-		pal[15] = png::color(0xFF, 0xFF, 0x55);
-		pal[16] = png::color(0xFF, 0xFF, 0xFF);
-		png.set_palette(pal);
-
-		useMask = true; // first palette entry is transparency
-
-		// Make first colour transparent
-		png::tRNS transparency;
-		transparency.push_back(0);
-		png.set_tRNS(transparency);
+		// Need to use the default palette
+		switch (img->getCaps() & gg::Image::ColourDepthMask) {
+			case gg::Image::ColourDepthVGA:
+				srcPal = gg::createPalette_DefaultVGA();
+				break;
+			case gg::Image::ColourDepthEGA:
+				srcPal = gg::createPalette_DefaultEGA();
+				break;
+			case gg::Image::ColourDepthCGA:
+				srcPal = gg::createPalette_CGA(gg::CGAPal_CyanMagenta);
+				break;
+			case gg::Image::ColourDepthMono:
+				srcPal = gg::createPalette_DefaultMono();
+				break;
+		}
 	}
 
+	unsigned int palSize = srcPal->size();
+	int j = 0;
+
+	// Figure out whether there's enough room in the palette to use the image
+	// mask for transparency, or whether we have to fall back to palette index
+	// transparency only.
+	png::tRNS transparency;
+	if (palSize < 256) {
+		transparency.push_back(j);
+		j++;
+		palSize++;
+		useMask = true;
+	} else {
+		// Not enough room in the palette for masked transparent entry
+		useMask = false;
+	}
+	png::palette pal(palSize);
+
+	// Set a colour for the transparent palette entry, for apps which can't
+	// display transparent pixels (we couldn't set this above.)
+	if (useMask) pal[0] = png::color(0xFF, 0x00, 0xFF);
+
+	for (gg::PaletteTable::iterator
+		i = srcPal->begin(); i != srcPal->end(); i++, j++
+	) {
+		pal[j] = png::color(i->red, i->green, i->blue);
+		if (i->alpha == 0x00) transparency.push_back(j);
+	}
+	png.set_palette(pal);
+	if (transparency.size()) png.set_tRNS(transparency);
+
+	// Put the pixel data into the .png structure
 	for (unsigned int y = 0; y < height; y++) {
 		for (unsigned int x = 0; x < width; x++) {
 			if (useMask) {
