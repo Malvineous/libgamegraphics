@@ -21,6 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <camoto/iostream_helpers.hpp>
 #include "tls-harry-hsb.hpp"
 #include "pal-gmf-harry.hpp"
@@ -132,7 +133,8 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		std::cerr << "No palette supplied for .HSB, using default" << std::endl;
+		pal = createPalette_DefaultVGA();
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }
@@ -146,7 +148,8 @@ TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		std::cerr << "No palette supplied for .HSB, using default" << std::endl;
+		pal = createPalette_DefaultVGA();
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }

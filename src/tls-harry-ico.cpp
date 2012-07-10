@@ -21,6 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <camoto/iostream_helpers.hpp>
 #include "tls-harry-ico.hpp"
 #include "pal-gmf-harry.hpp"
@@ -131,7 +132,8 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		std::cerr << "No palette supplied for .ICO, using default" << std::endl;
+		pal = createPalette_DefaultVGA();
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
@@ -146,7 +148,8 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		std::cerr << "No palette supplied for .ICO, using default" << std::endl;
+		pal = createPalette_DefaultVGA();
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
