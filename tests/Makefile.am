@@ -21,7 +21,7 @@ tests_SOURCES += test-tls-zone66.cpp
 EXTRA_tests_SOURCES = tests.hpp
 EXTRA_tests_SOURCES += test-filter.hpp
 EXTRA_tests_SOURCES += test-img.hpp
-EXTRA_tests_SOURCES += test-tls.hpp
+EXTRA_tests_SOURCES += test-tileset.hpp
 
 TESTS = tests
 
