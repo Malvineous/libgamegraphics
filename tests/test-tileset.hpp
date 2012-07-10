@@ -62,7 +62,14 @@ struct FIXTURE_NAME: public default_sample {
 		{
 			stream::string_sptr supp(new stream::string());
 			supp << makeString(TEST_RESULT(FAT_initialstate));
-			this->suppData[FAT] = supp;
+			this->suppData[SuppItem::FAT] = supp;
+		}
+		#endif
+		#ifdef HAS_PAL
+		{
+			stream::string_sptr supp(new stream::string());
+			supp << makeString(TEST_RESULT(PAL_initialstate));
+			this->suppData[SuppItem::Palette] = supp;
 		}
 		#endif
 
