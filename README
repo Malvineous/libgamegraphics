@@ -1,5 +1,5 @@
 Camoto: Classic-game Modding Tools
-Copyright 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+Copyright 2010-2012 Adam Nielsen <malvineous@shikadi.net>
 http://www.shikadi.net/camoto/
 
 Camoto is a collection of utilities for editing (modding) "classic games",
@@ -15,14 +15,13 @@ allows it to work with images of up to 256 colours.  Images of less colours
 (such as EGA 16-colour) will still be expanded to one byte per pixel, only the
 values used will be limited (e.g. 0-15.)  This means any application using
 the library will only need to handle a single image format - 8bpp with a
-palette.
+32-bit RGBA palette.
 
 The palette will be made available if it exists, however as many image formats
 store the palette externally it is left up to the application to locate and
-use any external palette data.
+supply any external palette data.
 
-This library is still in the preliminary stages, so only the following formats
-have been implemented:
+File formats from the following games have been implemented:
 
   * Catacomb/Catacomb II (tiles)
   * Captain Comic (tiles, sprites and fullscreen images)
@@ -40,12 +39,14 @@ have been implemented:
 
 Many more formats are planned.
 
-The example program (gamegfx) requires png++ for generation of .png files.
-This is supplied in the source release but not in the git version.  If you are
-compiling from git, download png++ from http://www.nongnu.org/pngpp/ and
-extract it into a folder called png++ in the examples/ directory.  The latest
-release at the time of writing (v0.2.5) is missing some required functionality
-so you may need the SVN version instead if ./configure fails.
+This distribution includes two example programs (gameimg and gamegfx) which
+provide access to single-image files and tilesets respectively.  These are
+intended as both command-line interfaces to the library as well as an example
+of how to use the library.  The programs are installed as part of the
+"make install" process.  See the manpages for full details.
+
+Both libgamecommon and png++ are required dependencies of this library.
+png++ can be obtained from http://www.nongnu.org/pngpp/
 
 The library is then compiled and installed in the usual way:
 
