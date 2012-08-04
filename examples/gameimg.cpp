@@ -38,7 +38,7 @@ namespace gg = camoto::gamegraphics;
 #define RET_OK                 0
 // Bad arguments (missing/invalid parameters)
 #define RET_BADARGS            1
-// Major error (couldn't open archive file, etc.)
+// Major error (couldn't open image file, etc.)
 #define RET_SHOWSTOPPER        2
 // More info needed (-t auto didn't work, specify a type)
 #define RET_BE_MORE_SPECIFIC   3
@@ -103,17 +103,17 @@ int main(int iArgC, char *cArgV[])
 
 	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
 
-	bool bForceOpen = false; // open anyway even if archive not in given format?
+	bool bForceOpen = false; // open anyway even if image not in given format?
 	try {
 		po::parsed_options pa = po::parse_command_line(iArgC, cArgV, poComplete);
 
 		// Parse the global command line options
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
 			if (i->string_key.empty()) {
-				// If we've already got an archive filename, complain that a second one
+				// If we've already got an image filename, complain that a second one
 				// was given (probably a typo.)
 				if (!strFilename.empty()) {
-					std::cerr << "Error: unexpected extra parameter (multiple archive "
+					std::cerr << "Error: unexpected extra parameter (multiple image "
 						"filenames given?!)" << std::endl;
 					return 1;
 				}
@@ -291,7 +291,7 @@ finishTesting:
 			} else if (i->string_key.compare("force") == 0) {
 			} else if (i->string_key.compare("f") == 0) {
 
-			} // else it's the archive filename, but we already have that
+			} // else it's the image filename, but we already have that
 
 		} // for (all command line elements)
 

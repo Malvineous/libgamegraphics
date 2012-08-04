@@ -37,7 +37,7 @@ namespace po = boost::program_options;
 #define RET_OK                 0
 // Bad arguments (missing/invalid parameters)
 #define RET_BADARGS            1
-// Major error (couldn't open archive file, etc.)
+// Major error (couldn't open tileset file, etc.)
 #define RET_SHOWSTOPPER        2
 // More info needed (-t auto didn't work, specify a type)
 #define RET_BE_MORE_SPECIFIC   3
@@ -615,7 +615,7 @@ int main(int iArgC, char *cArgV[])
 
 	int iRet = RET_OK;
 	bool bScript = false; // show output suitable for script parsing?
-	bool bForceOpen = false; // open anyway even if archive not in given format?
+	bool bForceOpen = false; // open anyway even if tileset not in given format?
 	int iTilesetExportWidth = 0;  // Width when exporting whole tileset as single file (0 == entire tileset on one line)
 	try {
 		po::parsed_options pa = po::parse_command_line(iArgC, cArgV, poComplete);
@@ -623,10 +623,10 @@ int main(int iArgC, char *cArgV[])
 		// Parse the global command line options
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
 			if (i->string_key.empty()) {
-				// If we've already got an archive filename, complain that a second one
+				// If we've already got an tileset filename, complain that a second one
 				// was given (probably a typo.)
 				if (!strFilename.empty()) {
-					std::cerr << "Error: unexpected extra parameter (multiple archive "
+					std::cerr << "Error: unexpected extra parameter (multiple tileset "
 						"filenames given?!)" << std::endl;
 					return 1;
 				}
@@ -1059,7 +1059,7 @@ finishTesting:
 			} else if (i->string_key.compare("force") == 0) {
 			} else if (i->string_key.compare("f") == 0) {
 
-			} // else it's the archive filename, but we already have that
+			} // else it's the tileset filename, but we already have that
 
 		} // for (all command line elements)
 
