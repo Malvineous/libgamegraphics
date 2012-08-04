@@ -105,7 +105,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 	} else {
 		std::cout << ", ";
 		if (tiles.size()) {
-			std::cout << (tiles.size() - 1) << " items\n";
+			std::cout << tiles.size() << " items\n";
 		} else {
 			std::cout << "no images" << '\n';
 		}
@@ -361,8 +361,6 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 		if ((*i)->attr & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
 
 		gg::ImagePtr img = tileset->openImage(*i);
-		gg::StdImageDataPtr data = img->toStandard();
-		gg::StdImageDataPtr mask = img->toStandardMask();
 
 		unsigned int offX = (t % tilesX) * width;
 		unsigned int offY = (t / tilesX) * height;
