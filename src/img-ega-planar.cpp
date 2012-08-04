@@ -203,7 +203,6 @@ void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 			maskData += this->width;
 		}
 	}
-	this->data->flush();
 	this->data->truncate_here();
 	return;
 }
