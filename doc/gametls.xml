@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<refentry id="gametls">
+	<refentryinfo>
+		<application>Camoto</application>
+		<productname>gametls</productname>
+		<author>
+			<firstname>Adam</firstname>
+			<surname>Nielsen</surname>
+			<email>malvineous@shikadi.net</email>
+			<contrib>Original document author</contrib>
+		</author>
+	</refentryinfo>
+	<refmeta>
+		<refentrytitle>gametls</refentrytitle>
+		<manvolnum>1</manvolnum>
+		<refmiscinfo class="date">2012-08-11</refmiscinfo>
+		<refmiscinfo class="manual">Camoto</refmiscinfo>
+	</refmeta>
+	<refnamediv id="name">
+		<refname>gametls</refname>
+		<refpurpose>
+			manipulate collections of images (tilesets) used internally by many games
+		</refpurpose>
+	</refnamediv>
+	<refsynopsisdiv>
+		<cmdsynopsis>
+			<command>gametls</command>
+			<arg choice="opt" rep="repeat"><replaceable>options</replaceable></arg>
+			<arg choice="plain"><replaceable>tileset</replaceable></arg>
+			<arg choice="opt" rep="repeat"><replaceable>actions</replaceable></arg>
+		</cmdsynopsis>
+	</refsynopsisdiv>
+
+	<refsect1 id="description">
+		<title>Description</title>
+		<para>
+			Perform the specified <replaceable>actions</replaceable> on the given
+			<replaceable>tileset</replaceable> file.  The actions are performed in order
+			(i.e. the first action specified on the command line is performed first.)
+		</para>
+	</refsect1>
+
+	<refsect1 id="actions">
+		<title>Actions</title>
+		<variablelist>
+
+			<varlistentry>
+				<term><option>--list</option></term>
+				<term><option>-l</option></term>
+				<listitem>
+					<para>
+						list tilesets and images in the file, along with an
+						<varname>id</varname> that can be passed to the other commands.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--extract-all-images</option></term>
+				<term><option>-X</option></term>
+				<listitem>
+					<para>
+						extract all the images in the file, saving them into the current
+						directory as a separate .png file per image.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--extract-all-tilesets</option></term>
+				<term><option>-T</option></term>
+				<listitem>
+					<para>
+						extract all the images in the file, combining them into one .png
+						file per tileset (e.g. as a grid of 10x10 tiles.)  Grid size is
+						controlled via the <option>--width</option> option.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--extract</option>=<replaceable>id</replaceable><optional>=<replaceable>dest.png</replaceable></optional></term>
+				<term><option>-x </option><replaceable>id</replaceable><optional>=<replaceable>dest.png</replaceable></optional></term>
+				<listitem>
+					<para>
+						extract <replaceable>id</replaceable> from the tileset, saving it
+						as <replaceable>dest.png</replaceable> (or into the current
+						directory as <replaceable>id</replaceable>.png if
+						<replaceable>dest.png</replaceable> is not supplied.)
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--overwrite</option>=<replaceable>id</replaceable><optional>=<replaceable>new.png</replaceable></optional></term>
+				<term><option>-o </option><replaceable>id</replaceable><optional>=<replaceable>new.png</replaceable></optional></term>
+				<listitem>
+					<para>
+						replace <replaceable>id</replaceable> with the data from
+						<replaceable>new.png</replaceable>.  The image must be in the
+						correct format (bit depth) or an error will be returned.  The
+						palette in the image file (if any) is not changed, so for best
+						results the palette in <replaceable>new.png</replaceable> should
+						match the one generated when extracting images.  If
+						<replaceable>new.png</replaceable> is not specified,
+						<literal><replaceable>id</replaceable>.png</literal> is used.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--insert-image</option>=<replaceable>id</replaceable><optional>=<replaceable>new.png</replaceable></optional></term>
+				<term><option>-i </option><replaceable>id</replaceable><optional>=<replaceable>new.png</replaceable></optional></term>
+				<listitem>
+					<para>
+						store <replaceable>new.png</replaceable> at the position
+						<replaceable>id</replaceable>, shifting the original
+						<replaceable>id</replaceable> and all following tiles
+						closer to the end of the file.  If
+						<replaceable>new.png</replaceable> is not specified,
+						<literal><replaceable>id</replaceable>.png</literal> is used.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--insert-tileset</option>=<replaceable>id</replaceable></term>
+				<term><option>-n </option><replaceable>id</replaceable></term>
+				<listitem>
+					<para>
+						add an empty tileset at position <replaceable>id</replaceable>,
+						shifting the original <replaceable>id</replaceable> and all
+						following sub-tilesets closer to the end of the file.  This can only
+						be used with file formats that support sub-tilesets.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--print</option>=<replaceable>id</replaceable></term>
+				<term><option>-p </option><replaceable>id</replaceable></term>
+				<listitem>
+					<para>
+						print image <replaceable>id</replaceable> to standard output using
+						ANSI codes and spaces to display the image on a text console.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--set-size</option>=<replaceable>W</replaceable>x<replaceable>H</replaceable></term>
+				<term><option>-z </option><replaceable>W</replaceable>x<replaceable>H</replaceable></term>
+				<listitem>
+					<para>
+						set all images in the tileset <replaceable>id</replaceable> to
+						<replaceable>W</replaceable> pixels wide and
+						<replaceable>H</replaceable> pixels high.  This will cause all
+						images to become distorted, so all images will need to be
+						overwritten after this operation.
+					</para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+	</refsect1>
+
+	<refsect1 id="options">
+		<title id="options-title">Options</title>
+		<variablelist>
+
+			<varlistentry>
+				<term><option>--type</option>=<replaceable>format</replaceable></term>
+				<term><option>-t </option><replaceable>format</replaceable></term>
+				<listitem>
+					<para>
+						manually specify the file type.  The type is normally autodetected,
+						but it needs to be specified for a few formats which lack signatures
+						to identify them by.  See <option>--list-types</option>.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--list-types</option></term>
+				<listitem>
+					<para>
+						show a list of supported file formats, along with the value to pass
+						to <option>--type</option>.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--width</option>=<replaceable>num</replaceable></term>
+				<term><option>-w </option><replaceable>num</replaceable></term>
+				<listitem>
+					<para>
+						when using <option>--extract</option> with a tileset or
+						<option>--extract-all-tilesets</option>, this option controls the
+						width of the .png image, measured in tiles.  A tileset with 32
+						images and a <option>--width</option> of 8 will result in a .png
+						file of 8x4 tiles.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--force</option></term>
+				<term><option>-f</option></term>
+				<listitem>
+					<para>
+						open the file as the given <option>--type</option>, even if it
+						doesn't look like it's in that format.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><option>--script</option></term>
+				<term><option>-s</option></term>
+				<listitem>
+					<para>
+						print output suitable for parsing by a script.
+					</para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+	</refsect1>
+
+	<refsect1 id="examples">
+		<title id="examples-title">Examples</title>
+		<variablelist>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx --list</command></term>
+				<listitem>
+					<para>
+						display a list of the images inside the main Crystal Caves graphics
+						file.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx --extract-all-images</command></term>
+				<listitem>
+					<para>
+						extract every image in every tileset as a separate .png file into
+						the current directory.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx --extract-all-tilesets</command></term>
+				<listitem>
+					<para>
+						extract all the tilesets into a handful of .png files in the current
+						directory (all the images in each tileset are displayed as a grid in
+						each .png file.)
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx -p 0.1.2</command></term>
+				<listitem>
+					<para>
+						print the third image ("2") from the second tileset ("0.1") as
+						ANSI coloured text.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx -x 0.1.2=test.png</command></term>
+				<listitem>
+					<para>
+						extract the third image ("2") from the second tileset ("0.1") and
+						save it as <literal>test.png</literal> in the current directory.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx -o 0.1.2=new.png</command></term>
+				<listitem>
+					<para>
+						overwrite the image extracted in the previous example with the
+						contents of <literal>new.png</literal>.
+					</para>
+				</listitem>
+			</varlistentry>
+
+			<varlistentry>
+				<term><command>gametls cc1.gfx --type=img-ccaves --list</command></term>
+				<listitem>
+					<para>
+						list contents of the tileset, when the format can't be autodetected
+						and must be specified manually with <option>--type</option>.
+					</para>
+				</listitem>
+			</varlistentry>
+
+		</variablelist>
+	</refsect1>
+
+	<refsect1 id="notes">
+		<title id="notes-title">Notes</title>
+		<para>
+			Exit status is <returnvalue>0</returnvalue> on success,
+			<returnvalue>non-zero</returnvalue> on failure (<returnvalue>1</returnvalue>
+			for bad parameters, <returnvalue>2</returnvalue> for critical errors such
+			as being unable to open the the archive file, <returnvalue>3</returnvalue>
+			for more information needed, <returnvalue>4</returnvalue> for non-critical
+			errors such as being unable to insert one of many files,
+			<returnvalue>5</returnvalue> for uncommon failures like running out of disk
+			space.)
+		</para>
+		<para>
+			All the file formats supported by this utility are fully documented on the
+			<ulink url="http://www.shikadi.net/moddingwiki">Game Modding Wiki</ulink>.
+		</para>
+	</refsect1>
+
+	<refsect1 id="bugs">
+		<title id="bugs-title">Bugs and Questions</title>
+		<para>
+			Report bugs at <ulink>http://www.shikadi.net/camoto/bugs/</ulink>
+		</para>
+		<para>
+			Ask questions about Camoto or modding in general at the <ulink
+			url="http://www.classicdosgames.com/forum/viewforum.php?f=25">RGB
+			Classic Games modding forum</ulink>
+		</para>
+	</refsect1>
+
+	<refsect1 id="copyright">
+		<title id="copyright-title">Copyright</title>
+		<para>
+			Copyright (c) 2010-2012 Adam Nielsen.
+		</para>
+		<para>
+			License GPLv3+: <ulink url="http://gnu.org/licenses/gpl.html">GNU GPL
+			version 3 or later</ulink>
+		</para>
+		<para>
+			This is free software: you are free to change and redistribute it.
+			There is NO WARRANTY, to the extent permitted by law.
+		</para>
+	</refsect1>
+
+	<refsect1 id="seealso">
+		<title id="seealso-title">See Also</title>
+		<simplelist type="inline">
+			<member><citerefentry><refentrytitle>gamearch</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+			<member><citerefentry><refentrytitle>gamecomp</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+			<member><citerefentry><refentrytitle>gameimg</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+			<member><citerefentry><refentrytitle>gamemap</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+			<member><citerefentry><refentrytitle>gamemus</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+			<member><citerefentry><refentrytitle>camoto-studio</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+		</simplelist>
+	</refsect1>
+
+</refentry>

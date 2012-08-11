@@ -27,9 +27,11 @@ libtool
 *.lo
 *.la
 
-# doxygen output
+# Generated docs
 doc/doxygen/api/
 doc/doxygen/full/
+doc/game*.1
+doc/game*.html
 
 # Compiled binaries
 examples/gametls
