@@ -98,7 +98,7 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 
 		// Make sure the offsets are increasing, otherwise we'd get a negative
 		// file size (or the file has been tweaked to make opening difficult, but
-		// then there's the -f option to gamegfx for that.)
+		// then there's the -f option to gametls for that.)
 		// TESTED BY: TODO
 		if (offset < lastOffset) return DefinitelyNo;
 

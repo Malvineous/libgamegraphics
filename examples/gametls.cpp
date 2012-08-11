@@ -1,5 +1,5 @@
 /**
- * @file   gamegfx.cpp
+ * @file   gametls.cpp
  * @brief  Command-line interface to libgamegraphics.
  *
  * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
@@ -30,7 +30,7 @@
 
 namespace po = boost::program_options;
 
-#define PROGNAME "gamegfx"
+#define PROGNAME "gametls"
 
 /*** Return values ***/
 // All is good
@@ -639,11 +639,11 @@ int main(int iArgC, char *cArgV[])
 					"and you are welcome to change and redistribute it under certain conditions;\n"
 					"see <http://www.gnu.org/licenses/> for details.\n"
 					"\n"
-					"Utility to manipulate graphics files used by games to store images.\n"
+					"Utility to edit tileset files used by games to store collections of images.\n"
 					"Build date " __DATE__ " " __TIME__ << "\n"
 					"\n"
-					"Usage: gamegfx <tileset> <action> [action...]\n" << poVisible << "\n"
-					<< std::endl;
+					"Usage: " PROGNAME " <tileset> <action> [action...]\n" << poVisible
+					<< "\n" << std::endl;
 				return RET_OK;
 			} else if (
 				(i->string_key.compare("list-types") == 0)

@@ -1,7 +1,7 @@
-bin_PROGRAMS = gamegfx gameimg
+bin_PROGRAMS = gametls gameimg
 
-gamegfx_SOURCES = gamegfx.cpp
-EXTRA_gamegfx_SOURCES = common.hpp
+gametls_SOURCES = gametls.cpp
+EXTRA_gametls_SOURCES = common.hpp
 
 gameimg_SOURCES = gameimg.cpp
 EXTRA_gameimg_SOURCES = common.hpp

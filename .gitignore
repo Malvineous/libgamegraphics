@@ -32,7 +32,7 @@ doc/doxygen/api/
 doc/doxygen/full/
 
 # Compiled binaries
-examples/gamegfx
+examples/gametls
 examples/gameimg
 tests/tests
 utils/dumpb800

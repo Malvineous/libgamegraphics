@@ -105,7 +105,7 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 
 		// Make sure the offsets are increasing, otherwise we'd get a negative
 		// file size (or the file has been tweaked to make opening difficult, but
-		// then there's the -f option to gamegfx for that.)
+		// then there's the -f option to gametls for that.)
 		// TESTED BY: tls_zone66_isinstance_c02
 		if (offset < lastOffset) return DefinitelyNo;
 

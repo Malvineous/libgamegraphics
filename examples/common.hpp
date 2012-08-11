@@ -1,6 +1,6 @@
 /**
  * @file   common.hpp
- * @brief  Functions shared between gamegfx and gameimg
+ * @brief  Functions shared between gametls and gameimg
  *
  * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
