@@ -28,8 +28,7 @@ libtool
 *.la
 
 # Generated docs
-doc/doxygen/api/
-doc/doxygen/full/
+doc/doxygen/
 doc/game*.1
 doc/game*.html
 
