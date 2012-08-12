@@ -146,9 +146,6 @@ class FATTileset: virtual public Tileset {
 		 *
 		 * @param content
 		 *   Substream containing the item's data.
-		 *
-		 * @param fnTruncate
-		 *   Truncate function to resize the supplied stream.
 		 */
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
 			stream::inout_sptr content)
@@ -161,9 +158,6 @@ class FATTileset: virtual public Tileset {
 		 *
 		 * @param content
 		 *   Substream containing the item's data.
-		 *
-		 * @param fnTruncate
-		 *   Truncate function to resize the supplied stream.
 		 */
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content)

@@ -45,11 +45,14 @@ class CGAImage: virtual public Image
 		 * @param data
 		 *   CGA data
 		 *
-		 * @param fnTruncate
-		 *   Truncate callback
-		 *
 		 * @param off
 		 *   Offset from start of stream where CGA data begins.
+		 *
+		 * @param width
+		 *   Width of the image, in pixels.
+		 *
+		 * @param height
+		 *   Height of the image, in pixels.
 		 *
 		 * @param cgaPal
 		 *   CGA palette to use.  See generatePalette() for details.

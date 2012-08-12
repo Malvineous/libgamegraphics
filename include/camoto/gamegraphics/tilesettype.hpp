@@ -108,9 +108,6 @@ class TilesetType {
 		 * @param psTileset
 		 *   A blank stream to store the new tileset in.
 		 *
-		 * @param fnTruncate
-		 *   Callback function to resize psImage if required.
-		 *
 		 * @param suppData
 		 *   Any supplemental data required by this format (see getRequiredSupps())
 		 *
@@ -127,9 +124,6 @@ class TilesetType {
 		 *
 		 * @param psTileset
 		 *   The tileset file.
-		 *
-		 * @param fnTruncate
-		 *   Callback function to resize psTileset if required.
 		 *
 		 * @param suppData
 		 *   Any supplemental data required by this format (see getRequiredSupps())

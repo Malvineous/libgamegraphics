@@ -49,7 +49,7 @@ class SubImage: virtual public Image {
 		 *   Width of this image.  x + width must not exceed the width of the
 		 *   underlying image.
 		 *
-		 * @param y
+		 * @param height
 		 *   Height of this image.  y + height must not exceed the width of the
 		 *   underlying image.
 		 */

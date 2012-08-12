@@ -35,17 +35,14 @@ namespace gamegraphics {
  */
 class VGAImage: virtual public Image {
 	protected:
-		stream::inout_sptr data;
-		stream::pos off; ///< Offset of image data
+		stream::inout_sptr data; ///< Image content
+		stream::pos off;         ///< Offset of image data in \ref data
 
 	public:
 		/// Constructor
 		/**
 		 * @param data
 		 *   VGA data
-		 *
-		 * @param fnTruncate
-		 *   Truncate callback
 		 *
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.

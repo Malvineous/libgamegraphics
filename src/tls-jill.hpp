@@ -140,6 +140,9 @@ class JillImage: virtual public VGAImage {
 		 *
 		 * @param data
 		 *   Image data, including width/height header.
+		 *
+		 * @param colourMap
+		 *   Colour mapping table (not a palette) from the parent tileset.
 		 */
 		JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
 			throw ();
