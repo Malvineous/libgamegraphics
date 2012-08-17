@@ -23,11 +23,10 @@
 #define _CAMOTO_GAMEGRAPHICS_TILESET_HPP_
 
 #include <boost/shared_ptr.hpp>
-#include <exception>
 #include <vector>
 
 #include <camoto/stream.hpp>
-#include <stdint.h>
+#include <camoto/error.hpp>
 #include <camoto/metadata.hpp>
 #include <camoto/gamegraphics/palettetable.hpp>
 #include <camoto/gamegraphics/image.hpp>
@@ -36,11 +35,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Generic "file not found" exception.
-class ENotFound: public std::exception {
+class ENotFound: public error {
 };
 
 /// Generic "invalid tileset format" exception.
-class EInvalidFormat: public std::exception {
+class EInvalidFormat: public error {
 };
 
 class Tileset;
@@ -63,10 +62,9 @@ typedef std::vector<TilesetPtr> VC_TILESET;
  *       of the functions seek around the underlying stream and thus will break
  *       if two or more functions are executing at the same time.
  */
-class Tileset: virtual public Metadata {
-
+class Tileset: virtual public Metadata
+{
 	public:
-
 		/// File attribute flags.  Can be OR'd together.
 		enum Attributes {
 			Default       = 0x00,  ///< Default/none
@@ -93,17 +91,10 @@ class Tileset: virtual public Metadata {
 		 */
 		struct Entry {
 			/// Is this entry valid? (set to false upon delete)
-			bool isValid;
+			virtual bool isValid() const = 0;
 
 			/// One or more %Attributes flags
-			int attr;
-
-			Entry();
-			virtual ~Entry();
-
-			private:
-				/// Can't copy Entry instances, must use references/pointers.
-				Entry(const Entry&);
+			virtual int getAttr() const = 0;
 		};
 
 		/// Shared pointer to a FileEntry
@@ -111,10 +102,6 @@ class Tileset: virtual public Metadata {
 
 		/// Vector of shared FileEntry pointers
 		typedef std::vector<EntryPtr> VC_ENTRYPTR;
-
-		Tileset();
-
-		virtual ~Tileset();
 
 		/// Get the capabilities of this tileset format.
 		/**
@@ -144,7 +131,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @return A shared pointer to another Tileset instance.
 		 */
-		virtual TilesetPtr openTileset(const EntryPtr& id);
+		virtual TilesetPtr openTileset(const EntryPtr& id) = 0;
 
 		/// Export/import the given tile.
 		/**
@@ -157,7 +144,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @return A shared pointer to an instance of the Image class.
 		 */
-		virtual ImagePtr openImage(const EntryPtr& id);
+		virtual ImagePtr openImage(const EntryPtr& id) = 0;
 
 		/// Insert a new image/subtileset into the tileset.
 		/**
@@ -253,7 +240,8 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @note Default implementation returns 0 x 0.
 		 */
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
+		virtual void getTilesetDimensions(unsigned int *width,
+			unsigned int *height) = 0;
 
 		/// Set the size of all images in this tileset.
 		/**
@@ -276,7 +264,8 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @note Default implementation triggers assertion failure.
 		 */
-		virtual void setTilesetDimensions(unsigned int width, unsigned int height);
+		virtual void setTilesetDimensions(unsigned int width,
+			unsigned int height) = 0;
 
 		/// Get the preferred layout size for this tileset.
 		/**
@@ -287,16 +276,14 @@ class Tileset: virtual public Metadata {
 		 * calculated from this and the number of tiles.
 		 *
 		 * @return Layout width as number of tiles, or zero for don't know.
-		 *
-		 * @note Default implementation returns 0.
 		 */
-		virtual unsigned int getLayoutWidth();
+		virtual unsigned int getLayoutWidth() = 0;
 
 		/// Get the indexed colour map from the image.
 		/**
 		 * @pre getCaps() return value includes HasPalette.
 		 */
-		virtual PaletteTablePtr getPalette();
+		virtual PaletteTablePtr getPalette() = 0;
 
 		/// Change the indexed colour map used by the image.
 		/**
@@ -307,7 +294,7 @@ class Tileset: virtual public Metadata {
 		 * @param newPalette
 		 *   New palette data
 		 */
-		virtual void setPalette(PaletteTablePtr newPalette);
+		virtual void setPalette(PaletteTablePtr newPalette) = 0;
 
 };
 

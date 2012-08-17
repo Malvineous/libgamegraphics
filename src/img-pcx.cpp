@@ -2,7 +2,7 @@
  * @file   img-pcx.cpp
  * @brief  Image specialisation for PCX format images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,14 +42,13 @@ void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
 	return;
 }
 
-class filter_pcx_unrle: public filter {
-
+class filter_pcx_unrle: public filter
+{
 	protected:
 		uint8_t val;        ///< Previous byte read
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-
 		filter_pcx_unrle()
 			:	count(0)
 		{
@@ -115,17 +114,15 @@ class filter_pcx_unrle: public filter {
 			*lenIn = r;
 			return;
 		}
-
 };
 
-class filter_pcx_rle: public filter {
-
+class filter_pcx_rle: public filter
+{
 	protected:
 		uint8_t val;        ///< Previous byte read
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-
 		filter_pcx_rle()
 			:	val(0),
 				count(0)
@@ -172,7 +169,6 @@ class filter_pcx_rle: public filter {
 			*lenIn = r;
 			return;
 		}
-
 };
 
 stream::len putNextChar(stream::output_sptr src, uint8_t *lastChar, uint8_t out)

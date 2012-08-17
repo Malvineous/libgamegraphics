@@ -2,7 +2,7 @@
  * @file   subimage.hpp
  * @brief  Image specialisation images within other images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@
 #define _CAMOTO_SUBIMAGE_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Image stored within another Image.
-class SubImage: virtual public Image {
-
+class SubImage: virtual public BaseImage
+{
 	public:
 		/// Constructor
 		/**
@@ -55,19 +56,13 @@ class SubImage: virtual public Image {
 		 */
 		SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
 			unsigned int width, unsigned int height);
-
 		virtual ~SubImage();
 
 		virtual int getCaps();
-
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
 		virtual void setDimensions(unsigned int width, unsigned int height);
-
 		virtual StdImageDataPtr toStandard();
-
 		virtual StdImageDataPtr toStandardMask();
-
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask);
 
@@ -82,7 +77,6 @@ class SubImage: virtual public Image {
 		unsigned int yOffset;
 		unsigned int width;
 		unsigned int height;
-
 };
 
 } // namespace gamegraphics

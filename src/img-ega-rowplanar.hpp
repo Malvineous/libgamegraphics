@@ -34,7 +34,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGARowPlanarImage: virtual public Image {
+class EGARowPlanarImage: virtual public BaseImage {
 	protected:
 		stream::inout_sptr data;
 		stream::pos offset;

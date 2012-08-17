@@ -22,7 +22,7 @@
 #define _CAMOTO_IMG_VGA_HPP_
 
 #include <boost/iostreams/stream.hpp>
-#include <camoto/gamegraphics/image.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -33,7 +33,7 @@ namespace gamegraphics {
  * does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class VGAImage: virtual public Image {
+class VGAImage: virtual public BaseImage {
 	protected:
 		stream::inout_sptr data; ///< Image content
 		stream::pos off;         ///< Offset of image data in \ref data

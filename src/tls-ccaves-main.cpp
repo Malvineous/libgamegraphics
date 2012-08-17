@@ -168,7 +168,7 @@ CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 		;
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = SubTileset;
 		fat->index = i;
 		fat->offset = pos;

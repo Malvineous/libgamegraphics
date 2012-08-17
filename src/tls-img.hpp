@@ -2,7 +2,7 @@
  * @file   tls-img.hpp
  * @brief  Tiles stored as a grid in an image file.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,45 +21,29 @@
 #ifndef _CAMOTO_TLS_IMG_HPP_
 #define _CAMOTO_TLS_IMG_HPP_
 
-#include <camoto/gamegraphics/tileset.hpp>
+#include "basetileset.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetFromImage: virtual public Tileset
+class TilesetFromImage: virtual public BaseTileset
 {
-
 	public:
-		struct ImageEntry: public Entry {
-			int index; ///< Zero-based index of tile
-		};
-
 		TilesetFromImage(ImagePtr img, unsigned int tileWidth,
 			unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh);
-
 		virtual ~TilesetFromImage();
 
 		virtual int getCaps();
-
 		virtual const VC_ENTRYPTR& getItems() const;
-
 		virtual ImagePtr openImage(const EntryPtr& id);
-
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr);
-
 		virtual void remove(EntryPtr& id);
-
-		void resize(EntryPtr& id, stream::len newSize);
-
+		virtual void resize(EntryPtr& id, stream::len newSize);
 		virtual void flush();
-
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-
 		virtual unsigned int getLayoutWidth();
-
 		virtual PaletteTablePtr getPalette();
-
-		void setPalette(PaletteTablePtr newPalette);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		ImagePtr img;            ///< Underlying image file
@@ -68,7 +52,6 @@ class TilesetFromImage: virtual public Tileset
 		unsigned int tileHeight; ///< Height of each tile in pixels
 		unsigned int tilesWide;  ///< Number of tiles horizontally in each .PCX
 		unsigned int tilesHigh;  ///< Number of tiles vertically in each .PCX
-
 };
 
 } // namespace gamegraphics

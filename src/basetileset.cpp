@@ -1,9 +1,8 @@
 /**
- * @file   tileset.cpp
- * @brief  Declaration of Tileset class, for accessing files storing multiple
- *         game images.
+ * @file   basetileset.cpp
+ * @brief  Base class for all Tileset subclasses.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,37 +19,30 @@
  */
 
 #include <cassert>
-#include <camoto/gamegraphics/tileset.hpp>
+#include "basetileset.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-Tileset::Entry::Entry()
+bool BaseTileset::BaseTilesetEntry::isValid() const
+{
+	return this->valid;
+}
+
+int BaseTileset::BaseTilesetEntry::getAttr() const
+{
+	return this->attr;
+}
+
+BaseTileset::BaseTileset()
 {
 }
 
-Tileset::Entry::~Entry()
+BaseTileset::~BaseTileset()
 {
 }
 
-Tileset::Tileset()
-{
-}
-
-Tileset::~Tileset()
-{
-}
-
-TilesetPtr Tileset::openTileset(const EntryPtr& id)
-{
-	// Caller didn't check EntryPtr->attr
-	assert(false);
-	throw stream::error("this tileset has no images"
-		" (this is a bug - the caller should have checked the EntryPtr's"
-		" attributes to detect this)");
-}
-
-ImagePtr Tileset::openImage(const EntryPtr& id)
+TilesetPtr BaseTileset::openTileset(const EntryPtr& id)
 {
 	// Caller didn't check EntryPtr->attr
 	assert(false);
@@ -59,14 +51,23 @@ ImagePtr Tileset::openImage(const EntryPtr& id)
 		" attributes to detect this)");
 }
 
-void Tileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+ImagePtr BaseTileset::openImage(const EntryPtr& id)
+{
+	// Caller didn't check EntryPtr->attr
+	assert(false);
+	throw stream::error("this tileset has no images"
+		" (this is a bug - the caller should have checked the EntryPtr's"
+		" attributes to detect this)");
+}
+
+void BaseTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = 0;
 	*height = 0;
 	return;
 }
 
-void Tileset::setTilesetDimensions(unsigned int width, unsigned int height)
+void BaseTileset::setTilesetDimensions(unsigned int width, unsigned int height)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -74,19 +75,19 @@ void Tileset::setTilesetDimensions(unsigned int width, unsigned int height)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-unsigned int Tileset::getLayoutWidth()
+unsigned int BaseTileset::getLayoutWidth()
 {
 	return 0;
 }
 
-PaletteTablePtr Tileset::getPalette()
+PaletteTablePtr BaseTileset::getPalette()
 {
 	// Caller didn't check getCaps()
 	assert(false);
 	return PaletteTablePtr();
 }
 
-void Tileset::setPalette(PaletteTablePtr newPalette)
+void BaseTileset::setPalette(PaletteTablePtr newPalette)
 {
 	// Caller didn't check getCaps()
 	assert(false);

@@ -258,7 +258,7 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
-			fat->isValid = true;
+			fat->valid = true;
 			fat->attr = 0;
 			fat->index = i;
 			fat->offset = nextOffset;

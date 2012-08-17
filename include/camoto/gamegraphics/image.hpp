@@ -37,11 +37,6 @@ namespace gamegraphics {
 /// Shared pointer to the raw image data
 typedef boost::shared_array<uint8_t> StdImageDataPtr;
 
-class Image;
-
-/// Shared pointer to an Image.
-typedef boost::shared_ptr<Image> ImagePtr;
-
 /// Primary interface to an image file.
 /**
  * This class represents a single image.  Its functions are used to convert
@@ -55,10 +50,9 @@ typedef boost::shared_ptr<Image> ImagePtr;
  *       of the functions seek around the underlying stream and thus will break
  *       if two or more functions are executing at the same time.
  */
-class Image {
-
+class Image
+{
 	public:
-
 		/// Capabilities of this image format.
 		enum Caps {
 			/// Set if the image can be resized with setDimensions().
@@ -86,10 +80,6 @@ class Image {
 			/// checking the colour depth.
 			ColourDepthMask   = 0x30,
 		};
-
-		Image();
-
-		virtual ~Image();
 
 		/// Get the capabilities of this image format.
 		/**
@@ -123,7 +113,7 @@ class Image {
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void setDimensions(unsigned int width, unsigned int height);
+		virtual void setDimensions(unsigned int width, unsigned int height) = 0;
 
 		/// Convert the image into a standard format.
 		/**
@@ -180,7 +170,7 @@ class Image {
 		 *
 		 * @return Shared pointer to a PaletteTable.
 		 */
-		virtual PaletteTablePtr getPalette();
+		virtual PaletteTablePtr getPalette() = 0;
 
 		/// Set the indexed colour map used by the file.
 		/**
@@ -189,9 +179,11 @@ class Image {
 		 * @param newPalette
 		 *   New palette data
 		 */
-		virtual void setPalette(PaletteTablePtr newPalette);
-
+		virtual void setPalette(PaletteTablePtr newPalette) = 0;
 };
+
+/// Shared pointer to an Image.
+typedef boost::shared_ptr<Image> ImagePtr;
 
 } // namespace gamegraphics
 } // namespace camoto

@@ -22,11 +22,9 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_TILESETTYPE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_TILESETTYPE_HPP_
 
+#include <string>
 #include <vector>
-#include <map>
-
 #include <camoto/stream.hpp>
-#include <stdint.h>
 #include <camoto/suppitem.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
@@ -36,10 +34,9 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Interface to a particular tileset format.
-class TilesetType {
-
+class TilesetType
+{
 	public:
-
 		/// Confidence level when guessing a file format.
 		enum Certainty {
 			DefinitelyNo,  ///< Definitely not in this format
@@ -149,8 +146,8 @@ class TilesetType {
 		 *   added to an \ref SuppData map where it can be passed to
 		 *   create() or open().
 		 */
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const = 0;
-
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const = 0;
 };
 
 /// Shared pointer to an TilesetType.

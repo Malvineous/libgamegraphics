@@ -149,7 +149,7 @@ JillTileset::JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
 
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = Tileset::SubTileset;
 		if ((offset == 0) && (len == 0)) fat->attr |= Tileset::EmptySlot;
 		fat->index = i;
@@ -181,7 +181,7 @@ TilesetPtr JillTileset::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	// Make sure nobody tries to open an empty slot!
-	assert((id->attr & Tileset::EmptySlot) == 0);
+	assert((id->getAttr() & Tileset::EmptySlot) == 0);
 
 	//stream::sub_sptr sub = boost::dynamic_pointer_cast<stream::sub>(content);
 	return TilesetPtr(new JillTiles(content));
@@ -255,7 +255,7 @@ JillTiles::JillTiles(stream::inout_sptr data)
 		this->data >> u8(width) >> u8(height);
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = 0;
 		fat->index = i;
 		fat->offset = offset;

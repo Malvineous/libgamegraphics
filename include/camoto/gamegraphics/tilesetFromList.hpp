@@ -21,12 +21,12 @@
 #ifndef _CAMOTO_TLS_IMG_LIST_HPP_
 #define _CAMOTO_TLS_IMG_LIST_HPP_
 
-#include <camoto/gamegraphics/tileset.hpp>
+#include "basetileset.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetFromList: virtual public Tileset
+class TilesetFromList: virtual public BaseTileset
 {
 	public:
 		struct Tile {
@@ -38,36 +38,22 @@ class TilesetFromList: virtual public Tileset
 		};
 		typedef std::vector<Tile> TileList;
 
-		struct ImageEntry: public Entry {
-			unsigned int index; ///< Zero-based index of tile
-		};
-
 		TilesetFromList(const TileList& tileList);
-
 		virtual ~TilesetFromList();
 
 		virtual int getCaps();
-
 		virtual const VC_ENTRYPTR& getItems() const;
-
 		virtual ImagePtr openImage(const EntryPtr& id);
-
 		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr);
-
 		virtual void remove(EntryPtr& id);
-
-		void resize(EntryPtr& id, stream::len newSize);
-
+		virtual void resize(EntryPtr& id, stream::len newSize);
 		virtual void flush();
-
 		virtual PaletteTablePtr getPalette();
-
-		void setPalette(PaletteTablePtr newPalette);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		TileList tileList;   ///< List of underlying images
 		VC_ENTRYPTR items;   ///< List of tiles
-
 };
 
 } // namespace gamegraphics

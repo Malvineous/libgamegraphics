@@ -22,11 +22,9 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_IMAGETYPE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_IMAGETYPE_HPP_
 
+#include <string>
 #include <vector>
-#include <map>
-
 #include <camoto/stream.hpp>
-#include <stdint.h>
 #include <camoto/suppitem.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
@@ -36,10 +34,9 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Interface to a particular image format.
-class ImageType {
-
+class ImageType
+{
 	public:
-
 		/// Confidence level when guessing a file format.
 		enum Certainty {
 			DefinitelyNo,  ///< Definitely not in this format
@@ -148,8 +145,8 @@ class ImageType {
 		 *   added to an \ref SuppData map where it can be passed to newImage()
 		 *   or open().
 		 */
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const = 0;
-
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const = 0;
 };
 
 /// Shared pointer to an ImageType.

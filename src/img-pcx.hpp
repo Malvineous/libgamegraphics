@@ -2,7 +2,7 @@
  * @file   img-pcx.hpp
  * @brief  Image specialisation for PCX format images.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,15 @@
 #define _CAMOTO_IMG_PCX_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Base filetype handler for standard .PCX images.  Use one of the
 /// specialisations instead of this.
-class PCXBaseImageType: virtual public ImageType {
-
+class PCXBaseImageType: virtual public ImageType
+{
 	public:
 		/// Base PCX file handler.
 		/**
@@ -42,26 +43,19 @@ class PCXBaseImageType: virtual public ImageType {
 		 *   stream::error will be thrown.
 		 */
 		PCXBaseImageType(int bitsPerPlane, int numPlanes);
-
 		virtual ~PCXBaseImageType();
 
 		virtual std::string getCode() const;
-
 		//virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getFileExtensions() const;
-
 		//virtual std::vector<std::string> getGameList() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
 		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const;
-
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 
 	protected:
 		uint8_t bitsPerPlane; ///< Number of bits per pixel in each plane
@@ -69,38 +63,30 @@ class PCXBaseImageType: virtual public ImageType {
 };
 
 /// Filetype handler for planar EGA (1b4p) .PCX images.
-class PCX_PlanarEGA_ImageType: virtual public PCXBaseImageType {
-
+class PCX_PlanarEGA_ImageType: virtual public PCXBaseImageType
+{
 	public:
-
 		PCX_PlanarEGA_ImageType();
-
 		virtual ~PCX_PlanarEGA_ImageType();
 
 		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 };
 
 /// Filetype handler for linear VGA (8b1p) .PCX images.
-class PCX_LinearVGA_ImageType: virtual public PCXBaseImageType {
-
+class PCX_LinearVGA_ImageType: virtual public PCXBaseImageType
+{
 	public:
-
 		PCX_LinearVGA_ImageType();
-
 		virtual ~PCX_LinearVGA_ImageType();
 
 		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 };
 
 /// Standard PCX Image implementation.
-class PCXImage: virtual public Image {
-
+class PCXImage: virtual public BaseImage
+{
 	public:
 		/// Constructor
 		/**
@@ -121,25 +107,17 @@ class PCXImage: virtual public Image {
 		 *   Read error or invalid file format.
 		 */
 		PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes);
-
 		virtual ~PCXImage();
 
 		virtual int getCaps();
-
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
 		virtual void setDimensions(unsigned int width, unsigned int height);
-
 		virtual StdImageDataPtr toStandard();
-
 		virtual StdImageDataPtr toStandardMask();
-
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask);
-
 		virtual PaletteTablePtr getPalette();
-
-		void setPalette(PaletteTablePtr newPalette);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		stream::inout_sptr data;
@@ -150,7 +128,6 @@ class PCXImage: virtual public Image {
 		uint8_t numPlanes;
 		unsigned int width;
 		unsigned int height;
-
 };
 
 } // namespace gamegraphics

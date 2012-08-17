@@ -117,7 +117,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 		i++
 	) {
 		// If this is an empty slot skip it, because we can't open it of course
-		if ((*i)->attr & gg::Tileset::EmptySlot) {
+		if ((*i)->getAttr() & gg::Tileset::EmptySlot) {
 			if (bScript) {
 				std::cout << "id=" << prefix << '+' << j
 					<< ";type=empty\n";
@@ -125,7 +125,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 				std::cout << prefix << '.' << j << ": Empty slot\n";
 			}
 		// If this entry is a tileset, open it and dump its contents recursively
-		} else if ((*i)->attr & gg::Tileset::SubTileset) {
+		} else if ((*i)->getAttr() & gg::Tileset::SubTileset) {
 			gg::TilesetPtr tileset = pTileset->openTileset(*i);
 			std::ostringstream ss;
 			ss << prefix << '.' << j;
@@ -275,7 +275,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 		i != tiles.end();
 		i++, t++
 	) {
-		if ((*i)->attr & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
+		if ((*i)->getAttr() & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
 
 		gg::ImagePtr img = tileset->openImage(*i);
 		gg::StdImageDataPtr data = img->toStandard();
@@ -356,7 +356,7 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 		i != tiles.end();
 		i++, t++
 	) {
-		if ((*i)->attr & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
+		if ((*i)->getAttr() & gg::Tileset::SubTileset) continue; // aah! tileset! bad!
 
 		gg::ImagePtr img = tileset->openImage(*i);
 
@@ -419,7 +419,7 @@ void extractAllImages(std::string prefix, bool tilesetAsSingleImage,
 		i++, j++
 	) {
 		try {
-			if ((*i)->attr & gg::Tileset::SubTileset) {
+			if ((*i)->getAttr() & gg::Tileset::SubTileset) {
 				if (tilesetAsSingleImage) {
 					std::ostringstream ssFilename;
 					ssFilename << prefix << '.' << ".png";
@@ -524,7 +524,7 @@ gg::Tileset::EntryPtr idToEntryPtr(const std::string& idText,
 				tileset.reset();
 				break;
 			} else {
-				if (tiles[*i]->attr & gg::Tileset::SubTileset) {
+				if (tiles[*i]->getAttr() & gg::Tileset::SubTileset) {
 					tileset = tileset->openTileset(tiles[*i]);
 				} else {
 					ep = tiles[*i];

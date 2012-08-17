@@ -1,8 +1,8 @@
 /**
- * @file   image.cpp
- * @brief  Standard Image functions.
+ * @file   baseimage.cpp
+ * @brief  Base class for all Image subclasses.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,20 +19,20 @@
  */
 
 #include <cassert>
-#include <camoto/gamegraphics/image.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-Image::Image()
+BaseImage::BaseImage()
 {
 }
 
-Image::~Image()
+BaseImage::~BaseImage()
 {
 }
 
-void Image::setDimensions(unsigned int width, unsigned int height)
+void BaseImage::setDimensions(unsigned int width, unsigned int height)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -40,12 +40,12 @@ void Image::setDimensions(unsigned int width, unsigned int height)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-PaletteTablePtr Image::getPalette()
+PaletteTablePtr BaseImage::getPalette()
 {
 	return PaletteTablePtr();
 }
 
-void Image::setPalette(PaletteTablePtr newPalette)
+void BaseImage::setPalette(PaletteTablePtr newPalette)
 {
 	// Caller didn't check getCaps()
 	assert(false);

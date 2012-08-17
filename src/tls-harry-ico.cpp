@@ -180,7 +180,7 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = 0;
 		fat->index = i;
 		fat->offset = pos;

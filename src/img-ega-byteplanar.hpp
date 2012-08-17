@@ -34,7 +34,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGABytePlanarImage: virtual public Image {
+class EGABytePlanarImage: virtual public BaseImage {
 	protected:
 		stream::inout_sptr data;
 		stream::pos offset;

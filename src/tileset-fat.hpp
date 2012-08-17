@@ -24,7 +24,7 @@
 #include <map>
 #include <boost/iostreams/stream.hpp>
 #include <boost/weak_ptr.hpp>
-#include <camoto/gamegraphics/tileset.hpp>
+#include "basetileset.hpp"
 #include <camoto/stream_sub.hpp>
 #include <camoto/stream_seg.hpp>
 #include <camoto/stream_sub.hpp>
@@ -33,15 +33,15 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Tileset implementation for tilesets with an associated size/offset table.
-class FATTileset: virtual public Tileset {
-
+class FATTileset: virtual public BaseTileset
+{
 	public:
 		/// FAT-related fields to add to EntryPtr.
 		/**
 		 * This shouldn't really be public, but sometimes it is handy to access the
 		 * FAT fields (especially from within the unit tests.)
 		 */
-		struct FATEntry: virtual public Entry {
+		struct FATEntry: virtual public BaseTilesetEntry {
 			/// Index of item in the tileset.
 			/**
 			 * We can't use the index into the vector as entries are passed around
@@ -52,12 +52,6 @@ class FATTileset: virtual public Tileset {
 			stream::pos offset;
 			stream::pos size;
 			stream::pos lenHeader; ///< Size of embedded FAT
-
-			FATEntry();
-			virtual ~FATEntry();
-
-			private:
-				FATEntry(const FATEntry&);
 		};
 
 		/// Shared pointer of FAT-specific file entry.

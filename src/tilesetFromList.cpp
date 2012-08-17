@@ -24,6 +24,10 @@
 namespace camoto {
 namespace gamegraphics {
 
+struct ImageEntry: public BaseTileset::BaseTilesetEntry {
+	unsigned int index; ///< Zero-based index of tile
+};
+
 TilesetFromList::TilesetFromList(const TileList& tileList)
 	:	tileList(tileList)
 {
@@ -32,7 +36,7 @@ TilesetFromList::TilesetFromList(const TileList& tileList)
 	for (unsigned int i = 0; i < numImages; i++) {
 		ImageEntry *fat = new ImageEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = 0;
 		fat->index = i;
 		this->items.push_back(ep);

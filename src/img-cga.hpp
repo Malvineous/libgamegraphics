@@ -23,7 +23,7 @@
 
 #include <boost/iostreams/stream.hpp>
 #include <camoto/bitstream.hpp>
-#include <camoto/gamegraphics/image.hpp>
+#include "baseimage.hpp"
 #include <camoto/gamegraphics/imagetype.hpp>
 
 namespace camoto {
@@ -37,7 +37,7 @@ namespace gamegraphics {
  *
  * Currently it only supports one format - 2bpp packed (not planar)
  */
-class CGAImage: virtual public Image
+class CGAImage: virtual public BaseImage
 {
 	public:
 		/// Constructor

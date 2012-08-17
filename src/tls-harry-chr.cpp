@@ -141,7 +141,7 @@ HarryCHRTileset::HarryCHRTileset(stream::inout_sptr data,
 	for (int i = 0; i < CHR_NUM_TILES; i++) {
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = 0;
 		fat->index = i;
 		fat->offset = i * CHR_WIDTH * CHR_HEIGHT;

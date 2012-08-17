@@ -22,13 +22,13 @@
 #ifndef _CAMOTO_IMG_PALETTE_HPP_
 #define _CAMOTO_IMG_PALETTE_HPP_
 
-#include <camoto/gamegraphics/image.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Image specialisation for palette files.
-class Palette: virtual public Image {
+class Palette: virtual public BaseImage {
 
 	public:
 		Palette();

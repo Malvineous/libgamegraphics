@@ -1,9 +1,9 @@
 lib_LTLIBRARIES = libgamegraphics.la
 
 libgamegraphics_la_SOURCES = main.cpp
-libgamegraphics_la_SOURCES += image.cpp
+libgamegraphics_la_SOURCES += baseimage.cpp
+libgamegraphics_la_SOURCES += basetileset.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
-libgamegraphics_la_SOURCES += tileset.cpp
 libgamegraphics_la_SOURCES += tilesetFromList.cpp
 libgamegraphics_la_SOURCES += filter-ccomic.cpp
 libgamegraphics_la_SOURCES += img-ega-planar.cpp
@@ -41,7 +41,9 @@ libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-wordresc-extra.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
-EXTRA_libgamegraphics_la_SOURCES = filter-ccomic.hpp
+EXTRA_libgamegraphics_la_SOURCES = baseimage.hpp
+EXTRA_libgamegraphics_la_SOURCES += basetileset.hpp
+EXTRA_libgamegraphics_la_SOURCES += filter-ccomic.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-common.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-planar.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-byteplanar.hpp

@@ -24,14 +24,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-FATTileset::FATEntry::FATEntry()
-{
-}
-
-FATTileset::FATEntry::~FATEntry()
-{
-}
-
 FATTileset::FATTileset(stream::inout_sptr data,
 	stream::pos offFirstTile)
 	:	data(new stream::seg()),
@@ -68,14 +60,14 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	FATEntry *pNewFile = this->createNewFATEntry();
 	EntryPtr ep(pNewFile);
 
-	pNewFile->isValid = true;
+	pNewFile->valid = true;
 	pNewFile->attr = attr;
 	pNewFile->size = 0;
 	pNewFile->lenHeader = 0;
 
 	// Figure out where the new file is going to go
 	const FATEntry *pFATBeforeThis = NULL;
-	if (idBeforeThis && idBeforeThis->isValid) {
+	if (idBeforeThis && idBeforeThis->isValid()) {
 		// Insert at idBeforeThis
 		// TESTED BY: fmt_grp_duke3d_insert_mid
 		pFATBeforeThis = dynamic_cast<const FATEntry *>(idBeforeThis.get());
@@ -107,7 +99,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 		pNewFile = returned;
 	}
 
-	if (idBeforeThis && idBeforeThis->isValid) {
+	if (idBeforeThis && idBeforeThis->isValid()) {
 		// Update the offsets of any files located after this one (since they will
 		// all have been shifted forward to make room for the insert.)
 		this->shiftFiles(
@@ -144,7 +136,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 void FATTileset::remove(EntryPtr& id)
 {
 	// Make sure the caller doesn't try to remove something that doesn't exist!
-	assert(id->isValid);
+	assert(id->isValid());
 
 	FATEntry *pFATDel = dynamic_cast<FATEntry *>(id.get());
 	assert(pFATDel);
@@ -172,7 +164,7 @@ void FATTileset::remove(EntryPtr& id)
 	this->data->remove(pFATDel->size + pFATDel->lenHeader);
 
 	// Mark it as invalid in case some other code is still holding on to it.
-	pFATDel->isValid = false;
+	pFATDel->valid = false;
 
 	this->postRemoveFile(pFATDel);
 
@@ -262,7 +254,7 @@ void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
 		i != this->openItems.end();
 		i++
 	) {
-		if (i->first->isValid) {
+		if (i->first->valid) {
 			if (this->entryInRange(i->first.get(), offStart, fatSkip)) {
 				if (stream::sub_sptr sub = i->second.lock()) {
 					sub->relocate(deltaOffset);
@@ -344,7 +336,7 @@ FATTileset::FATEntry *FATTileset::createNewFATEntry()
 
 stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
 {
-	assert(id->isValid);
+	assert(id->isValid());
 
 	// We are casting away const here, but that's because we need to maintain
 	// access to the EntryPtr, which we may need to "change" later (to update the
@@ -403,7 +395,7 @@ bool FATTileset::entryInRange(const FATEntry *fat, stream::pos offStart,
 
 	// If we have a valid item to skip (an invalid item is given during insert,
 	// before the skip item has been fully inserted.)
-	if ((fatSkip) && (fatSkip->isValid)) {
+	if ((fatSkip) && (fatSkip->isValid())) {
 
 		// Don't move the item we're skipping.
 		if (fat == fatSkip) return false;

@@ -22,7 +22,7 @@
 #define _CAMOTO_IMG_ZONE66_TILE_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include <camoto/gamegraphics/image.hpp>
+#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -57,7 +57,7 @@ class Zone66TileImageType: virtual public ImageType {
 };
 
 /// Zone66 Image implementation for a tile within a tileset.
-class Zone66TileImage: virtual public Image {
+class Zone66TileImage: virtual public BaseImage {
 	protected:
 		stream::inout_sptr data;
 		PaletteTablePtr pal;

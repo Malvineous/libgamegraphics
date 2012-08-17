@@ -215,7 +215,7 @@ MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
 	for (int i = 0; i < numImages; i++) {
 		FATEntry *fat = new FATEntry();
 		EntryPtr ep(fat);
-		fat->isValid = true;
+		fat->valid = true;
 		fat->attr = 0;
 		fat->index = i;
 		fat->offset = i * this->lenTile;

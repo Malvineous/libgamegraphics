@@ -2,7 +2,7 @@
  * @file   img-ega-planar.hpp
  * @brief  Image implementation adding support for the EGA byte-planar format.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGAPlanarImage: virtual public Image {
+class EGAPlanarImage: virtual public BaseImage
+{
 	protected:
 		stream::inout_sptr data;
 		stream::pos offset;
@@ -46,7 +47,6 @@ class EGAPlanarImage: virtual public Image {
 
 	public:
 		EGAPlanarImage();
-
 		virtual ~EGAPlanarImage();
 
 		/// These could be set in the constructor, but often descendent classes
@@ -54,52 +54,36 @@ class EGAPlanarImage: virtual public Image {
 		virtual void setParams(stream::inout_sptr data,
 			stream::pos offset, int width, int height,
 			const PLANE_LAYOUT& planes);
-
 		virtual int getCaps();
-
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
 		virtual void setDimensions(unsigned int width, unsigned int height);
-
 		virtual StdImageDataPtr toStandard();
-
 		virtual StdImageDataPtr toStandardMask();
-
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask);
 
 	protected:
 		StdImageDataPtr doConversion(bool mask);
-
 };
 
 /// Filetype handler for full screen raw EGA images.
-class EGARawPlanarImageType: virtual public ImageType {
-
+class EGARawPlanarImageType: virtual public ImageType
+{
 	public:
-
 		EGARawPlanarImageType();
-
 		virtual ~EGARawPlanarImageType();
 
 		virtual std::string getCode() const;
-
 		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getFileExtensions() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
 		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const;
-
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics
