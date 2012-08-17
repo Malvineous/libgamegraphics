@@ -42,41 +42,31 @@ class EGABytePlanarImage: virtual public Image {
 		PLANE_LAYOUT planes;
 
 	public:
-		EGABytePlanarImage()
-			throw ();
+		EGABytePlanarImage();
 
-		virtual ~EGABytePlanarImage()
-			throw ();
+		virtual ~EGABytePlanarImage();
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.
 		virtual void setParams(stream::inout_sptr data,
 			stream::pos offset, int width, int height,
-			const PLANE_LAYOUT& planes)
-			throw ();
+			const PLANE_LAYOUT& planes);
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw ();
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw ();
+		virtual StdImageDataPtr toStandardMask();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
 	protected:
-		StdImageDataPtr doConversion(bool mask)
-			throw ();
+		StdImageDataPtr doConversion(bool mask);
 
 };
 

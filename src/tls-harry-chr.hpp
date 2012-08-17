@@ -31,64 +31,47 @@ namespace gamegraphics {
 class HarryCHRTilesetType: virtual public TilesetType
 {
 	public:
-		HarryCHRTilesetType()
-			throw ();
+		HarryCHRTilesetType();
 
-		virtual ~HarryCHRTilesetType()
-			throw ();
+		virtual ~HarryCHRTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 };
 
 class HarryCHRTileset: virtual public FATTileset
 {
 	public:
 		HarryCHRTileset(stream::inout_sptr data,
-			PaletteTablePtr pal)
-			throw (stream::error);
+			PaletteTablePtr pal);
 
-		virtual ~HarryCHRTileset()
-			throw ();
+		virtual ~HarryCHRTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
-		PaletteTablePtr getPalette()
-			throw ();
+		PaletteTablePtr getPalette();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 	protected:
 		PaletteTablePtr pal;

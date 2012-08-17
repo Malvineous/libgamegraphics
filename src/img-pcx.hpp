@@ -41,37 +41,27 @@ class PCXBaseImageType: virtual public ImageType {
 		 *   Number of colour planes.  This must match the file being opened or a
 		 *   stream::error will be thrown.
 		 */
-		PCXBaseImageType(int bitsPerPlane, int numPlanes)
-			throw ();
+		PCXBaseImageType(int bitsPerPlane, int numPlanes);
 
-		virtual ~PCXBaseImageType()
-			throw ();
+		virtual ~PCXBaseImageType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		//virtual std::string getFriendlyName() const
-		//	throw ();
+		//virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		//virtual std::vector<std::string> getGameList() const
-		//	throw () = 0;
+		//virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
 
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
 	protected:
 		uint8_t bitsPerPlane; ///< Number of bits per pixel in each plane
@@ -83,17 +73,13 @@ class PCX_PlanarEGA_ImageType: virtual public PCXBaseImageType {
 
 	public:
 
-		PCX_PlanarEGA_ImageType()
-			throw ();
+		PCX_PlanarEGA_ImageType();
 
-		virtual ~PCX_PlanarEGA_ImageType()
-			throw ();
+		virtual ~PCX_PlanarEGA_ImageType();
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
 };
 
@@ -102,17 +88,13 @@ class PCX_LinearVGA_ImageType: virtual public PCXBaseImageType {
 
 	public:
 
-		PCX_LinearVGA_ImageType()
-			throw ();
+		PCX_LinearVGA_ImageType();
 
-		virtual ~PCX_LinearVGA_ImageType()
-			throw ();
+		virtual ~PCX_LinearVGA_ImageType();
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
 };
 
@@ -138,36 +120,26 @@ class PCXImage: virtual public Image {
 		 * @throw stream::error
 		 *   Read error or invalid file format.
 		 */
-		PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
-			throw (stream::error);
+		PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes);
 
-		virtual ~PCXImage()
-			throw ();
+		virtual ~PCXImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw (stream::error);
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw ();
+		virtual StdImageDataPtr toStandardMask();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw (stream::error);
+			StdImageDataPtr newMask);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
-		void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		stream::inout_sptr data;

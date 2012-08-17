@@ -51,17 +51,14 @@ namespace gamegraphics {
 #define CATII_NUMTILES 1618
 
 CatacombTilesetType::CatacombTilesetType()
-	throw ()
 {
 }
 
 CatacombTilesetType::~CatacombTilesetType()
-	throw ()
 {
 }
 
 std::vector<std::string> CatacombTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("cat");
@@ -70,7 +67,6 @@ std::vector<std::string> CatacombTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> CatacombTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Catacomb");
@@ -79,7 +75,6 @@ std::vector<std::string> CatacombTilesetType::getGameList() const
 }
 
 SuppFilenames CatacombTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -91,29 +86,24 @@ SuppFilenames CatacombTilesetType::getRequiredSupps(const std::string& filenameG
 //
 
 CatacombEGATilesetType::CatacombEGATilesetType()
-	throw ()
 {
 }
 
 CatacombEGATilesetType::~CatacombEGATilesetType()
-	throw ()
 {
 }
 
 std::string CatacombEGATilesetType::getCode() const
-	throw ()
 {
 	return "tls-catacomb-ega";
 }
 
 std::string CatacombEGATilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Catacomb EGA Tileset";
 }
 
 CatacombEGATilesetType::Certainty CatacombEGATilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 
@@ -128,7 +118,6 @@ CatacombEGATilesetType::Certainty CatacombEGATilesetType::isInstance(stream::inp
 
 TilesetPtr CatacombEGATilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
@@ -137,7 +126,6 @@ TilesetPtr CatacombEGATilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr CatacombEGATilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CatacombTileset(psGraphics, CAT_EGA));
 }
@@ -148,29 +136,24 @@ TilesetPtr CatacombEGATilesetType::open(stream::inout_sptr psGraphics,
 //
 
 CatacombCGATilesetType::CatacombCGATilesetType()
-	throw ()
 {
 }
 
 CatacombCGATilesetType::~CatacombCGATilesetType()
-	throw ()
 {
 }
 
 std::string CatacombCGATilesetType::getCode() const
-	throw ()
 {
 	return "tls-catacomb-cga";
 }
 
 std::string CatacombCGATilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Catacomb CGA Tileset";
 }
 
 CatacombCGATilesetType::Certainty CatacombCGATilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 
@@ -185,7 +168,6 @@ CatacombCGATilesetType::Certainty CatacombCGATilesetType::isInstance(stream::inp
 
 TilesetPtr CatacombCGATilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
@@ -194,7 +176,6 @@ TilesetPtr CatacombCGATilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr CatacombCGATilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CatacombTileset(psGraphics, CAT_CGA));
 }
@@ -206,9 +187,8 @@ TilesetPtr CatacombCGATilesetType::open(stream::inout_sptr psGraphics,
 
 CatacombTileset::CatacombTileset(stream::inout_sptr data,
 	CatacombImageType imageType)
-	throw (stream::error)
-	: FATTileset(data, CAT_FIRST_TILE_OFFSET),
-	  imageType(imageType)
+	:	FATTileset(data, CAT_FIRST_TILE_OFFSET),
+		imageType(imageType)
 {
 	unsigned int tileSize;
 	switch (this->imageType) {
@@ -236,18 +216,15 @@ CatacombTileset::CatacombTileset(stream::inout_sptr data,
 }
 
 CatacombTileset::~CatacombTileset()
-	throw ()
 {
 }
 
 int CatacombTileset::getCaps()
-	throw ()
 {
 	return 0;
 }
 
 void CatacombTileset::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	unsigned int tileSize;
 	switch (this->imageType) {
@@ -261,7 +238,6 @@ void CatacombTileset::resize(EntryPtr& id, stream::len newSize)
 }
 
 void CatacombTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = CAT_TILE_WIDTH;
 	*height = CAT_TILE_HEIGHT;
@@ -269,14 +245,12 @@ void CatacombTileset::getTilesetDimensions(unsigned int *width, unsigned int *he
 }
 
 unsigned int CatacombTileset::getLayoutWidth()
-	throw ()
 {
 	return 2;
 }
 
 ImagePtr CatacombTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	ImagePtr conv;
 	switch (this->imageType) {

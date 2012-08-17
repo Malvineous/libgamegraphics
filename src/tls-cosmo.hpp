@@ -30,88 +30,66 @@ namespace gamegraphics {
 class CosmoTilesetType: virtual public TilesetType {
 
 	public:
-		CosmoTilesetType()
-			throw ();
+		CosmoTilesetType();
 
-		virtual ~CosmoTilesetType()
-			throw ();
+		virtual ~CosmoTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 
 class CosmoMaskedTilesetType: virtual public CosmoTilesetType {
 
 	public:
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 };
 
 class CosmoTileset: virtual public FATTileset {
 
 	public:
-		CosmoTileset(stream::inout_sptr data, uint8_t numPlanes)
-			throw (stream::error);
+		CosmoTileset(stream::inout_sptr data, uint8_t numPlanes);
 
-		virtual ~CosmoTileset()
-			throw ();
+		virtual ~CosmoTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
 		// FATTileset
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 	protected:
 		unsigned int numPlanes;

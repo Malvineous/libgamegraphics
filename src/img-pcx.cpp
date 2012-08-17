@@ -36,7 +36,6 @@ namespace gamegraphics {
 /// Resize a stream when the end part of it has been turned into a substream
 void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
 	stream::pos off, stream::len len)
-	throw (stream::write_error)
 {
 	parent->truncate(off + len);
 	sub->resize(len);
@@ -51,14 +50,13 @@ class filter_pcx_unrle: public filter {
 
 	public:
 
-		filter_pcx_unrle() :
-			count(0)
+		filter_pcx_unrle()
+			:	count(0)
 		{
 		};
 
 		void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn)
-			throw (filter_error)
 		{
 			stream::len r = 0, w = 0;
 			// While there's more space to write, and either more data to read or
@@ -128,15 +126,14 @@ class filter_pcx_rle: public filter {
 
 	public:
 
-		filter_pcx_rle() :
-			val(0),
-			count(0)
+		filter_pcx_rle()
+			:	val(0),
+				count(0)
 		{
 		};
 
 		void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn)
-			throw (filter_error)
 		{
 			stream::len r = 0, w = 0;
 			// +2 == make sure there's always enough room to write one RLE pair
@@ -186,19 +183,16 @@ stream::len putNextChar(stream::output_sptr src, uint8_t *lastChar, uint8_t out)
 
 
 PCXBaseImageType::PCXBaseImageType(int bitsPerPlane, int numPlanes)
-	throw () :
-		bitsPerPlane(bitsPerPlane),
+	:	bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
 {
 }
 
 PCXBaseImageType::~PCXBaseImageType()
-	throw ()
 {
 }
 
 std::string PCXBaseImageType::getCode() const
-	throw ()
 {
 	std::stringstream code;
 	code << "img-pcx-" << (int)this->bitsPerPlane << "b"
@@ -207,7 +201,6 @@ std::string PCXBaseImageType::getCode() const
 }
 
 std::vector<std::string> PCXBaseImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pcx");
@@ -215,7 +208,6 @@ std::vector<std::string> PCXBaseImageType::getFileExtensions() const
 }
 
 ImageType::Certainty PCXBaseImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	psImage->seekg(0, stream::start);
 
@@ -254,7 +246,6 @@ ImageType::Certainty PCXBaseImageType::isInstance(stream::input_sptr psImage) co
 
 ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	// Create a 16-colour 1-bit-per-plane image
 	psImage->write(
@@ -305,37 +296,31 @@ ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
 
 ImagePtr PCXBaseImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new PCXImage(psImage, this->bitsPerPlane, this->numPlanes));
 }
 
 SuppFilenames PCXBaseImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	return SuppFilenames();
 }
 
 
 PCX_PlanarEGA_ImageType::PCX_PlanarEGA_ImageType()
-	throw () :
-		PCXBaseImageType(1, 4)
+	:	PCXBaseImageType(1, 4)
 {
 }
 
 PCX_PlanarEGA_ImageType::~PCX_PlanarEGA_ImageType()
-	throw ()
 {
 }
 
 std::string PCX_PlanarEGA_ImageType::getFriendlyName() const
-	throw ()
 {
 	return "PCX image (16-colour planar EGA)";
 }
 
 std::vector<std::string> PCX_PlanarEGA_ImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
@@ -344,24 +329,20 @@ std::vector<std::string> PCX_PlanarEGA_ImageType::getGameList() const
 
 
 PCX_LinearVGA_ImageType::PCX_LinearVGA_ImageType()
-	throw () :
-		PCXBaseImageType(8, 1)
+	:	PCXBaseImageType(8, 1)
 {
 }
 
 PCX_LinearVGA_ImageType::~PCX_LinearVGA_ImageType()
-	throw ()
 {
 }
 
 std::string PCX_LinearVGA_ImageType::getFriendlyName() const
-	throw ()
 {
 	return "PCX image (256-colour linear VGA)";
 }
 
 std::vector<std::string> PCX_LinearVGA_ImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Halloween Harry");
@@ -370,8 +351,7 @@ std::vector<std::string> PCX_LinearVGA_ImageType::getGameList() const
 
 
 PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
-	throw (stream::error) :
-		data(data),
+	:	data(data),
 		bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
 {
@@ -403,12 +383,10 @@ PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPla
 }
 
 PCXImage::~PCXImage()
-	throw ()
 {
 }
 
 int PCXImage::getCaps()
-	throw ()
 {
 	int depth;
 	int numColours = 1 << (this->numPlanes * this->bitsPerPlane);
@@ -422,7 +400,6 @@ int PCXImage::getCaps()
 }
 
 void PCXImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -430,7 +407,6 @@ void PCXImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void PCXImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -439,7 +415,6 @@ void PCXImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr PCXImage::toStandard()
-	throw (stream::error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -523,7 +498,6 @@ StdImageDataPtr PCXImage::toStandard()
 }
 
 StdImageDataPtr PCXImage::toStandardMask()
-	throw ()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -541,7 +515,6 @@ StdImageDataPtr PCXImage::toStandardMask()
 void PCXImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (stream::error)
 {
 	// Remember the current palette before we start overwriting things, in case
 	// it hasn't been set
@@ -674,7 +647,6 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr PCXImage::getPalette()
-	throw (stream::error)
 {
 	if (!this->pal) {
 
@@ -724,7 +696,6 @@ PaletteTablePtr PCXImage::getPalette()
 }
 
 void PCXImage::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	this->pal = newPalette;
 	return;

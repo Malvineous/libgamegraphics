@@ -24,30 +24,25 @@ namespace camoto {
 namespace gamegraphics {
 
 VGAPaletteImageType::VGAPaletteImageType()
-	throw ()
 {
 }
 
 VGAPaletteImageType::~VGAPaletteImageType()
-	throw ()
 {
 }
 
 std::string VGAPaletteImageType::getCode() const
-	throw ()
 {
 	return "pal-vga-raw";
 }
 
 std::string VGAPaletteImageType::getFriendlyName() const
-	throw ()
 {
 	return "Standard VGA palette";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> VGAPaletteImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
@@ -55,14 +50,12 @@ std::vector<std::string> VGAPaletteImageType::getFileExtensions() const
 }
 
 std::vector<std::string> VGAPaletteImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
 ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	stream::pos len = psImage->size();
 
@@ -81,20 +74,17 @@ ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage)
 
 ImagePtr VGAPaletteImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new VGAPalette(psImage));
 }
 
 ImagePtr VGAPaletteImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new VGAPalette(psImage));
 }
 
 SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -102,18 +92,15 @@ SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameI
 
 
 VGAPalette::VGAPalette(stream::inout_sptr data)
-	throw (stream::error) :
-		data(data)
+	:	data(data)
 {
 }
 
 VGAPalette::~VGAPalette()
-	throw ()
 {
 }
 
 PaletteTablePtr VGAPalette::getPalette()
-	throw (stream::error)
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
@@ -144,7 +131,6 @@ PaletteTablePtr VGAPalette::getPalette()
 }
 
 void VGAPalette::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);

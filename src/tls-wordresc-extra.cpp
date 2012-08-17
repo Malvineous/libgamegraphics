@@ -26,36 +26,30 @@ namespace camoto {
 namespace gamegraphics {
 
 WordrescExtraTilesetType::WordrescExtraTilesetType()
-	throw ()
 {
 }
 
 WordrescExtraTilesetType::~WordrescExtraTilesetType()
-	throw ()
 {
 }
 
 std::string WordrescExtraTilesetType::getCode() const
-	throw ()
 {
 	return "tls-wordresc-extra";
 }
 
 std::string WordrescExtraTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Word Rescue Virtual Tileset";
 }
 
 std::vector<std::string> WordrescExtraTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
 std::vector<std::string> WordrescExtraTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
@@ -63,14 +57,12 @@ std::vector<std::string> WordrescExtraTilesetType::getGameList() const
 }
 
 WordrescExtraTilesetType::Certainty WordrescExtraTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	return Unsure;
 }
 
 TilesetPtr WordrescExtraTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	// TODO
 	throw stream::error("Not yet implemented");
@@ -78,7 +70,6 @@ TilesetPtr WordrescExtraTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr WordrescExtraTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	if (suppData.find(SuppItem::Extra1) == suppData.end()) {
 		throw stream::error("Missing supp item type Extra1");
@@ -164,7 +155,6 @@ TilesetPtr WordrescExtraTilesetType::open(stream::inout_sptr psGraphics,
 }
 
 SuppFilenames WordrescExtraTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	SuppFilenames supp;

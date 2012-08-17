@@ -25,8 +25,7 @@ namespace gamegraphics {
 
 SubImage::SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
 	unsigned int width, unsigned int height)
-	throw (stream::error) :
-		img(img),
+	:	img(img),
 		xOffset(xOffset),
 		yOffset(yOffset),
 		width(width),
@@ -35,19 +34,16 @@ SubImage::SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
 }
 
 SubImage::~SubImage()
-	throw ()
 {
 }
 
 int SubImage::getCaps()
-	throw ()
 {
 	int parentCaps = this->img->getCaps();
 	return parentCaps & Image::ColourDepthMask;
 }
 
 void SubImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -55,7 +51,6 @@ void SubImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void SubImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	if ((width != this->width) || (height != this->height)) {
@@ -65,7 +60,6 @@ void SubImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr SubImage::toStandard()
-	throw (stream::error)
 {
 	if (!this->parent) {
 		this->parent = this->img->toStandard();
@@ -75,7 +69,6 @@ StdImageDataPtr SubImage::toStandard()
 }
 
 StdImageDataPtr SubImage::toStandardMask()
-	throw ()
 {
 	if (!this->parentMask) {
 		this->parentMask = this->img->toStandardMask();
@@ -87,7 +80,6 @@ StdImageDataPtr SubImage::toStandardMask()
 void SubImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (stream::error)
 {
 	if (!this->parent) {
 		this->parent = this->img->toStandard();
@@ -128,7 +120,6 @@ void SubImage::fromStandard(StdImageDataPtr newContent,
 }
 
 StdImageDataPtr SubImage::extractPortion(const StdImageDataPtr& source)
-	throw ()
 {
 	const uint8_t *parentData = source.get();
 

@@ -26,8 +26,7 @@ namespace gamegraphics {
 
 TilesetFromImage::TilesetFromImage(ImagePtr img,
 	unsigned int tileWidth, unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
-	throw (stream::error) :
-		img(img),
+	:	img(img),
 		tileWidth(tileWidth),
 		tileHeight(tileHeight),
 		tilesWide(tilesWide),
@@ -46,12 +45,10 @@ TilesetFromImage::TilesetFromImage(ImagePtr img,
 }
 
 TilesetFromImage::~TilesetFromImage()
-	throw ()
 {
 }
 
 int TilesetFromImage::getCaps()
-	throw ()
 {
 	int caps = 0;
 	int imgCaps = this->img->getCaps();
@@ -60,13 +57,11 @@ int TilesetFromImage::getCaps()
 }
 
 const Tileset::VC_ENTRYPTR& TilesetFromImage::getItems() const
-	throw ()
 {
 	return this->items;
 }
 
 ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
-	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
@@ -85,25 +80,21 @@ ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
 }
 
 Tileset::EntryPtr TilesetFromImage::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (stream::error)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
 void TilesetFromImage::remove(EntryPtr& id)
-	throw (stream::error)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
 void TilesetFromImage::flush()
-	throw (stream::error)
 {
 	return;
 }
 
 void TilesetFromImage::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	if (newSize != this->tileWidth * this->tileHeight) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -112,7 +103,6 @@ void TilesetFromImage::resize(EntryPtr& id, stream::len newSize)
 }
 
 void TilesetFromImage::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->tileWidth;
 	*height = this->tileHeight;
@@ -120,19 +110,16 @@ void TilesetFromImage::getTilesetDimensions(unsigned int *width, unsigned int *h
 }
 
 unsigned int TilesetFromImage::getLayoutWidth()
-	throw ()
 {
 	return this->tilesWide;
 }
 
 PaletteTablePtr TilesetFromImage::getPalette()
-	throw ()
 {
 	return this->img->getPalette();
 }
 
 void TilesetFromImage::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	this->img->setPalette(newPalette);
 	return;

@@ -31,66 +31,49 @@ namespace gamegraphics {
 class JillTilesetType: virtual public TilesetType {
 
 	public:
-		JillTilesetType()
-			throw ();
+		JillTilesetType();
 
-		virtual ~JillTilesetType()
-			throw ();
+		virtual ~JillTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 
 class JillTileset: virtual public FATTileset {
 
 	public:
-		JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
-			throw (stream::error);
+		JillTileset(stream::inout_sptr data, PaletteTablePtr pal);
 
-		virtual ~JillTileset()
-			throw ();
+		virtual ~JillTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
 		// FATTileset
 
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
-			throw (stream::error);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
 
-		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta)
-			throw (stream::error);
+		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta);
 
 	protected:
 		PaletteTablePtr pal; ///< Palette for entire tileset (optional)
@@ -100,30 +83,23 @@ class JillTileset: virtual public FATTileset {
 class JillTiles: virtual public FATTileset {
 
 	public:
-		JillTiles(stream::inout_sptr data)
-			throw (stream::error);
+		JillTiles(stream::inout_sptr data);
 
-		virtual ~JillTiles()
-			throw ();
+		virtual ~JillTiles();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
 		// FATTileset
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry)
-			throw (stream::error);
+			FATEntry *pNewEntry);
 
-		virtual void postRemoveFile(const FATEntry *pid)
-			throw (stream::error);
+		virtual void postRemoveFile(const FATEntry *pid);
 
 	protected:
 		StdImageDataPtr colourMap;
@@ -144,27 +120,20 @@ class JillImage: virtual public VGAImage {
 		 * @param colourMap
 		 *   Colour mapping table (not a palette) from the parent tileset.
 		 */
-		JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
-			throw ();
+		JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap);
 
-		virtual ~JillImage()
-			throw ();
+		virtual ~JillImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw (stream::read_error);
+		virtual StdImageDataPtr toStandard();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
 	protected:
 		uint8_t width;

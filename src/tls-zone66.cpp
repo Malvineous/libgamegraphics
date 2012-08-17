@@ -44,29 +44,24 @@ namespace camoto {
 namespace gamegraphics {
 
 Zone66TilesetType::Zone66TilesetType()
-	throw ()
 {
 }
 
 Zone66TilesetType::~Zone66TilesetType()
-	throw ()
 {
 }
 
 std::string Zone66TilesetType::getCode() const
-	throw ()
 {
 	return "tls-zone66";
 }
 
 std::string Zone66TilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Zone 66 tileset";
 }
 
 std::vector<std::string> Zone66TilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("z66");
@@ -74,7 +69,6 @@ std::vector<std::string> Zone66TilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> Zone66TilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Zone 66");
@@ -83,7 +77,6 @@ std::vector<std::string> Zone66TilesetType::getGameList() const
 
 Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 	stream::input_sptr psTileset) const
-	throw (stream::error)
 {
 	stream::pos len = psTileset->size();
 	// TESTED BY: tls_zone66_isinstance_c04
@@ -122,7 +115,6 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 
 TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(4);
 	psTileset->seekp(0, stream::start);
@@ -139,7 +131,6 @@ TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr Zone66TilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
@@ -152,7 +143,6 @@ TilesetPtr Zone66TilesetType::open(stream::inout_sptr psTileset,
 
 SuppFilenames Zone66TilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
-	throw ()
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
@@ -162,8 +152,7 @@ SuppFilenames Zone66TilesetType::getRequiredSupps(
 
 Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	throw (stream::error) :
-		FATTileset(data, Z66_FIRST_TILE_OFFSET),
+	:	FATTileset(data, Z66_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -205,32 +194,27 @@ Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
 }
 
 Zone66Tileset::~Zone66Tileset()
-	throw ()
 {
 }
 
 int Zone66Tileset::getCaps()
-	throw ()
 {
 	return HasPalette;
 }
 
 ImagePtr Zone66Tileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	ImagePtr img(new Zone66TileImage(content, this->pal));
 	return img;
 }
 
 PaletteTablePtr Zone66Tileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 void Zone66Tileset::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;
@@ -239,7 +223,6 @@ void Zone66Tileset::setPalette(PaletteTablePtr newPalette)
 
 void Zone66Tileset::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
-	throw (stream::error)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
 
@@ -254,7 +237,6 @@ void Zone66Tileset::updateFileOffset(const FATEntry *pid,
 
 Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 	const Zone66Tileset::FATEntry *idBeforeThis, Zone66Tileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
 
@@ -286,7 +268,6 @@ Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 }
 
 void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
@@ -296,7 +277,6 @@ void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
 }
 
 void Zone66Tileset::postRemoveFile(const FATEntry *pid)
-	throw (stream::error)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -320,7 +300,6 @@ void Zone66Tileset::postRemoveFile(const FATEntry *pid)
 }
 
 void Zone66Tileset::updateFileCount(uint32_t newCount)
-	throw (std::ios_base::failure)
 {
 	this->data->seekp(Z66_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);

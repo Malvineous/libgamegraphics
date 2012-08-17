@@ -31,37 +31,27 @@ class MonsterBashBackgroundTilesetType: virtual public TilesetType {
 
 	public:
 
-		MonsterBashBackgroundTilesetType()
-			throw ();
+		MonsterBashBackgroundTilesetType();
 
-		virtual ~MonsterBashBackgroundTilesetType()
-			throw ();
+		virtual ~MonsterBashBackgroundTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 
@@ -69,70 +59,52 @@ class MonsterBashForegroundTilesetType: virtual public TilesetType {
 
 	public:
 
-		MonsterBashForegroundTilesetType()
-			throw ();
+		MonsterBashForegroundTilesetType();
 
-		virtual ~MonsterBashForegroundTilesetType()
-			throw ();
+		virtual ~MonsterBashForegroundTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 
 class MonsterBashTileset: virtual public FATTileset {
 
 	public:
-		MonsterBashTileset(stream::inout_sptr data, uint8_t numPlanes)
-			throw (stream::error);
+		MonsterBashTileset(stream::inout_sptr data, uint8_t numPlanes);
 
-		virtual ~MonsterBashTileset()
-			throw ();
+		virtual ~MonsterBashTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
 		// FATTileset
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry)
-			throw (stream::error);
+			FATEntry *pNewEntry);
 
 	protected:
 		unsigned int numPlanes; ///< Number of colour planes in each image

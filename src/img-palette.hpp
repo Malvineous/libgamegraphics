@@ -31,33 +31,24 @@ namespace gamegraphics {
 class Palette: virtual public Image {
 
 	public:
-		Palette()
-			throw ();
+		Palette();
 
-		virtual ~Palette()
-			throw ();
+		virtual ~Palette();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw (stream::error);
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual StdImageDataPtr toStandard()
-			throw (stream::error);
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw (stream::error);
+		virtual StdImageDataPtr toStandardMask();
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error) = 0;
+		virtual PaletteTablePtr getPalette() = 0;
 
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error) = 0;
+		virtual void setPalette(PaletteTablePtr newPalette) = 0;
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw (stream::error);
+			StdImageDataPtr newMask);
 
 };
 

@@ -34,29 +34,24 @@ namespace camoto {
 namespace gamegraphics {
 
 Nukem2ImageType::Nukem2ImageType()
-	throw ()
 {
 }
 
 Nukem2ImageType::~Nukem2ImageType()
-	throw ()
 {
 }
 
 std::string Nukem2ImageType::getCode() const
-	throw ()
 {
 	return "img-nukem2";
 }
 
 std::string Nukem2ImageType::getFriendlyName() const
-	throw ()
 {
 	return "Duke Nukem II full-screen image";
 }
 
 std::vector<std::string> Nukem2ImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
@@ -64,7 +59,6 @@ std::vector<std::string> Nukem2ImageType::getFileExtensions() const
 }
 
 std::vector<std::string> Nukem2ImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Duke Nukem II");
@@ -72,7 +66,6 @@ std::vector<std::string> Nukem2ImageType::getGameList() const
 }
 
 ImageType::Certainty Nukem2ImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	// Files are a fixed size.
 	// TESTED BY: img_nukem2_isinstance_c01
@@ -97,28 +90,24 @@ ImageType::Certainty Nukem2ImageType::isInstance(stream::input_sptr psImage) con
 
 ImagePtr Nukem2ImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new Nukem2Image(psImage));
 }
 
 ImagePtr Nukem2ImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new Nukem2Image(psImage));
 }
 
 SuppFilenames Nukem2ImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	return SuppFilenames();
 }
 
 
 Nukem2Image::Nukem2Image(stream::inout_sptr data)
-	throw ()
-	: data(data)
+	:	data(data)
 {
 	PLANE_LAYOUT planes;
 	planes[PLANE_BLUE] = 1;
@@ -157,18 +146,15 @@ Nukem2Image::Nukem2Image(stream::inout_sptr data)
 }
 
 Nukem2Image::~Nukem2Image()
-	throw ()
 {
 }
 
 int Nukem2Image::getCaps()
-	throw ()
 {
 	return ColourDepthEGA | HasPalette;
 }
 
 void Nukem2Image::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = N2IMG_WIDTH;
 	*height = N2IMG_HEIGHT;
@@ -178,7 +164,6 @@ void Nukem2Image::getDimensions(unsigned int *width, unsigned int *height)
 void Nukem2Image::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	this->EGAPlanarImage::fromStandard(newContent, newMask);
 
@@ -199,13 +184,11 @@ void Nukem2Image::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr Nukem2Image::getPalette()
-	throw (stream::error)
 {
 	return this->vgaPal;
 }
 
 void Nukem2Image::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	if (newPalette->size() > 16) {
 		throw stream::error("Duke Nukem II full-screen images can only support 16 "

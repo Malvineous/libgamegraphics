@@ -32,30 +32,25 @@ namespace camoto {
 namespace gamegraphics {
 
 TVFogImageType::TVFogImageType()
-	throw ()
 {
 }
 
 TVFogImageType::~TVFogImageType()
-	throw ()
 {
 }
 
 std::string TVFogImageType::getCode() const
-	throw ()
 {
 	return "img-tv-fog";
 }
 
 std::string TVFogImageType::getFriendlyName() const
-	throw ()
 {
 	return "Terminal Velocity fog map";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> TVFogImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("fog");
@@ -63,7 +58,6 @@ std::vector<std::string> TVFogImageType::getFileExtensions() const
 }
 
 std::vector<std::string> TVFogImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Terminal Velocity");
@@ -71,7 +65,6 @@ std::vector<std::string> TVFogImageType::getGameList() const
 }
 
 ImageType::Certainty TVFogImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	stream::pos len = psImage->size();
 
@@ -92,7 +85,6 @@ ImageType::Certainty TVFogImageType::isInstance(stream::input_sptr psImage) cons
 
 ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psImage->truncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
 	uint8_t buf;
@@ -108,7 +100,6 @@ ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
 
 ImagePtr TVFogImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
@@ -116,7 +107,6 @@ ImagePtr TVFogImageType::open(stream::inout_sptr psImage,
 }
 
 SuppFilenames TVFogImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	SuppFilenames supps;
 	std::string filenameBase =

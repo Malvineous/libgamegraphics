@@ -29,37 +29,27 @@ namespace gamegraphics {
 class WordrescTilesetType: virtual public TilesetType {
 
 	public:
-		WordrescTilesetType()
-			throw ();
+		WordrescTilesetType();
 
-		virtual ~WordrescTilesetType()
-			throw ();
+		virtual ~WordrescTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 

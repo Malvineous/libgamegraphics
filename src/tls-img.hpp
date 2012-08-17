@@ -35,44 +35,31 @@ class TilesetFromImage: virtual public Tileset
 		};
 
 		TilesetFromImage(ImagePtr img, unsigned int tileWidth,
-			unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
-			throw (stream::error);
+			unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh);
 
-		virtual ~TilesetFromImage()
-			throw ();
+		virtual ~TilesetFromImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual const VC_ENTRYPTR& getItems() const
-			throw ();
+		virtual const VC_ENTRYPTR& getItems() const;
 
-		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (stream::error);
+		virtual ImagePtr openImage(const EntryPtr& id);
 
-		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (stream::error);
+		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr);
 
-		virtual void remove(EntryPtr& id)
-			throw (stream::error);
+		virtual void remove(EntryPtr& id);
 
-		void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void flush()
-			throw (stream::error);
+		virtual void flush();
 
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
-		void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		ImagePtr img;            ///< Underlying image file

@@ -112,25 +112,21 @@ class Tileset: virtual public Metadata {
 		/// Vector of shared FileEntry pointers
 		typedef std::vector<EntryPtr> VC_ENTRYPTR;
 
-		Tileset()
-			throw ();
+		Tileset();
 
-		virtual ~Tileset()
-			throw ();
+		virtual ~Tileset();
 
 		/// Get the capabilities of this tileset format.
 		/**
 		 * @return One or more of the \ref Caps enum values (OR'd together.)
 		 */
-		virtual int getCaps()
-			throw () = 0;
+		virtual int getCaps() = 0;
 
 		/// Get a list of all tilesets and images in the file.
 		/**
 		 * @return A vector of %Entry with one element for each item in the tileset.
 		 */
-		virtual const VC_ENTRYPTR& getItems() const
-			throw () = 0;
+		virtual const VC_ENTRYPTR& getItems() const = 0;
 
 		/// Open the sub-tileset at the given offset.
 		/**
@@ -148,8 +144,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @return A shared pointer to another Tileset instance.
 		 */
-		virtual TilesetPtr openTileset(const EntryPtr& id)
-			throw (stream::error);
+		virtual TilesetPtr openTileset(const EntryPtr& id);
 
 		/// Export/import the given tile.
 		/**
@@ -162,8 +157,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @return A shared pointer to an instance of the Image class.
 		 */
-		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (stream::error);
+		virtual ImagePtr openImage(const EntryPtr& id);
 
 		/// Insert a new image/subtileset into the tileset.
 		/**
@@ -188,8 +182,7 @@ class Tileset: virtual public Metadata {
 		 * @return An EntryPtr to the newly added image, which can be immediately
 		 *   passed to open() if needed.
 		 */
-		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (stream::error) = 0;
+		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr) = 0;
 
 		/// Delete the given entry from the tileset.
 		/**
@@ -204,8 +197,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @post Existing EntryPtrs become invalid.  Any open files remain valid.
 		 */
-		virtual void remove(EntryPtr& id)
-			throw (stream::error) = 0;
+		virtual void remove(EntryPtr& id) = 0;
 
 		/// Enlarge or shrink an existing entry.
 		/**
@@ -225,8 +217,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @post Existing EntryPtrs remain valid.
 		 */
-		virtual void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error) = 0;
+		virtual void resize(EntryPtr& id, stream::len newSize) = 0;
 
 		/// Write out any cached changes to the underlying stream.
 		/**
@@ -246,8 +237,7 @@ class Tileset: virtual public Metadata {
 		 *   in the chain, from the most-sub-sub-tileset first, to the original
 		 *   root tileset last.
 		 */
-		virtual void flush()
-			throw (stream::error) = 0;
+		virtual void flush() = 0;
 
 		/// Get the dimensions of all images in this tileset.
 		/**
@@ -263,8 +253,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @note Default implementation returns 0 x 0.
 		 */
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
 		/// Set the size of all images in this tileset.
 		/**
@@ -287,8 +276,7 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @note Default implementation triggers assertion failure.
 		 */
-		virtual void setTilesetDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setTilesetDimensions(unsigned int width, unsigned int height);
 
 		/// Get the preferred layout size for this tileset.
 		/**
@@ -302,15 +290,13 @@ class Tileset: virtual public Metadata {
 		 *
 		 * @note Default implementation returns 0.
 		 */
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
 		/// Get the indexed colour map from the image.
 		/**
 		 * @pre getCaps() return value includes HasPalette.
 		 */
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
 		/// Change the indexed colour map used by the image.
 		/**
@@ -321,8 +307,7 @@ class Tileset: virtual public Metadata {
 		 * @param newPalette
 		 *   New palette data
 		 */
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 };
 

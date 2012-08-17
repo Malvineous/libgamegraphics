@@ -54,15 +54,13 @@ class ImageType {
 		 *
 		 * @return The image short name/ID.
 		 */
-		virtual std::string getCode() const
-			throw () = 0;
+		virtual std::string getCode() const = 0;
 
 		/// Get the image name, e.g. "Xargon image file"
 		/**
 		 * @return The image name.
 		 */
-		virtual std::string getFriendlyName() const
-			throw () = 0;
+		virtual std::string getFriendlyName() const = 0;
 
 		/// Get a list of the known file extensions for this format.
 		/**
@@ -72,16 +70,14 @@ class ImageType {
 		 *   also be generic, other data may be found in files with these
 		 *   extensions too!
 		 */
-		virtual std::vector<std::string> getFileExtensions() const
-			throw () = 0;
+		virtual std::vector<std::string> getFileExtensions() const = 0;
 
 		/// Get a list of games using this format.
 		/**
 		 * @return A vector of game names, such as "Crystal Caves",
 		 *   "Secret Agent"
 		 */
-		virtual std::vector<std::string> getGameList() const
-			throw () = 0;
+		virtual std::vector<std::string> getGameList() const = 0;
 
 		/// Check a stream to see if it's in this image format.
 		/**
@@ -93,8 +89,7 @@ class ImageType {
 		 * @note Many image formats lack a file header, so %Unsure will be a common
 		 *   return value, especially with small files.
 		 */
-		virtual Certainty isInstance(stream::input_sptr psImage) const
-			throw (stream::error) = 0;
+		virtual Certainty isInstance(stream::input_sptr psImage) const = 0;
 
 		/// Create a blank image file in this format.
 		/**
@@ -115,8 +110,7 @@ class ImageType {
 		 *   valid empty file had been opened by open().
 		 */
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error) = 0;
+			SuppData& suppData) const = 0;
 
 		/// Open a image file.
 		/**
@@ -135,8 +129,7 @@ class ImageType {
 		 *   handler.
 		 */
 		virtual ImagePtr open(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error) = 0;
+			SuppData& suppData) const = 0;
 
 		/// Get a list of any required supplemental files.
 		/**
@@ -155,8 +148,7 @@ class ImageType {
 		 *   added to an \ref SuppData map where it can be passed to newImage()
 		 *   or open().
 		 */
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw () = 0;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const = 0;
 
 };
 

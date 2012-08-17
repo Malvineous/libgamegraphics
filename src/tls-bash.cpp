@@ -64,37 +64,31 @@ namespace gamegraphics {
 //
 
 MonsterBashBackgroundTilesetType::MonsterBashBackgroundTilesetType()
-	throw ()
 {
 }
 
 MonsterBashBackgroundTilesetType::~MonsterBashBackgroundTilesetType()
-	throw ()
 {
 }
 
 std::string MonsterBashBackgroundTilesetType::getCode() const
-	throw ()
 {
 	return "tls-bash-bg";
 }
 
 std::string MonsterBashBackgroundTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Monster Bash Background Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> MonsterBashBackgroundTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
 std::vector<std::string> MonsterBashBackgroundTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
@@ -102,7 +96,6 @@ std::vector<std::string> MonsterBashBackgroundTilesetType::getGameList() const
 }
 
 MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return PossiblyYes;
@@ -113,7 +106,6 @@ MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::is
 
 TilesetPtr MonsterBashBackgroundTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	char empty[MB_TILE_LEN_BG];
 	memset(empty, 0x00, sizeof(empty));
@@ -125,13 +117,11 @@ TilesetPtr MonsterBashBackgroundTilesetType::create(stream::inout_sptr psGraphic
 
 TilesetPtr MonsterBashBackgroundTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_TILE));
 }
 
 SuppFilenames MonsterBashBackgroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -143,37 +133,31 @@ SuppFilenames MonsterBashBackgroundTilesetType::getRequiredSupps(const std::stri
 //
 
 MonsterBashForegroundTilesetType::MonsterBashForegroundTilesetType()
-	throw ()
 {
 }
 
 MonsterBashForegroundTilesetType::~MonsterBashForegroundTilesetType()
-	throw ()
 {
 }
 
 std::string MonsterBashForegroundTilesetType::getCode() const
-	throw ()
 {
 	return "tls-bash-fg";
 }
 
 std::string MonsterBashForegroundTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Monster Bash Foreground Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> MonsterBashForegroundTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
 std::vector<std::string> MonsterBashForegroundTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
@@ -181,7 +165,6 @@ std::vector<std::string> MonsterBashForegroundTilesetType::getGameList() const
 }
 
 MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return PossiblyYes;
@@ -192,7 +175,6 @@ MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::is
 
 TilesetPtr MonsterBashForegroundTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	char empty[MB_TILE_LEN_FG];
 	memset(empty, 0x00, sizeof(empty));
@@ -204,13 +186,11 @@ TilesetPtr MonsterBashForegroundTilesetType::create(stream::inout_sptr psGraphic
 
 TilesetPtr MonsterBashForegroundTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_SPRITE));
 }
 
 SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -223,8 +203,7 @@ SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::stri
 
 MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (stream::error) :
-		FATTileset(data, MB_FIRST_TILE_OFFSET),
+	:	FATTileset(data, MB_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -248,18 +227,15 @@ MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
 }
 
 MonsterBashTileset::~MonsterBashTileset()
-	throw ()
 {
 }
 
 int MonsterBashTileset::getCaps()
-	throw ()
 {
 	return 0;
 }
 
 void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	if (newSize != this->lenTile) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -268,7 +244,6 @@ void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)
 }
 
 void MonsterBashTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = MB_TILE_WIDTH;
 	*height = MB_TILE_HEIGHT;
@@ -277,14 +252,12 @@ void MonsterBashTileset::getTilesetDimensions(unsigned int *width, unsigned int 
 
 
 unsigned int MonsterBashTileset::getLayoutWidth()
-	throw ()
 {
 	return 20;
 }
 
 ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	int offset = (this->numPlanes == MB_NUMPLANES_SPRITE) ? 1 : 0;
@@ -306,7 +279,6 @@ ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 
 MonsterBashTileset::FATEntry *MonsterBashTileset::preInsertFile(
 	const MonsterBashTileset::FATEntry *idBeforeThis, MonsterBashTileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	// All tiles are a fixed size in this format.
 	pNewEntry->size = this->lenTile;

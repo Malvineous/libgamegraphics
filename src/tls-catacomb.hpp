@@ -37,105 +37,79 @@ enum CatacombImageType {
 class CatacombTilesetType: virtual public TilesetType
 {
 	public:
-		CatacombTilesetType()
-			throw ();
+		CatacombTilesetType();
 
-		virtual ~CatacombTilesetType()
-			throw ();
+		virtual ~CatacombTilesetType();
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
 /// CGA-specific code for Catacomb tilesets.
 class CatacombCGATilesetType: virtual public CatacombTilesetType
 {
 	public:
-		CatacombCGATilesetType()
-			throw ();
+		CatacombCGATilesetType();
 
-		virtual ~CatacombCGATilesetType()
-			throw ();
+		virtual ~CatacombCGATilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 };
 
 /// EGA-specific code for Catacomb tilesets.
 class CatacombEGATilesetType: virtual public CatacombTilesetType
 {
 	public:
-		CatacombEGATilesetType()
-			throw ();
+		CatacombEGATilesetType();
 
-		virtual ~CatacombEGATilesetType()
-			throw ();
+		virtual ~CatacombEGATilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 };
 
 /// Tileset format handler.
 class CatacombTileset: virtual public FATTileset
 {
 	public:
-		CatacombTileset(stream::inout_sptr data, CatacombImageType imageType)
-			throw (stream::error);
+		CatacombTileset(stream::inout_sptr data, CatacombImageType imageType);
 
-		virtual ~CatacombTileset()
-			throw ();
+		virtual ~CatacombTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 
-		virtual unsigned int getLayoutWidth()
-			throw ();
+		virtual unsigned int getLayoutWidth();
 
 		// FATTileset
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 	protected:
 		CatacombImageType imageType;

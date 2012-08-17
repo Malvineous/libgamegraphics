@@ -26,10 +26,9 @@ namespace gamegraphics {
 
 DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 	bool fixedSize)
-	throw ()
-	: CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
-	  stream_data(data),
-	  fixedSize(fixedSize)
+	:	CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
+		stream_data(data),
+		fixedSize(fixedSize)
 {
 	if (!fixedSize) {
 		data >> u16le(this->width) >> u16le(this->height);
@@ -37,12 +36,10 @@ DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 }
 
 DDaveCGAImage::~DDaveCGAImage()
-	throw ()
 {
 }
 
 int DDaveCGAImage::getCaps()
-	throw ()
 {
 	return this->CGAImage::getCaps()
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
@@ -51,7 +48,6 @@ int DDaveCGAImage::getCaps()
 void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	this->CGAImage::fromStandard(newContent, newMask);
 
@@ -66,8 +62,7 @@ void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,
 
 DDaveEGAImage::DDaveEGAImage(stream::inout_sptr data,
 	bool fixedSize)
-	throw () :
-		fixedSize(fixedSize)
+	:	fixedSize(fixedSize)
 {
 	if (fixedSize) this->width = this->height = 16;
 	else {
@@ -86,12 +81,10 @@ DDaveEGAImage::DDaveEGAImage(stream::inout_sptr data,
 }
 
 DDaveEGAImage::~DDaveEGAImage()
-	throw ()
 {
 }
 
 int DDaveEGAImage::getCaps()
-	throw ()
 {
 	return this->EGARowPlanarImage::getCaps()
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
@@ -100,7 +93,6 @@ int DDaveEGAImage::getCaps()
 void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	this->EGARowPlanarImage::fromStandard(newContent, newMask);
 
@@ -116,8 +108,7 @@ void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
 
 DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
 	bool fixedSize, PaletteTablePtr pal)
-	throw () :
-		VGAImage(data, fixedSize ? 0 : 4),
+	:	VGAImage(data, fixedSize ? 0 : 4),
 		fixedSize(fixedSize),
 		pal(pal)
 {
@@ -135,12 +126,10 @@ DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
 }
 
 DDaveVGAImage::~DDaveVGAImage()
-	throw ()
 {
 }
 
 int DDaveVGAImage::getCaps()
-	throw ()
 {
 	return this->VGAImage::getCaps()
 		| Image::HasPalette
@@ -148,7 +137,6 @@ int DDaveVGAImage::getCaps()
 }
 
 void DDaveVGAImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -156,7 +144,6 @@ void DDaveVGAImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -167,7 +154,6 @@ void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
 void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	this->VGAImage::fromStandard(newContent, newMask);
 
@@ -180,7 +166,6 @@ void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr DDaveVGAImage::getPalette()
-	throw (stream::error)
 {
 	return this->pal;
 }

@@ -25,17 +25,14 @@ namespace camoto {
 namespace gamegraphics {
 
 Image::Image()
-	throw ()
 {
 }
 
 Image::~Image()
-	throw ()
 {
 }
 
 void Image::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -44,13 +41,11 @@ void Image::setDimensions(unsigned int width, unsigned int height)
 }
 
 PaletteTablePtr Image::getPalette()
-	throw (stream::error)
 {
 	return PaletteTablePtr();
 }
 
 void Image::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);

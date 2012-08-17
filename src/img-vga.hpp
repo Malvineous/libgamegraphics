@@ -47,30 +47,22 @@ class VGAImage: virtual public Image {
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		VGAImage(stream::inout_sptr data, stream::pos off)
-			throw ();
+		VGAImage(stream::inout_sptr data, stream::pos off);
 
-		virtual ~VGAImage()
-			throw ();
+		virtual ~VGAImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		//virtual void getDimensions(unsigned int *width, unsigned int *height)
-		//	throw ();
+		//virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		//virtual void setDimensions(unsigned int width, unsigned int height)
-		//	throw (stream::error);
+		//virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw (stream::read_error);
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw ();
+		virtual StdImageDataPtr toStandardMask();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw (stream::write_error);
+			StdImageDataPtr newMask);
 
 };
 

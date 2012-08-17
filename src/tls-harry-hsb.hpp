@@ -33,37 +33,27 @@ namespace gamegraphics {
 class HarryHSBTilesetType: virtual public TilesetType
 {
 	public:
-		HarryHSBTilesetType()
-			throw ();
+		HarryHSBTilesetType();
 
-		virtual ~HarryHSBTilesetType()
-			throw ();
+		virtual ~HarryHSBTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 };
 
 /// Image inside Halloween Harry .HSB tileset
@@ -80,27 +70,20 @@ class HarryHSBImage: virtual public VGAImage
 		 * @param pal
 		 *   Image palette.
 		 */
-		HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
-			throw (stream::error);
+		HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal);
 
-		virtual ~HarryHSBImage()
-			throw ();
+		virtual ~HarryHSBImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
 	protected:
 		uint16_t width;
@@ -113,21 +96,16 @@ class HarryHSBTileset: virtual public FATTileset
 {
 	public:
 		HarryHSBTileset(stream::inout_sptr data,
-			PaletteTablePtr pal)
-			throw (stream::error);
+			PaletteTablePtr pal);
 
-		virtual ~HarryHSBTileset()
-			throw ();
+		virtual ~HarryHSBTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
-		PaletteTablePtr getPalette()
-			throw ();
+		PaletteTablePtr getPalette();
 
 	protected:
 		PaletteTablePtr pal;

@@ -42,29 +42,24 @@ namespace camoto {
 namespace gamegraphics {
 
 HarryCHRTilesetType::HarryCHRTilesetType()
-	throw ()
 {
 }
 
 HarryCHRTilesetType::~HarryCHRTilesetType()
-	throw ()
 {
 }
 
 std::string HarryCHRTilesetType::getCode() const
-	throw ()
 {
 	return "tls-harry-chr";
 }
 
 std::string HarryCHRTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Halloween Harry CHR tileset";
 }
 
 std::vector<std::string> HarryCHRTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("chr");
@@ -72,7 +67,6 @@ std::vector<std::string> HarryCHRTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> HarryCHRTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -82,7 +76,6 @@ std::vector<std::string> HarryCHRTilesetType::getGameList() const
 
 HarryCHRTilesetType::Certainty HarryCHRTilesetType::isInstance(
 	stream::input_sptr psTileset) const
-	throw (stream::error)
 {
 	stream::pos len = psTileset->size();
 
@@ -95,7 +88,6 @@ HarryCHRTilesetType::Certainty HarryCHRTilesetType::isInstance(
 
 TilesetPtr HarryCHRTilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(CHR_WIDTH * CHR_HEIGHT * 256);
 	psTileset->seekp(0, stream::start);
@@ -115,7 +107,6 @@ TilesetPtr HarryCHRTilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr HarryCHRTilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
@@ -129,7 +120,6 @@ TilesetPtr HarryCHRTilesetType::open(stream::inout_sptr psTileset,
 
 SuppFilenames HarryCHRTilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
-	throw ()
 {
 	SuppFilenames supps;
 	// Convert "missionX.chr" into "mXz1.gmf"
@@ -143,8 +133,7 @@ SuppFilenames HarryCHRTilesetType::getRequiredSupps(
 
 HarryCHRTileset::HarryCHRTileset(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	throw (stream::error) :
-		FATTileset(data, CHR_FIRST_TILE_OFFSET),
+	:	FATTileset(data, CHR_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	assert(this->pal);
@@ -163,18 +152,15 @@ HarryCHRTileset::HarryCHRTileset(stream::inout_sptr data,
 }
 
 HarryCHRTileset::~HarryCHRTileset()
-	throw ()
 {
 }
 
 int HarryCHRTileset::getCaps()
-	throw ()
 {
 	return HasPalette;
 }
 
 void HarryCHRTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = CHR_WIDTH;
 	*height = CHR_HEIGHT;
@@ -182,20 +168,17 @@ void HarryCHRTileset::getTilesetDimensions(unsigned int *width, unsigned int *he
 }
 
 unsigned int HarryCHRTileset::getLayoutWidth()
-	throw ()
 {
 	return 18;
 }
 
 PaletteTablePtr HarryCHRTileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 ImagePtr HarryCHRTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	ImagePtr img(new VGARawImage(content, CHR_WIDTH, CHR_HEIGHT, this->pal));
 	return img;

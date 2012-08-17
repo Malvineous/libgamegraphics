@@ -44,8 +44,7 @@ typedef boost::shared_ptr<Manager> ManagerPtr;
  *
  * @return A shared pointer to a Manager instance.
  */
-ManagerPtr getManager(void)
-	throw ();
+ManagerPtr getManager(void);
 
 /// Top-level class to manage graphics types.
 /**
@@ -66,16 +65,13 @@ class Manager {
 		VC_TILESETTYPE vcTilesetTypes;
 		VC_IMAGETYPE vcImageTypes;
 
-		Manager()
-			throw ();
+		Manager();
 
-		friend ManagerPtr getManager(void)
-			throw ();
+		friend ManagerPtr getManager(void);
 
 	public:
 
-		~Manager()
-			throw ();
+		~Manager();
 
 		/// Get an TilesetType instance for a supported file format.
 		/**
@@ -86,8 +82,7 @@ class Manager {
 		 *         an empty pointer once iIndex goes out of range.
 		 * @todo Remove this and replace it with a function that just returns the vector.
 		 */
-		TilesetTypePtr getTilesetType(unsigned int iIndex)
-			throw ();
+		TilesetTypePtr getTilesetType(unsigned int iIndex);
 
 		/// Get an TilesetType instance by its code.
 		/**
@@ -95,8 +90,7 @@ class Manager {
 		 * @return A shared pointer to an TilesetType for the given code, or
 		 *         an empty pointer on an invalid code.
 		 */
-		TilesetTypePtr getTilesetTypeByCode(const std::string& strCode)
-			throw ();
+		TilesetTypePtr getTilesetTypeByCode(const std::string& strCode);
 
 		/// Get an ImageType instance for a supported file format.
 		/**
@@ -107,8 +101,7 @@ class Manager {
 		 *         an empty pointer once iIndex goes out of range.
 		 * @todo Remove this and replace it with a function that just returns the vector.
 		 */
-		ImageTypePtr getImageType(unsigned int iIndex)
-			throw ();
+		ImageTypePtr getImageType(unsigned int iIndex);
 
 		/// Get an ImageType instance by its code.
 		/**
@@ -116,8 +109,7 @@ class Manager {
 		 * @return A shared pointer to an ImageType for the given code, or
 		 *         an empty pointer on an invalid code.
 		 */
-		ImageTypePtr getImageTypeByCode(const std::string& strCode)
-			throw ();
+		ImageTypePtr getImageTypeByCode(const std::string& strCode);
 
 };
 

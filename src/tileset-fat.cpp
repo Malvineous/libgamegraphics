@@ -34,33 +34,28 @@ FATTileset::FATEntry::~FATEntry()
 
 FATTileset::FATTileset(stream::inout_sptr data,
 	stream::pos offFirstTile)
-	throw (stream::error) :
-		data(new stream::seg()),
+	:	data(new stream::seg()),
 		offFirstTile(offFirstTile)
 {
 	this->data->open(data);
 }
 
 FATTileset::~FATTileset()
-	throw ()
 {
 }
 
 const FATTileset::VC_ENTRYPTR& FATTileset::getItems(void) const
-	throw ()
 {
 	return this->items;
 }
 
 TilesetPtr FATTileset::openTileset(const EntryPtr& id)
-	throw (stream::error)
 {
 	stream::inout_sptr sub = this->openStream(id);
 	return this->createTilesetInstance(id, sub);
 }
 
 ImagePtr FATTileset::openImage(const EntryPtr& id)
-	throw (stream::error)
 {
 	stream::inout_sptr sub = this->openStream(id);
 	/// @todo What happens if the entry gets deleted, then the image resized?
@@ -69,7 +64,6 @@ ImagePtr FATTileset::openImage(const EntryPtr& id)
 }
 
 FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (stream::error)
 {
 	FATEntry *pNewFile = this->createNewFATEntry();
 	EntryPtr ep(pNewFile);
@@ -148,7 +142,6 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 }
 
 void FATTileset::remove(EntryPtr& id)
-	throw (stream::error)
 {
 	// Make sure the caller doesn't try to remove something that doesn't exist!
 	assert(id->isValid);
@@ -187,7 +180,6 @@ void FATTileset::remove(EntryPtr& id)
 }
 
 void FATTileset::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	FATEntry *pFAT = dynamic_cast<FATEntry *>(id.get());
 	assert(pFAT);
@@ -238,7 +230,6 @@ void FATTileset::resize(EntryPtr& id, stream::len newSize)
 }
 
 void FATTileset::flush()
-	throw (stream::error)
 {
 	// Write out to the underlying stream
 	this->data->flush();
@@ -248,7 +239,6 @@ void FATTileset::flush()
 
 void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
 	stream::len deltaOffset, int deltaIndex)
-	throw (stream::error)
 {
 	for (VC_ENTRYPTR::iterator i = this->items.begin(); i != this->items.end(); i++) {
 		FATEntry *pFAT = dynamic_cast<FATEntry *>(i->get());
@@ -289,7 +279,6 @@ void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
 
 TilesetPtr FATTileset::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	// Caller didn't check id->attr
 	assert(false);
@@ -300,7 +289,6 @@ TilesetPtr FATTileset::createTilesetInstance(const EntryPtr& id,
 
 ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	// Caller didn't check id->attr
 	assert(false);
@@ -311,7 +299,6 @@ ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
 
 void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
 	stream::len offDelta)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
@@ -320,7 +307,6 @@ void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
 /// Adjust the size of the given file in the on-disk FAT.
 void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
 	stream::len sizeDelta)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
@@ -328,41 +314,35 @@ void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
 
 FATTileset::FATEntry *FATTileset::preInsertFile(
 	const FATTileset::FATEntry *idBeforeThis, FATTileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return pNewEntry;
 }
 
 void FATTileset::postInsertFile(FATTileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
 }
 
 void FATTileset::preRemoveFile(const FATTileset::FATEntry *pid)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
 }
 
 void FATTileset::postRemoveFile(const FATTileset::FATEntry *pid)
-	throw (stream::error)
 {
 	// Default implementation is a no-op
 	return;
 }
 
 FATTileset::FATEntry *FATTileset::createNewFATEntry()
-	throw ()
 {
 	return new FATEntry();
 }
 
 stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
-	throw ()
 {
 	assert(id->isValid);
 
@@ -393,7 +373,6 @@ stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
 }
 
 void FATTileset::cleanOpenSubstreams()
-	throw ()
 {
 	bool clean;
 	do {
@@ -418,7 +397,6 @@ void FATTileset::cleanOpenSubstreams()
 
 bool FATTileset::entryInRange(const FATEntry *fat, stream::pos offStart,
 	const FATEntry *fatSkip) const
-	throw ()
 {
 	// Don't move any files earlier than the start of the shift block.
 	if (fat->offset < offStart) return false;

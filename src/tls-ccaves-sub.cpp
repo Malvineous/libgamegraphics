@@ -46,30 +46,25 @@ namespace gamegraphics {
 //
 
 CCavesSubTilesetType::CCavesSubTilesetType()
-	throw ()
 {
 }
 
 CCavesSubTilesetType::~CCavesSubTilesetType()
-	throw ()
 {
 }
 
 std::string CCavesSubTilesetType::getCode() const
-	throw ()
 {
 	return "tls-ccaves-sub";
 }
 
 std::string CCavesSubTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Crystal Caves Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> CCavesSubTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
@@ -77,7 +72,6 @@ std::vector<std::string> CCavesSubTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> CCavesSubTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
@@ -86,7 +80,6 @@ std::vector<std::string> CCavesSubTilesetType::getGameList() const
 }
 
 CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 
@@ -111,7 +104,6 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_s
 
 TilesetPtr CCavesSubTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
@@ -121,13 +113,11 @@ TilesetPtr CCavesSubTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr CCavesSubTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CCavesSubTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -140,8 +130,7 @@ SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filename
 
 CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (stream::error) :
-		FATTileset(data, CC_FIRST_TILE_OFFSET),
+	:	FATTileset(data, CC_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -175,18 +164,15 @@ CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
 }
 
 CCavesSubTileset::~CCavesSubTileset()
-	throw ()
 {
 }
 
 int CCavesSubTileset::getCaps()
-	throw ()
 {
 	return ChangeDimensions;
 }
 
 void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	if (newSize != (unsigned)(this->width * this->height * this->numPlanes)) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -195,7 +181,6 @@ void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)
 }
 
 void CCavesSubTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width * 8;
 	*height = this->height;
@@ -203,7 +188,6 @@ void CCavesSubTileset::getTilesetDimensions(unsigned int *width, unsigned int *h
 }
 
 void CCavesSubTileset::setTilesetDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	// TODO: confirm this, it could just leave the unused bits blank
 	if (width % 8) throw stream::error("width must be a multiple of 8");
@@ -225,14 +209,12 @@ void CCavesSubTileset::setTilesetDimensions(unsigned int width, unsigned int hei
 }
 
 unsigned int CCavesSubTileset::getLayoutWidth()
-	throw ()
 {
 	return 10;
 }
 
 ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 	planes[PLANE_BLUE] = 2;
@@ -253,7 +235,6 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 
 CCavesSubTileset::FATEntry *CCavesSubTileset::preInsertFile(
 	const CCavesSubTileset::FATEntry *idBeforeThis, CCavesSubTileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	if (this->items.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
@@ -270,7 +251,6 @@ CCavesSubTileset::FATEntry *CCavesSubTileset::preInsertFile(
 }
 
 void CCavesSubTileset::postRemoveFile(const FATEntry *pid)
-	throw (stream::error)
 {
 	// Update the header
 	this->data->seekp(0, stream::start);

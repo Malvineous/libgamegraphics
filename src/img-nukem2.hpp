@@ -31,37 +31,27 @@ namespace gamegraphics {
 class Nukem2ImageType: virtual public ImageType
 {
 	public:
-		Nukem2ImageType()
-			throw ();
+		Nukem2ImageType();
 
-		virtual ~Nukem2ImageType()
-			throw ();
+		virtual ~Nukem2ImageType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
 
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 };
 
 /// Duke Nukem II full-screen Image implementation.
@@ -69,28 +59,21 @@ class Nukem2Image: virtual public EGAPlanarImage {
 
 	public:
 		/// Constructor
-		Nukem2Image(stream::inout_sptr data)
-			throw ();
+		Nukem2Image(stream::inout_sptr data);
 
 		/// Destructor
-		virtual ~Nukem2Image()
-			throw ();
+		virtual ~Nukem2Image();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		stream::inout_sptr data;   ///< Underlying file

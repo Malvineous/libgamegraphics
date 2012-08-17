@@ -33,16 +33,14 @@ const unsigned int MAX_ESCAPE_LEN = 0x7F;
 const unsigned int PLANE_LEN = 8000;
 
 filter_ccomic_unrle::filter_ccomic_unrle()
-	throw ()
-	: lenBlock(0),
-	  repeat(0),
-	  escape(0)
+	:	lenBlock(0),
+		repeat(0),
+		escape(0)
 {
 }
 
 void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
-	throw (filter_error)
 {
 	stream::len r = 0, w = 0;
 
@@ -106,16 +104,14 @@ void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
 }
 
 filter_ccomic_rle::filter_ccomic_rle()
-	throw ()
-	: val(0),
-	  count(0),
-	  writtenSize(false),
-	  col(0)
+	:	val(0),
+		count(0),
+		writtenSize(false),
+		col(0)
 {
 }
 
 bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut)
-	throw ()
 {
 	if (this->escapeBuf.size()) {
 		// If there's not enough space to write it now, wait until we're
@@ -148,7 +144,6 @@ bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stre
 
 void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
-	throw (filter_error)
 {
 	stream::len r = 0, w = 0;
 	if (!this->writtenSize) {

@@ -127,7 +127,6 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
  * @param  srcFile  Filename of source (including ".png")
  */
 void pngToImage(gg::ImagePtr img, const std::string& srcFile)
-	throw (stream::error)
 {
 	unsigned int width, height;
 	img->getDimensions(&width, &height);

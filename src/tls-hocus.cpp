@@ -35,30 +35,25 @@ namespace gamegraphics {
 #define HP_TILES_Y (200 / HP_TILE_HEIGHT) ///< Number of tile rows
 
 HocusTilesetType::HocusTilesetType()
-	throw ()
 {
 }
 
 HocusTilesetType::~HocusTilesetType()
-	throw ()
 {
 }
 
 std::string HocusTilesetType::getCode() const
-	throw ()
 {
 	return "tls-hocus";
 }
 
 std::string HocusTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Hocus Pocus Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> HocusTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pcx");
@@ -66,7 +61,6 @@ std::vector<std::string> HocusTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> HocusTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Hocus Pocus");
@@ -74,7 +68,6 @@ std::vector<std::string> HocusTilesetType::getGameList() const
 }
 
 HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	PCX_LinearVGA_ImageType pcx;
 	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
@@ -93,7 +86,6 @@ HocusTilesetType::Certainty HocusTilesetType::isInstance(stream::input_sptr psGr
 
 TilesetPtr HocusTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	// TODO
 	throw stream::error("Not yet implemented");
@@ -101,7 +93,6 @@ TilesetPtr HocusTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr HocusTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	ImagePtr img(new PCXImage(psGraphics, 8, 1));
 	return TilesetPtr(new TilesetFromImage(img,
@@ -109,7 +100,6 @@ TilesetPtr HocusTilesetType::open(stream::inout_sptr psGraphics,
 }
 
 SuppFilenames HocusTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

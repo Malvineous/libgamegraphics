@@ -210,7 +210,6 @@ bool explodeId(std::vector<unsigned int> *id, const std::string& name)
  */
 void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	const std::string& destFile)
-	throw (stream::error)
 {
 	if (widthTiles == 0) {
 		widthTiles = tileset->getLayoutWidth();
@@ -316,7 +315,6 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
  * @param  srcFile  Filename of source (including ".png")
  */
 void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
-	throw (stream::error)
 {
 	png::image<png::index_pixel> png(
 		srcFile, png::require_color_space<png::index_pixel>()

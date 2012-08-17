@@ -54,8 +54,8 @@ struct FIXTURE_NAME: public default_sample {
 	TilesetPtr pTileset;
 	SuppData suppData;
 
-	FIXTURE_NAME() :
-		base(new stream::string())
+	FIXTURE_NAME()
+		:	base(new stream::string())
 	{
 		this->base << makeString(test_tileset_initialstate);
 		#ifdef HAS_FAT
@@ -83,8 +83,8 @@ struct FIXTURE_NAME: public default_sample {
 		);
 	}
 
-	FIXTURE_NAME(int i) :
-		base(new stream::string())
+	FIXTURE_NAME(int i)
+		:	base(new stream::string())
 	{
 	}
 

@@ -25,25 +25,21 @@ namespace gamegraphics {
 
 VGAImage::VGAImage(stream::inout_sptr data,
 	stream::pos off)
-	throw () :
-		data(data),
+	:	data(data),
 		off(off)
 {
 }
 
 VGAImage::~VGAImage()
-	throw ()
 {
 }
 
 int VGAImage::getCaps()
-	throw ()
 {
 	return ColourDepthVGA;
 }
 
 StdImageDataPtr VGAImage::toStandard()
-	throw (stream::read_error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -59,7 +55,6 @@ StdImageDataPtr VGAImage::toStandard()
 }
 
 StdImageDataPtr VGAImage::toStandardMask()
-	throw ()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -77,7 +72,6 @@ StdImageDataPtr VGAImage::toStandardMask()
 void VGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw (stream::write_error)
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);

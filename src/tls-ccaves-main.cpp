@@ -46,30 +46,25 @@ namespace gamegraphics {
 //
 
 CCavesMainTilesetType::CCavesMainTilesetType()
-	throw ()
 {
 }
 
 CCavesMainTilesetType::~CCavesMainTilesetType()
-	throw ()
 {
 }
 
 std::string CCavesMainTilesetType::getCode() const
-	throw ()
 {
 	return "tls-ccaves-main";
 }
 
 std::string CCavesMainTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Crystal Caves Concatenated Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> CCavesMainTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
@@ -77,7 +72,6 @@ std::vector<std::string> CCavesMainTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> CCavesMainTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
@@ -86,7 +80,6 @@ std::vector<std::string> CCavesMainTilesetType::getGameList() const
 }
 
 CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 
@@ -126,7 +119,6 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input
 
 TilesetPtr CCavesMainTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	throw stream::error("not implemented yet");
 	psGraphics->seekp(0, stream::start);
@@ -138,13 +130,11 @@ TilesetPtr CCavesMainTilesetType::create(stream::inout_sptr psGraphics,
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
 TilesetPtr CCavesMainTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CCavesMainTileset(psGraphics, NUMPLANES_SPRITE));
 }
 
 SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -157,8 +147,7 @@ SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenam
 
 CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 	unsigned int numPlanes)
-	throw (stream::error) :
-		FATTileset(data, CC_FIRST_TILESET_OFFSET),
+	:	FATTileset(data, CC_FIRST_TILESET_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -200,19 +189,16 @@ CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 }
 
 CCavesMainTileset::~CCavesMainTileset()
-	throw ()
 {
 }
 
 int CCavesMainTileset::getCaps()
-	throw ()
 {
 	return 0;
 }
 
 TilesetPtr CCavesMainTileset::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	return TilesetPtr(
 		new CCavesSubTileset(content, this->numPlanes)

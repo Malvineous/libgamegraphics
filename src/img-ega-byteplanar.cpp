@@ -27,19 +27,16 @@ namespace camoto {
 namespace gamegraphics {
 
 EGABytePlanarImage::EGABytePlanarImage()
-	throw ()
 {
 }
 
 EGABytePlanarImage::~EGABytePlanarImage()
-	throw ()
 {
 }
 
 void EGABytePlanarImage::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
-	throw ()
 {
 	this->data = data;
 	this->offset = offset;
@@ -50,13 +47,11 @@ void EGABytePlanarImage::setParams(stream::inout_sptr data,
 }
 
 int EGABytePlanarImage::getCaps()
-	throw ()
 {
 	return ColourDepthEGA;
 }
 
 void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -64,7 +59,6 @@ void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height
 }
 
 void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 
@@ -83,13 +77,11 @@ void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr EGABytePlanarImage::toStandard()
-	throw ()
 {
 	return this->doConversion(false);
 }
 
 StdImageDataPtr EGABytePlanarImage::toStandardMask()
-	throw ()
 {
 	return this->doConversion(true);
 }
@@ -97,7 +89,6 @@ StdImageDataPtr EGABytePlanarImage::toStandardMask()
 void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
@@ -192,7 +183,6 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 }
 
 StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
-	throw ()
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;

@@ -49,17 +49,14 @@ namespace camoto {
 namespace gamegraphics {
 
 DDaveTilesetType::DDaveTilesetType()
-	throw ()
 {
 }
 
 DDaveTilesetType::~DDaveTilesetType()
-	throw ()
 {
 }
 
 std::vector<std::string> DDaveTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("dav");
@@ -67,7 +64,6 @@ std::vector<std::string> DDaveTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> DDaveTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Dangerous Dave");
@@ -76,7 +72,6 @@ std::vector<std::string> DDaveTilesetType::getGameList() const
 
 DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 	stream::input_sptr psTileset) const
-	throw (stream::error)
 {
 	stream::pos len = psTileset->size();
 	// TESTED BY: TODO
@@ -121,7 +116,6 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 
 SuppFilenames DDaveTilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
-	throw ()
 {
 	SuppFilenames supps;
 	return supps;
@@ -129,20 +123,17 @@ SuppFilenames DDaveTilesetType::getRequiredSupps(
 
 
 std::string DDaveCGATilesetType::getCode() const
-	throw ()
 {
 	return "tls-ddave-cga";
 }
 
 std::string DDaveCGATilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Dangerous Dave CGA tileset";
 }
 
 TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(4);
 	psTileset->seekp(0, stream::start);
@@ -154,34 +145,29 @@ TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
 }
 
 bool DDaveCGATilesetType::isInstance(int firstTileSize) const
-	throw ()
 {
 	return (firstTileSize == 64);
 }
 
 
 std::string DDaveEGATilesetType::getCode() const
-	throw ()
 {
 	return "tls-ddave-ega";
 }
 
 std::string DDaveEGATilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Dangerous Dave EGA tileset";
 }
 
 TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(4);
 	psTileset->seekp(0, stream::start);
@@ -192,33 +178,28 @@ TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr DDaveEGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::EGA, PaletteTablePtr()));
 }
 
 bool DDaveEGATilesetType::isInstance(int firstTileSize) const
-	throw ()
 {
 	return (firstTileSize == 128);
 }
 
 
 std::string DDaveVGATilesetType::getCode() const
-	throw ()
 {
 	return "tls-ddave-vga";
 }
 
 std::string DDaveVGATilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Dangerous Dave VGA tileset";
 }
 
 TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(4);
 	psTileset->seekp(0, stream::start);
@@ -232,7 +213,6 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
 	PaletteTablePtr pal = palFile->getPalette();
@@ -242,7 +222,6 @@ TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 
 SuppFilenames DDaveVGATilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
-	throw ()
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "vga.pal";
@@ -250,7 +229,6 @@ SuppFilenames DDaveVGATilesetType::getRequiredSupps(
 }
 
 bool DDaveVGATilesetType::isInstance(int firstTileSize) const
-	throw ()
 {
 	return (firstTileSize == 256);
 }
@@ -258,8 +236,7 @@ bool DDaveVGATilesetType::isInstance(int firstTileSize) const
 
 DDaveTileset::DDaveTileset(stream::inout_sptr data,
 	ImageType imgType, PaletteTablePtr pal)
-	throw (stream::error) :
-		FATTileset(data, DD_FIRST_TILE_OFFSET),
+	:	FATTileset(data, DD_FIRST_TILE_OFFSET),
 		imgType(imgType),
 		pal(pal)
 {
@@ -299,19 +276,16 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 }
 
 DDaveTileset::~DDaveTileset()
-	throw ()
 {
 }
 
 int DDaveTileset::getCaps()
-	throw ()
 {
 	return 0 | (this->pal ? Tileset::HasPalette : 0);
 }
 
 ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
@@ -335,14 +309,12 @@ ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
 }
 
 PaletteTablePtr DDaveTileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 void DDaveTileset::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
-	throw (stream::error)
 {
 	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
 
@@ -357,7 +329,6 @@ void DDaveTileset::updateFileOffset(const FATEntry *pid,
 
 DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 	const DDaveTileset::FATEntry *idBeforeThis, DDaveTileset::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
 
@@ -389,7 +360,6 @@ DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 }
 
 void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
@@ -399,7 +369,6 @@ void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
 }
 
 void DDaveTileset::postRemoveFile(const FATEntry *pid)
-	throw (stream::error)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -423,7 +392,6 @@ void DDaveTileset::postRemoveFile(const FATEntry *pid)
 }
 
 void DDaveTileset::updateFileCount(uint32_t newCount)
-	throw (std::ios_base::failure)
 {
 	this->data->seekp(DD_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);

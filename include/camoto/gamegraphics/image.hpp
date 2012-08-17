@@ -87,18 +87,15 @@ class Image {
 			ColourDepthMask   = 0x30,
 		};
 
-		Image()
-			throw ();
+		Image();
 
-		virtual ~Image()
-			throw ();
+		virtual ~Image();
 
 		/// Get the capabilities of this image format.
 		/**
 		 * @return One or more of the \ref Caps enum values (OR'd together.)
 		 */
-		virtual int getCaps()
-			throw () = 0;
+		virtual int getCaps() = 0;
 
 		/// Get the size of this image in pixels.
 		/**
@@ -110,8 +107,7 @@ class Image {
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw (stream::error) = 0;
+		virtual void getDimensions(unsigned int *width, unsigned int *height) = 0;
 
 		/// Set the size of this image in pixels.
 		/**
@@ -127,8 +123,7 @@ class Image {
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
 		/// Convert the image into a standard format.
 		/**
@@ -137,8 +132,7 @@ class Image {
 		 *
 		 * @return A shared pointer to a byte array of image data.
 		 */
-		virtual StdImageDataPtr toStandard()
-			throw (stream::error) = 0;
+		virtual StdImageDataPtr toStandard() = 0;
 
 		/// Convert the image mask into a standard format.
 		/**
@@ -153,8 +147,7 @@ class Image {
 		 *
 		 * @return A shared pointer to a byte array of mask data.
 		 */
-		virtual StdImageDataPtr toStandardMask()
-			throw (stream::error) = 0;
+		virtual StdImageDataPtr toStandardMask() = 0;
 
 		/// Replace the image with new content.
 		/**
@@ -179,8 +172,7 @@ class Image {
 		 *   line' codes can't be used unless the line width is known.)
 		 */
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw (stream::error) = 0;
+			StdImageDataPtr newMask) = 0;
 
 		/// Get the indexed colour map from the file.
 		/**
@@ -188,8 +180,7 @@ class Image {
 		 *
 		 * @return Shared pointer to a PaletteTable.
 		 */
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
 		/// Set the indexed colour map used by the file.
 		/**
@@ -198,8 +189,7 @@ class Image {
 		 * @param newPalette
 		 *   New palette data
 		 */
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
 };
 

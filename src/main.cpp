@@ -54,13 +54,11 @@ namespace camoto {
 namespace gamegraphics {
 
 ManagerPtr getManager()
-	throw ()
 {
 	return ManagerPtr(new Manager());
 }
 
 Manager::Manager()
-	throw ()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashBackgroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
@@ -100,19 +98,16 @@ Manager::Manager()
 }
 
 Manager::~Manager()
-	throw ()
 {
 }
 
 TilesetTypePtr Manager::getTilesetType(unsigned int iIndex)
-	throw ()
 {
 	if (iIndex >= this->vcTilesetTypes.size()) return TilesetTypePtr();
 	return this->vcTilesetTypes[iIndex];
 }
 
 TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
-	throw ()
 {
 	for (VC_TILESETTYPE::const_iterator i = this->vcTilesetTypes.begin();
 		i != this->vcTilesetTypes.end();
@@ -124,14 +119,12 @@ TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
 }
 
 ImageTypePtr Manager::getImageType(unsigned int iIndex)
-	throw ()
 {
 	if (iIndex >= this->vcImageTypes.size()) return ImageTypePtr();
 	return this->vcImageTypes[iIndex];
 }
 
 ImageTypePtr Manager::getImageTypeByCode(const std::string& strCode)
-	throw ()
 {
 	for (VC_IMAGETYPE::const_iterator i = this->vcImageTypes.begin();
 		i != this->vcImageTypes.end();

@@ -55,8 +55,8 @@ struct subimage: public default_sample {
 	ImagePtr img;
 	SuppData suppData;
 
-	subimage() :
-		base(new stream::string())
+	subimage()
+		:	base(new stream::string())
 	{
 		this->d = makeString(TESTDATA_INITIAL);
 		this->base->open(&this->d);

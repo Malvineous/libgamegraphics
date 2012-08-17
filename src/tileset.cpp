@@ -34,17 +34,14 @@ Tileset::Entry::~Entry()
 }
 
 Tileset::Tileset()
-	throw ()
 {
 }
 
 Tileset::~Tileset()
-	throw ()
 {
 }
 
 TilesetPtr Tileset::openTileset(const EntryPtr& id)
-	throw (stream::error)
 {
 	// Caller didn't check EntryPtr->attr
 	assert(false);
@@ -54,7 +51,6 @@ TilesetPtr Tileset::openTileset(const EntryPtr& id)
 }
 
 ImagePtr Tileset::openImage(const EntryPtr& id)
-	throw (stream::error)
 {
 	// Caller didn't check EntryPtr->attr
 	assert(false);
@@ -64,7 +60,6 @@ ImagePtr Tileset::openImage(const EntryPtr& id)
 }
 
 void Tileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = 0;
 	*height = 0;
@@ -72,7 +67,6 @@ void Tileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
 }
 
 void Tileset::setTilesetDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -81,13 +75,11 @@ void Tileset::setTilesetDimensions(unsigned int width, unsigned int height)
 }
 
 unsigned int Tileset::getLayoutWidth()
-	throw ()
 {
 	return 0;
 }
 
 PaletteTablePtr Tileset::getPalette()
-	throw ()
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -95,7 +87,6 @@ PaletteTablePtr Tileset::getPalette()
 }
 
 void Tileset::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	// Caller didn't check getCaps()
 	assert(false);

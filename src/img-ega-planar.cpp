@@ -27,19 +27,16 @@ namespace camoto {
 namespace gamegraphics {
 
 EGAPlanarImage::EGAPlanarImage()
-	throw ()
 {
 }
 
 EGAPlanarImage::~EGAPlanarImage()
-	throw ()
 {
 }
 
 void EGAPlanarImage::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
-	throw ()
 {
 	this->data = data;
 	this->offset = offset;
@@ -50,13 +47,11 @@ void EGAPlanarImage::setParams(stream::inout_sptr data,
 }
 
 int EGAPlanarImage::getCaps()
-	throw ()
 {
 	return ColourDepthEGA;
 }
 
 void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -64,7 +59,6 @@ void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -82,13 +76,11 @@ void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr EGAPlanarImage::toStandard()
-	throw ()
 {
 	return this->doConversion(false);
 }
 
 StdImageDataPtr EGAPlanarImage::toStandardMask()
-	throw ()
 {
 	if ((this->planes[PLANE_OPACITY] == 0) && (this->planes[PLANE_HITMAP] == 0)) {
 		// Mask is unused, skip the conversion and return an opaque mask
@@ -112,7 +104,6 @@ StdImageDataPtr EGAPlanarImage::toStandardMask()
 void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
@@ -208,7 +199,6 @@ void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 }
 
 StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
-	throw ()
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
@@ -312,44 +302,37 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 //
 
 EGARawPlanarImageType::EGARawPlanarImageType()
-	throw ()
 {
 }
 
 EGARawPlanarImageType::~EGARawPlanarImageType()
-	throw ()
 {
 }
 
 std::string EGARawPlanarImageType::getCode() const
-	throw ()
 {
 	return "img-ega-raw-planar-fullscreen";
 }
 
 std::string EGARawPlanarImageType::getFriendlyName() const
-	throw ()
 {
 	return "Raw Planar EGA fullscreen image";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> EGARawPlanarImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
 std::vector<std::string> EGARawPlanarImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
 ImageType::Certainty EGARawPlanarImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	stream::pos len = psImage->size();
 
@@ -362,7 +345,6 @@ ImageType::Certainty EGARawPlanarImageType::isInstance(stream::input_sptr psImag
 
 ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psImage->truncate(32000);
 	psImage->seekp(0, stream::start);
@@ -376,7 +358,6 @@ ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
 
 ImagePtr EGARawPlanarImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	EGAPlanarImage *ega = new EGAPlanarImage();
 	ImagePtr img(ega);
@@ -394,7 +375,6 @@ ImagePtr EGARawPlanarImageType::open(stream::inout_sptr psImage,
 }
 
 SuppFilenames EGARawPlanarImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	return SuppFilenames();
 }

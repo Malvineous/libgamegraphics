@@ -41,30 +41,25 @@ namespace gamegraphics {
 //
 
 HarryICOTilesetType::HarryICOTilesetType()
-	throw ()
 {
 }
 
 HarryICOTilesetType::~HarryICOTilesetType()
-	throw ()
 {
 }
 
 std::string HarryICOTilesetType::getCode() const
-	throw ()
 {
 	return "tls-harry-ico";
 }
 
 std::string HarryICOTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Halloween Harry ICO Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> HarryICOTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ico");
@@ -72,7 +67,6 @@ std::vector<std::string> HarryICOTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> HarryICOTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -81,7 +75,6 @@ std::vector<std::string> HarryICOTilesetType::getGameList() const
 }
 
 HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 
@@ -122,7 +115,6 @@ HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_spt
 
 TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->truncate(0);
 	psGraphics->seekp(0, stream::start);
@@ -141,7 +133,6 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
@@ -156,7 +147,6 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 }
 
 SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file
@@ -169,9 +159,8 @@ SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameG
 //
 
 HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	throw (stream::error)
-	: FATTileset(data, ICO_FIRST_TILE_OFFSET),
-	  pal(pal)
+	:	FATTileset(data, ICO_FIRST_TILE_OFFSET),
+		pal(pal)
 {
 	assert(this->pal);
 	stream::pos len = this->data->size();
@@ -209,31 +198,26 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 }
 
 HarryICOTileset::~HarryICOTileset()
-	throw ()
 {
 }
 
 int HarryICOTileset::getCaps()
-	throw ()
 {
 	return HasPalette;
 }
 
 unsigned int HarryICOTileset::getLayoutWidth()
-	throw ()
 {
 	return 16;
 }
 
 PaletteTablePtr HarryICOTileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 ImagePtr HarryICOTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	return ImagePtr(new DDaveVGAImage(content, false, this->pal));
 }

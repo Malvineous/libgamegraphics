@@ -54,35 +54,26 @@ class SubImage: virtual public Image {
 		 *   underlying image.
 		 */
 		SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
-			unsigned int width, unsigned int height)
-			throw (stream::error);
+			unsigned int width, unsigned int height);
 
-		virtual ~SubImage()
-			throw ();
+		virtual ~SubImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw (stream::error);
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw ();
+		virtual StdImageDataPtr toStandardMask();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw (stream::error);
+			StdImageDataPtr newMask);
 
 	protected:
 		/// Common code between toStandard() and toStandardMask()
-		StdImageDataPtr extractPortion(const StdImageDataPtr& source)
-			throw ();
+		StdImageDataPtr extractPortion(const StdImageDataPtr& source);
 
 		ImagePtr img;               ///< Underlying image
 		StdImageDataPtr parent;     ///< Pixel data cache

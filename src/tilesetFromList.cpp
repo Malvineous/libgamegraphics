@@ -25,8 +25,7 @@ namespace camoto {
 namespace gamegraphics {
 
 TilesetFromList::TilesetFromList(const TileList& tileList)
-	throw (stream::error) :
-		tileList(tileList)
+	:	tileList(tileList)
 {
 	unsigned int numImages = this->tileList.size();
 	this->items.reserve(numImages);
@@ -41,12 +40,10 @@ TilesetFromList::TilesetFromList(const TileList& tileList)
 }
 
 TilesetFromList::~TilesetFromList()
-	throw ()
 {
 }
 
 int TilesetFromList::getCaps()
-	throw ()
 {
 	int caps = 0;
 	if (this->tileList.size() > 0) {
@@ -59,13 +56,11 @@ int TilesetFromList::getCaps()
 }
 
 const Tileset::VC_ENTRYPTR& TilesetFromList::getItems() const
-	throw ()
 {
 	return this->items;
 }
 
 ImagePtr TilesetFromList::openImage(const EntryPtr& id)
-	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
@@ -88,25 +83,21 @@ ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 }
 
 Tileset::EntryPtr TilesetFromList::insert(const EntryPtr& idBeforeThis, int attr)
-	throw (stream::error)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
 void TilesetFromList::remove(EntryPtr& id)
-	throw (stream::error)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
 void TilesetFromList::flush()
-	throw (stream::error)
 {
 	return;
 }
 
 void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
@@ -123,7 +114,6 @@ void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
 }
 
 PaletteTablePtr TilesetFromList::getPalette()
-	throw ()
 {
 	assert(this->getCaps() & Tileset::HasPalette);
 	// Should not get here if tileList[0] is out of range
@@ -131,7 +121,6 @@ PaletteTablePtr TilesetFromList::getPalette()
 }
 
 void TilesetFromList::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	// Set the palette for all subimages that support it
 	ImagePtr lastImage;

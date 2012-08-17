@@ -32,37 +32,27 @@ class GMFHarryPaletteImageType: virtual public ImageType {
 
 	public:
 
-		GMFHarryPaletteImageType()
-			throw ();
+		GMFHarryPaletteImageType();
 
-		virtual ~GMFHarryPaletteImageType()
-			throw ();
+		virtual ~GMFHarryPaletteImageType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
 
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
 };
 
@@ -73,17 +63,13 @@ class GMFHarryPalette: virtual public Palette {
 		stream::inout_sptr data;
 
 	public:
-		GMFHarryPalette(stream::inout_sptr data)
-			throw (stream::error);
+		GMFHarryPalette(stream::inout_sptr data);
 
-		virtual ~GMFHarryPalette()
-			throw ();
+		virtual ~GMFHarryPalette();
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		virtual void setPalette(PaletteTablePtr newPalette);
 };
 
 } // namespace gamegraphics

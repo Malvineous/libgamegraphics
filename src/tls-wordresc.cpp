@@ -35,30 +35,25 @@ namespace gamegraphics {
 #define WR_TILES_Y (200 / WR_TILE_HEIGHT) ///< Number of tile rows
 
 WordrescTilesetType::WordrescTilesetType()
-	throw ()
 {
 }
 
 WordrescTilesetType::~WordrescTilesetType()
-	throw ()
 {
 }
 
 std::string WordrescTilesetType::getCode() const
-	throw ()
 {
 	return "tls-wordresc";
 }
 
 std::string WordrescTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Word Rescue Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> WordrescTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("wr");
@@ -66,7 +61,6 @@ std::vector<std::string> WordrescTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> WordrescTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
@@ -74,7 +68,6 @@ std::vector<std::string> WordrescTilesetType::getGameList() const
 }
 
 WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	PCX_PlanarEGA_ImageType pcx;
 	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
@@ -93,7 +86,6 @@ WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_spt
 
 TilesetPtr WordrescTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	// TODO
 	throw stream::error("Not yet implemented");
@@ -101,7 +93,6 @@ TilesetPtr WordrescTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr WordrescTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PCX_PlanarEGA_ImageType pcx;
 	ImagePtr img = pcx.open(psGraphics, suppData);//(new PCXImage(psGraphics));
@@ -110,7 +101,6 @@ TilesetPtr WordrescTilesetType::open(stream::inout_sptr psGraphics,
 }
 
 SuppFilenames WordrescTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

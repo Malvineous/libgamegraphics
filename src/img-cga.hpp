@@ -58,34 +58,25 @@ class CGAImage: virtual public Image
 		 *   CGA palette to use.  See generatePalette() for details.
 		 */
 		CGAImage(stream::inout_sptr data, stream::pos off, unsigned int width,
-			unsigned int height, CGAPaletteType cgaPal)
-			throw ();
+			unsigned int height, CGAPaletteType cgaPal);
 
 		/// Destructor.
-		virtual ~CGAImage()
-			throw ();
+		virtual ~CGAImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual StdImageDataPtr toStandard()
-			throw ();
+		virtual StdImageDataPtr toStandard();
 
-		virtual StdImageDataPtr toStandardMask()
-			throw ();
+		virtual StdImageDataPtr toStandardMask();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
 	protected:
 		stream::inout_sptr parent; ///< Parent stream under the bitstream
@@ -100,37 +91,27 @@ class CGAImage: virtual public Image
 class CGARawLinearImageType: virtual public ImageType
 {
 	public:
-		CGARawLinearImageType()
-			throw ();
+		CGARawLinearImageType();
 
-		virtual ~CGARawLinearImageType()
-			throw ();
+		virtual ~CGARawLinearImageType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
 
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
 };
 

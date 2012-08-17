@@ -25,29 +25,25 @@ namespace gamegraphics {
 
 CGAImage::CGAImage(stream::inout_sptr data, stream::pos off,
 	unsigned int width, unsigned int height, CGAPaletteType cgaPal)
-	throw ()
-	: parent(data),
-	  data(new bitstream(data, bitstream::bigEndian)),
-	  off(off),
-	  width(width),
-	  height(height),
-	  cgaPal(cgaPal)
+	:	parent(data),
+		data(new bitstream(data, bitstream::bigEndian)),
+		off(off),
+		width(width),
+		height(height),
+		cgaPal(cgaPal)
 {
 }
 
 CGAImage::~CGAImage()
-	throw ()
 {
 }
 
 int CGAImage::getCaps()
-	throw ()
 {
 	return ColourDepthCGA | HasPalette;
 }
 
 void CGAImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -55,7 +51,6 @@ void CGAImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void CGAImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -64,7 +59,6 @@ void CGAImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr CGAImage::toStandard()
-	throw ()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -86,7 +80,6 @@ StdImageDataPtr CGAImage::toStandard()
 }
 
 StdImageDataPtr CGAImage::toStandardMask()
-	throw ()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -104,7 +97,6 @@ StdImageDataPtr CGAImage::toStandardMask()
 void CGAImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -127,7 +119,6 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr CGAImage::getPalette()
-	throw (stream::error)
 {
 	return createPalette_CGA(this->cgaPal);
 }
@@ -138,44 +129,37 @@ PaletteTablePtr CGAImage::getPalette()
 //
 
 CGARawLinearImageType::CGARawLinearImageType()
-	throw ()
 {
 }
 
 CGARawLinearImageType::~CGARawLinearImageType()
-	throw ()
 {
 }
 
 std::string CGARawLinearImageType::getCode() const
-	throw ()
 {
 	return "img-cga-raw-linear-fullscreen";
 }
 
 std::string CGARawLinearImageType::getFriendlyName() const
-	throw ()
 {
 	return "Raw Linear CGA fullscreen image";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> CGARawLinearImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
 std::vector<std::string> CGARawLinearImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
 ImageType::Certainty CGARawLinearImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	stream::pos len = psImage->size();
 
@@ -188,7 +172,6 @@ ImageType::Certainty CGARawLinearImageType::isInstance(stream::input_sptr psImag
 
 ImagePtr CGARawLinearImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psImage->truncate(16000);
 	psImage->seekp(0, stream::start);
@@ -202,7 +185,6 @@ ImagePtr CGARawLinearImageType::create(stream::inout_sptr psImage,
 
 ImagePtr CGARawLinearImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	CGAImage *cga = new CGAImage(psImage, 0, 320, 200,
 		CGAPal_CyanMagentaBright);
@@ -211,7 +193,6 @@ ImagePtr CGARawLinearImageType::open(stream::inout_sptr psImage,
 }
 
 SuppFilenames CGARawLinearImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	return SuppFilenames();
 }

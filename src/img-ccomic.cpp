@@ -33,29 +33,24 @@ namespace camoto {
 namespace gamegraphics {
 
 CComicImageType::CComicImageType()
-	throw ()
 {
 }
 
 CComicImageType::~CComicImageType()
-	throw ()
 {
 }
 
 std::string CComicImageType::getCode() const
-	throw ()
 {
 	return "img-ccomic";
 }
 
 std::string CComicImageType::getFriendlyName() const
-	throw ()
 {
 	return "Captain Comic full-screen image";
 }
 
 std::vector<std::string> CComicImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ega");
@@ -63,7 +58,6 @@ std::vector<std::string> CComicImageType::getFileExtensions() const
 }
 
 std::vector<std::string> CComicImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic");
@@ -71,7 +65,6 @@ std::vector<std::string> CComicImageType::getGameList() const
 }
 
 ImageType::Certainty CComicImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	// TESTED BY: img_ccomic_isinstance_c02
 	if (psImage->size() < 2) return DefinitelyNo;
@@ -120,28 +113,24 @@ ImageType::Certainty CComicImageType::isInstance(stream::input_sptr psImage) con
 
 ImagePtr CComicImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new CComicImage(psImage));
 }
 
 ImagePtr CComicImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new CComicImage(psImage));
 }
 
 SuppFilenames CComicImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	return SuppFilenames();
 }
 
 
 CComicImage::CComicImage(stream::inout_sptr data)
-	throw (stream::error) :
-		data(data)
+	:	data(data)
 {
 	filter_sptr filtRead(new filter_ccomic_unrle());
 	filter_sptr filtWrite(new filter_ccomic_rle());
@@ -158,7 +147,6 @@ CComicImage::CComicImage(stream::inout_sptr data)
 }
 
 CComicImage::~CComicImage()
-	throw ()
 {
 }
 

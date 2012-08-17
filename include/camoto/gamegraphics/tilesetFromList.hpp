@@ -42,38 +42,27 @@ class TilesetFromList: virtual public Tileset
 			unsigned int index; ///< Zero-based index of tile
 		};
 
-		TilesetFromList(const TileList& tileList)
-			throw (stream::error);
+		TilesetFromList(const TileList& tileList);
 
-		virtual ~TilesetFromList()
-			throw ();
+		virtual ~TilesetFromList();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual const VC_ENTRYPTR& getItems() const
-			throw ();
+		virtual const VC_ENTRYPTR& getItems() const;
 
-		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (stream::error);
+		virtual ImagePtr openImage(const EntryPtr& id);
 
-		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (stream::error);
+		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr);
 
-		virtual void remove(EntryPtr& id)
-			throw (stream::error);
+		virtual void remove(EntryPtr& id);
 
-		void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void flush()
-			throw (stream::error);
+		virtual void flush();
 
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
-		void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		void setPalette(PaletteTablePtr newPalette);
 
 	protected:
 		TileList tileList;   ///< List of underlying images

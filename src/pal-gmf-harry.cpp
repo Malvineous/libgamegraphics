@@ -24,30 +24,25 @@ namespace camoto {
 namespace gamegraphics {
 
 GMFHarryPaletteImageType::GMFHarryPaletteImageType()
-	throw ()
 {
 }
 
 GMFHarryPaletteImageType::~GMFHarryPaletteImageType()
-	throw ()
 {
 }
 
 std::string GMFHarryPaletteImageType::getCode() const
-	throw ()
 {
 	return "pal-gmf-harry";
 }
 
 std::string GMFHarryPaletteImageType::getFriendlyName() const
-	throw ()
 {
 	return "Halloween Harry VGA palette";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> GMFHarryPaletteImageType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gmf");
@@ -55,14 +50,12 @@ std::vector<std::string> GMFHarryPaletteImageType::getFileExtensions() const
 }
 
 std::vector<std::string> GMFHarryPaletteImageType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
 ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::input_sptr psImage) const
-	throw (stream::error)
 {
 	psImage->seekg(0, stream::start);
 
@@ -85,20 +78,17 @@ ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::input_sptr psI
 
 ImagePtr GMFHarryPaletteImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new GMFHarryPalette(psImage));
 }
 
 ImagePtr GMFHarryPaletteImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return ImagePtr(new GMFHarryPalette(psImage));
 }
 
 SuppFilenames GMFHarryPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -106,18 +96,15 @@ SuppFilenames GMFHarryPaletteImageType::getRequiredSupps(const std::string& file
 
 
 GMFHarryPalette::GMFHarryPalette(stream::inout_sptr data)
-	throw (stream::error) :
-		data(data)
+	:	data(data)
 {
 }
 
 GMFHarryPalette::~GMFHarryPalette()
-	throw ()
 {
 }
 
 PaletteTablePtr GMFHarryPalette::getPalette()
-	throw (stream::error)
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
@@ -142,7 +129,6 @@ PaletteTablePtr GMFHarryPalette::getPalette()
 }
 
 void GMFHarryPalette::setPalette(PaletteTablePtr newPalette)
-	throw (stream::error)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);

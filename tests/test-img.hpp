@@ -147,8 +147,8 @@ struct FIXTURE_NAME: public default_sample {
 	/// IMG_CREATE_CODE.
 	int dataWidth;
 
-	FIXTURE_NAME() :
-		base(new stream::string())
+	FIXTURE_NAME()
+		:	base(new stream::string())
 	{
 #ifdef IMG_DATA_WIDTH
 		this->dataWidth = IMG_DATA_WIDTH;

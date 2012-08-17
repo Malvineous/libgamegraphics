@@ -32,37 +32,27 @@ class VGARawImageType: virtual public ImageType {
 
 	public:
 
-		VGARawImageType()
-			throw ();
+		VGARawImageType();
 
-		virtual ~VGARawImageType()
-			throw ();
+		virtual ~VGARawImageType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
 
 		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
 };
 
@@ -91,23 +81,17 @@ class VGARawImage: virtual public VGAImage {
 		 * @param pal
 		 *   Image palette
 		 */
-		VGARawImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal)
-			throw ();
+		VGARawImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
 
-		virtual ~VGARawImage()
-			throw ();
+		virtual ~VGARawImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
 };
 

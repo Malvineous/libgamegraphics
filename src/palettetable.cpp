@@ -27,13 +27,12 @@ PaletteEntry::PaletteEntry()
 {
 }
 
-PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
-	red(red), green(green), blue(blue), alpha(alpha)
+PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+	:	red(red), green(green), blue(blue), alpha(alpha)
 {
 }
 
 PaletteTablePtr createPalette_DefaultMono()
-	throw ()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(2);
@@ -49,7 +48,6 @@ PaletteTablePtr createPalette_DefaultMono()
 }
 
 PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
-	throw ()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(4);
@@ -74,7 +72,6 @@ PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
 }
 
 PaletteTablePtr createPalette_FullCGA()
-	throw ()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(16);
@@ -95,7 +92,6 @@ PaletteTablePtr createPalette_FullCGA()
 }
 
 PaletteTablePtr createPalette_FullEGA()
-	throw ()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(64);
@@ -115,7 +111,6 @@ PaletteTablePtr createPalette_FullEGA()
 }
 
 PaletteTablePtr createPalette_DefaultVGA()
-	throw ()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);

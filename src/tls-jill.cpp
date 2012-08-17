@@ -49,29 +49,24 @@ namespace gamegraphics {
 //
 
 JillTilesetType::JillTilesetType()
-	throw ()
 {
 }
 
 JillTilesetType::~JillTilesetType()
-	throw ()
 {
 }
 
 std::string JillTilesetType::getCode() const
-	throw ()
 {
 	return "tls-jill";
 }
 
 std::string JillTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Jill of the Jungle Tileset";
 }
 
 std::vector<std::string> JillTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("sha");
@@ -79,7 +74,6 @@ std::vector<std::string> JillTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> JillTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Jill of the Jungle");
@@ -87,7 +81,6 @@ std::vector<std::string> JillTilesetType::getGameList() const
 }
 
 JillTilesetType::Certainty JillTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 	if (len < 128 * 6) return DefinitelyNo; // missing offset table
@@ -103,7 +96,6 @@ JillTilesetType::Certainty JillTilesetType::isInstance(stream::input_sptr psGrap
 
 TilesetPtr JillTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
@@ -119,7 +111,6 @@ TilesetPtr JillTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr JillTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
@@ -132,7 +123,6 @@ TilesetPtr JillTilesetType::open(stream::inout_sptr psGraphics,
 }
 
 SuppFilenames JillTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -144,8 +134,7 @@ SuppFilenames JillTilesetType::getRequiredSupps(const std::string& filenameGraph
 //
 
 JillTileset::JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	throw (stream::error) :
-		FATTileset(data, JILL_FIRST_TILESET_OFFSET),
+	:	FATTileset(data, JILL_FIRST_TILESET_OFFSET),
 		pal(pal)
 {
 	this->items.reserve(JILL_NUM_TILESETS);
@@ -175,25 +164,21 @@ JillTileset::JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
 }
 
 JillTileset::~JillTileset()
-	throw ()
 {
 }
 
 int JillTileset::getCaps()
-	throw ()
 {
 	return this->pal ? Tileset::HasPalette : 0;
 }
 
 PaletteTablePtr JillTileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 TilesetPtr JillTileset::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	// Make sure nobody tries to open an empty slot!
 	assert((id->attr & Tileset::EmptySlot) == 0);
@@ -203,7 +188,6 @@ TilesetPtr JillTileset::createTilesetInstance(const EntryPtr& id,
 }
 
 void JillTileset::updateFileOffset(const FATEntry *pid, stream::len offDelta)
-	throw (stream::error)
 {
 	this->data->seekp(pid->index * 4, stream::start);
 	this->data << u32le(pid->offset);
@@ -211,7 +195,6 @@ void JillTileset::updateFileOffset(const FATEntry *pid, stream::len offDelta)
 }
 
 void JillTileset::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
-	throw (stream::error)
 {
 	this->data->seekp((128 * 4) + pid->index * 2, stream::start);
 	this->data << u16le(pid->size);
@@ -224,8 +207,7 @@ void JillTileset::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 //
 
 JillTiles::JillTiles(stream::inout_sptr data)
-	throw (stream::error) :
-		FATTileset(data, JILL_FIRST_TILE_OFFSET)
+	:	FATTileset(data, JILL_FIRST_TILE_OFFSET)
 {
 	uint8_t numImages;
 	uint16_t numRots;
@@ -287,25 +269,21 @@ JillTiles::JillTiles(stream::inout_sptr data)
 }
 
 JillTiles::~JillTiles()
-	throw ()
 {
 }
 
 int JillTiles::getCaps()
-	throw ()
 {
 	return 0;
 }
 
 unsigned int JillTiles::getLayoutWidth()
-	throw ()
 {
 	return 10;
 }
 
 ImagePtr JillTiles::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
 	assert(pFAT);
@@ -326,7 +304,6 @@ ImagePtr JillTiles::createImageInstance(const EntryPtr& id,
 
 JillTiles::FATEntry *JillTiles::preInsertFile(
 	const JillTiles::FATEntry *idBeforeThis, JillTiles::FATEntry *pNewEntry)
-	throw (stream::error)
 {
 	if (this->items.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
@@ -340,7 +317,6 @@ JillTiles::FATEntry *JillTiles::preInsertFile(
 }
 
 void JillTiles::postRemoveFile(const FATEntry *pid)
-	throw (stream::error)
 {
 	// Update the header
 	this->data->seekp(0, stream::start);
@@ -354,8 +330,7 @@ void JillTiles::postRemoveFile(const FATEntry *pid)
 //
 
 JillImage::JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
-	throw () :
-		VGAImage(data, 3), // 3 == skip width/height/flag fields
+	:	VGAImage(data, 3), // 3 == skip width/height/flag fields
 		colourMap(colourMap)
 {
 	assert(data->tellg() == 0);
@@ -364,19 +339,16 @@ JillImage::JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
 }
 
 JillImage::~JillImage()
-	throw ()
 {
 }
 
 int JillImage::getCaps()
-	throw ()
 {
 	return this->VGAImage::getCaps()
 		| Image::CanSetDimensions;
 }
 
 void JillImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -384,7 +356,6 @@ void JillImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void JillImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	if ((width == 64) && (height == 12)) {
@@ -401,7 +372,6 @@ void JillImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 StdImageDataPtr JillImage::toStandard()
-	throw (stream::read_error)
 {
 	StdImageDataPtr img = this->VGAImage::toStandard();
 
@@ -419,7 +389,6 @@ StdImageDataPtr JillImage::toStandard()
 void JillImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	std::cerr << "ERROR: Cannot overwrite Jill images yet (no colourmap handling)" << std::endl;
 

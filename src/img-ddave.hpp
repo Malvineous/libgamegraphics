@@ -44,18 +44,14 @@ class DDaveCGAImage: virtual public CGAImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveCGAImage(stream::inout_sptr data, bool fixedSize)
-			throw ();
+		DDaveCGAImage(stream::inout_sptr data, bool fixedSize);
 
-		virtual ~DDaveCGAImage()
-			throw ();
+		virtual ~DDaveCGAImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
 	protected:
 		stream::inout_sptr stream_data; // stream::inout_sptr copy, as inherited one is a bitstream
@@ -77,20 +73,16 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveEGAImage(stream::inout_sptr data, bool fixedSize)
-			throw ();
+		DDaveEGAImage(stream::inout_sptr data, bool fixedSize);
 
-		virtual ~DDaveEGAImage()
-			throw ();
+		virtual ~DDaveEGAImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		// getDimension and setDimensions inherited from parent class
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
 	protected:
 		bool fixedSize;
@@ -115,27 +107,20 @@ class DDaveVGAImage: virtual public VGAImage {
 		 *   Image palette.
 		 */
 		DDaveVGAImage(stream::inout_sptr data, bool fixedSize,
-			PaletteTablePtr pal)
-			throw ();
+			PaletteTablePtr pal);
 
-		virtual ~DDaveVGAImage()
-			throw ();
+		virtual ~DDaveVGAImage();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
-		virtual void getDimensions(unsigned int *width, unsigned int *height)
-			throw ();
+		virtual void getDimensions(unsigned int *width, unsigned int *height);
 
-		virtual void setDimensions(unsigned int width, unsigned int height)
-			throw (stream::error);
+		virtual void setDimensions(unsigned int width, unsigned int height);
 
 		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask)
-			throw ();
+			StdImageDataPtr newMask);
 
-		virtual PaletteTablePtr getPalette()
-			throw (stream::error);
+		virtual PaletteTablePtr getPalette();
 
 	protected:
 		uint16_t width;

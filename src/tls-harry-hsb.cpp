@@ -37,29 +37,24 @@ namespace camoto {
 namespace gamegraphics {
 
 HarryHSBTilesetType::HarryHSBTilesetType()
-	throw ()
 {
 }
 
 HarryHSBTilesetType::~HarryHSBTilesetType()
-	throw ()
 {
 }
 
 std::string HarryHSBTilesetType::getCode() const
-	throw ()
 {
 	return "tls-harry-hsb";
 }
 
 std::string HarryHSBTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Halloween Harry HSB tileset";
 }
 
 std::vector<std::string> HarryHSBTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("hsb");
@@ -67,7 +62,6 @@ std::vector<std::string> HarryHSBTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> HarryHSBTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -77,7 +71,6 @@ std::vector<std::string> HarryHSBTilesetType::getGameList() const
 
 HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
 	stream::input_sptr psTileset) const
-	throw (stream::error)
 {
 	stream::pos len = psTileset->size();
 
@@ -123,7 +116,6 @@ HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
 
 TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psTileset->truncate(0);
 	psTileset->seekp(0, stream::start);
@@ -141,7 +133,6 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 
 TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
@@ -156,7 +147,6 @@ TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
 
 SuppFilenames HarryHSBTilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
-	throw ()
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file
@@ -165,8 +155,7 @@ SuppFilenames HarryHSBTilesetType::getRequiredSupps(
 
 
 HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
-	throw (stream::error) :
-		VGAImage(data, HSB_HEADER_LEN),
+	:	VGAImage(data, HSB_HEADER_LEN),
 		pal(pal)
 {
 	assert(this->pal);
@@ -187,12 +176,10 @@ HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
 }
 
 HarryHSBImage::~HarryHSBImage()
-	throw ()
 {
 }
 
 int HarryHSBImage::getCaps()
-	throw ()
 {
 	return this->VGAImage::getCaps()
 		| Image::HasPalette
@@ -200,7 +187,6 @@ int HarryHSBImage::getCaps()
 }
 
 void HarryHSBImage::getDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = this->width;
 	*height = this->height;
@@ -208,7 +194,6 @@ void HarryHSBImage::getDimensions(unsigned int *width, unsigned int *height)
 }
 
 void HarryHSBImage::setDimensions(unsigned int width, unsigned int height)
-	throw (stream::error)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -219,7 +204,6 @@ void HarryHSBImage::setDimensions(unsigned int width, unsigned int height)
 void HarryHSBImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
-	throw ()
 {
 	this->VGAImage::fromStandard(newContent, newMask);
 
@@ -235,7 +219,6 @@ void HarryHSBImage::fromStandard(StdImageDataPtr newContent,
 }
 
 PaletteTablePtr HarryHSBImage::getPalette()
-	throw (stream::error)
 {
 	return this->pal;
 }
@@ -243,8 +226,7 @@ PaletteTablePtr HarryHSBImage::getPalette()
 
 HarryHSBTileset::HarryHSBTileset(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	throw (stream::error) :
-		FATTileset(data, HSB_FIRST_TILE_OFFSET),
+	:	FATTileset(data, HSB_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -283,25 +265,21 @@ HarryHSBTileset::HarryHSBTileset(stream::inout_sptr data,
 }
 
 HarryHSBTileset::~HarryHSBTileset()
-	throw ()
 {
 }
 
 int HarryHSBTileset::getCaps()
-	throw ()
 {
 	return HasPalette;
 }
 
 PaletteTablePtr HarryHSBTileset::getPalette()
-	throw ()
 {
 	return this->pal;
 }
 
 ImagePtr HarryHSBTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	return ImagePtr(new HarryHSBImage(content, this->pal));
 }

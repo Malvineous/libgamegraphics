@@ -74,8 +74,7 @@ enum CGAPaletteType {
 };
 
 /// Generate a black and white palette.
-PaletteTablePtr createPalette_DefaultMono()
-	throw ();
+PaletteTablePtr createPalette_DefaultMono();
 
 /// Generate a CGA palette.
 /**
@@ -86,15 +85,13 @@ PaletteTablePtr createPalette_DefaultMono()
  *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
  *   only needs to be specified when the background colour is not black.
  */
-PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
-	throw ();
+PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal);
 
 /// Allocate memory for a palette and fill it with CGA defaults.
 /**
  * @return Palette with 16 entries suitable for drawing CGA and EGA images.
  */
-PaletteTablePtr createPalette_FullCGA()
-	throw ();
+PaletteTablePtr createPalette_FullCGA();
 
 /// The default EGA palette is the same as the full CGA one.
 #define createPalette_DefaultEGA createPalette_FullCGA
@@ -104,12 +101,10 @@ PaletteTablePtr createPalette_FullCGA()
  * @return Palette with 64 entries suitable for drawing EGA images that
  *   make use of the EGA palette.
  */
-PaletteTablePtr createPalette_FullEGA()
-	throw ();
+PaletteTablePtr createPalette_FullEGA();
 
 /// Generate the default VGA mode 13 palette.
-PaletteTablePtr createPalette_DefaultVGA()
-	throw ();
+PaletteTablePtr createPalette_DefaultVGA();
 
 } // namespace gamegraphics
 } // namespace camoto

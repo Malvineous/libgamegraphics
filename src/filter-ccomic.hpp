@@ -31,12 +31,10 @@ namespace gamegraphics {
 class filter_ccomic_unrle: public filter
 {
 	public:
-		filter_ccomic_unrle()
-			throw ();
+		filter_ccomic_unrle();
 
 		void transform(uint8_t *out, stream::len *lenOut,
-			const uint8_t *in, stream::len *lenIn)
-			throw (filter_error);
+			const uint8_t *in, stream::len *lenIn);
 
 	protected:
 		unsigned int lenBlock; ///< How many bytes left to output in current block
@@ -49,12 +47,10 @@ class filter_ccomic_unrle: public filter
 class filter_ccomic_rle: public filter
 {
 	public:
-		filter_ccomic_rle()
-			throw ();
+		filter_ccomic_rle();
 
 		void transform(uint8_t *out, stream::len *lenOut,
-			const uint8_t *in, stream::len *lenIn)
-			throw (filter_error);
+			const uint8_t *in, stream::len *lenIn);
 
 	protected:
 		uint8_t val;        ///< Previous byte read
@@ -63,8 +59,7 @@ class filter_ccomic_rle: public filter
 		bool writtenSize;   ///< Have we written the first two bytes yet?
 		unsigned int col;   ///< Current column (X pixel position) in output compressed data
 
-		bool writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut)
-			throw ();
+		bool writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut);
 };
 
 } // namespace gamegraphics

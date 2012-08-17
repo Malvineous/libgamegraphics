@@ -31,37 +31,27 @@ class CCavesMainTilesetType: virtual public TilesetType {
 
 	public:
 
-		CCavesMainTilesetType()
-			throw ();
+		CCavesMainTilesetType();
 
-		virtual ~CCavesMainTilesetType()
-			throw ();
+		virtual ~CCavesMainTilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 
 };
 
@@ -71,20 +61,16 @@ class CCavesMainTileset: virtual public FATTileset {
 
 	public:
 		CCavesMainTileset(stream::inout_sptr data,
-			unsigned int numPlanes)
-			throw (stream::error);
+			unsigned int numPlanes);
 
-		virtual ~CCavesMainTileset()
-			throw ();
+		virtual ~CCavesMainTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		// FATTileset
 
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 };
 

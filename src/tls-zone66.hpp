@@ -32,37 +32,27 @@ class Zone66TilesetType: virtual public TilesetType {
 
 	public:
 
-		Zone66TilesetType()
-			throw ();
+		Zone66TilesetType();
 
-		virtual ~Zone66TilesetType()
-			throw ();
+		virtual ~Zone66TilesetType();
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 
 };
 
@@ -73,42 +63,31 @@ class Zone66Tileset: virtual public FATTileset {
 
 	public:
 		Zone66Tileset(stream::inout_sptr data,
-			PaletteTablePtr pal)
-			throw (stream::error);
+			PaletteTablePtr pal);
 
-		virtual ~Zone66Tileset()
-			throw ();
+		virtual ~Zone66Tileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
-		virtual void setPalette(PaletteTablePtr newPalette)
-			throw (stream::error);
+		virtual void setPalette(PaletteTablePtr newPalette);
 
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
-			throw (stream::error);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry)
-			throw (stream::error);
+			FATEntry *pNewEntry);
 
-		virtual void postInsertFile(FATEntry *pNewEntry)
-			throw (stream::error);
+		virtual void postInsertFile(FATEntry *pNewEntry);
 
-		virtual void postRemoveFile(const FATEntry *pid)
-			throw (stream::error);
+		virtual void postRemoveFile(const FATEntry *pid);
 
 	private:
 		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount)
-			throw (std::ios_base::failure);
+		void updateFileCount(uint32_t newCount);
 
 };
 

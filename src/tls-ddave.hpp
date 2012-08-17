@@ -31,28 +31,21 @@ namespace gamegraphics {
 class DDaveTilesetType: virtual public TilesetType {
 
 	public:
-		DDaveTilesetType()
-			throw ();
+		DDaveTilesetType();
 
-		virtual ~DDaveTilesetType()
-			throw ();
+		virtual ~DDaveTilesetType();
 
-		virtual std::vector<std::string> getFileExtensions() const
-			throw ();
+		virtual std::vector<std::string> getFileExtensions() const;
 
-		virtual std::vector<std::string> getGameList() const
-			throw ();
+		virtual std::vector<std::string> getGameList() const;
 
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const
-			throw (stream::error);
+		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
 
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 
 	protected:
 		/// Given the size of the first tile (in bytes), is this a valid instance?
-		virtual bool isInstance(int firstTileSize) const
-			throw () = 0;
+		virtual bool isInstance(int firstTileSize) const = 0;
 
 };
 
@@ -60,23 +53,18 @@ class DDaveCGATilesetType: virtual public DDaveTilesetType {
 
 	public:
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 	protected:
-		virtual bool isInstance(int firstTileSize) const
-			throw ();
+		virtual bool isInstance(int firstTileSize) const;
 
 };
 
@@ -84,23 +72,18 @@ class DDaveEGATilesetType: virtual public DDaveTilesetType {
 
 	public:
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 	protected:
-		virtual bool isInstance(int firstTileSize) const
-			throw ();
+		virtual bool isInstance(int firstTileSize) const;
 
 };
 
@@ -108,27 +91,21 @@ class DDaveVGATilesetType: virtual public DDaveTilesetType {
 
 	public:
 
-		virtual std::string getCode() const
-			throw ();
+		virtual std::string getCode() const;
 
-		virtual std::string getFriendlyName() const
-			throw ();
+		virtual std::string getFriendlyName() const;
 
 		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const
-			throw (stream::error);
+			SuppData& suppData) const;
 
 		// Extra one to add palette as supp
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const
-			throw ();
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 
 	protected:
-		virtual bool isInstance(int firstTileSize) const
-			throw ();
+		virtual bool isInstance(int firstTileSize) const;
 
 };
 
@@ -139,42 +116,32 @@ class DDaveTileset: virtual public FATTileset {
 		enum ImageType {CGA, EGA, VGA};
 
 		DDaveTileset(stream::inout_sptr data, ImageType imgType,
-			PaletteTablePtr pal)
-			throw (stream::error);
+			PaletteTablePtr pal);
 
-		virtual ~DDaveTileset()
-			throw ();
+		virtual ~DDaveTileset();
 
-		virtual int getCaps()
-			throw ();
+		virtual int getCaps();
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
-		virtual PaletteTablePtr getPalette()
-			throw ();
+		virtual PaletteTablePtr getPalette();
 
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
-			throw (stream::error);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
 
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry)
-			throw (stream::error);
+			FATEntry *pNewEntry);
 
-		virtual void postInsertFile(FATEntry *pNewEntry)
-			throw (stream::error);
+		virtual void postInsertFile(FATEntry *pNewEntry);
 
-		virtual void postRemoveFile(const FATEntry *pid)
-			throw (stream::error);
+		virtual void postRemoveFile(const FATEntry *pid);
 
 	private:
 		ImageType imgType;
 		PaletteTablePtr pal;
 
 		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount)
-			throw (std::ios_base::failure);
+		void updateFileCount(uint32_t newCount);
 
 };
 

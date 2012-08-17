@@ -98,32 +98,23 @@ class FATTileset: virtual public Tileset {
 	public:
 
 		FATTileset(stream::inout_sptr data,
-			stream::pos offFirstTile)
-			throw (stream::error);
+			stream::pos offFirstTile);
 
-		virtual ~FATTileset()
-			throw ();
+		virtual ~FATTileset();
 
-		virtual const VC_ENTRYPTR& getItems(void) const
-			throw ();
+		virtual const VC_ENTRYPTR& getItems(void) const;
 
-		virtual TilesetPtr openTileset(const EntryPtr& id)
-			throw (stream::error);
+		virtual TilesetPtr openTileset(const EntryPtr& id);
 
-		virtual ImagePtr openImage(const EntryPtr& id)
-			throw (stream::error);
+		virtual ImagePtr openImage(const EntryPtr& id);
 
-		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr)
-			throw (stream::error);
+		virtual EntryPtr insert(const EntryPtr& idBeforeThis, int attr);
 
-		virtual void remove(EntryPtr& id)
-			throw (stream::error);
+		virtual void remove(EntryPtr& id);
 
-		virtual void resize(EntryPtr& id, stream::len newSize)
-			throw (stream::error);
+		virtual void resize(EntryPtr& id, stream::len newSize);
 
-		virtual void flush()
-			throw (stream::error);
+		virtual void flush();
 
 		/// Shift any files *starting* at or after offStart by delta bytes.
 		/**
@@ -134,8 +125,7 @@ class FATTileset: virtual public Tileset {
 		 * has moved.
 		 */
 		virtual void shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
-			stream::len deltaOffset, int deltaIndex)
-			throw (stream::error);
+			stream::len deltaOffset, int deltaIndex);
 
 		// Methods to be filled out by descendent classes
 
@@ -148,8 +138,7 @@ class FATTileset: virtual public Tileset {
 		 *   Substream containing the item's data.
 		 */
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 		/// Create an Image instance for the given item.
 		/**
@@ -160,8 +149,7 @@ class FATTileset: virtual public Tileset {
 		 *   Substream containing the item's data.
 		 */
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content)
-			throw (stream::error);
+			stream::inout_sptr content);
 
 		/// Adjust the offset of the given entry in the on-disk FAT.
 		/**
@@ -174,8 +162,7 @@ class FATTileset: virtual public Tileset {
 		 * @note pid->offset is already set to the new offset, do not add offDelta
 		 *   to this or you will get the wrong offset!
 		 */
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta)
-			throw (stream::error);
+		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
 
 		/// Adjust the size of the given entry in the on-disk FAT.
 		/**
@@ -188,8 +175,7 @@ class FATTileset: virtual public Tileset {
 		 * @note pid->size is already set to the new size, do not add sizeDelta
 		 *   to this or you will get the wrong size!
 		 */
-		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta)
-			throw (stream::error);
+		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta);
 
 		/// Insert a new entry in the on-disk FAT.
 		/**
@@ -221,8 +207,7 @@ class FATTileset: virtual public Tileset {
 		 *   pNewEntry.
 		 */
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry)
-			throw (stream::error);
+			FATEntry *pNewEntry);
 
 		/// Called after the file data has been inserted.
 		/**
@@ -234,8 +219,7 @@ class FATTileset: virtual public Tileset {
 		 * is done without the new file, then the new file data is insert last, and
 		 * postInsertFile() immediately called.
 		 */
-		virtual void postInsertFile(FATEntry *pNewEntry)
-			throw (stream::error);
+		virtual void postInsertFile(FATEntry *pNewEntry);
 
 		/// Remove the entry from the FAT.
 		/**
@@ -249,8 +233,7 @@ class FATTileset: virtual public Tileset {
 		 *
 		 * Invalidates existing EntryPtrs.
 		 */
-		virtual void preRemoveFile(const FATEntry *pid)
-			throw (stream::error);
+		virtual void preRemoveFile(const FATEntry *pid);
 
 		/// Called after the file data has been removed and the FAT has been
 		/// updated.
@@ -260,8 +243,7 @@ class FATTileset: virtual public Tileset {
 		 * parameters are still correct, although no longer used (e.g. the offset
 		 * it was at, its size, etc.)
 		 */
-		virtual void postRemoveFile(const FATEntry *pid)
-			throw (stream::error);
+		virtual void postRemoveFile(const FATEntry *pid);
 
 		/// Allocate a new, empty FAT entry.
 		/**
@@ -273,23 +255,19 @@ class FATTileset: virtual public Tileset {
 		 * passed to the other functions will be a mixture of FATEntry and whatever
 		 * your extended class is.  See fmt-epf-lionking.cpp for an example.
 		 */
-		virtual FATEntry *createNewFATEntry()
-			throw ();
+		virtual FATEntry *createNewFATEntry();
 
 	private:
 
 		/// Create a stream::sub containing the item's data.
-		stream::inout_sptr openStream(const EntryPtr& id)
-			throw ();
+		stream::inout_sptr openStream(const EntryPtr& id);
 
 		/// Remove any stream::subs from the cached list if they have closed.
-		void cleanOpenSubstreams()
-			throw ();
+		void cleanOpenSubstreams();
 
 		/// Should the given entry be moved during an insert/resize operation?
 		bool entryInRange(const FATEntry *fat, stream::pos offStart,
-			const FATEntry *fatSkip) const
-			throw ();
+			const FATEntry *fatSkip) const;
 
 };
 

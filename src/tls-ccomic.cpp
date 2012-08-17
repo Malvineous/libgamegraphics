@@ -43,30 +43,25 @@ namespace gamegraphics {
 //
 
 CComicTilesetType::CComicTilesetType()
-	throw ()
 {
 }
 
 CComicTilesetType::~CComicTilesetType()
-	throw ()
 {
 }
 
 std::string CComicTilesetType::getCode() const
-	throw ()
 {
 	return "tls-ccomic";
 }
 
 std::string CComicTilesetType::getFriendlyName() const
-	throw ()
 {
 	return "Captain Comic Tileset";
 }
 
 // Get a list of the known file extensions for this format.
 std::vector<std::string> CComicTilesetType::getFileExtensions() const
-	throw ()
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tt2");
@@ -74,7 +69,6 @@ std::vector<std::string> CComicTilesetType::getFileExtensions() const
 }
 
 std::vector<std::string> CComicTilesetType::getGameList() const
-	throw ()
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic");
@@ -82,7 +76,6 @@ std::vector<std::string> CComicTilesetType::getGameList() const
 }
 
 CComicTilesetType::Certainty CComicTilesetType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 	if (len % 128 == 4) return PossiblyYes;
@@ -91,7 +84,6 @@ CComicTilesetType::Certainty CComicTilesetType::isInstance(stream::input_sptr ps
 
 TilesetPtr CComicTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
@@ -100,13 +92,11 @@ TilesetPtr CComicTilesetType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr CComicTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_TILES));
 }
 
 SuppFilenames CComicTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
-	throw ()
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -118,19 +108,16 @@ SuppFilenames CComicTilesetType::getRequiredSupps(const std::string& filenameGra
 //
 
 std::string CComicSpriteType::getCode() const
-	throw ()
 {
 	return "tls-ccomic-sprite";
 }
 
 std::string CComicSpriteType::getFriendlyName() const
-	throw ()
 {
 	return "Captain Comic Sprite";
 }
 
 CComicSpriteType::Certainty CComicSpriteType::isInstance(stream::input_sptr psGraphics) const
-	throw (stream::error)
 {
 	stream::pos len = psGraphics->size();
 	if (len % 160 == 0) return PossiblyYes;
@@ -139,7 +126,6 @@ CComicSpriteType::Certainty CComicSpriteType::isInstance(stream::input_sptr psGr
 
 TilesetPtr CComicSpriteType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
@@ -148,7 +134,6 @@ TilesetPtr CComicSpriteType::create(stream::inout_sptr psGraphics,
 
 TilesetPtr CComicSpriteType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
-	throw (stream::error)
 {
 	return TilesetPtr(new CComicTileset(psGraphics, NUMPLANES_SPRITE));
 }
@@ -160,8 +145,7 @@ TilesetPtr CComicSpriteType::open(stream::inout_sptr psGraphics,
 
 CComicTileset::CComicTileset(stream::inout_sptr data,
 	uint8_t numPlanes)
-	throw (stream::error) :
-		FATTileset(data, CCA_FIRST_TILE_OFFSET),
+	:	FATTileset(data, CCA_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	int tileSize = this->numPlanes << 5; // multiply by 32 (bytes per plane)
@@ -188,18 +172,15 @@ CComicTileset::CComicTileset(stream::inout_sptr data,
 }
 
 CComicTileset::~CComicTileset()
-	throw ()
 {
 }
 
 int CComicTileset::getCaps()
-	throw ()
 {
 	return 0;
 }
 
 void CComicTileset::resize(EntryPtr& id, stream::len newSize)
-	throw (stream::error)
 {
 	if (newSize != CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * this->numPlanes) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -208,7 +189,6 @@ void CComicTileset::resize(EntryPtr& id, stream::len newSize)
 }
 
 void CComicTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-	throw ()
 {
 	*width = CCA_TILE_WIDTH;
 	*height = CCA_TILE_HEIGHT;
@@ -216,14 +196,12 @@ void CComicTileset::getTilesetDimensions(unsigned int *width, unsigned int *heig
 }
 
 unsigned int CComicTileset::getLayoutWidth()
-	throw ()
 {
 	return 4;
 }
 
 ImagePtr CComicTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
-	throw (stream::error)
 {
 	PLANE_LAYOUT planes;
 

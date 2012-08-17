@@ -28,43 +28,36 @@ namespace camoto {
 namespace gamegraphics {
 
 Palette::Palette()
-	throw ()
 {
 }
 
 Palette::~Palette()
-	throw ()
 {
 }
 
 int Palette::getCaps()
-	throw ()
 {
 	return HasPalette;
 }
 
 void Palette::getDimensions(unsigned int *width, unsigned int *height)
-	throw (stream::error)
 {
 	*width = 0;
 	*height = 0;
 }
 
 StdImageDataPtr Palette::toStandard()
-	throw (stream::error)
 {
 	return StdImageDataPtr();
 }
 
 StdImageDataPtr Palette::toStandardMask()
-	throw (stream::error)
 {
 	return StdImageDataPtr();
 }
 
 void Palette::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
-	throw (stream::error)
 {
 	return;
 }
