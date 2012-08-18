@@ -21,11 +21,9 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_PALETTETABLE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_PALETTETABLE_HPP_
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
-
-#include <camoto/stream.hpp>
 #include <stdint.h>
+#include <boost/shared_ptr.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -36,25 +34,6 @@ struct PaletteEntry {
 	uint8_t green;   ///< Green value (0-255)
 	uint8_t blue;    ///< Blue value (0-255)
 	uint8_t alpha;   ///< Alpha value (0-255)
-
-	/// Default constructor
-	PaletteEntry();
-
-	/// Helper constructor
-	/**
-	 * @param red
-	 *   Red value (0-255)
-	 *
-	 * @param green
-	 *   Green value (0-255)
-	 *
-	 * @param blue
-	 *   Blue value (0-255)
-	 *
-	 * @param alpha
-	 *   Alpha value (0-255).  0 is transparent, 255 is opaque.
-	 */
-		PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
 };
 
 /// Shared pointer to a Palette.

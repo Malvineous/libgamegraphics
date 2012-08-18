@@ -64,8 +64,11 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	BOOST_TEST_MESSAGE("Write to VGA palette");
 
 	PaletteTablePtr pal(new PaletteTable());
-	pal->push_back(PaletteEntry(  0,   0,   0));
-	pal->push_back(PaletteEntry(255, 255, 255));
+	PaletteEntry p;
+	p.red = p.green = p.blue = 0;
+	pal->push_back(p);
+	p.red = p.green = p.blue = 255;
+	pal->push_back(p);
 
 	stream::string_sptr ss(new stream::string());
 	VGAPalette img(ss);

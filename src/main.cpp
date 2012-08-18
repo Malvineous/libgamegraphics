@@ -18,9 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string>
-#include <camoto/debug.hpp>
-#include <camoto/gamegraphics.hpp>
+#include <camoto/gamegraphics/manager.hpp>
 
 // Include all the file formats for the Manager to load
 #include "tls-bash.hpp"
@@ -53,12 +51,29 @@
 namespace camoto {
 namespace gamegraphics {
 
-ManagerPtr getManager()
+class ActualManager: virtual public Manager
 {
-	return ManagerPtr(new Manager());
+	private:
+		/// List of available graphics types.
+		TilesetTypeVector vcTilesetTypes;
+		ImageTypeVector vcImageTypes;
+
+	public:
+		ActualManager();
+		~ActualManager();
+
+		virtual const TilesetTypePtr getTilesetType(unsigned int iIndex) const;
+		virtual const TilesetTypePtr getTilesetTypeByCode(const std::string& strCode) const;
+		virtual const ImageTypePtr getImageType(unsigned int iIndex) const;
+		virtual const ImageTypePtr getImageTypeByCode(const std::string& strCode) const;
+};
+
+const ManagerPtr getManager()
+{
+	return ManagerPtr(new ActualManager());
 }
 
-Manager::Manager()
+ActualManager::ActualManager()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashBackgroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
@@ -97,19 +112,20 @@ Manager::Manager()
 	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
 }
 
-Manager::~Manager()
+ActualManager::~ActualManager()
 {
 }
 
-TilesetTypePtr Manager::getTilesetType(unsigned int iIndex)
+const TilesetTypePtr ActualManager::getTilesetType(unsigned int iIndex) const
 {
 	if (iIndex >= this->vcTilesetTypes.size()) return TilesetTypePtr();
 	return this->vcTilesetTypes[iIndex];
 }
 
-TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
+const TilesetTypePtr ActualManager::getTilesetTypeByCode(
+	const std::string& strCode) const
 {
-	for (VC_TILESETTYPE::const_iterator i = this->vcTilesetTypes.begin();
+	for (TilesetTypeVector::const_iterator i = this->vcTilesetTypes.begin();
 		i != this->vcTilesetTypes.end();
 		i++
 	) {
@@ -118,15 +134,16 @@ TilesetTypePtr Manager::getTilesetTypeByCode(const std::string& strCode)
 	return TilesetTypePtr();
 }
 
-ImageTypePtr Manager::getImageType(unsigned int iIndex)
+const ImageTypePtr ActualManager::getImageType(unsigned int iIndex) const
 {
 	if (iIndex >= this->vcImageTypes.size()) return ImageTypePtr();
 	return this->vcImageTypes[iIndex];
 }
 
-ImageTypePtr Manager::getImageTypeByCode(const std::string& strCode)
+const ImageTypePtr ActualManager::getImageTypeByCode(const std::string& strCode)
+	const
 {
-	for (VC_IMAGETYPE::const_iterator i = this->vcImageTypes.begin();
+	for (ImageTypeVector::const_iterator i = this->vcImageTypes.begin();
 		i != this->vcImageTypes.end();
 		i++
 	) {

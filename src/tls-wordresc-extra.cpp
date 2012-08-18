@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/gamegraphics/tilesetFromList.hpp>
+#include "tilesetFromList.hpp"
 #include "tls-wordresc-extra.hpp"
 #include "img-pcx.hpp"
 

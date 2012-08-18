@@ -23,15 +23,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-PaletteEntry::PaletteEntry()
-{
-}
-
-PaletteEntry::PaletteEntry(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	:	red(red), green(green), blue(blue), alpha(alpha)
-{
-}
-
 PaletteTablePtr createPalette_DefaultMono()
 {
 	PaletteTablePtr pal(new PaletteTable());

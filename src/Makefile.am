@@ -1,6 +1,6 @@
 lib_LTLIBRARIES = libgamegraphics.la
 
-libgamegraphics_la_SOURCES = main.cpp
+libgamegraphics_la_SOURCES  = main.cpp
 libgamegraphics_la_SOURCES += baseimage.cpp
 libgamegraphics_la_SOURCES += basetileset.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
@@ -41,7 +41,7 @@ libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-wordresc-extra.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 
-EXTRA_libgamegraphics_la_SOURCES = baseimage.hpp
+EXTRA_libgamegraphics_la_SOURCES  = baseimage.hpp
 EXTRA_libgamegraphics_la_SOURCES += basetileset.hpp
 EXTRA_libgamegraphics_la_SOURCES += filter-ccomic.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-ega-common.hpp
@@ -62,6 +62,7 @@ EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += pal-gmf-harry.hpp
 EXTRA_libgamegraphics_la_SOURCES += subimage.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp
+EXTRA_libgamegraphics_la_SOURCES += tilesetFromList.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-bash.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-catacomb.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-ccaves-sub.hpp

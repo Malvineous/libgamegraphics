@@ -1,8 +1,8 @@
 /**
  * @file   manager.hpp
- * @brief  Manager class, used for accessing the various graphics readers.
+ * @brief  Manager class, used for accessing the graphics format handlers.
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,17 +22,76 @@
 #define _CAMOTO_GAMEGRAPHICS_MANAGER_HPP_
 
 #include <boost/shared_ptr.hpp>
-#include <vector>
-
-#include <camoto/stream.hpp>
-#include <stdint.h>
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-class Manager;
+/// Top-level class to manage graphics types.
+/**
+ * This class provides access to the different graphics file formats supported
+ * by the library.
+ *
+ * In order to open a file, this class must be used to access an instance of the
+ * tileset or image type.  This TilesetType or ImageType instance is then used
+ * to create a Tileset or Image instance around a particular file.  It is this
+ * instance that is then used to manipulate the graphics file itself.
+ *
+ * @note Use the free function getManager() to obtain a pointer to an instance
+ *   of an object implementing the Manager interface.
+ */
+class Manager
+{
+	public:
+		/// Get an TilesetType instance for a supported file format.
+		/**
+		 * This can be used to enumerate all available file formats.
+		 *
+		 * @param iIndex
+		 *   Index of the format, starting from 0.
+		 *
+		 * @return A shared pointer to a TilesetType instance for the given index,
+		 *   or an pointer once iIndex goes out of range.
+		 */
+		virtual const TilesetTypePtr getTilesetType(unsigned int iIndex)
+			const = 0;
+
+		/// Get an TilesetType instance by its code.
+		/**
+		 * @param strCode
+		 *   %Tileset code (e.g. "grp-duke3d")
+		 *
+		 * @return A shared pointer to a TilesetType instance for the given code, or
+		 *   an empty pointer for an invalid code.
+		 */
+		virtual const TilesetTypePtr getTilesetTypeByCode(
+			const std::string& strCode) const = 0;
+
+		/// Get an ImageType instance for a supported file format.
+		/**
+		 * This can be used to enumerate all available file formats.
+		 *
+		 * @param iIndex
+		 *  Index of the format, starting from 0.
+		 *
+		 * @return A shared pointer to an ImageType instance for the given index, or
+		 *   an empty pointer once iIndex goes out of range.
+		 */
+		virtual const ImageTypePtr getImageType(unsigned int iIndex)
+			const = 0;
+
+		/// Get an ImageType instance by its code.
+		/**
+		 * @param strCode
+		 *   %Image code (e.g. "grp-duke3d")
+		 *
+		 * @return A shared pointer to an ImageType instance for the given code, or
+		 *   an empty pointer for an invalid code.
+		 */
+		virtual const ImageTypePtr getImageTypeByCode(const std::string& strCode)
+			const = 0;
+};
 
 /// Shared pointer to a Manager.
 typedef boost::shared_ptr<Manager> ManagerPtr;
@@ -44,74 +103,7 @@ typedef boost::shared_ptr<Manager> ManagerPtr;
  *
  * @return A shared pointer to a Manager instance.
  */
-ManagerPtr getManager(void);
-
-/// Top-level class to manage graphics types.
-/**
- * This class provides access to the different graphics file formats supported
- * by the library.
- *
- * In order to open an graphics, this class must be used to access an instance
- * of the graphics type.  This TilesetType instance is then used to create an
- * Tileset instance around a particular file.  It is this Tileset instance that
- * is then used to manipulate the graphics file itself.
- *
- * @note This class shouldn't be created manually, use the global function
- *       getManager() to obtain a pointer to it.
- */
-class Manager {
-	private:
-		/// List of available graphics types.
-		VC_TILESETTYPE vcTilesetTypes;
-		VC_IMAGETYPE vcImageTypes;
-
-		Manager();
-
-		friend ManagerPtr getManager(void);
-
-	public:
-
-		~Manager();
-
-		/// Get an TilesetType instance for a supported file format.
-		/**
-		 * This can be used to enumerate all available file formats.
-		 *
-		 * @param  iIndex Index of the format, starting from 0.
-		 * @return A shared pointer to an TilesetType for the given index, or
-		 *         an empty pointer once iIndex goes out of range.
-		 * @todo Remove this and replace it with a function that just returns the vector.
-		 */
-		TilesetTypePtr getTilesetType(unsigned int iIndex);
-
-		/// Get an TilesetType instance by its code.
-		/**
-		 * @param  strCode %Tileset code (e.g. "grp-duke3d")
-		 * @return A shared pointer to an TilesetType for the given code, or
-		 *         an empty pointer on an invalid code.
-		 */
-		TilesetTypePtr getTilesetTypeByCode(const std::string& strCode);
-
-		/// Get an ImageType instance for a supported file format.
-		/**
-		 * This can be used to enumerate all available file formats.
-		 *
-		 * @param  iIndex Index of the format, starting from 0.
-		 * @return A shared pointer to an ImageType for the given index, or
-		 *         an empty pointer once iIndex goes out of range.
-		 * @todo Remove this and replace it with a function that just returns the vector.
-		 */
-		ImageTypePtr getImageType(unsigned int iIndex);
-
-		/// Get an ImageType instance by its code.
-		/**
-		 * @param  strCode %Image code (e.g. "grp-duke3d")
-		 * @return A shared pointer to an ImageType for the given code, or
-		 *         an empty pointer on an invalid code.
-		 */
-		ImageTypePtr getImageTypeByCode(const std::string& strCode);
-
-};
+const ManagerPtr getManager(void);
 
 } // namespace gamegraphics
 } // namespace camoto

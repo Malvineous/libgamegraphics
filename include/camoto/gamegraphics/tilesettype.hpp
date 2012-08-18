@@ -154,7 +154,7 @@ class TilesetType
 typedef boost::shared_ptr<TilesetType> TilesetTypePtr;
 
 /// Vector of TilesetType shared pointers.
-typedef std::vector<TilesetTypePtr> VC_TILESETTYPE;
+typedef std::vector<TilesetTypePtr> TilesetTypeVector;
 
 } // namespace gamegraphics
 } // namespace camoto

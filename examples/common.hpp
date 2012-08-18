@@ -176,7 +176,11 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 		gg::PaletteTablePtr newPal(new gg::PaletteTable());
 		newPal->reserve(pngPal.size());
 		for (png::palette::const_iterator i = pngPal.begin(); i != pngPal.end(); i++) {
-			gg::PaletteEntry p(i->red, i->green, i->blue, 255);
+			gg::PaletteEntry p;
+			p.red = i->red;
+			p.green = i->green;
+			p.blue = i->blue;
+			p.alpha = 255;
 			newPal->push_back(p);
 		}
 		img->setPalette(newPal);

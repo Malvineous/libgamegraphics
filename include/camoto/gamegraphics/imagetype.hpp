@@ -153,7 +153,7 @@ class ImageType
 typedef boost::shared_ptr<ImageType> ImageTypePtr;
 
 /// Vector of ImageType shared pointers.
-typedef std::vector<ImageTypePtr> VC_IMAGETYPE;
+typedef std::vector<ImageTypePtr> ImageTypeVector;
 
 } // namespace gamegraphics
 } // namespace camoto
