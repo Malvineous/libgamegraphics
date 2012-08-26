@@ -23,13 +23,17 @@
 namespace camoto {
 namespace gamegraphics {
 
-SubImage::SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
-	unsigned int width, unsigned int height)
+SubImage::SubImage(ImagePtr img, StdImageDataPtr stdImg,
+	StdImageDataPtr stdMask, unsigned int xOffset, unsigned int yOffset,
+	unsigned int width, unsigned int height, fn_image_changed fnImageChanged)
 	:	img(img),
+		parent(stdImg),
+		parentMask(stdMask),
 		xOffset(xOffset),
 		yOffset(yOffset),
 		width(width),
-		height(height)
+		height(height),
+		fnImageChanged(fnImageChanged)
 {
 }
 
@@ -61,19 +65,11 @@ void SubImage::setDimensions(unsigned int width, unsigned int height)
 
 StdImageDataPtr SubImage::toStandard()
 {
-	if (!this->parent) {
-		this->parent = this->img->toStandard();
-	}
-
 	return this->extractPortion(this->parent);
 }
 
 StdImageDataPtr SubImage::toStandardMask()
 {
-	if (!this->parentMask) {
-		this->parentMask = this->img->toStandardMask();
-	}
-
 	return this->extractPortion(this->parentMask);
 }
 
@@ -81,13 +77,6 @@ void SubImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
-	if (!this->parent) {
-		this->parent = this->img->toStandard();
-	}
-	if (!this->parentMask) {
-		this->parentMask = this->img->toStandardMask();
-	}
-
 	uint8_t *parentData = this->parent.get();
 	uint8_t *parentMask = this->parentMask.get();
 	uint8_t *imgData = newContent.get();
@@ -113,8 +102,8 @@ void SubImage::fromStandard(StdImageDataPtr newContent,
 		parentMask += remX;
 	}
 
-	// Update the parent image
-	this->img->fromStandard(this->parent, this->parentMask);
+	// Notify parent for eventual image update
+	this->fnImageChanged();
 
 	return;
 }

@@ -21,11 +21,20 @@
 #ifndef _CAMOTO_SUBIMAGE_HPP_
 #define _CAMOTO_SUBIMAGE_HPP_
 
+#include <boost/function.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
+
+/// Function to call when a subimage has been changed.
+/**
+ * This function should make note that one (or more) subimages have been
+ * changed, and eventually call img->fromStandard() to write the changes
+ * to the underlying image in one pass.
+ */
+typedef boost::function<void()> fn_image_changed;
 
 /// Image stored within another Image.
 class SubImage: virtual public BaseImage
@@ -37,6 +46,14 @@ class SubImage: virtual public BaseImage
 		 *
 		 * @param img
 		 *   Underlying image.
+		 *
+		 * @param stdImg
+		 *   Value of img->toStandard(), supplied here to avoid calling it once for
+		 *   every sub-image.
+		 *
+		 * @param stdMask
+		 *   Value of img->toStandardMask(), supplied here to avoid calling it once
+		 *   for every sub-image.
 		 *
 		 * @param xOffset
 		 *   X-coordinate of pixel in underlying image that will appear at (0,0) in
@@ -53,9 +70,15 @@ class SubImage: virtual public BaseImage
 		 * @param height
 		 *   Height of this image.  y + height must not exceed the width of the
 		 *   underlying image.
+		 *
+		 * @param fnImageChanged
+		 *   Callback function called when fromStandard() has been used to update
+		 *   this subimage.  Unless this function has been called at least once,
+		 *   there is no need for the owner to write back to img.
 		 */
-		SubImage(ImagePtr img, unsigned int xOffset, unsigned int yOffset,
-			unsigned int width, unsigned int height);
+		SubImage(ImagePtr img, StdImageDataPtr stdImg, StdImageDataPtr stdMask,
+			unsigned int xOffset, unsigned int yOffset, unsigned int width,
+			unsigned int height, fn_image_changed fnImageChanged);
 		virtual ~SubImage();
 
 		virtual int getCaps();
@@ -77,6 +100,7 @@ class SubImage: virtual public BaseImage
 		unsigned int yOffset;
 		unsigned int width;
 		unsigned int height;
+		fn_image_changed fnImageChanged; ///< Called to flag a change
 };
 
 } // namespace gamegraphics

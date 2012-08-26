@@ -22,6 +22,7 @@
 #define _CAMOTO_TLS_IMG_HPP_
 
 #include "basetileset.hpp"
+#include "subimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -47,11 +48,17 @@ class TilesetFromImage: virtual public BaseTileset
 
 	protected:
 		ImagePtr img;            ///< Underlying image file
+		StdImageDataPtr stdImg;  ///< Raw image data
+		StdImageDataPtr stdMask; ///< Raw image mask
 		VC_ENTRYPTR items;       ///< List of tiles
 		unsigned int tileWidth;  ///< Width of each tile in pixels
 		unsigned int tileHeight; ///< Height of each tile in pixels
 		unsigned int tilesWide;  ///< Number of tiles horizontally in each .PCX
 		unsigned int tilesHigh;  ///< Number of tiles vertically in each .PCX
+		bool hasImageChanged;    ///< Do we need to call fromStandard() on flush?
+		fn_image_changed fnImageChanged; ///< Callback function
+
+		void imageChanged();
 };
 
 } // namespace gamegraphics

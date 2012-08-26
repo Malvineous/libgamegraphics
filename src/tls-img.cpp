@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/bind.hpp>
 #include "tls-img.hpp"
 #include "subimage.hpp"
 
@@ -28,13 +29,14 @@ struct ImageEntry: public BaseTileset::BaseTilesetEntry {
 	int index; ///< Zero-based index of tile
 };
 
-TilesetFromImage::TilesetFromImage(ImagePtr img,
-	unsigned int tileWidth, unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
+TilesetFromImage::TilesetFromImage(ImagePtr img, unsigned int tileWidth,
+	unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
 	:	img(img),
 		tileWidth(tileWidth),
 		tileHeight(tileHeight),
 		tilesWide(tilesWide),
-		tilesHigh(tilesHigh)
+		tilesHigh(tilesHigh),
+		hasImageChanged(false)
 {
 	unsigned int numImages = this->tilesWide * this->tilesHigh;
 	this->items.reserve(numImages);
@@ -46,6 +48,7 @@ TilesetFromImage::TilesetFromImage(ImagePtr img,
 		fat->index = i;
 		this->items.push_back(ep);
 	}
+	this->fnImageChanged = boost::bind<void>(&TilesetFromImage::imageChanged, this);
 }
 
 TilesetFromImage::~TilesetFromImage()
@@ -67,6 +70,10 @@ const Tileset::VC_ENTRYPTR& TilesetFromImage::getItems() const
 
 ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
 {
+	if ((!this->stdImg) && (!this->stdMask)) {
+		this->stdImg = this->img->toStandard();
+		this->stdMask = this->img->toStandardMask();
+	}
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 	int x = (fat->index % this->tilesWide) * this->tileWidth;
@@ -79,7 +86,8 @@ ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
 	assert(y + this->tileHeight <= imgHeight);
 #endif
 
-	ImagePtr subimg(new SubImage(this->img, x, y, this->tileWidth, this->tileHeight));
+	ImagePtr subimg(new SubImage(this->img, this->stdImg, this->stdMask, x, y,
+		this->tileWidth, this->tileHeight, this->fnImageChanged));
 	return subimg;
 }
 
@@ -95,6 +103,10 @@ void TilesetFromImage::remove(EntryPtr& id)
 
 void TilesetFromImage::flush()
 {
+	if (this->hasImageChanged) {
+		this->img->fromStandard(this->stdImg, this->stdMask);
+		this->hasImageChanged = false;
+	}
 	return;
 }
 
@@ -126,6 +138,12 @@ PaletteTablePtr TilesetFromImage::getPalette()
 void TilesetFromImage::setPalette(PaletteTablePtr newPalette)
 {
 	this->img->setPalette(newPalette);
+	return;
+}
+
+void TilesetFromImage::imageChanged()
+{
+	this->hasImageChanged = true;
 	return;
 }
 

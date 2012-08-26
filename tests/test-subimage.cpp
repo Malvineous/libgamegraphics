@@ -54,6 +54,7 @@ struct subimage: public default_sample {
 	stream::string_sptr base;
 	ImagePtr img;
 	SuppData suppData;
+	bool update;
 
 	subimage()
 		:	base(new stream::string())
@@ -75,6 +76,13 @@ struct subimage: public default_sample {
 		this->img.reset(ega);
 		ega->setParams(this->base, 0, width, height, planes);
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
+		this->update = false;
+	}
+
+	void updateImage()
+	{
+		this->update = true;
+		return;
 	}
 
 };
@@ -89,8 +97,18 @@ BOOST_AUTO_TEST_CASE(subimage_open)
 
 	int subWidth = 4, subHeight = 2;
 
-	ImagePtr sub(new SubImage(this->img, 0, 4, subWidth, subHeight));
+	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
+	BOOST_REQUIRE_EQUAL(this->update, false);
+
+	StdImageDataPtr stdImg = this->img->toStandard();
+	StdImageDataPtr stdMask = this->img->toStandardMask();
+	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+		0, 4, subWidth, subHeight,
+		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
+
+	// Confirm the image still doesn't need to be updated
+	BOOST_REQUIRE_EQUAL(this->update, false);
 
 	StdImageDataPtr output = sub->toStandard();
 
@@ -113,7 +131,11 @@ BOOST_AUTO_TEST_CASE(subimage_open2)
 
 	int subWidth = 4, subHeight = 2;
 
-	ImagePtr sub(new SubImage(this->img, 16-subWidth, 16-subHeight, subWidth, subHeight));
+	StdImageDataPtr stdImg = this->img->toStandard();
+	StdImageDataPtr stdMask = this->img->toStandardMask();
+	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+		16-subWidth, 16-subHeight, subWidth, subHeight,
+		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
 
 	StdImageDataPtr output = sub->toStandard();
@@ -137,7 +159,11 @@ BOOST_AUTO_TEST_CASE(subimage_open_mask)
 
 	int subWidth = 4, subHeight = 2;
 
-	ImagePtr sub(new SubImage(this->img, 16-subWidth, 16-subHeight, subWidth, subHeight));
+	StdImageDataPtr stdImg = this->img->toStandard();
+	StdImageDataPtr stdMask = this->img->toStandardMask();
+	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+		16-subWidth, 16-subHeight, subWidth, subHeight,
+		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
 
 	StdImageDataPtr output = sub->toStandardMask();
@@ -146,6 +172,9 @@ BOOST_AUTO_TEST_CASE(subimage_open_mask)
 		0x01, 0x01, 0x01, 0x00,
 		0x00, 0x00, 0x00, 0x00
 	};
+
+	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
+	BOOST_REQUIRE_EQUAL(this->update, false);
 
 	BOOST_CHECK_MESSAGE(
 		default_sample::is_equal(target, output.get(), subWidth * subHeight, subWidth),
@@ -161,8 +190,15 @@ BOOST_AUTO_TEST_CASE(subimage_edit)
 
 	int subWidth = 4, subHeight = 2;
 
-	ImagePtr sub(new SubImage(this->img, 16-subWidth, 16-subHeight, subWidth, subHeight));
+	StdImageDataPtr stdImg = this->img->toStandard();
+	StdImageDataPtr stdMask = this->img->toStandardMask();
+	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+		16-subWidth, 16-subHeight, subWidth, subHeight,
+		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
+
+	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
+	BOOST_REQUIRE_EQUAL(this->update, false);
 
 	const uint8_t change[] = {
 		0x01, 0x02, 0x03, 0x04,
@@ -177,6 +213,11 @@ BOOST_AUTO_TEST_CASE(subimage_edit)
 	StdImageDataPtr altMask(new uint8_t[subWidth * subHeight]);
 	memcpy(altMask.get(), changeMask, subWidth * subHeight);
 	sub->fromStandard(alt, altMask);
+
+	// Confirm the image now needs to be updated, as it has changed
+	BOOST_REQUIRE_EQUAL(this->update, true);
+	this->img->fromStandard(stdImg, stdMask);
+	this->update = false;
 
 	StdImageDataPtr output = this->img->toStandard();
 	const uint8_t target[] = {

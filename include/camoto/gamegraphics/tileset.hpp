@@ -31,6 +31,10 @@
 #include <camoto/gamegraphics/palettetable.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
+#ifndef DLL_EXPORT
+#define DLL_EXPORT
+#endif
+
 namespace camoto {
 namespace gamegraphics {
 
@@ -208,16 +212,16 @@ class Tileset: virtual public Metadata
 
 		/// Write out any cached changes to the underlying stream.
 		/**
-		 * Some functions write their changes to the archive file immediately,
+		 * Some functions write their changes to the tileset file immediately,
 		 * while others cache their changes for performance reasons.  Any cached
 		 * changes are NOT automatically written out when the class is destroyed
 		 * (as there would be no way to handle any write failures), so this
-		 * function must be called before the class is destroyed or the archive
+		 * function must be called before the class is destroyed or the tileset
 		 * file will become corrupted.
 		 *
 		 * This function can also be called at any time to write all pending
 		 * changes without destroying the class.  However some changes can involve
-		 * shuffling around many hundreds of megabytes of data, so don't call this
+		 * shuffling around a lot of of data, so don't call this
 		 * function unless you have good reason to!
 		 *
 		 * @note When opening subtilesets, you must call flush() on each tileset
@@ -297,6 +301,19 @@ class Tileset: virtual public Metadata
 		virtual void setPalette(PaletteTablePtr newPalette) = 0;
 
 };
+
+struct TilePos {
+	unsigned int xOffset;
+	unsigned int yOffset;
+	unsigned int width;
+	unsigned int height;
+};
+typedef std::vector<TilePos> TileList;
+
+/// Create a tileset out of different rectangles in a single image
+TilesetPtr DLL_EXPORT createTilesetFromList(const TileList& tileList,
+	ImagePtr img);
+// Defined in tilesetFromList.cpp
 
 } // namespace gamegraphics
 } // namespace camoto

@@ -21,7 +21,9 @@
 #ifndef _CAMOTO_TLS_IMG_LIST_HPP_
 #define _CAMOTO_TLS_IMG_LIST_HPP_
 
+#include <camoto/gamegraphics/tileset.hpp>
 #include "basetileset.hpp"
+#include "subimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -29,16 +31,7 @@ namespace gamegraphics {
 class TilesetFromList: virtual public BaseTileset
 {
 	public:
-		struct Tile {
-			ImagePtr img;
-			unsigned int xOffset;
-			unsigned int yOffset;
-			unsigned int width;
-			unsigned int height;
-		};
-		typedef std::vector<Tile> TileList;
-
-		TilesetFromList(const TileList& tileList);
+		TilesetFromList(const TileList& tileList, ImagePtr img);
 		virtual ~TilesetFromList();
 
 		virtual int getCaps();
@@ -52,8 +45,15 @@ class TilesetFromList: virtual public BaseTileset
 		virtual void setPalette(PaletteTablePtr newPalette);
 
 	protected:
-		TileList tileList;   ///< List of underlying images
-		VC_ENTRYPTR items;   ///< List of tiles
+		TileList tileList;       ///< List of underlying images
+		ImagePtr img;            ///< Original image data
+		StdImageDataPtr stdImg;  ///< Raw image data
+		StdImageDataPtr stdMask; ///< Raw image mask
+		VC_ENTRYPTR items;       ///< List of tiles
+		bool hasImageChanged;    ///< Do we need to call fromStandard() on flush?
+		fn_image_changed fnImageChanged; ///< Callback function
+
+		void imageChanged();
 };
 
 } // namespace gamegraphics

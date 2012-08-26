@@ -18,18 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/bind.hpp>
 #include "tilesetFromList.hpp"
 #include "subimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
+TilesetPtr createTilesetFromList(const TileList& tileList, ImagePtr img)
+{
+	return TilesetPtr(new TilesetFromList(tileList, img));
+}
+
 struct ImageEntry: public BaseTileset::BaseTilesetEntry {
 	unsigned int index; ///< Zero-based index of tile
 };
 
-TilesetFromList::TilesetFromList(const TileList& tileList)
-	:	tileList(tileList)
+TilesetFromList::TilesetFromList(const TileList& tileList, ImagePtr img)
+	:	tileList(tileList),
+		img(img),
+		hasImageChanged(false)
 {
 	unsigned int numImages = this->tileList.size();
 	this->items.reserve(numImages);
@@ -41,6 +49,7 @@ TilesetFromList::TilesetFromList(const TileList& tileList)
 		fat->index = i;
 		this->items.push_back(ep);
 	}
+	this->fnImageChanged = boost::bind<void>(&TilesetFromList::imageChanged, this);
 }
 
 TilesetFromList::~TilesetFromList()
@@ -50,12 +59,8 @@ TilesetFromList::~TilesetFromList()
 int TilesetFromList::getCaps()
 {
 	int caps = 0;
-	if (this->tileList.size() > 0) {
-		ImagePtr first = this->tileList[0].img;
-		assert(first);
-		int imgCaps = first->getCaps();
-		if (imgCaps & Image::HasPalette) caps |= Tileset::HasPalette;
-	}
+	int imgCaps = this->img->getCaps();
+	if (imgCaps & Image::HasPalette) caps |= Tileset::HasPalette;
 	return caps;
 }
 
@@ -66,6 +71,11 @@ const Tileset::VC_ENTRYPTR& TilesetFromList::getItems() const
 
 ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 {
+	if ((!this->stdImg) && (!this->stdMask)) {
+		this->stdImg = this->img->toStandard();
+		this->stdMask = this->img->toStandardMask();
+	}
+
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 
@@ -73,7 +83,7 @@ ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 		throw stream::error("tile no longer exists/out of range");
 	}
 
-	Tile& t = this->tileList[fat->index];
+	TilePos& t = this->tileList[fat->index];
 
 #ifdef DEBUG
 	unsigned int imgWidth, imgHeight;
@@ -82,7 +92,8 @@ ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 	assert(t.yOffset + t.height <= imgHeight);
 #endif
 
-	ImagePtr subimg(new SubImage(t.img, t.xOffset, t.yOffset, t.width, t.height));
+	ImagePtr subimg(new SubImage(this->img, this->stdImg, this->stdMask, t.xOffset,
+		t.yOffset, t.width, t.height, this->fnImageChanged));
 	return subimg;
 }
 
@@ -98,6 +109,10 @@ void TilesetFromList::remove(EntryPtr& id)
 
 void TilesetFromList::flush()
 {
+	if (this->hasImageChanged) {
+		this->img->fromStandard(this->stdImg, this->stdMask);
+		this->hasImageChanged = false;
+	}
 	return;
 }
 
@@ -110,7 +125,7 @@ void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
 		throw stream::error("tile no longer exists/out of range");
 	}
 
-	Tile& t = this->tileList[fat->index];
+	TilePos& t = this->tileList[fat->index];
 	if (newSize != t.width * t.height) {
 		throw stream::error("tiles in this tileset are a fixed size");
 	}
@@ -120,25 +135,18 @@ void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
 PaletteTablePtr TilesetFromList::getPalette()
 {
 	assert(this->getCaps() & Tileset::HasPalette);
-	// Should not get here if tileList[0] is out of range
-	return this->tileList[0].img->getPalette();
+	return this->img->getPalette();
 }
 
 void TilesetFromList::setPalette(PaletteTablePtr newPalette)
 {
-	// Set the palette for all subimages that support it
-	ImagePtr lastImage;
-	for (TileList::const_iterator i = tileList.begin(); i != tileList.end(); i++) {
-		if (lastImage != i->img) {
-			if (i->img->getCaps() & Image::CanSetPalette) {
-				i->img->setPalette(newPalette);
-			}
-			// Try to minimise the number of tiles setPalette() is called on the
-			// same image.
-			lastImage = i->img;
-		}
-	}
+	this->img->setPalette(newPalette);
+	return;
+}
 
+void TilesetFromList::imageChanged()
+{
+	this->hasImageChanged = true;
 	return;
 }
 
