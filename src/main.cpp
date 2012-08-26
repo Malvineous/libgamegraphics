@@ -35,7 +35,6 @@
 #include "tls-jill.hpp"
 #include "tls-wacky.hpp"
 #include "tls-wordresc.hpp"
-#include "tls-wordresc-extra.hpp"
 #include "tls-zone66.hpp"
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
@@ -95,7 +94,6 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new JillTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescTilesetType()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescExtraTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
