@@ -67,11 +67,11 @@ class EGAPlanarImage: virtual public BaseImage
 };
 
 /// Filetype handler for full screen raw EGA images.
-class EGARawPlanarImageType: virtual public ImageType
+class EGARawPlanarBGRIImageType: virtual public ImageType
 {
 	public:
-		EGARawPlanarImageType();
-		virtual ~EGARawPlanarImageType();
+		EGARawPlanarBGRIImageType();
+		virtual ~EGARawPlanarBGRIImageType();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

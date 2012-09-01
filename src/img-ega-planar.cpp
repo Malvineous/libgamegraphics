@@ -301,41 +301,41 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 
 
 //
-// EGARawPlanarImageType
+// EGARawPlanarBGRIImageType
 //
 
-EGARawPlanarImageType::EGARawPlanarImageType()
+EGARawPlanarBGRIImageType::EGARawPlanarBGRIImageType()
 {
 }
 
-EGARawPlanarImageType::~EGARawPlanarImageType()
+EGARawPlanarBGRIImageType::~EGARawPlanarBGRIImageType()
 {
 }
 
-std::string EGARawPlanarImageType::getCode() const
+std::string EGARawPlanarBGRIImageType::getCode() const
 {
-	return "img-ega-raw-planar-fullscreen";
+	return "img-ega-raw-planar-bgri-fullscreen";
 }
 
-std::string EGARawPlanarImageType::getFriendlyName() const
+std::string EGARawPlanarBGRIImageType::getFriendlyName() const
 {
-	return "Raw Planar EGA fullscreen image";
+	return "Raw Planar EGA fullscreen image (BGRI)";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> EGARawPlanarImageType::getFileExtensions() const
+std::vector<std::string> EGARawPlanarBGRIImageType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> EGARawPlanarImageType::getGameList() const
+std::vector<std::string> EGARawPlanarBGRIImageType::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty EGARawPlanarImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty EGARawPlanarBGRIImageType::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -346,7 +346,7 @@ ImageType::Certainty EGARawPlanarImageType::isInstance(stream::input_sptr psImag
 	return DefinitelyNo;
 }
 
-ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
+ImagePtr EGARawPlanarBGRIImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(32000);
@@ -359,7 +359,7 @@ ImagePtr EGARawPlanarImageType::create(stream::inout_sptr psImage,
 	return this->open(psImage, dummy);
 }
 
-ImagePtr EGARawPlanarImageType::open(stream::inout_sptr psImage,
+ImagePtr EGARawPlanarBGRIImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	EGAPlanarImage *ega = new EGAPlanarImage();
@@ -377,7 +377,7 @@ ImagePtr EGARawPlanarImageType::open(stream::inout_sptr psImage,
 	return img;
 }
 
-SuppFilenames EGARawPlanarImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames EGARawPlanarBGRIImageType::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }
