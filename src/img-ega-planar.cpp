@@ -203,11 +203,11 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
 	int planeValue[PLANE_MAX], notPlaneValue[PLANE_MAX];
-	memset(planeValue, 0, PLANE_MAX);
-	memset(notPlaneValue, 0, PLANE_MAX);
+	memset(planeValue, 0, sizeof(planeValue));
+	memset(notPlaneValue, 0, sizeof(notPlaneValue));
 	for (int p = 0; p < PLANE_MAX; p++) {
 		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes++; else continue;
+		if (this->planes[p]) numPlanes = p; else continue;
 
 		// Handle negative values
 		int order;
@@ -259,6 +259,12 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 	for (int p = 0; p < numPlanes; p++) {
 		rowData = ret.get();
 
+		// Don't waste time processing a plane we're ignoring
+		if (!(planeValue[p] || notPlaneValue[p])) {
+			this->data->seekg(this->height * ((this->width + 7) / 8), stream::cur);
+			continue;
+		}
+
 		for (int y = 0; y < this->height; y++) {
 			// Run through each lot of eight pixels (a "cell")
 			// Adding 7 means a width that's not an even multiple of eight will
@@ -275,9 +281,6 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 						"format.  Returning partial conversion." << std::endl;
 					return ret;
 				}
-
-				// Don't waste time processing a plane we're ignoring
-				if (!(planeValue[p] || notPlaneValue[p])) continue;
 
 				// See how many bits we should run through.  This is only used
 				// when the image is not an even multiple of 8.

@@ -95,10 +95,10 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	int planeValue[PLANE_MAX];
 	bool planeMask[PLANE_MAX]; // true == use newMask, false == use newContent
 	bool planeSwap[PLANE_MAX]; // true == invert bits, false == leave alone
-	memset(planeValue, 0, PLANE_MAX);
+	memset(planeValue, 0, sizeof(planeValue));
 	for (int p = 0; p < PLANE_MAX; p++) {
 		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes++; else continue;
+		if (this->planes[p]) numPlanes = p; else continue;
 
 		// Handle negative values
 		int order;
