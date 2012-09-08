@@ -25,19 +25,22 @@
 namespace camoto {
 namespace gamegraphics {
 
-TilesetPtr createTilesetFromList(const TileList& tileList, ImagePtr img)
+TilesetPtr createTilesetFromList(const TileList& tileList, ImagePtr img,
+	unsigned int layoutWidth)
 {
-	return TilesetPtr(new TilesetFromList(tileList, img));
+	return TilesetPtr(new TilesetFromList(tileList, img, layoutWidth));
 }
 
 struct ImageEntry: public BaseTileset::BaseTilesetEntry {
 	unsigned int index; ///< Zero-based index of tile
 };
 
-TilesetFromList::TilesetFromList(const TileList& tileList, ImagePtr img)
+TilesetFromList::TilesetFromList(const TileList& tileList, ImagePtr img,
+	unsigned int layoutWidth)
 	:	tileList(tileList),
 		img(img),
-		hasImageChanged(false)
+		hasImageChanged(false),
+		layoutWidth(layoutWidth)
 {
 	unsigned int numImages = this->tileList.size();
 	this->items.reserve(numImages);
@@ -130,6 +133,11 @@ void TilesetFromList::resize(EntryPtr& id, stream::len newSize)
 		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
+}
+
+unsigned int TilesetFromList::getLayoutWidth()
+{
+	return this->layoutWidth;
 }
 
 PaletteTablePtr TilesetFromList::getPalette()

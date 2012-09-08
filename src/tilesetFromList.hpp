@@ -31,7 +31,8 @@ namespace gamegraphics {
 class TilesetFromList: virtual public BaseTileset
 {
 	public:
-		TilesetFromList(const TileList& tileList, ImagePtr img);
+		TilesetFromList(const TileList& tileList, ImagePtr img,
+			unsigned int layoutWidth);
 		virtual ~TilesetFromList();
 
 		virtual int getCaps();
@@ -41,6 +42,7 @@ class TilesetFromList: virtual public BaseTileset
 		virtual void remove(EntryPtr& id);
 		virtual void resize(EntryPtr& id, stream::len newSize);
 		virtual void flush();
+		virtual unsigned int getLayoutWidth();
 		virtual PaletteTablePtr getPalette();
 		virtual void setPalette(PaletteTablePtr newPalette);
 
@@ -52,6 +54,7 @@ class TilesetFromList: virtual public BaseTileset
 		VC_ENTRYPTR items;       ///< List of tiles
 		bool hasImageChanged;    ///< Do we need to call fromStandard() on flush?
 		fn_image_changed fnImageChanged; ///< Callback function
+		unsigned int layoutWidth; ///< Return value for getLayoutWidth()
 
 		void imageChanged();
 };

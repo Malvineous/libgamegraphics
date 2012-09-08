@@ -311,8 +311,19 @@ struct TilePos {
 typedef std::vector<TilePos> TileList;
 
 /// Create a tileset out of different rectangles in a single image
+/**
+ * @param tileList
+ *   List of coordinates in the image to turn into tiles.
+ *
+ * @param img
+ *   Image to use for the underlying picture data.
+ *
+ * @param layoutWidth
+ *   The ideal width of the tileset, as a number of tiles, when all the tiles
+ *   are displayed together in a block.
+ */
 TilesetPtr DLL_EXPORT createTilesetFromList(const TileList& tileList,
-	ImagePtr img);
+	ImagePtr img, unsigned int layoutWidth);
 // Defined in tilesetFromList.cpp
 
 } // namespace gamegraphics
