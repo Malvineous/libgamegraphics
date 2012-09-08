@@ -98,7 +98,8 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	memset(planeValue, 0, sizeof(planeValue));
 	for (int p = 0; p < PLANE_MAX; p++) {
 		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes = p; else continue;
+		if (!this->planes[p]) continue;
+		if (this->planes[p] > numPlanes) numPlanes = this->planes[p];
 
 		// Handle negative values
 		int order;
