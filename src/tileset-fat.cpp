@@ -296,7 +296,6 @@ void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
 	return;
 }
 
-/// Adjust the size of the given file in the on-disk FAT.
 void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
 	stream::len sizeDelta)
 {

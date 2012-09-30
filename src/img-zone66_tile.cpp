@@ -189,7 +189,7 @@ StdImageDataPtr Zone66TileImage::toStandard()
 {
 	assert((this->width != 0) && (this->height != 0));
 
-	int dataSize = this->width * height;
+	int dataSize = this->width * this->height;
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
 
@@ -242,7 +242,7 @@ StdImageDataPtr Zone66TileImage::toStandard()
 StdImageDataPtr Zone66TileImage::toStandardMask()
 {
 	assert((this->width != 0) && (this->height != 0));
-	int dataSize = this->width * height;
+	int dataSize = this->width * this->height;
 
 	// Return an entirely opaque mask
 	uint8_t *imgData = new uint8_t[dataSize];
@@ -253,8 +253,7 @@ StdImageDataPtr Zone66TileImage::toStandardMask()
 }
 
 void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+	StdImageDataPtr newMask)
 {
 	assert((this->width != 0) && (this->height != 0));
 	this->data->seekp(0, stream::start);
@@ -271,7 +270,7 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 	while ((*imgEnd == 0) && (imgEnd > imgData)) imgEnd--;
 	imgEnd++; // still want current (non-black) pixel
 
-	for (int y = 0; y < height; y++) {
+	for (int y = 0; y < this->height; y++) {
 		int dw = this->width;
 		while (dw > 0) {
 			// Count how many black pixels are in a row starting at the current pos
