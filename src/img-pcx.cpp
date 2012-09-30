@@ -42,19 +42,20 @@ void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
 	return;
 }
 
-class filter_pcx_unrle: public filter
+class filter_pcx_unrle: virtual public filter
 {
 	protected:
 		uint8_t val;        ///< Previous byte read
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-		filter_pcx_unrle()
-			:	count(0)
+		virtual void reset()
 		{
-		};
+			this->count = 0;
+			return;
+		}
 
-		void transform(uint8_t *out, stream::len *lenOut,
+		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn)
 		{
 			stream::len r = 0, w = 0;
@@ -116,20 +117,21 @@ class filter_pcx_unrle: public filter
 		}
 };
 
-class filter_pcx_rle: public filter
+class filter_pcx_rle: virtual public filter
 {
 	protected:
 		uint8_t val;        ///< Previous byte read
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-		filter_pcx_rle()
-			:	val(0),
-				count(0)
+		virtual void reset()
 		{
-		};
+			this->val = 0;
+			this->count = 0;
+			return;
+		}
 
-		void transform(uint8_t *out, stream::len *lenOut,
+		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn)
 		{
 			stream::len r = 0, w = 0;

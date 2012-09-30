@@ -32,11 +32,12 @@ const unsigned int MAX_ESCAPE_LEN = 0x7F;
 /// Length of each plane in input (1bpp) data
 const unsigned int PLANE_LEN = 8000;
 
-filter_ccomic_unrle::filter_ccomic_unrle()
-	:	lenBlock(0),
-		repeat(0),
-		escape(0)
+void filter_ccomic_unrle::reset()
 {
+	this->lenBlock = 0;
+	this->repeat = 0;
+	this->escape = 0;
+	return;
 }
 
 void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
@@ -103,13 +104,6 @@ void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
 	return;
 }
 
-filter_ccomic_rle::filter_ccomic_rle()
-	:	val(0),
-		count(0),
-		writtenSize(false),
-		col(0)
-{
-}
 
 bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut)
 {
@@ -140,6 +134,15 @@ bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stre
 		this->escapeBuf.clear();
 	}
 	return true;
+}
+
+void filter_ccomic_rle::reset()
+{
+	this->val = 0;
+	this->count = 0;
+	this->writtenSize = false;
+	this->col = 0;
+	return;
 }
 
 void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,

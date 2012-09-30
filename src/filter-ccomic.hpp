@@ -28,12 +28,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// RLE expansion filter for Captain Comic images.
-class filter_ccomic_unrle: public filter
+class filter_ccomic_unrle: virtual public filter
 {
 	public:
-		filter_ccomic_unrle();
-
-		void transform(uint8_t *out, stream::len *lenOut,
+		virtual void reset();
+		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn);
 
 	protected:
@@ -44,12 +43,11 @@ class filter_ccomic_unrle: public filter
 };
 
 /// RLE compression filter for Captain Comic images.
-class filter_ccomic_rle: public filter
+class filter_ccomic_rle: virtual public filter
 {
 	public:
-		filter_ccomic_rle();
-
-		void transform(uint8_t *out, stream::len *lenOut,
+		virtual void reset();
+		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn);
 
 	protected:
