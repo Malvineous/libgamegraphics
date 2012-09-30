@@ -3,9 +3,9 @@
  * @brief  Monster Bash tileset handler
  *
  * This file format is fully documented on the ModdingWiki:
- *   http://www.shikadi.net/moddingwiki/DAT_Format_(Monster_Bash)
+ *   http://www.shikadi.net/moddingwiki/Monster_Bash_Tileset_Format
  *
- * Copyright (C) 2010-2011 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2012 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,10 +81,10 @@ std::string MonsterBashBackgroundTilesetType::getFriendlyName() const
 	return "Monster Bash Background Tileset";
 }
 
-// Get a list of the known file extensions for this format.
 std::vector<std::string> MonsterBashBackgroundTilesetType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
+	vcExtensions.push_back("tbg");
 	return vcExtensions;
 }
 
@@ -150,10 +150,11 @@ std::string MonsterBashForegroundTilesetType::getFriendlyName() const
 	return "Monster Bash Foreground Tileset";
 }
 
-// Get a list of the known file extensions for this format.
 std::vector<std::string> MonsterBashForegroundTilesetType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
+	vcExtensions.push_back("tfg");
+	vcExtensions.push_back("tbn");
 	return vcExtensions;
 }
 
