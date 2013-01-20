@@ -107,7 +107,7 @@ PaletteTablePtr VGAPalette::getPalette()
 	uint8_t buf[768];
 	memset(buf, 0, 768);
 	this->data->seekg(0, stream::start);
-	this->data->read(buf, 768);
+	this->data->try_read(buf, 768);
 	// If the palette data is cut off (short read) the rest of the entries will
 	// be black.
 	int i = 0;
