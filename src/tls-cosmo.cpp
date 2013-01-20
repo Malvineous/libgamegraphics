@@ -82,8 +82,11 @@ CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGr
 	// Standard tileset
 	if (len == 2000 * 32) return PossiblyYes;
 
-	// Map backdrop
+	// Map backdrop (Cosmo)
 	if (len == 720 * 32) return PossiblyYes;
+
+	// Map backdrop (Duke II)
+	if (len == 1000 * 32) return PossiblyYes;
 
 	return DefinitelyNo;
 }
