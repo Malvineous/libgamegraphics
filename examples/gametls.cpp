@@ -119,7 +119,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 		// If this is an empty slot skip it, because we can't open it of course
 		if ((*i)->getAttr() & gg::Tileset::EmptySlot) {
 			if (bScript) {
-				std::cout << "id=" << prefix << '+' << j
+				std::cout << "id=" << prefix << '.' << j
 					<< ";type=empty\n";
 			} else {
 				std::cout << prefix << '.' << j << ": Empty slot\n";
@@ -137,7 +137,7 @@ void printTilesetList(std::string prefix, gg::TilesetPtr pTileset,
 			unsigned int iwidth, iheight;
 			img->getDimensions(&iwidth, &iheight);
 			if (bScript) {
-				std::cout << "id=" << prefix << '+' << j
+				std::cout << "id=" << prefix << '.' << j
 					<< ";type=image;width=" << iwidth
 					<< ";height=" << iheight << '\n';
 			} else {
