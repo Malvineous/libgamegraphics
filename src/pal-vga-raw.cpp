@@ -41,7 +41,6 @@ std::string VGAPaletteImageType::getFriendlyName() const
 	return "Standard VGA palette";
 }
 
-// Get a list of the known file extensions for this format.
 std::vector<std::string> VGAPaletteImageType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
@@ -68,7 +67,7 @@ ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage)
 	psImage->read((char *)buf, 3);
 	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return DefinitelyYes;
 
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c01
+	// TESTED BY: TODO
 	return PossiblyYes;
 }
 

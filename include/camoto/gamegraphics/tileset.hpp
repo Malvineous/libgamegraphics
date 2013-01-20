@@ -24,6 +24,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <map>
 
 #include <camoto/stream.hpp>
 #include <camoto/error.hpp>
@@ -50,9 +51,6 @@ class Tileset;
 
 /// Shared pointer to a Tileset file.
 typedef boost::shared_ptr<Tileset> TilesetPtr;
-
-/// Vector of Tileset shared pointers.
-typedef std::vector<TilesetPtr> VC_TILESET;
 
 /// Primary interface to a tileset file.
 /**
@@ -302,6 +300,7 @@ class Tileset: virtual public Metadata
 
 };
 
+/// Information about the location of a tile within an image.
 struct TilePos {
 	unsigned int xOffset;
 	unsigned int yOffset;
