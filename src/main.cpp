@@ -39,6 +39,7 @@
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
 #include "img-ega-planar.hpp"
+#include "img-mono.hpp"
 #include "img-nukem2.hpp"
 #include "img-pcx.hpp"
 #include "img-tv-fog.hpp"
@@ -99,6 +100,7 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new EGARawPlanarBGRIImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new MonoImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Nukem2ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));
