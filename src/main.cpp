@@ -22,6 +22,7 @@
 
 // Include all the file formats for the Manager to load
 #include "tls-bash.hpp"
+#include "tls-bash-sprite.hpp"
 #include "tls-catacomb.hpp"
 #include "tls-ccaves-sub.hpp"
 #include "tls-ccaves-main.hpp"
@@ -77,6 +78,7 @@ ActualManager::ActualManager()
 {
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashBackgroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashSpriteTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CatacombCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CatacombEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CCavesMainTilesetType()));
