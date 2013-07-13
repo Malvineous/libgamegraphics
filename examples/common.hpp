@@ -133,10 +133,18 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 
 	png::image<png::index_pixel> png(srcFile);
 
-	if ((png.get_width() != width) || (png.get_height() != height)) {
-		throw stream::error(createString("image does not match target size ("
-			<< png.get_width() << "x" << png.get_height() << " != " << width << "x"
-			<< height << ")"));
+	unsigned int pngWidth = png.get_width();
+	unsigned int pngHeight = png.get_height();
+	if ((pngWidth != width) || (pngHeight != height)) {
+		if (img->getCaps() & gg::Image::CanSetDimensions) {
+			img->setDimensions(pngWidth, pngHeight);
+			width = pngWidth;
+			height = pngHeight;
+		} else {
+			throw stream::error(createString("png image is " << pngWidth << "x"
+				<< pngHeight << " but target image is fixed as " << width << "x"
+				<< height));
+		}
 	}
 
 	bool hasTransparency = false;
