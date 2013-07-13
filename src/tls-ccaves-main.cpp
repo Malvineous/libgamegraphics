@@ -63,7 +63,6 @@ std::string CCavesMainTilesetType::getFriendlyName() const
 	return "Crystal Caves Concatenated Tileset";
 }
 
-// Get a list of the known file extensions for this format.
 std::vector<std::string> CCavesMainTilesetType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
@@ -75,7 +74,6 @@ std::vector<std::string> CCavesMainTilesetType::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
-	//vcGames.push_back("Secret Agent");
 	return vcGames;
 }
 
