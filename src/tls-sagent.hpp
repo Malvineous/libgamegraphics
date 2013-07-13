@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves-main.hpp
- * @brief  Crystal Caves top-level tileset handler (containing sub tilesets)
+ * @file   tls-sagent.hpp
+ * @brief  Secret Agent encryption wrapper around Crystal Caves tileset handler
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,20 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_CCAVES_MAIN_HPP_
-#define _CAMOTO_TLS_CCAVES_MAIN_HPP_
+#ifndef _CAMOTO_TLS_SAGENT_HPP_
+#define _CAMOTO_TLS_SAGENT_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "tileset-fat.hpp"
+#include "tls-ccaves-main.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class CCavesMainTilesetType: virtual public TilesetType
+class SAgent2kTilesetType: virtual public CCavesMainTilesetType
 {
 	public:
-		CCavesMainTilesetType();
-		virtual ~CCavesMainTilesetType();
+		SAgent2kTilesetType();
+		virtual ~SAgent2kTilesetType();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -42,32 +42,26 @@ class CCavesMainTilesetType: virtual public TilesetType
 			SuppData& suppData) const;
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
-			const;
-
-	protected:
-		/// How much to pad each tileset (in bytes)
-		stream::len pad;
 };
 
-class CCavesMainTileset: virtual public FATTileset
+class SAgent8kTilesetType: virtual public CCavesMainTilesetType
 {
 	public:
-		CCavesMainTileset(stream::inout_sptr data,
-			unsigned int numPlanes, stream::len pad);
-		virtual ~CCavesMainTileset();
+		SAgent8kTilesetType();
+		virtual ~SAgent8kTilesetType();
 
-		virtual int getCaps();
-
-		// FATTileset
-		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		unsigned int numPlanes;
+		virtual std::string getCode() const;
+		virtual std::string getFriendlyName() const;
+		virtual std::vector<std::string> getFileExtensions() const;
+		virtual std::vector<std::string> getGameList() const;
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
+			SuppData& suppData) const;
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
+			SuppData& suppData) const;
 };
 
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_CCAVES_MAIN_HPP_
+#endif // _CAMOTO_TLS_SAGENT_HPP_

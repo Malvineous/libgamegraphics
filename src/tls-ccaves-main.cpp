@@ -28,9 +28,14 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Number of planes in each image
-#define NUMPLANES_SPRITE  5
-#define NUMPLANES_TILE    4
+/// Number of planes in a sprite image
+#define CC_NUMPLANES_SPRITE  5
+
+/// Number of planes in a tileset image
+#define CC_NUMPLANES_TILE    4
+
+/// How much padding to apply after each tileset (in bytes)
+#define CC_PAD  0
 
 /// Maximum number of tilesets to load from a tileset collection.
 #define CC_SAFETY_MAX_TILESETCOUNT  1024
@@ -46,6 +51,7 @@ namespace gamegraphics {
 //
 
 CCavesMainTilesetType::CCavesMainTilesetType()
+	: pad(CC_PAD)
 {
 }
 
@@ -93,7 +99,9 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input
 			>> u8(width)
 			>> u8(height)
 		;
-		int delta = width*height*NUMPLANES_SPRITE*numTiles;
+		pos += 3;
+
+		int delta = width*height*CC_NUMPLANES_SPRITE*numTiles + this->pad;
 /*
 		// Make sure we don't get stuck
 		if (delta == 0) {
@@ -105,7 +113,7 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input
 		}
 */
 		// If this pushes us past EOF it's not a valid file
-		pos += delta + 3;
+		pos += delta;
 		if (pos > len) return DefinitelyNo;
 
 		psGraphics->seekg(delta, stream::cur);
@@ -122,14 +130,14 @@ TilesetPtr CCavesMainTilesetType::create(stream::inout_sptr psGraphics,
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
 	psGraphics->write("\x00\x01\x08", 3);
-	return TilesetPtr(new CCavesMainTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
 TilesetPtr CCavesMainTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CCavesMainTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(new CCavesMainTileset(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
 }
 
 SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -144,7 +152,7 @@ SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenam
 //
 
 CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
-	unsigned int numPlanes)
+	unsigned int numPlanes, stream::len pad)
 	:	FATTileset(data, CC_FIRST_TILESET_OFFSET),
 		numPlanes(numPlanes)
 {
@@ -170,7 +178,7 @@ CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 		fat->attr = SubTileset;
 		fat->index = i;
 		fat->offset = pos;
-		fat->size = width*height*this->numPlanes*numTiles+3;
+		fat->size = width*height*this->numPlanes*numTiles+3 + pad;
 		fat->lenHeader = 0;
 
 		// Make sure this tileset won't go past EOF or is zero data
