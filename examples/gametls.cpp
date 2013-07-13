@@ -237,6 +237,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 	} else {
 		// Need to use the default palette
 		srcPal = gg::createPalette_DefaultVGA();
+		srcPal->pop_back(); // remove entry 255 to make room for transparency
 	}
 
 	unsigned int palSize = srcPal->size();
