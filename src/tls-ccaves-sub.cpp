@@ -169,7 +169,7 @@ CCavesSubTileset::~CCavesSubTileset()
 
 int CCavesSubTileset::getCaps()
 {
-	return ChangeDimensions;
+	return Tileset::ChangeDimensions | Tileset::ColourDepthEGA;
 }
 
 void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)

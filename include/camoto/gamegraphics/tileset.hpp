@@ -79,11 +79,27 @@ class Tileset: virtual public Metadata
 			/// Set if all tiles are the same size and this can be changed.
 			ChangeDimensions  = 0x01,
 
-			/// Set if there is a tileset palette that applies to all tiles.
-			HasPalette        = 0x08,
+			/// Set if getPalette() returns valid data.
+			HasPalette        = 0x02,
 
-			/// Set if the palette can be changed
-			ChangePalette     = 0x10,
+			/// Set if setPalette() can be used.  Must be used with HasPalette.
+			CanSetPalette     = 0x04,
+
+			/// Set if the image is 8bpp (256 colour)
+			ColourDepthVGA    = 0x00,
+
+			/// Set if the image is 4bpp (16 colour)
+			ColourDepthEGA    = 0x10,
+
+			/// Set if the image is 2bpp (4 colour)
+			ColourDepthCGA    = 0x20,
+
+			/// Set if the image is 1bpp (black and white)
+			ColourDepthMono   = 0x30,
+
+			/// Mask to isolate the ColourDepth value.  This must always be used when
+			/// checking the colour depth.
+			ColourDepthMask   = 0x30,
 		};
 
 		/// Base class to represent entries in a tileset.

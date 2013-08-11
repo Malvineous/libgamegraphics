@@ -233,7 +233,7 @@ MonsterBashTileset::~MonsterBashTileset()
 
 int MonsterBashTileset::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthEGA;
 }
 
 void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)

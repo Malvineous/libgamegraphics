@@ -206,7 +206,7 @@ MonsterBashSprite::~MonsterBashSprite()
 
 int MonsterBashSprite::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthEGA;
 }
 
 unsigned int MonsterBashSprite::getLayoutWidth()

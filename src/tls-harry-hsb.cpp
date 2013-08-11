@@ -270,7 +270,7 @@ HarryHSBTileset::~HarryHSBTileset()
 
 int HarryHSBTileset::getCaps()
 {
-	return HasPalette;
+	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
 PaletteTablePtr HarryHSBTileset::getPalette()

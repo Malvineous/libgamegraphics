@@ -60,6 +60,12 @@ int TilesetFromImage::getCaps()
 	int caps = 0;
 	int imgCaps = this->img->getCaps();
 	if (imgCaps & Image::HasPalette) caps |= Tileset::HasPalette;
+	switch (imgCaps & Image::ColourDepthMask) {
+		case Image::ColourDepthVGA: caps |= Tileset::ColourDepthVGA; break;
+		case Image::ColourDepthEGA: caps |= Tileset::ColourDepthEGA; break;
+		case Image::ColourDepthCGA: caps |= Tileset::ColourDepthCGA; break;
+		case Image::ColourDepthMono: caps |= Tileset::ColourDepthMono; break;
+	}
 	return caps;
 }
 

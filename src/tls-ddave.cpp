@@ -281,7 +281,12 @@ DDaveTileset::~DDaveTileset()
 
 int DDaveTileset::getCaps()
 {
-	return 0 | (this->pal ? Tileset::HasPalette : 0);
+	return 0
+		| (this->pal ? Tileset::HasPalette : 0)
+		| ((this->imgType == CGA) ? Tileset::ColourDepthCGA : 0)
+		| ((this->imgType == EGA) ? Tileset::ColourDepthEGA : 0)
+		| ((this->imgType == VGA) ? Tileset::ColourDepthVGA : 0)
+	;
 }
 
 ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,

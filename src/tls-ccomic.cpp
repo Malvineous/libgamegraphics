@@ -177,7 +177,7 @@ CComicTileset::~CComicTileset()
 
 int CComicTileset::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthEGA;
 }
 
 void CComicTileset::resize(EntryPtr& id, stream::len newSize)

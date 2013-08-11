@@ -274,7 +274,7 @@ JillTiles::~JillTiles()
 
 int JillTiles::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthVGA;
 }
 
 unsigned int JillTiles::getLayoutWidth()

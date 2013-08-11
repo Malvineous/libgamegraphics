@@ -157,7 +157,7 @@ HarryCHRTileset::~HarryCHRTileset()
 
 int HarryCHRTileset::getCaps()
 {
-	return HasPalette;
+	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
 void HarryCHRTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)

@@ -200,7 +200,7 @@ CCavesMainTileset::~CCavesMainTileset()
 
 int CCavesMainTileset::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthEGA;
 }
 
 TilesetPtr CCavesMainTileset::createTilesetInstance(const EntryPtr& id,

@@ -199,7 +199,7 @@ Zone66Tileset::~Zone66Tileset()
 
 int Zone66Tileset::getCaps()
 {
-	return HasPalette;
+	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
 ImagePtr Zone66Tileset::createImageInstance(const EntryPtr& id,

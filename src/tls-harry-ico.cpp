@@ -203,7 +203,7 @@ HarryICOTileset::~HarryICOTileset()
 
 int HarryICOTileset::getCaps()
 {
-	return HasPalette;
+	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
 unsigned int HarryICOTileset::getLayoutWidth()
