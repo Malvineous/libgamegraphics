@@ -227,7 +227,7 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	EGABytePlanarImage *ega = new EGABytePlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, 0, this->width * 8, this->height, planes
+		content, 0, this->width * 8, this->height, planes, PaletteTablePtr()
 	);
 
 	return conv;

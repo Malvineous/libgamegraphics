@@ -96,13 +96,17 @@ TilesetPtr CosmoTilesetType::create(stream::inout_sptr psGraphics,
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_TILE));
+	return TilesetPtr(
+		new CosmoTileset(psGraphics, NUMPLANES_TILE, PaletteTablePtr())
+	);
 }
 
 TilesetPtr CosmoTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_TILE));
+	return TilesetPtr(
+		new CosmoTileset(psGraphics, NUMPLANES_TILE, PaletteTablePtr())
+	);
 }
 
 SuppFilenames CosmoTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
@@ -138,13 +142,17 @@ TilesetPtr CosmoMaskedTilesetType::create(stream::inout_sptr psGraphics,
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(
+		new CosmoTileset(psGraphics, NUMPLANES_SPRITE, PaletteTablePtr())
+	);
 }
 
 TilesetPtr CosmoMaskedTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CosmoTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(
+		new CosmoTileset(psGraphics, NUMPLANES_SPRITE, PaletteTablePtr())
+	);
 }
 
 
@@ -153,9 +161,10 @@ TilesetPtr CosmoMaskedTilesetType::open(stream::inout_sptr psGraphics,
 //
 
 CosmoTileset::CosmoTileset(stream::inout_sptr data,
-	uint8_t numPlanes)
+	uint8_t numPlanes, PaletteTablePtr pal)
 	:	FATTileset(data, CCA_FIRST_TILE_OFFSET),
-		numPlanes(numPlanes)
+		numPlanes(numPlanes),
+		pal(pal)
 {
 	int tileSize = this->numPlanes << 3; // multiply by eight (bytes per plane)
 
@@ -185,7 +194,8 @@ CosmoTileset::~CosmoTileset()
 
 int CosmoTileset::getCaps()
 {
-	return 0;
+	return Tileset::ColourDepthEGA
+		| (this->pal ? Tileset::HasPalette : 0);
 }
 
 void CosmoTileset::resize(EntryPtr& id, stream::len newSize)
@@ -208,6 +218,11 @@ unsigned int CosmoTileset::getLayoutWidth()
 	return 40;
 }
 
+PaletteTablePtr CosmoTileset::getPalette()
+{
+	return this->pal;
+}
+
 ImagePtr CosmoTileset::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
@@ -223,7 +238,7 @@ ImagePtr CosmoTileset::createImageInstance(const EntryPtr& id,
 	EGABytePlanarImage *ega = new EGABytePlanarImage();
 	ImagePtr conv(ega);
 	ega->setParams(
-		content, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes
+		content, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes, this->pal
 	);
 
 	return conv;

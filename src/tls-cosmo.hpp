@@ -22,78 +22,61 @@
 #define _CAMOTO_TLS_COSMO_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
+#include <camoto/gamegraphics/palettetable.hpp>
 #include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class CosmoTilesetType: virtual public TilesetType {
-
+class CosmoTilesetType: virtual public TilesetType
+{
 	public:
 		CosmoTilesetType();
-
 		virtual ~CosmoTilesetType();
 
 		virtual std::string getCode() const;
-
 		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getFileExtensions() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const;
-
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
-
 };
 
-class CosmoMaskedTilesetType: virtual public CosmoTilesetType {
-
+class CosmoMaskedTilesetType: virtual public CosmoTilesetType
+{
 	public:
 		virtual std::string getCode() const;
-
 		virtual std::string getFriendlyName() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
 		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const;
-
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-
 };
 
-class CosmoTileset: virtual public FATTileset {
-
+class CosmoTileset: virtual public FATTileset
+{
 	public:
-		CosmoTileset(stream::inout_sptr data, uint8_t numPlanes);
-
+		CosmoTileset(stream::inout_sptr data, uint8_t numPlanes, PaletteTablePtr pal);
 		virtual ~CosmoTileset();
 
 		virtual int getCaps();
-
 		void resize(EntryPtr& id, stream::len newSize);
-
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-
 		virtual unsigned int getLayoutWidth();
+		virtual PaletteTablePtr getPalette();
 
 		// FATTileset
-
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 
 	protected:
 		unsigned int numPlanes;
-
+		PaletteTablePtr pal;
 };
 
 } // namespace gamegraphics

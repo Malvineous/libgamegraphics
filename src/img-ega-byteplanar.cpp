@@ -35,7 +35,8 @@ EGABytePlanarImage::~EGABytePlanarImage()
 }
 
 void EGABytePlanarImage::setParams(stream::inout_sptr data,
-	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
+	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes,
+	PaletteTablePtr pal
 )
 {
 	this->data = data;
@@ -43,12 +44,13 @@ void EGABytePlanarImage::setParams(stream::inout_sptr data,
 	this->width = width;
 	this->height = height;
 	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
+	this->pal = pal;
 	return;
 }
 
 int EGABytePlanarImage::getCaps()
 {
-	return ColourDepthEGA;
+	return Image::ColourDepthEGA | (this->pal ? Image::HasPalette : 0);
 }
 
 void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
@@ -181,6 +183,11 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	}
 
 	return;
+}
+
+PaletteTablePtr EGABytePlanarImage::getPalette()
+{
+	return this->pal;
 }
 
 StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
