@@ -119,7 +119,7 @@ class FATTileset: virtual public BaseTileset
 		 * has moved.
 		 */
 		virtual void shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
-			stream::len deltaOffset, int deltaIndex);
+			stream::delta deltaOffset, int deltaIndex);
 
 		// Methods to be filled out by descendent classes
 

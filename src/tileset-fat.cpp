@@ -230,7 +230,7 @@ void FATTileset::flush()
 }
 
 void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
-	stream::len deltaOffset, int deltaIndex)
+	stream::delta deltaOffset, int deltaIndex)
 {
 	for (VC_ENTRYPTR::iterator i = this->items.begin(); i != this->items.end(); i++) {
 		FATEntry *pFAT = dynamic_cast<FATEntry *>(i->get());
