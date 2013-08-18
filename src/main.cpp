@@ -28,6 +28,7 @@
 #include "tls-ccaves-main.hpp"
 #include "tls-ccomic.hpp"
 #include "tls-cosmo.hpp"
+#include "tls-czone.hpp"
 #include "tls-ddave.hpp"
 #include "tls-harry-chr.hpp"
 #include "tls-harry-hsb.hpp"
@@ -88,6 +89,7 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CComicTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new CosmoMaskedTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new CZoneTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
