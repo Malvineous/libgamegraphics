@@ -21,6 +21,7 @@
 #include <camoto/gamegraphics/manager.hpp>
 
 // Include all the file formats for the Manager to load
+#include "tls-actrinfo.hpp"
 #include "tls-bash.hpp"
 #include "tls-bash-sprite.hpp"
 #include "tls-catacomb.hpp"
@@ -78,6 +79,7 @@ const ManagerPtr getManager()
 
 ActualManager::ActualManager()
 {
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new ActrinfoTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashBackgroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashForegroundTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new MonsterBashSpriteTilesetType()));
