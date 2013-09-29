@@ -369,6 +369,7 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 				uint8_t pixel = png[offY + y][offX + x];
 				if (pixel == 0) { // Palette #0 must be transparent
 					maskData[y * width + x] = 0x01; // transparent
+					imgData[y * width + x] = 0x00; // use black in case someone else ignores transparency
 				} else {
 					maskData[y * width + x] = 0x00; // opaque
 					imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
