@@ -236,8 +236,21 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
 		srcPal = tileset->getPalette();
 	} else {
 		// Need to use the default palette
-		srcPal = gg::createPalette_DefaultVGA();
-		srcPal->pop_back(); // remove entry 255 to make room for transparency
+		switch (tileset->getCaps() & gg::Tileset::ColourDepthMask) {
+			case gg::Tileset::ColourDepthVGA:
+				srcPal = gg::createPalette_DefaultVGA();
+				srcPal->pop_back(); // remove entry 255 to make room for transparency
+				break;
+			case gg::Tileset::ColourDepthEGA:
+				srcPal = gg::createPalette_DefaultEGA();
+				break;
+			case gg::Tileset::ColourDepthCGA:
+				srcPal = gg::createPalette_CGA(gg::CGAPal_CyanMagenta);
+				break;
+			case gg::Tileset::ColourDepthMono:
+				srcPal = gg::createPalette_DefaultMono();
+				break;
+		}
 	}
 
 	unsigned int palSize = srcPal->size();
@@ -317,9 +330,7 @@ void tilesetToPng(gg::TilesetPtr tileset, unsigned int widthTiles,
  */
 void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 {
-	png::image<png::index_pixel> png(
-		srcFile, png::require_color_space<png::index_pixel>()
-	);
+	png::image<png::index_pixel> png(srcFile);
 
 	unsigned int width, height;
 	tileset->getTilesetDimensions(&width, &height);
@@ -335,9 +346,57 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 		throw stream::error("image height must be a multiple of the tile height");
 	}
 
+	gg::PaletteTablePtr tilesetPal;
+	if (tileset->getCaps() & gg::Tileset::HasPalette) {
+		tilesetPal = tileset->getPalette();
+	} else {
+		// Need to use the default palette
+		switch (tileset->getCaps() & gg::Tileset::ColourDepthMask) {
+			case gg::Tileset::ColourDepthVGA:
+				tilesetPal = gg::createPalette_DefaultVGA();
+				break;
+			case gg::Tileset::ColourDepthEGA:
+				tilesetPal = gg::createPalette_DefaultEGA();
+				break;
+			case gg::Tileset::ColourDepthCGA:
+				tilesetPal = gg::createPalette_CGA(gg::CGAPal_CyanMagenta);
+				break;
+			case gg::Tileset::ColourDepthMono:
+				tilesetPal = gg::createPalette_DefaultMono();
+				break;
+		}
+	}
+
+	signed int paletteMap[256]; ///< -1 means that colour is transparent, 0 == EGA/VGA black, etc.
+	// Create a palette map in case the .png colours aren't in the same
+	// order as the original palette.  This is needed because some image
+	// editors (e.g. GIMP) omit colours from the palette if they are
+	// unused, messing up the index values.
+	memset(paletteMap, 0, sizeof(paletteMap));
+	const png::palette& pngPal = png.get_palette();
+	int i_index = 0;
+	for (png::palette::const_iterator
+		i = pngPal.begin(); i != pngPal.end(); i++, i_index++
+	) {
+		int j_index = 0;
+		for (gg::PaletteTable::iterator
+			j = tilesetPal->begin(); j != tilesetPal->end(); j++, j_index++
+		) {
+			if (
+				(i->red == j->red) &&
+				(i->green == j->green) &&
+				(i->blue == j->blue)
+			) {
+				paletteMap[i_index] = j_index;
+			}
+		}
+	}
 	png::tRNS transparency = png.get_tRNS();
-	if (transparency[0] != 0) {
-		throw stream::error("palette entry #0 must be assigned as transparent");
+	for (png::tRNS::const_iterator
+		tx = transparency.begin(); tx != transparency.end(); tx++
+	) {
+		// This colour index is transparent
+		paletteMap[*tx] = -1;
 	}
 
 	unsigned int tilesX = png.get_width() / width;
@@ -366,13 +425,13 @@ void pngToTileset(gg::TilesetPtr tileset, const std::string& srcFile)
 
 		for (unsigned int y = 0; y < height; y++) {
 			for (unsigned int x = 0; x < width; x++) {
-				uint8_t pixel = png[offY + y][offX + x];
-				if (pixel == 0) { // Palette #0 must be transparent
+				signed int pixel = paletteMap[png[offY + y][offX + x]];
+				if (pixel == -1) { // Palette #0 must be transparent
 					maskData[y * width + x] = 0x01; // transparent
 					imgData[y * width + x] = 0x00; // use black in case someone else ignores transparency
 				} else {
 					maskData[y * width + x] = 0x00; // opaque
-					imgData[y * width + x] = pixel - 1; // -1 to account for palette #0
+					imgData[y * width + x] = pixel;
 				}
 			}
 		}
