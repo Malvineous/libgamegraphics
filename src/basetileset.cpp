@@ -24,6 +24,11 @@
 namespace camoto {
 namespace gamegraphics {
 
+std::string BaseTileset::BaseTilesetEntry::getName() const
+{
+	return this->name;
+}
+
 bool BaseTileset::BaseTilesetEntry::isValid() const
 {
 	return this->valid;

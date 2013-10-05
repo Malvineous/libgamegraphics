@@ -85,6 +85,9 @@ class Tileset: virtual public Metadata
 			/// Set if setPalette() can be used.  Must be used with HasPalette.
 			CanSetPalette     = 0x04,
 
+			/// Tiles have names
+			HasNames          = 0x08,
+
 			/// Set if the image is 8bpp (256 colour)
 			ColourDepthVGA    = 0x00,
 
@@ -108,6 +111,9 @@ class Tileset: virtual public Metadata
 		 * The entries here will be valid for all tileset types.
 		 */
 		struct Entry {
+			/// Name of this tile, if Attributes::HasNames is set.
+			virtual std::string getName() const = 0;
+
 			/// Is this entry valid? (set to false upon delete)
 			virtual bool isValid() const = 0;
 

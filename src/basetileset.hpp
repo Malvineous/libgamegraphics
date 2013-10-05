@@ -37,8 +37,12 @@ class BaseTileset: virtual public Tileset
 
 		class BaseTilesetEntry: virtual public Entry {
 			public:
+				virtual std::string getName() const;
 				virtual bool isValid() const;
 				virtual int getAttr() const;
+
+				/// Name of this tile
+				std::string name;
 
 				/// Is this entry valid? (set to false upon delete)
 				bool valid;
