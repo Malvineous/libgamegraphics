@@ -5,6 +5,7 @@ libgamegraphics_la_SOURCES += baseimage.cpp
 libgamegraphics_la_SOURCES += basetileset.cpp
 libgamegraphics_la_SOURCES += palettetable.cpp
 libgamegraphics_la_SOURCES += tilesetFromList.cpp
+libgamegraphics_la_SOURCES += tilesetFromImages.cpp
 libgamegraphics_la_SOURCES += filter-ccomic.cpp
 libgamegraphics_la_SOURCES += img-bash-sprite.cpp
 libgamegraphics_la_SOURCES += img-ega-planar.cpp

@@ -347,6 +347,32 @@ TilesetPtr DLL_EXPORT createTilesetFromList(const TileList& tileList,
 	ImagePtr img, unsigned int layoutWidth);
 // Defined in tilesetFromList.cpp
 
+
+/// Element in list of images composing a tileset
+struct TilesetFromImages_Item {
+	std::string name;   ///< Name of this tile
+	bool isImage;       ///< true=image, false=tileset
+	ImagePtr image;     ///< valid if isImage is true
+	TilesetPtr tileset; ///< valid if isImage is false
+};
+
+/// List of elements used to construct a tileset
+typedef std::vector<TilesetFromImages_Item> TilesetFromImages_List;
+
+/// Create a tileset out of a list of images
+/**
+ * @param content
+ *   Vector of images to include in the tileset.  The first element becomes the
+ *   first entry in the tileset.  It can be an image or a sub-tileset.
+ *
+ * @param layoutWidth
+ *   The ideal width of the tileset, as a number of tiles, when all the tiles
+ *   are displayed together in a block.
+ */
+TilesetPtr DLL_EXPORT createTilesetFromImages(TilesetFromImages_List& content,
+	unsigned int layoutWidth);
+// Defined in tilesetFromImages.cpp
+
 } // namespace gamegraphics
 } // namespace camoto
 
