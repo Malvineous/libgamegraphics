@@ -205,7 +205,7 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
@@ -214,7 +214,7 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));

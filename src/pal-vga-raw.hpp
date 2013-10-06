@@ -27,49 +27,66 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Filetype handler for VGA palette files.
-class VGAPaletteImageType: virtual public ImageType {
-
+/// Filetype handler for VGA 6-bit palette files.
+class VGAPaletteImageType: virtual public ImageType
+{
 	public:
-
 		VGAPaletteImageType();
-
 		virtual ~VGAPaletteImageType();
 
 		virtual std::string getCode() const;
-
 		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getFileExtensions() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
 		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const;
-
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
-
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-
 };
 
-/// Palette interface to 768-byte raw 6-bit VGA palette files.
-class VGAPalette: virtual public Palette {
-
-	private:
-		stream::inout_sptr data;
-
+/// Filetype handler for VGA 8-bit palette files.
+class VGA8PaletteImageType: virtual public VGAPaletteImageType
+{
 	public:
-		VGAPalette(stream::inout_sptr data);
+		VGA8PaletteImageType();
+		virtual ~VGA8PaletteImageType();
 
+		virtual std::string getCode() const;
+		virtual std::string getFriendlyName() const;
+		virtual std::vector<std::string> getFileExtensions() const;
+		virtual std::vector<std::string> getGameList() const;
+		virtual Certainty isInstance(stream::input_sptr fsImage) const;
+		virtual ImagePtr create(stream::inout_sptr psImage,
+			SuppData& suppData) const;
+		virtual ImagePtr open(stream::inout_sptr fsImage,
+			SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+};
+
+/// Palette interface to 768-byte raw 6/8-bit VGA palette files.
+class VGAPalette: virtual public Palette
+{
+	public:
+		/// Create a new palette.
+		/**
+		 * @param data
+		 *   Palette content, typically 768 bytes long.
+		 *
+		 * @param depth
+		 *   Either 6 for a 6-bit raw VGA palette (values 0-63) or 8 for an 8-bit
+		 *   RGB palette (values 0-255).
+		 */
+		VGAPalette(stream::inout_sptr data, unsigned int depth);
 		virtual ~VGAPalette();
 
 		virtual PaletteTablePtr getPalette();
-
 		virtual void setPalette(PaletteTablePtr newPalette);
+
+	private:
+		stream::inout_sptr data;
+		unsigned int depth;
 };
 
 } // namespace gamegraphics

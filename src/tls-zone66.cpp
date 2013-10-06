@@ -123,7 +123,7 @@ TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 	return TilesetPtr(new Zone66Tileset(psTileset, pal));
@@ -135,7 +135,7 @@ TilesetPtr Zone66TilesetType::open(stream::inout_sptr psTileset,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 	return TilesetPtr(new Zone66Tileset(psTileset, pal));

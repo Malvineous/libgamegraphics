@@ -100,7 +100,7 @@ TilesetPtr JillTilesetType::create(stream::inout_sptr psGraphics,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
@@ -115,7 +115,7 @@ TilesetPtr JillTilesetType::open(stream::inout_sptr psGraphics,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
@@ -296,7 +296,7 @@ ImagePtr JillTiles::createImageInstance(const EntryPtr& id,
 			// Yes, definitely a palette
 			camoto::stream::sub_sptr sub(new stream::sub());
 			sub->open(content, 3, 768, NULL); // NULL because this is a fixed size
-			return ImagePtr(new VGAPalette(sub));
+			return ImagePtr(new VGAPalette(sub, 6));
 		}
 	}
 	return ImagePtr(new JillImage(content, this->colourMap));

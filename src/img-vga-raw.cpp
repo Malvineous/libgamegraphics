@@ -24,38 +24,20 @@
 namespace camoto {
 namespace gamegraphics {
 
-VGARawImageType::VGARawImageType()
-{
-}
-
-VGARawImageType::~VGARawImageType()
-{
-}
-
-std::string VGARawImageType::getCode() const
-{
-	return "img-vga-raw-fullscreen";
-}
-
-std::string VGARawImageType::getFriendlyName() const
-{
-	return "Raw VGA fullscreen image";
-}
-
-// Get a list of the known file extensions for this format.
-std::vector<std::string> VGARawImageType::getFileExtensions() const
+std::vector<std::string> VGARawBaseImageType::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
+	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> VGARawImageType::getGameList() const
+std::vector<std::string> VGARawBaseImageType::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty VGARawImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty VGARawBaseImageType::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -66,7 +48,7 @@ ImageType::Certainty VGARawImageType::isInstance(stream::input_sptr psImage) con
 	return DefinitelyNo;
 }
 
-ImagePtr VGARawImageType::create(stream::inout_sptr psImage,
+ImagePtr VGARawBaseImageType::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(64000);
@@ -74,26 +56,58 @@ ImagePtr VGARawImageType::create(stream::inout_sptr psImage,
 	memset(buf, 0, 64);
 	for (int i = 0; i < 1000; i++) psImage->write(buf, 64);
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
-ImagePtr VGARawImageType::open(stream::inout_sptr psImage,
+ImagePtr VGARawBaseImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
-SuppFilenames VGARawImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames VGARawBaseImageType::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =
 		filenameImage.substr(0, filenameImage.find_last_of('.'));
 	supps[SuppItem::Palette] = filenameBase + ".pal";
 	return supps;
+}
+
+
+VGA6RawImageType::VGA6RawImageType()
+{
+	this->depth = 6;
+}
+
+std::string VGA6RawImageType::getCode() const
+{
+	return "img-vga-raw-fullscreen";
+}
+
+std::string VGA6RawImageType::getFriendlyName() const
+{
+	return "Raw VGA fullscreen image (6-bit palette)";
+}
+
+
+VGA8RawImageType::VGA8RawImageType()
+{
+	this->depth = 8;
+}
+
+std::string VGA8RawImageType::getCode() const
+{
+	return "img-vga-raw8-fullscreen";
+}
+
+std::string VGA8RawImageType::getFriendlyName() const
+{
+	return "Raw VGA fullscreen image (24-bit palette)";
 }
 
 

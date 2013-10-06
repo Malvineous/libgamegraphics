@@ -114,11 +114,13 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
-	this->vcImageTypes.push_back(ImageTypePtr(new VGARawImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGA6RawImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGA8RawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new GMFHarryPaletteImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGAPaletteImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGA8PaletteImageType()));
 }
 
 ActualManager::~ActualManager()

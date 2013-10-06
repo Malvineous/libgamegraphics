@@ -113,7 +113,7 @@ TilesetPtr CZoneTilesetType::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 	// Zero tiles, 0x0
 	return TilesetPtr(new CZoneTileset(psGraphics, pal));
@@ -122,7 +122,7 @@ TilesetPtr CZoneTilesetType::create(stream::inout_sptr psGraphics,
 TilesetPtr CZoneTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 	return TilesetPtr(new CZoneTileset(psGraphics, pal));
 }

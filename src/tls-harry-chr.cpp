@@ -97,7 +97,7 @@ TilesetPtr HarryCHRTilesetType::create(stream::inout_sptr psTileset,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");

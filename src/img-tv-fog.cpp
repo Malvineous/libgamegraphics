@@ -93,7 +93,7 @@ ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
 		psImage->write((char *)&buf, 1);
 	}
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }
@@ -101,7 +101,7 @@ ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
 ImagePtr TVFogImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette]));
+	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }

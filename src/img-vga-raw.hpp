@@ -28,37 +28,43 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for full screen raw VGA images.
-class VGARawImageType: virtual public ImageType {
-
+class VGARawBaseImageType: virtual public ImageType
+{
 	public:
-
-		VGARawImageType();
-
-		virtual ~VGARawImageType();
-
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
 		virtual std::vector<std::string> getFileExtensions() const;
-
 		virtual std::vector<std::string> getGameList() const;
-
 		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
 		virtual ImagePtr create(stream::inout_sptr psImage,
 			SuppData& suppData) const;
-
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
-
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
+	protected:
+		unsigned int depth; // palette depth (6 or 8)
+};
+
+class VGA6RawImageType: virtual public VGARawBaseImageType
+{
+	public:
+		VGA6RawImageType();
+
+		virtual std::string getCode() const;
+		virtual std::string getFriendlyName() const;
+};
+
+class VGA8RawImageType: virtual public VGARawBaseImageType
+{
+	public:
+		VGA8RawImageType();
+
+		virtual std::string getCode() const;
+		virtual std::string getFriendlyName() const;
 };
 
 /// Raw VGA Image implementation.
-class VGARawImage: virtual public VGAImage {
-
+class VGARawImage: virtual public VGAImage
+{
 	protected:
 		int width, height;
 		PaletteTablePtr pal;
@@ -82,17 +88,12 @@ class VGARawImage: virtual public VGAImage {
 		 *   Image palette
 		 */
 		VGARawImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
-
 		virtual ~VGARawImage();
 
 		virtual int getCaps();
-
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
 		virtual void setDimensions(unsigned int width, unsigned int height);
-
 		virtual PaletteTablePtr getPalette();
-
 };
 
 } // namespace gamegraphics
