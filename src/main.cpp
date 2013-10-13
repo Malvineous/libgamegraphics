@@ -46,6 +46,7 @@
 #include "img-mono.hpp"
 #include "img-nukem2.hpp"
 #include "img-pcx.hpp"
+#include "img-pic-raptor.hpp"
 #include "img-tv-fog.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
@@ -113,6 +114,7 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new Nukem2ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new RaptorPICImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA6RawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA8RawImageType()));
