@@ -74,7 +74,7 @@ struct subimage: public default_sample {
 		planes[PLANE_OPACITY] = -1;
 		EGABytePlanarImage *ega = new EGABytePlanarImage();
 		this->img.reset(ega);
-		ega->setParams(this->base, 0, width, height, planes);
+		ega->setParams(this->base, 0, width, height, planes, createPalette_DefaultEGA());
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
 		this->update = false;
 	}

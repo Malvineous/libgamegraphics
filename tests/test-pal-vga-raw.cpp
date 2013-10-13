@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_read)
 	ss->write(data, 768);
 	// Don't seek to 0 here to make sure VGAPalette handles it correctly
 
-	VGAPalette img(ss);
+	VGAPalette img(ss, 6);
 
 	PaletteTablePtr pal = img.getPalette();
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	pal->push_back(p);
 
 	stream::string_sptr ss(new stream::string());
-	VGAPalette img(ss);
+	VGAPalette img(ss, 6);
 	img.setPalette(pal);
 	ss->flush();
 
@@ -85,4 +85,62 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	BOOST_REQUIRE_EQUAL(buf[3], 63);
 	BOOST_REQUIRE_EQUAL(buf[4], 63);
 	BOOST_REQUIRE_EQUAL(buf[5], 63);
+}
+
+BOOST_AUTO_TEST_CASE(pal_vga8_raw_read)
+{
+	BOOST_TEST_MESSAGE("Read from VGA8 palette");
+
+	uint8_t data[768];
+	memset(data, 0, 768);
+	data[3] = data[4] = data[5] = 0xFF;
+	data[6] = data[7] = data[8] = 0xFF;
+
+	stream::string_sptr ss(new stream::string());
+	ss->write(data, 768);
+	// Don't seek to 0 here to make sure VGAPalette handles it correctly
+
+	VGAPalette img(ss, 8);
+
+	PaletteTablePtr pal = img.getPalette();
+
+	BOOST_REQUIRE_EQUAL((*pal)[0].red,   0);
+	BOOST_REQUIRE_EQUAL((*pal)[0].green, 0);
+	BOOST_REQUIRE_EQUAL((*pal)[0].blue,  0);
+
+	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
+
+	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
+	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
+}
+
+BOOST_AUTO_TEST_CASE(pal_vga8_raw_write)
+{
+	BOOST_TEST_MESSAGE("Write to VGA8 palette");
+
+	PaletteTablePtr pal(new PaletteTable());
+	PaletteEntry p;
+	p.red = p.green = p.blue = 0;
+	pal->push_back(p);
+	p.red = p.green = p.blue = 255;
+	pal->push_back(p);
+
+	stream::string_sptr ss(new stream::string());
+	VGAPalette img(ss, 8);
+	img.setPalette(pal);
+	ss->flush();
+
+	std::string s = ss->str();
+	uint8_t *buf = (uint8_t *)s.c_str();
+
+	BOOST_REQUIRE_EQUAL(buf[0], 0);
+	BOOST_REQUIRE_EQUAL(buf[1], 0);
+	BOOST_REQUIRE_EQUAL(buf[2], 0);
+
+	BOOST_REQUIRE_EQUAL(buf[3], 255);
+	BOOST_REQUIRE_EQUAL(buf[4], 255);
+	BOOST_REQUIRE_EQUAL(buf[5], 255);
 }

@@ -81,7 +81,7 @@ using namespace camoto;
 	planes[PLANE_OPACITY] = -1; \
 	EGABytePlanarImage *ega = new EGABytePlanarImage(); \
 	this->img = ImagePtr(ega); \
-	ega->setParams(this->base, 0, width, height, planes); \
+	ega->setParams(this->base, 0, width, height, planes, createPalette_DefaultEGA()); \
 	this->dataWidth = width / 8 * height * 5; // 5 == numplanes
 
 // Same code for creating empty images
