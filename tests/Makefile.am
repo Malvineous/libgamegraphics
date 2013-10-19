@@ -19,6 +19,7 @@ tests_SOURCES += test-tls-bash-sprite.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-tls-harry-hsb.cpp
 tests_SOURCES += test-tls-harry-ico.cpp
+tests_SOURCES += test-tls-vinyl.cpp
 tests_SOURCES += test-tls-zone66.cpp
 
 EXTRA_tests_SOURCES = tests.hpp

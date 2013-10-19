@@ -37,6 +37,7 @@
 #include "tls-hocus.hpp"
 #include "tls-jill.hpp"
 #include "tls-sagent.hpp"
+#include "tls-vinyl.hpp"
 #include "tls-wacky.hpp"
 #include "tls-wordresc.hpp"
 #include "tls-zone66.hpp"
@@ -103,6 +104,7 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new JillTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new SAgent2kTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new SAgent8kTilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new VinylTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
