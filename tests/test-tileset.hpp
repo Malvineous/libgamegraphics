@@ -95,15 +95,9 @@ struct FIXTURE_NAME: public default_sample {
 			this->pTileset->flush()
 		);
 
-		std::string baseStr = this->base->str();
-
-		int len = strExpected.length();
-		if (baseStr.length() > len) len = baseStr.length();
-
 		boost::test_tools::predicate_result ret =
-			this->default_sample::is_equal((uint8_t *)strExpected.c_str(),
-				(uint8_t *)baseStr.c_str(), len, 8);
-		BOOST_CHECK_EQUAL(strExpected.length(), baseStr.length());
+			this->default_sample::is_equal(strExpected, this->base->str(), 8);
+		BOOST_CHECK_EQUAL(strExpected.length(), this->base->str().length());
 		return ret;
 	}
 
@@ -116,11 +110,9 @@ struct FIXTURE_NAME: public default_sample {
 		);
 
 		stream::string_sptr sstr = boost::dynamic_pointer_cast<stream::string>(this->suppData[type]);
-		std::string baseStr = sstr->str();
 		boost::test_tools::predicate_result ret =
-			this->default_sample::is_equal((uint8_t *)strExpected.c_str(),
-				(uint8_t *)baseStr.c_str(), baseStr.length(), 8);
-		BOOST_CHECK_EQUAL(strExpected.length(), baseStr.length());
+			this->default_sample::is_equal(strExpected, sstr->str(), 8);
+		BOOST_CHECK_EQUAL(strExpected.length(), sstr->str().length());
 		return ret;
 	}
 
@@ -243,9 +235,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(open))
 
 	BOOST_CHECK_MESSAGE(
 		default_sample::is_equal(
-			rawImage.get(),
-			output.get(),
-			DATA_TILE_WIDTH * DATA_TILE_HEIGHT,
+			std::string((const char *)rawImage.get(), DATA_TILE_WIDTH * DATA_TILE_HEIGHT),
+			std::string((const char *)output.get(), DATA_TILE_WIDTH * DATA_TILE_HEIGHT),
 			DATA_TILE_WIDTH
 		),
 		"Error opening tile or wrong tile opened (or image format conversion "

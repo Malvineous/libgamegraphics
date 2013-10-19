@@ -178,9 +178,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_bad_rle))
 
 	BOOST_CHECK_MESSAGE(
 		default_sample::is_equal(
-			stdformat_test_image_8x8,
-			output.get(),
-			8 * 8,
+			makeString(stdformat_test_image_8x8),
+			std::string((const char *)output.get(), 8 * 8),
 			8
 		),
 		"Error converting image with bad RLE code to standard format"
@@ -215,7 +214,8 @@ const uint8_t stdformat_test_image_8x8_truncated[] = {
 	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
 	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
 	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02
+	0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02,
+	0x00 // terminating null for std::string conversion
 };
 
 BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_truncated))
@@ -230,9 +230,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_truncated))
 
 	BOOST_CHECK_MESSAGE(
 		default_sample::is_equal(
-			stdformat_test_image_8x8_truncated,
-			output.get(),
-			8 * 8,
+			makeString(stdformat_test_image_8x8_truncated),
+			std::string((const char *)output.get(), 8 * 8),
 			8
 		),
 		"Error converting image with bad RLE code to standard format"

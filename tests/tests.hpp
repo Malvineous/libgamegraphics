@@ -26,7 +26,7 @@
 #include <stdint.h>
 
 // Allow a string constant to be passed around with embedded nulls
-#define makeString(x)  std::string((x), sizeof((x)) - 1)
+#define makeString(x)  std::string((const char *)(x), sizeof((x)) - 1)
 
 struct default_sample {
 
@@ -37,11 +37,8 @@ struct default_sample {
 		const std::string& strExpected, const std::string& strResult,
 		unsigned int width);
 
-	boost::test_tools::predicate_result is_equal(const uint8_t *expected,
-		const uint8_t *check, unsigned int len, unsigned int width);
-
-	boost::test_tools::predicate_result is_equal(const uint8_t *expected,
-		unsigned int len, const std::string& strCheck, unsigned int width);
+	boost::test_tools::predicate_result is_equal(
+		const std::string& expected, const std::string& check, unsigned int width);
 
 };
 

@@ -72,20 +72,12 @@ void default_sample::print_wrong(boost::test_tools::predicate_result& res,
 	return;
 }
 
-boost::test_tools::predicate_result default_sample::is_equal(const uint8_t *expected,
-	const uint8_t *check, unsigned int len, unsigned int width)
+boost::test_tools::predicate_result default_sample::is_equal(const std::string& expected,
+	const std::string& check, unsigned int width)
 {
-	std::string strCheck((char *)check, len);
-	return this->is_equal(expected, len, strCheck, width);
-}
-
-boost::test_tools::predicate_result default_sample::is_equal(const uint8_t *expected,
-	unsigned int len, const std::string& strCheck, unsigned int width)
-{
-	std::string strExpected((char *)expected, len);
-	if (strExpected.compare(strCheck)) {
+	if (expected.compare(check)) {
 		boost::test_tools::predicate_result res(false);
-		this->print_wrong(res, strExpected, strCheck, width);
+		this->print_wrong(res, expected, check, width);
 		return res;
 	}
 
