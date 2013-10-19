@@ -81,6 +81,24 @@ class Image
 			ColourDepthMask   = 0x30,
 		};
 
+		/// Extract the bit from the image mask that controls visibility.
+		const static unsigned int Mask_Visibility = 0x01;
+
+		/// Mask_Visibility bit for transparent pixels.
+		const static unsigned int Mask_Vis_Transparent = 0;
+
+		/// Mask_Visibility bit for opaque pixels.
+		const static unsigned int Mask_Vis_Opaque = 1;
+
+		/// This bit is set in a mask pixel if that pixel is part of the hitmap.
+		const static unsigned int Mask_Hitmap = 0x02;
+
+		/// Mask_Hit bit for passthrough pixels.
+		const static unsigned int Mask_Hit_Pass = 0;
+
+		/// Mask_Hit bit for touchable pixels.
+		const static unsigned int Mask_Hit_Touch = 1;
+
 		/// Get the capabilities of this image format.
 		/**
 		 * @return One or more of the \ref Caps enum values (OR'd together.)
@@ -129,11 +147,11 @@ class Image
 		 * This function converts whatever the underlying image format is into
 		 * 8bpp data.
 		 *
-		 * The data layout is identical to the image data, only instead of the
-		 * values being colours, the least-significant bit of each byte (0x01)
-		 * is used to denote opacity (0 == opaque, 1 == transparent) and the
-		 * next bit (0x02) is used to denote hitmapping (0 == background, 1 ==
-		 * object)
+		 * The mask layout is identical to the image data, only instead of the
+		 * values being colours, the least-significant bit of each byte
+		 * (Mask_Visibility) is used to denote opacity (Mask_Vis_Opaque or
+		 * Mask_Vis_Transparent) and the next bit (Mask_Hitmap)
+		 * is used to denote hitmapping (Mask_Hit_Touch or Mask_Hit_Pass)
 		 *
 		 * @return A shared pointer to a byte array of mask data.
 		 */
@@ -145,10 +163,10 @@ class Image
 		 * custom format and overwrite the old image.
 		 *
 		 * The mask layout is identical to the image data, only instead of the
-		 * values being colours, the least-significant bit of each byte (0x01)
-		 * is used to denote opacity (0 == transparent, 1 == opaque) and the
-		 * next bit (0x02) is used to denote hitmapping (0 == background, 1 ==
-		 * object)
+		 * values being colours, the least-significant bit of each byte
+		 * (Mask_Visibility) is used to denote opacity (Mask_Vis_Opaque or
+		 * Mask_Vis_Transparent) and the next bit (Mask_Hitmap)
+		 * is used to denote hitmapping (Mask_Hit_Touch or Mask_Hit_Pass)
 		 *
 		 * @param newContent  Image data, in the standard 8bpp indexed format, to
 		 *   convert and replace the underlying image with.
