@@ -60,7 +60,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	FATEntry *pNewFile = this->createNewFATEntry();
 	EntryPtr ep(pNewFile);
 
-	pNewFile->valid = true;
+	pNewFile->valid = false; // not yet valid
 	pNewFile->attr = attr;
 	pNewFile->size = 0;
 	pNewFile->lenHeader = 0;
@@ -98,6 +98,12 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 		ep.reset(returned);
 		pNewFile = returned;
 	}
+
+	// Now it's mostly valid.  Really this is here so that it's invalid during
+	// preInsertFile(), so any calls in there to shiftFiles() will ignore the
+	// new file.  But we're about to call shiftFiles() now, and we need the file
+	// to be marked valid otherwise it won't be skipped/ignored.
+	pNewFile->valid = true;
 
 	if (idBeforeThis && idBeforeThis->isValid()) {
 		// Update the offsets of any files located after this one (since they will

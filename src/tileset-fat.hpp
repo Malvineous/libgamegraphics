@@ -49,8 +49,8 @@ class FATTileset: virtual public BaseTileset
 			 */
 			unsigned int index;
 
-			stream::pos offset;
-			stream::pos size;
+			stream::pos offset;    ///< Offset of embedded FAT (if any) followed by content
+			stream::pos size;      ///< Size of content, not including embedded FAT
 			stream::pos lenHeader; ///< Size of embedded FAT
 		};
 
@@ -187,6 +187,9 @@ class FATTileset: virtual public BaseTileset
 		 * pNewEntry will be returned, but if a FATEntry has been extended for a
 		 * particular format, this is where the custom class should be created,
 		 * have pNewEntry copied into it, then be returned.
+		 * If pNewEntry->lenHeader is set to a non-zero value, this function is
+		 * responsible for inserting that many bytes and writing the correct value
+		 * to them.
 		 *
 		 * @note Invalidates existing EntryPtrs. TODO - does it?
 		 *
