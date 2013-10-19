@@ -77,6 +77,9 @@
 	DATA_TILE_THREE \
 	DATA_TILE_TWO
 
+#define test_tileset_manip_zero \
+	test_tileset_insert_end
+
 #define TILESET_CLASS tls_harry_ico
 #define TILESET_TYPE  "tls-harry-ico"
 #include "test-tileset.hpp"

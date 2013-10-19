@@ -126,6 +126,9 @@ using namespace camoto;
 	DATA_TILE_TWO_LEN \
 	DATA_TILE_TWO
 
+#define test_tileset_manip_zero \
+	test_tileset_insert_end
+
 #define TILESET_CLASS tls_bash_sprite
 #define TILESET_TYPE  "tls-bash-sprite"
 #include "test-tileset.hpp"

@@ -100,6 +100,9 @@
 	DATA_TILE_THREE \
 	DATA_TILE_TWO
 
+#define test_tileset_manip_zero \
+	test_tileset_insert_end
+
 // We can't always guarantee data is in this tileset type, so the best the
 // isInstance function returns is PossiblyYes.  This #define allows for that.
 #define TILESET_DETECTION_UNCERTAIN

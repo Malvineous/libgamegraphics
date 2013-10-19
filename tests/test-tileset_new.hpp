@@ -194,13 +194,13 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	setTileData(ep3, 3, 0);
 
 	BOOST_CHECK_MESSAGE(
-		is_equal(makeString(TEST_RESULT(insert_end))),
+		is_equal(makeString(TEST_RESULT(manip_zero))),
 		"Error manipulating zero-length tiles"
 	);
 
 #ifdef HAS_FAT
 	BOOST_CHECK_MESSAGE(
-		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_insert_end))),
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_manip_zero))),
 		"Error manipulating zero-length tiles"
 	);
 #endif
