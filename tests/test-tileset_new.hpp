@@ -29,6 +29,13 @@ struct EMPTY_FIXTURE_NAME: public FIXTURE_NAME {
 			this->suppData[FAT] = supp;
 		}
 		#endif
+		#ifdef HAS_PAL
+		{
+			stream::string_sptr supp(new stream::string());
+			supp << makeString(TEST_RESULT(PAL_initialstate));
+			this->suppData[SuppItem::Palette] = supp;
+		}
+		#endif
 
 		ManagerPtr pManager(gamegraphics::getManager());
 		TilesetTypePtr pTestType(pManager->getTilesetTypeByCode(TILESET_TYPE));
