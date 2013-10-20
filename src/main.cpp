@@ -48,6 +48,7 @@
 #include "img-nukem2.hpp"
 #include "img-pcx.hpp"
 #include "img-pic-raptor.hpp"
+#include "img-scr-vinyl.hpp"
 #include "img-tv-fog.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
@@ -120,6 +121,7 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA6RawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA8RawImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VinylSCRImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new GMFHarryPaletteImageType()));
