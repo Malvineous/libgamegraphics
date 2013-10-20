@@ -192,7 +192,7 @@ class Image
 
 		/// Set the indexed colour map used by the file.
 		/**
-		 * @pre getCaps() return value includes HasPalette.
+		 * @pre getCaps() return value includes CanSetPalette.
 		 *
 		 * @param newPalette
 		 *   New palette data

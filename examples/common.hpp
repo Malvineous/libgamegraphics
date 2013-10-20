@@ -177,7 +177,7 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 		}
 	}
 
-	if (img->getCaps() & gg::Image::HasPalette) {
+	if (img->getCaps() & gg::Image::CanSetPalette) {
 		// This format supports custom palettes, so update it from the
 		// PNG image.
 		const png::palette& pngPal = png.get_palette();
