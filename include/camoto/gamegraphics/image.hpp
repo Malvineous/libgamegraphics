@@ -84,11 +84,11 @@ class Image
 		/// Extract the bit from the image mask that controls visibility.
 		const static unsigned int Mask_Visibility = 0x01;
 
-		/// Mask_Visibility bit for transparent pixels.
-		const static unsigned int Mask_Vis_Transparent = 0;
-
 		/// Mask_Visibility bit for opaque pixels.
-		const static unsigned int Mask_Vis_Opaque = 1;
+		const static unsigned int Mask_Vis_Opaque = 0;
+
+		/// Mask_Visibility bit for transparent pixels.
+		const static unsigned int Mask_Vis_Transparent = 1;
 
 		/// This bit is set in a mask pixel if that pixel is part of the hitmap.
 		const static unsigned int Mask_Hitmap = 0x02;

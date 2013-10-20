@@ -549,7 +549,7 @@ void VinylTileset::fromStandard(unsigned int index, StdImageDataPtr newContent,
 			// Write the mask byte first
 			uint8_t val = 0;
 			for (unsigned int j = 0; j < 4; j++) {
-				if ((newMask[i + j] & Image::Mask_Visibility) == Image::Mask_Vis_Transparent) {
+				if ((newMask[i + j] & Image::Mask_Visibility) == Image::Mask_Vis_Opaque) {
 					val |= 1 << j;
 				}
 			}
