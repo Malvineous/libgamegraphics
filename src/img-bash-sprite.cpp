@@ -68,7 +68,7 @@ void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
 		// Need to enlarge stream to write image size
 		this->data->truncate(12);
 	}
-	this->data->seekg(1, stream::start);
+	this->data->seekp(1, stream::start);
 
 /// @todo Move this into a dedicated setHotspot/setHitmap function
 	if ((width != this->width) || (height != this->height)) {
@@ -134,7 +134,7 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 	memset(imgData, 0, dataSize);
 
 	// Plane IDs
-	imgData[0] = 0x01; // includes transparency
+	imgData[0] = 0x01; // transparency also sets blue pixels
 	imgData[(planeSize + 1)] = 0x01;
 	imgData[(planeSize + 1) * 2] = 0x02;
 	imgData[(planeSize + 1) * 3] = 0x04;
@@ -149,28 +149,16 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 		content->read(imgData + (planeSize + 1) * p + 1, planeSize);
 	}
 
-	// Read transparency into the first target plane
+	// Read transparency (last in source EGA) into the first target plane
 	content->read(imgData + 1, planeSize);
 
-	// Transparency also includes blue, so write values to the blue plane to undo
-	// the transparency bits
+	// Undo the blue pixels that were set by the transparency+blue plane
 	for (unsigned int i = 0; i < planeSize; i++) {
-		imgData[1 + (planeSize + 1) + i] ^= imgData[1 + i];
+		imgData[(planeSize + 1) + 1 + i] ^= imgData[1 + i];
 	}
 
 	this->data->truncate(12 + dataSize);
-	this->data->seekp(0, stream::start);
-	// Write the header
-	this->data
-		<< u8(this->flags)
-		<< u8(this->height)
-		<< u8(this->width)
-		<< u8(0)
-		<< s16le(this->hotspotX)
-		<< s16le(this->hotspotY)
-		<< u16le(this->rectX)
-		<< u16le(this->rectY)
-	;
+	this->data->seekp(12, stream::start);
 	this->data->write(imgData, dataSize);
 	return;
 }
