@@ -55,6 +55,42 @@ class BaseImage: virtual public Image
 		/// Default function to throw exception.
 		/**
 		 * Always throws stream::error, complaining the caller should have checked
+		 * getCaps() for the presence of HasHotspot.
+		 *
+		 * @throw stream::error on every call.
+		 */
+		virtual void getHotspot(signed int *x, signed int *y);
+
+		/// Default function to throw exception.
+		/**
+		 * Always throws stream::error, complaining the caller should have checked
+		 * getCaps() for the presence of HasHotspot.
+		 *
+		 * @throw stream::error on every call.
+		 */
+		virtual void setHotspot(signed int x, signed int y);
+
+		/// Default function to throw exception.
+		/**
+		 * Always throws stream::error, complaining the caller should have checked
+		 * getCaps() for the presence of HasHitRect.
+		 *
+		 * @throw stream::error on every call.
+		 */
+		virtual void getHitRect(signed int *x, signed int *y);
+
+		/// Default function to throw exception.
+		/**
+		 * Always throws stream::error, complaining the caller should have checked
+		 * getCaps() for the presence of HasHitRect.
+		 *
+		 * @throw stream::error on every call.
+		 */
+		virtual void setHitRect(signed int x, signed int y);
+
+		/// Default function to throw exception.
+		/**
+		 * Always throws stream::error, complaining the caller should have checked
 		 * getCaps() for the presence of HasPalette.
 		 *
 		 * @throw stream::error on every call.

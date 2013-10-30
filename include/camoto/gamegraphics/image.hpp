@@ -64,6 +64,9 @@ class Image
 			/// Set if setPalette() can be used.  Must be used with HasPalette.
 			CanSetPalette     = 0x04,
 
+			/// Set if get/setHotspot() can be used.
+			HasHotspot        = 0x08,
+
 			/// Set if the image is 8bpp (256 colour)
 			ColourDepthVGA    = 0x00,
 
@@ -79,6 +82,9 @@ class Image
 			/// Mask to isolate the ColourDepth value.  This must always be used when
 			/// checking the colour depth.
 			ColourDepthMask   = 0x30,
+
+			/// Set if get/setHitRect() can be used.
+			HasHitRect        = 0x40,
 		};
 
 		/// Extract the bit from the image mask that controls visibility.
@@ -132,6 +138,72 @@ class Image
 		 * @throw stream::error on I/O error.
 		 */
 		virtual void setDimensions(unsigned int width, unsigned int height) = 0;
+
+		/// Get the coordinates of the image hotspot, in pixels.
+		/**
+		 * The hotspot is the part of the image that appears at its origin.
+		 *
+		 * @pre getCaps() return value includes HasHotspot.
+		 *
+		 * @param x
+		 *   Pointer to a variable that will receive the hotspot's X coordinate.
+		 *
+		 * @param y
+		 *   Pointer to a variable that will receive the hotspot's Y coordinate.
+		 *
+		 * @throw stream::error on I/O error.
+		 */
+		virtual void getHotspot(signed int *x, signed int *y) = 0;
+
+		/// Set the coordinates of the image hotspot, in pixels.
+		/**
+		 * @pre getCaps() return value includes HasHotspot.
+		 *
+		 * @param x
+		 *   X coordinate of new hotspot.
+		 *
+		 * @param height
+		 *   Y coordinate of new hotspot.
+		 *
+		 * @throw stream::error on I/O error.
+		 */
+		virtual void setHotspot(signed int x, signed int y) = 0;
+
+		/// Get the coordinates of the lower-right corner of the hitmap rectangle.
+		/**
+		 * This function is used for image formats that have a rectangular hitmap
+		 * rectangle rather than a hitmap plane in the image data.
+		 *
+		 * @pre getCaps() return value includes HasHitRect.
+		 *
+		 * @param x
+		 *   Pointer to a variable that will receive the hitmap rectangle's right
+		 *   coordinate.
+		 *
+		 * @param y
+		 *   Pointer to a variable that will receive the hitmap rectangle's bottom
+		 *   coordinate.
+		 *
+		 * @throw stream::error on I/O error.
+		 */
+		virtual void getHitRect(signed int *x, signed int *y) = 0;
+
+		/// Set the coordinates of the lower-right corner of the hitmap rectangle.
+		/**
+		 * This function is used for image formats that have a rectangular hitmap
+		 * rectangle rather than a hitmap plane in the image data.
+		 *
+		 * @pre getCaps() return value includes HasHitRect.
+		 *
+		 * @param x
+		 *   X coordinate of lower-right rectangle corner.
+		 *
+		 * @param y
+		 *   Y coordinate of lower-right rectangle corner.
+		 *
+		 * @throw stream::error on I/O error.
+		 */
+		virtual void setHitRect(signed int x, signed int y) = 0;
 
 		/// Convert the image into a standard format.
 		/**

@@ -52,7 +52,11 @@ BashSpriteImage::~BashSpriteImage()
 
 int BashSpriteImage::getCaps()
 {
-	return ColourDepthEGA | CanSetDimensions;
+	return Image::ColourDepthEGA
+		| Image::CanSetDimensions
+		| Image::HasHotspot
+		| Image::HasHitRect
+	;
 }
 
 void BashSpriteImage::getDimensions(unsigned int *width, unsigned int *height)
@@ -70,23 +74,60 @@ void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
 	}
 	this->data->seekp(1, stream::start);
 
-/// @todo Move this into a dedicated setHotspot/setHitmap function
-	if ((width != this->width) || (height != this->height)) {
-		this->hotspotX = this->hotspotY = 0;
-		this->rectX = width;
-		this->rectY = height;
-	}
-
 	this->width = width;
 	this->height = height;
 
 	this->data
 		<< u8(this->height)
 		<< u8(this->width)
-		/// @todo Move this into a dedicated setHotspot/setHitmap function
-		<< u8(0)
+	;
+	return;
+}
+
+void BashSpriteImage::getHotspot(signed int *x, signed int *y)
+{
+	*x = this->hotspotX;
+	*y = this->hotspotY;
+	return;
+}
+
+void BashSpriteImage::setHotspot(signed int x, signed int y)
+{
+	if (this->data->size() < 12) {
+		// Need to enlarge stream to write image size
+		this->data->truncate(12);
+	}
+	this->data->seekp(4, stream::start);
+
+	this->hotspotX = x;
+	this->hotspotY = y;
+
+	this->data
 		<< s16le(this->hotspotX)
 		<< s16le(this->hotspotY)
+	;
+	return;
+}
+
+void BashSpriteImage::getHitRect(signed int *x, signed int *y)
+{
+	*x = this->rectX;
+	*y = this->rectY;
+	return;
+}
+
+void BashSpriteImage::setHitRect(signed int x, signed int y)
+{
+	if (this->data->size() < 12) {
+		// Need to enlarge stream to write image size
+		this->data->truncate(12);
+	}
+	this->data->seekp(8, stream::start);
+
+	this->rectX = x;
+	this->rectY = y;
+
+	this->data
 		<< u16le(this->rectX)
 		<< u16le(this->rectY)
 	;

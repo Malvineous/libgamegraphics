@@ -36,6 +36,10 @@ class BashSpriteImage: virtual public BaseImage
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
 		virtual void setDimensions(unsigned int width, unsigned int height);
+		virtual void getHotspot(signed int *x, signed int *y);
+		virtual void setHotspot(signed int x, signed int y);
+		virtual void getHitRect(signed int *x, signed int *y);
+		virtual void setHitRect(signed int x, signed int y);
 		virtual StdImageDataPtr toStandard();
 		virtual StdImageDataPtr toStandardMask();
 		virtual void fromStandard(StdImageDataPtr newContent,

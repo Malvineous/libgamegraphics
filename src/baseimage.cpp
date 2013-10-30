@@ -45,6 +45,38 @@ PaletteTablePtr BaseImage::getPalette()
 	return PaletteTablePtr();
 }
 
+void BaseImage::getHotspot(signed int *x, signed int *y)
+{
+	// Caller didn't check getCaps()
+	assert(false);
+	throw stream::error("this image format can't have a hotspot set"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
+}
+
+void BaseImage::setHotspot(signed int x, signed int y)
+{
+	// Caller didn't check getCaps()
+	assert(false);
+	throw stream::error("this image format can't have a hotspot set"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
+}
+
+void BaseImage::getHitRect(signed int *x, signed int *y)
+{
+	// Caller didn't check getCaps()
+	assert(false);
+	throw stream::error("this image format can't have a hitmap rectangle"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
+}
+
+void BaseImage::setHitRect(signed int x, signed int y)
+{
+	// Caller didn't check getCaps()
+	assert(false);
+	throw stream::error("this image format can't have a hitmap rectangle"
+		" (this is a bug - the caller should have used getCaps() to detect this)");
+}
+
 void BaseImage::setPalette(PaletteTablePtr newPalette)
 {
 	// Caller didn't check getCaps()

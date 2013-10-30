@@ -195,6 +195,28 @@ struct FIXTURE_NAME: public default_sample {
 
 BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
 
+#ifdef IMG_HOTSPOT_X
+#define GET_HOTSPOT \
+	BOOST_REQUIRE(this->img->getCaps() & Image::HasHotspot); \
+	int hotspotX = 0, hotspotY = 0; \
+	this->img->getHotspot(&hotspotX, &hotspotY); \
+	BOOST_REQUIRE_EQUAL(hotspotX, IMG_HOTSPOT_X); \
+	BOOST_REQUIRE_EQUAL(hotspotY, IMG_HOTSPOT_Y);
+#else
+#define GET_HOTSPOT
+#endif
+
+#ifdef IMG_HITRECT_X
+#define GET_HITRECT \
+	BOOST_REQUIRE(this->img->getCaps() & Image::HasHitRect); \
+	int hitRectX = 0, hitRectY = 0; \
+	this->img->getHitRect(&hitRectX, &hitRectY); \
+	BOOST_REQUIRE_EQUAL(hitRectX, IMG_HITRECT_X); \
+	BOOST_REQUIRE_EQUAL(hitRectY, IMG_HITRECT_Y);
+#else
+#define GET_HITRECT
+#endif
+
 #define TO_STANDARD_TEST(w, h) \
 BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_ ## w ## x ## h)) \
 { \
@@ -205,6 +227,9 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_ ## w ## x ## h)) \
 	this->openImage(w, h); \
 \
 	StdImageDataPtr output = this->img->toStandard(); \
+\
+	GET_HOTSPOT \
+	GET_HITRECT \
 \
 	BOOST_CHECK_MESSAGE( \
 		default_sample::is_equal( \
@@ -254,6 +279,22 @@ TO_MASK_TEST(8, 4);
 
 #endif // IMG_HAS_MASK
 
+#ifdef IMG_HOTSPOT_X
+#define SET_HOTSPOT \
+	BOOST_REQUIRE(this->img->getCaps() & Image::HasHotspot); \
+	this->img->setHotspot(IMG_HOTSPOT_X, IMG_HOTSPOT_Y);
+#else
+#define SET_HOTSPOT
+#endif
+
+#ifdef IMG_HITRECT_X
+#define SET_HITRECT \
+	BOOST_REQUIRE(this->img->getCaps() & Image::HasHitRect); \
+	this->img->setHitRect(IMG_HITRECT_X, IMG_HITRECT_Y);
+#else
+#define SET_HITRECT
+#endif
+
 #define FROM_STANDARD_TEST(w, h) \
 BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 { \
@@ -271,6 +312,9 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 		this->img->setDimensions(w, h); \
 	} \
 	this->img->fromStandard(stddata, stdmask); \
+\
+	SET_HOTSPOT \
+	SET_HITRECT \
 \
 	int targetSize = sizeof(TESTDATA_INITIAL_ ## w ## x ## h) - 1; \
 	BOOST_CHECK_MESSAGE( \

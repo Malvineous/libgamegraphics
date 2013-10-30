@@ -135,6 +135,12 @@ struct FIXTURE_NAME: public default_sample {
 		if (img->getCaps() & Image::CanSetDimensions) {
 			img->setDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
 		}
+		if (img->getCaps() & Image::HasHotspot) {
+			img->setHotspot(imgVal, 0);
+		}
+		if (img->getCaps() & Image::HasHitRect) {
+			img->setHitRect(0, imgVal);
+		}
 
 		MAKE_IMAGE(newImg, imgVal);
 		MAKE_MASK(newMask, maskVal);
