@@ -123,9 +123,6 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
-	} else {
-		std::cerr << "No palette supplied for .ICO, using default" << std::endl;
-		pal = createPalette_DefaultVGA();
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
@@ -138,9 +135,6 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
-	} else {
-		std::cerr << "No palette supplied for .ICO, using default" << std::endl;
-		pal = createPalette_DefaultVGA();
 	}
 
 	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
@@ -162,7 +156,6 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	:	FATTileset(data, ICO_FIRST_TILE_OFFSET),
 		pal(pal)
 {
-	assert(this->pal);
 	stream::pos len = this->data->size();
 
 	this->data->seekg(0, stream::start);

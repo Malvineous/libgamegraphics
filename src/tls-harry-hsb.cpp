@@ -124,9 +124,6 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
-	} else {
-		std::cerr << "No palette supplied for .HSB, using default" << std::endl;
-		pal = createPalette_DefaultVGA();
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }
@@ -138,9 +135,6 @@ TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
-	} else {
-		std::cerr << "No palette supplied for .HSB, using default" << std::endl;
-		pal = createPalette_DefaultVGA();
 	}
 	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
 }
@@ -158,7 +152,6 @@ HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
 	:	VGAImage(data, HSB_HEADER_LEN),
 		pal(pal)
 {
-	assert(this->pal);
 	assert(data->tellg() == 0);
 	if (data->size() == 0) {
 		// Newly inserted tile
