@@ -580,6 +580,36 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(remove_all_re_add))
 #endif
 }
 
+BOOST_AUTO_TEST_CASE(TEST_NAME(overwrite_first))
+{
+	BOOST_TEST_MESSAGE("Overwrite the first tile");
+
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep1 = tiles[0]; // quick hack
+
+	// Make sure we found it
+	BOOST_REQUIRE_MESSAGE(ep1->isValid(),
+		"Couldn't find first tile in sample tileset");
+
+	// Change tile 1 to data 4
+	setTileData(ep1, 4, 0);
+
+	BOOST_REQUIRE_EQUAL(tiles.size(), 2);
+
+	BOOST_CHECK_MESSAGE(
+		is_equal(makeString(TEST_RESULT(overwrite_first))),
+		"Error overwriting first tile"
+	);
+
+#ifdef HAS_FAT
+	BOOST_CHECK_MESSAGE(
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_overwrite_first))),
+		"Error overwriting first tile"
+	);
+#endif
+
+}
+
 //
 // Metadata tests
 //

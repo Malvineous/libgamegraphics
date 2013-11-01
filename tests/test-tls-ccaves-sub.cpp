@@ -103,6 +103,11 @@
 #define test_tileset_manip_zero \
 	test_tileset_insert_end
 
+#define test_tileset_overwrite_first \
+	"\x02" "\x01" "\x08" \
+	DATA_TILE_FOUR \
+	DATA_TILE_TWO
+
 // We can't always guarantee data is in this tileset type, so the best the
 // isInstance function returns is PossiblyYes.  This #define allows for that.
 #define TILESET_DETECTION_UNCERTAIN

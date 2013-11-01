@@ -209,6 +209,14 @@
 	LOOKUP_TABLE_ONE \
 	LOOKUP_TABLE_THREE
 
+#define test_tileset_overwrite_first \
+	"\x02\x00" \
+	DATA_TILE_TWO \
+	DATA_TILE_ONE \
+	LOOKUP_TABLE_LEN2 \
+	LOOKUP_TABLE_TWO \
+	LOOKUP_TABLE_FOUR
+
 #define HAS_PAL
 // 16 entries should be ok, the palette won't ever be used
 #define test_tileset_PAL_initialstate \

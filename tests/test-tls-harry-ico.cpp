@@ -80,6 +80,10 @@
 #define test_tileset_manip_zero \
 	test_tileset_insert_end
 
+#define test_tileset_overwrite_first \
+	DATA_TILE_FOUR \
+	DATA_TILE_TWO
+
 #define TILESET_CLASS tls_harry_ico
 #define TILESET_TYPE  "tls-harry-ico"
 #include "test-tileset.hpp"
