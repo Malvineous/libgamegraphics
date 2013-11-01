@@ -167,6 +167,7 @@ VGAPalette::VGAPalette(stream::inout_sptr data, unsigned int depth)
 	:	data(data),
 		depth(depth)
 {
+	assert(data);
 }
 
 VGAPalette::~VGAPalette()

@@ -17,6 +17,7 @@ tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-subimage.cpp
 tests_SOURCES += test-tls-bash-sprite.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
+tests_SOURCES += test-tls-ddave.cpp
 tests_SOURCES += test-tls-harry-hsb.cpp
 tests_SOURCES += test-tls-harry-ico.cpp
 tests_SOURCES += test-tls-vinyl.cpp

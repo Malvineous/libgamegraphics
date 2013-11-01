@@ -152,8 +152,7 @@ void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
 }
 
 void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+	StdImageDataPtr newMask)
 {
 	this->VGAImage::fromStandard(newContent, newMask);
 

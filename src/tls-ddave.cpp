@@ -205,8 +205,12 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	// Only load the palette if one was given
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		pal = palFile->getPalette();
+	}
 
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
 }
@@ -214,8 +218,12 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	// Only load the palette if one was given
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		pal = palFile->getPalette();
+	}
 
 	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
 }
@@ -244,17 +252,21 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
+	// TESTED BY: tls_ddave_vga_isinstance_c01
 	if (len < DD_FIRST_TILE_OFFSET) throw stream::error("file too short");
 
 	this->data->seekg(0, stream::start);
 	uint32_t numTiles;
 	this->data >> u32le(numTiles);
 	this->items.reserve(numTiles);
+	// TESTED BY: tls_ddave_vga_isinstance_c02
 	if (numTiles > DD_SAFETY_MAX_TILES) throw stream::error("too many tiles");
 
 	if (numTiles > 0) {
 		uint32_t nextOffset;
 		this->data >> u32le(nextOffset);
+		// There is one byte too few every 64K
+		nextOffset += nextOffset / 65536;
 		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
@@ -269,6 +281,8 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 			} else {
 				this->data >> u32le(nextOffset);
 			}
+			// There is one byte too few every 64K
+			nextOffset += nextOffset / 65536;
 			fat->size = nextOffset - fat->offset;
 			this->items.push_back(ep);
 		}
@@ -321,11 +335,10 @@ PaletteTablePtr DDaveTileset::getPalette()
 void DDaveTileset::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
 {
-	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
-
-	// Because offsets are stored from the end of the FAT (i.e. the first entry
-	// will always say offset 0) we need to adjust the value we will be writing.
-	uint32_t fatOffset = pid->offset - fatSize;
+	// There's one too many bytes every 64KB.  Instead of adding an extra byte
+	// (which is probably better) we'll just subtract one from the offset.
+	uint32_t fatOffset = pid->offset;
+	fatOffset -= fatOffset / 65536;
 
 	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
 	this->data << u32le(fatOffset);
@@ -335,40 +348,30 @@ void DDaveTileset::updateFileOffset(const FATEntry *pid,
 DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 	const DDaveTileset::FATEntry *idBeforeThis, DDaveTileset::FATEntry *pNewEntry)
 {
-	uint32_t fatSize = DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN;
-
-	// Because offsets are stored from the end of the FAT (i.e. the first entry
-	// will always say offset 0) we need to adjust the value we will be writing.
-	//uint32_t fatOffset = pNewEntry->offset - fatSize;
+	pNewEntry->lenHeader = 0;
 
 	this->data->seekp(DD_FAT_OFFSET + pNewEntry->index * DD_FAT_ENTRY_LEN, stream::start);
 	this->data->insert(DD_FAT_ENTRY_LEN);
-	//this->data << u32le(fatOffset);
-	// No need to write the offset now as it will be wrong, and will be updated
-	// in postInsertFile() anyway.
 
-	// Update the offsets now there's a new FAT entry taking up space.  Although
-	// no offsets will change (because they're counting from the end of the FAT -
-	// the first entry will always have an offset of 0), we still need to update
-	// the in-memory offsets, which *will* change as they count from the start of
-	// the file.
+	// Because the new entry isn't in the vector yet we need to shift it manually
+	pNewEntry->offset += DD_FAT_ENTRY_LEN;
+
+	// Write the new offset
+	this->data << u32le(pNewEntry->offset);
+
+	// Update the offsets now there's a new FAT entry taking up space.
 	this->shiftFiles(
 		NULL,
-		fatSize,
+		DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN,
 		DD_FAT_ENTRY_LEN,
 		0
 	);
-	// Because the new entry isn't in the vector yet we need to shift it manually
-	pNewEntry->offset += DD_FAT_ENTRY_LEN;
 
 	return pNewEntry;
 }
 
 void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
 {
-	// Now the FAT vector has been updated, recalculate the file offsets so they
-	// are correct (i.e. entry 0 is still at offset 0).
-	this->shiftFiles(NULL, 0, 0, 0);
 	this->updateFileCount(this->items.size());
 	return;
 }
