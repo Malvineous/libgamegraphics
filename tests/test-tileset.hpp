@@ -118,22 +118,29 @@ struct FIXTURE_NAME: public default_sample {
 
 // Make an image of the standard size with each pixel set to n, and the very
 // last pixel set to 0x0e.
-#define MAKE_MASK(var, n) \
-	StdImageDataPtr var(new uint8_t[DATA_TILE_WIDTH * DATA_TILE_HEIGHT]); \
-	memset(var.get(), n, \
-		DATA_TILE_WIDTH * DATA_TILE_HEIGHT);
+#define MAKE_MASK(var, n, w, h)	  \
+	StdImageDataPtr var(new uint8_t[w * h]); \
+	memset(var.get(), n, w * h);
 
-#define MAKE_IMAGE(var, n) \
-	MAKE_MASK(var, n) \
+#define MAKE_IMAGE(var, n, w, h)	  \
+	MAKE_MASK(var, n, w, h) \
 	/* Last pixel is different */ \
-	var[DATA_TILE_WIDTH * DATA_TILE_HEIGHT - 1] = 0x0e;
+	var[w * h - 1] = 0x0e;
 
-	void setTileData(Tileset::EntryPtr ep, int imgVal, int maskVal)
+	void setTileData(Tileset::EntryPtr ep, int imgVal, int maskVal,
+		int width = DATA_TILE_WIDTH, int height = DATA_TILE_HEIGHT)
 	{
 		// Open new tile and populate with image data
 		ImagePtr img(pTileset->openImage(ep));
+		setTileData(img, imgVal, maskVal, width, height);
+		return;
+	}
+
+	void setTileData(ImagePtr& img, int imgVal, int maskVal,
+		int width = DATA_TILE_WIDTH, int height = DATA_TILE_HEIGHT)
+	{
 		if (img->getCaps() & Image::CanSetDimensions) {
-			img->setDimensions(DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
+			img->setDimensions(width, height);
 		}
 		if (img->getCaps() & Image::HasHotspot) {
 			img->setHotspot(imgVal, 0);
@@ -142,8 +149,8 @@ struct FIXTURE_NAME: public default_sample {
 			img->setHitRect(0, imgVal);
 		}
 
-		MAKE_IMAGE(newImg, imgVal);
-		MAKE_MASK(newMask, maskVal);
+		MAKE_IMAGE(newImg, imgVal, width, height);
+		MAKE_MASK(newMask, maskVal, width, height);
 		img->fromStandard(newImg, newMask);
 
 		return;
@@ -237,7 +244,7 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(open))
 
 	ImagePtr img(pTileset->openImage(tiles[0]));
 	StdImageDataPtr output = img->toStandard();
-	MAKE_IMAGE(rawImage, 1);
+	MAKE_IMAGE(rawImage, 1, DATA_TILE_WIDTH, DATA_TILE_HEIGHT);
 
 	BOOST_CHECK_MESSAGE(
 		default_sample::is_equal(
@@ -606,6 +613,52 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(overwrite_first))
 		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_overwrite_first))),
 		"Error overwriting first tile"
 	);
+#endif
+
+}
+
+BOOST_AUTO_TEST_CASE(TEST_NAME(resize_first))
+{
+	BOOST_TEST_MESSAGE("Resize the first tile");
+
+	const Tileset::VC_ENTRYPTR& tiles = pTileset->getItems();
+	Tileset::EntryPtr ep1 = tiles[0]; // quick hack
+
+	// Make sure we found it
+	BOOST_REQUIRE_MESSAGE(ep1->isValid(),
+		"Couldn't find first tile in sample tileset");
+
+	// Open it
+	ImagePtr img(pTileset->openImage(ep1));
+
+#ifdef test_tileset_resize_first
+
+	BOOST_REQUIRE_MESSAGE(img->getCaps() & Image::CanSetDimensions,
+		"Test code says tile/image can be resized but it says it cannot");
+
+	// Resize it
+	img->setDimensions(DATA_TILE_RESIZED_WIDTH, DATA_TILE_RESIZED_HEIGHT);
+
+	// Populate the tile with image data
+	setTileData(img, 5, 0, DATA_TILE_RESIZED_WIDTH, DATA_TILE_RESIZED_HEIGHT);
+
+	BOOST_CHECK_MESSAGE(
+		is_equal(makeString(TEST_RESULT(resize_first))),
+		"Error resizing first tile"
+	);
+
+#ifdef HAS_FAT
+	BOOST_CHECK_MESSAGE(
+		is_supp_equal(EST_FAT, makeString(TEST_RESULT(FAT_resize_first))),
+		"Error resizing first tile"
+	);
+#endif
+
+#else
+
+	BOOST_REQUIRE_MESSAGE((img->getCaps() & Image::CanSetDimensions) == 0,
+		"Test code says tile/image cannot be resized but it says it can");
+
 #endif
 
 }

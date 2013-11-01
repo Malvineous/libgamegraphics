@@ -84,6 +84,16 @@
 	DATA_TILE_FOUR \
 	DATA_TILE_TWO
 
+#define test_tileset_resize_first \
+	"\x03\x00\x04\x00" \
+	"\x05\x05\x05" \
+	"\x05\x05\x05" \
+	"\x05\x05\x05" \
+	"\x05\x05\x0e" \
+	DATA_TILE_TWO
+#define DATA_TILE_RESIZED_WIDTH 3
+#define DATA_TILE_RESIZED_HEIGHT 4
+
 #define TILESET_CLASS tls_harry_ico
 #define TILESET_TYPE  "tls-harry-ico"
 #include "test-tileset.hpp"
