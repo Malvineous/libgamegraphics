@@ -29,6 +29,9 @@
 namespace camoto {
 namespace gamegraphics {
 
+/// Flag set when the image is more than 64 pixels wide.
+#define MBF_WIDE (1<<6)
+
 BashSpriteImage::BashSpriteImage(stream::inout_sptr data)
 	:	data(data)
 {
@@ -72,12 +75,16 @@ void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
 		// Need to enlarge stream to write image size
 		this->data->truncate(12);
 	}
-	this->data->seekp(1, stream::start);
+	this->data->seekp(0, stream::start);
 
 	this->width = width;
 	this->height = height;
 
+	if (this->width > 64) this->flags |= MBF_WIDE;
+	else this->flags &= ~MBF_WIDE;
+
 	this->data
+		<< u8(this->flags)
 		<< u8(this->height)
 		<< u8(this->width)
 	;
@@ -174,8 +181,11 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr ptrData(imgData);
 	memset(imgData, 0, dataSize);
 
+	// The transparency plane mask isn't a plane mask, but rather the width
+	// of the image in bytes.
+	imgData[0] = (this->width + 7) / 8;
+
 	// Plane IDs
-	imgData[0] = 0x01; // transparency also sets blue pixels
 	imgData[(planeSize + 1)] = 0x01;
 	imgData[(planeSize + 1) * 2] = 0x02;
 	imgData[(planeSize + 1) * 3] = 0x04;
@@ -192,11 +202,6 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 
 	// Read transparency (last in source EGA) into the first target plane
 	content->read(imgData + 1, planeSize);
-
-	// Undo the blue pixels that were set by the transparency+blue plane
-	for (unsigned int i = 0; i < planeSize; i++) {
-		imgData[(planeSize + 1) + 1 + i] ^= imgData[1 + i];
-	}
 
 	this->data->truncate(12 + dataSize);
 	this->data->seekp(12, stream::start);
@@ -233,6 +238,8 @@ ImagePtr BashSpriteImage::toEGA()
 			// First incoming plane is transparency (output plane 5)
 			memcpy(imgData + lenPlane * 4, inPlane, lenPlane);
 			firstIncomingPlane = false;
+			// Transparency plane does not affect any other planes
+			continue;
 		}
 		for (unsigned int p = 0; p < 4; p++) {
 			if ((plane >> p) & 1) {
