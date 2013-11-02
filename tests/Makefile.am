@@ -3,6 +3,7 @@ check_PROGRAMS = tests
 tests_SOURCES = tests.cpp
 tests_SOURCES += test-filter.cpp
 tests_SOURCES += test-filter-ccomic.cpp
+tests_SOURCES += test-filter-pad.cpp
 tests_SOURCES += test-img-bash-sprite.cpp
 tests_SOURCES += test-img-ccomic.cpp
 tests_SOURCES += test-img-ega-planar.cpp
