@@ -93,8 +93,8 @@ void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
 
 void BashSpriteImage::getHotspot(signed int *x, signed int *y)
 {
-	*x = this->hotspotX;
-	*y = this->hotspotY;
+	*x = -this->hotspotX;
+	*y = -this->hotspotY;
 	return;
 }
 
@@ -106,8 +106,8 @@ void BashSpriteImage::setHotspot(signed int x, signed int y)
 	}
 	this->data->seekp(4, stream::start);
 
-	this->hotspotX = x;
-	this->hotspotY = y;
+	this->hotspotX = -x;
+	this->hotspotY = -y;
 
 	this->data
 		<< s16le(this->hotspotX)
@@ -175,7 +175,8 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 	}
 	content->seekg(0, stream::start);
 
-	unsigned int planeSize = (this->width + 7) / 8 * this->height;
+	unsigned int widthBytes = (this->width + 7) / 8;
+	unsigned int planeSize = widthBytes * this->height;
 	unsigned int dataSize = (planeSize + 1) * 5 + 1;
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ptrData(imgData);
@@ -183,7 +184,7 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 
 	// The transparency plane mask isn't a plane mask, but rather the width
 	// of the image in bytes.
-	imgData[0] = (this->width + 7) / 8;
+	imgData[0] = widthBytes;
 
 	// Plane IDs
 	imgData[(planeSize + 1)] = 0x01;
@@ -202,6 +203,25 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 
 	// Read transparency (last in source EGA) into the first target plane
 	content->read(imgData + 1, planeSize);
+
+	// If the image is not a multiple of eight pixels, the game still draws it
+	// as such.  This means the transparency bits after the right-edge of the
+	// image up until the next eight-pixel boundary must still be set to
+	// transparent, otherwise pixels will be drawn in the game that aren't part
+	// of the image.
+	unsigned int unusedBits = this->width % 8;
+	if (unusedBits) {
+		unsigned int padBits = ((256 >> unusedBits) - 1);
+		for (unsigned int p = 1; p < 5; p++) {
+			for (unsigned int y = 0; y < this->height; y++) {
+				imgData[(planeSize + 1) * p + 1 + y * widthBytes + (widthBytes - 1)] &= ~padBits;
+			}
+		}
+		// And set these bits in the transparency layer to make them transparent
+		for (unsigned int y = 0; y < this->height; y++) {
+			imgData[1 + y * widthBytes + (widthBytes - 1)] |= padBits;
+		}
+	}
 
 	this->data->truncate(12 + dataSize);
 	this->data->seekp(12, stream::start);
