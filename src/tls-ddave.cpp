@@ -22,6 +22,8 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/stream_filtered.hpp>
+#include "filter-pad.hpp"
 #include "img-ega-rowplanar.hpp"
 #include "tls-ddave.hpp"
 #include "img-ddave.hpp"
@@ -44,6 +46,9 @@
 
 /// First tile with width and height fields
 #define DD_FIRST_TILE_WITH_DIMS  53
+
+/// Insert/remove a padding byte after every block of this size
+#define DD_PAD_BLOCK 65536
 
 namespace camoto {
 namespace gamegraphics {
@@ -140,14 +145,26 @@ TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
 	psTileset << u32le(0);
 
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
+
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::CGA, pal));
 }
 
 TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::CGA, pal));
+
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::CGA, pal));
 }
 
 bool DDaveCGATilesetType::isInstance(int firstTileSize) const
@@ -173,13 +190,23 @@ TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::EGA, PaletteTablePtr()));
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::EGA, PaletteTablePtr()));
 }
 
 TilesetPtr DDaveEGATilesetType::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::EGA, PaletteTablePtr()));
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::EGA, PaletteTablePtr()));
 }
 
 bool DDaveEGATilesetType::isInstance(int firstTileSize) const
@@ -212,7 +239,12 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 		pal = palFile->getPalette();
 	}
 
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::VGA, pal));
 }
 
 TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
@@ -225,7 +257,12 @@ TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 		pal = palFile->getPalette();
 	}
 
-	return TilesetPtr(new DDaveTileset(psTileset, DDaveTileset::VGA, pal));
+	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	stream::filtered_sptr decoded(new stream::filtered());
+	decoded->open(psTileset, filtRead, filtWrite, NULL);
+
+	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::VGA, pal));
 }
 
 SuppFilenames DDaveVGATilesetType::getRequiredSupps(
@@ -265,8 +302,6 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 	if (numTiles > 0) {
 		uint32_t nextOffset;
 		this->data >> u32le(nextOffset);
-		// There is one byte too few every 64K
-		nextOffset += nextOffset / 65536;
 		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
 			EntryPtr ep(fat);
@@ -281,8 +316,6 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 			} else {
 				this->data >> u32le(nextOffset);
 			}
-			// There is one byte too few every 64K
-			nextOffset += nextOffset / 65536;
 			fat->size = nextOffset - fat->offset;
 			this->items.push_back(ep);
 		}
@@ -335,13 +368,8 @@ PaletteTablePtr DDaveTileset::getPalette()
 void DDaveTileset::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
 {
-	// There's one too many bytes every 64KB.  Instead of adding an extra byte
-	// (which is probably better) we'll just subtract one from the offset.
-	uint32_t fatOffset = pid->offset;
-	fatOffset -= fatOffset / 65536;
-
 	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
-	this->data << u32le(fatOffset);
+	this->data << u32le(pid->offset);
 	return;
 }
 
