@@ -211,32 +211,27 @@ StdImageDataPtr Zone66TileImage::toStandard()
 		return ret;
 	}
 
+	// Make any skipped pixels black
+	memset(imgData, 0, dataSize);
+
 	this->data->seekg(Z66_IMG_OFFSET, stream::start);
-	bool justDidReset = false;
+	unsigned int y = 0;
 	for (int i = 0; i < dataSize; ) {
 		uint8_t code;
 		this->data >> u8(code);
 		switch (code) {
 			case 0xFD: // Skip the given number of pixels
 				this->data >> u8(code);
-				// Pad with black
-				while (code--) imgData[i++] = 0;
+				i += code;
+				// Note: i may now be >= dataSize
 				break;
 
-			case 0xFE: { // Skip to the next line
-				// Pad rest of line (if any) with black
-				int restOfLine = this->width - (i % this->width);
-				// Don't skip a line when we're at EOL, unless we just omitted a skip
-				if ((restOfLine != this->width) || (justDidReset)) {
-					while (restOfLine--) imgData[i++] = 0;
-				}
-				justDidReset = true;
-				continue;
-			}
+			case 0xFE: // Go to the next line
+				i = ++y * this->width;
+				break;
 
 			case 0xFF: // End of image
-				// Pad rest of image (if any) with black
-				while (i < dataSize) imgData[i++] = 0;
+				i = dataSize;
 				break;
 
 			case 0x00: // shouldn't happen
@@ -251,7 +246,6 @@ StdImageDataPtr Zone66TileImage::toStandard()
 				}
 				break;
 		}
-		justDidReset = false; // last code wasn't 0xFE/nextline
 	}
 
 	return ret;
