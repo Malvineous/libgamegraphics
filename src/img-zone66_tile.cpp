@@ -145,11 +145,18 @@ Zone66TileImage::Zone66TileImage(stream::inout_sptr data,
 	:	data(data),
 		pal(pal)
 {
-	try {
-		this->data >> u16le(this->width) >> u16le(this->height);
-	} catch (const stream::incomplete_read&) {
-		this->width = 0;
-		this->height = 0;
+	stream::len lenData = data->size();
+	if (lenData == 64000) {
+		// Headerless fullscreen image
+		this->width = 320;
+		this->height = 200;
+	} else {
+		try {
+			this->data >> u16le(this->width) >> u16le(this->height);
+		} catch (const stream::incomplete_read&) {
+			this->width = 0;
+			this->height = 0;
+		}
 	}
 }
 
@@ -173,13 +180,17 @@ void Zone66TileImage::getDimensions(unsigned int *width, unsigned int *height)
 void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
 {
 	this->data->seekg(0, stream::end);
-	if (this->data->tellg() < 4) {
-		// Need to enlarge stream to write image size
-		this->data->truncate(4);
-	}
+	if ((width == 320) && (height == 200)) {
+		this->data->truncate(64000);
+	} else {
+		if (this->data->tellg() < 4) {
+			// Need to enlarge stream to write image size
+			this->data->truncate(4);
+		}
 
-	this->data->seekp(0, stream::start);
-	this->data << u16le(width) << u16le(height);
+		this->data->seekp(0, stream::start);
+		this->data << u16le(width) << u16le(height);
+	}
 	this->width = width;
 	this->height = height;
 	return;
@@ -192,6 +203,13 @@ StdImageDataPtr Zone66TileImage::toStandard()
 	int dataSize = this->width * this->height;
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
+
+	if ((this->width == 320) && (this->height == 200)) {
+		// Special case for headerless fullscreen images
+		this->data->seekg(0, stream::start);
+		this->data->read(imgData, 64000);
+		return ret;
+	}
 
 	this->data->seekg(Z66_IMG_OFFSET, stream::start);
 	bool justDidReset = false;
@@ -257,6 +275,13 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 {
 	assert((this->width != 0) && (this->height != 0));
 	this->data->seekp(0, stream::start);
+
+	if ((this->width == 320) && (this->height == 200)) {
+		// Special case for headerless fullscreen images
+		this->data->truncate(64000);
+		this->data->write(newContent.get(), 64000);
+		return;
+	}
 
 	// Start off with enough space for the worst-case size
 	this->data->truncate(4 + (this->width + 2) * this->height + 1);
