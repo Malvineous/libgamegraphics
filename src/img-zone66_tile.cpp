@@ -265,7 +265,7 @@ StdImageDataPtr Zone66TileImage::toStandardMask()
 	// Return an entirely opaque mask
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
-	memset(imgData, 1, dataSize);
+	memset(imgData, Image::Mask_Vis_Opaque, dataSize);
 
 	return ret;
 }
