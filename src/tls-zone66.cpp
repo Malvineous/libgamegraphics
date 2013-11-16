@@ -145,7 +145,7 @@ SuppFilenames Zone66TilesetType::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
-	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
+	supps[SuppItem::Palette] = "mpal.z66";
 	return supps;
 }
 

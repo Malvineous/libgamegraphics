@@ -1,6 +1,6 @@
 /**
- * @file   tls-zone66.hpp
- * @brief  Zone 66 tileset handler.
+ * @file   tls-zone66-map.hpp
+ * @brief  Zone 66 map tileset
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,63 +18,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_ZONE66_HPP_
-#define _CAMOTO_TLS_ZONE66_HPP_
+#ifndef _CAMOTO_TLS_ZONE66_MAP_HPP_
+#define _CAMOTO_TLS_ZONE66_MAP_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
+#include <camoto/gamegraphics/palettetable.hpp>
 #include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Tileset file handler for Zone 66 tilesets.
-class Zone66TilesetType: virtual public TilesetType
+/// File handler for Zone 66 map tileset files.
+class Zone66MapTilesetType: virtual public TilesetType
 {
 	public:
-		Zone66TilesetType();
-		virtual ~Zone66TilesetType();
+		Zone66MapTilesetType();
+		virtual ~Zone66MapTilesetType();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
 		virtual std::vector<std::string> getFileExtensions() const;
 		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
+		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
+		virtual TilesetPtr create(stream::inout_sptr psGraphics,
 			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
+		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-/// Tileset handler for Zone 66 tilesets.
-class Zone66Tileset: virtual public FATTileset
+/// Handler for Zone 66 map tilesets.
+class Zone66MapTileset: virtual public FATTileset
 {
 	public:
-		Zone66Tileset(stream::inout_sptr data,
-			PaletteTablePtr pal);
-		virtual ~Zone66Tileset();
+		Zone66MapTileset(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Zone66MapTileset();
 
 		virtual int getCaps();
+		void resize(EntryPtr& id, stream::len newSize);
+		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
+		virtual unsigned int getLayoutWidth();
+		virtual PaletteTablePtr getPalette();
+
+		// FATTileset
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
-		virtual PaletteTablePtr getPalette();
-		virtual void setPalette(PaletteTablePtr newPalette);
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
-		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry);
-		virtual void postInsertFile(FATEntry *pNewEntry);
-		virtual void postRemoveFile(const FATEntry *pid);
 
 	protected:
+		unsigned int numPlanes;
 		PaletteTablePtr pal;
-
-	private:
-		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount);
 };
 
-} // namespace gamearchive
+} // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_ZONE66_HPP_
+#endif // _CAMOTO_TLS_ZONE66_MAP_HPP_

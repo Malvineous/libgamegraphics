@@ -41,6 +41,7 @@
 #include "tls-wacky.hpp"
 #include "tls-wordresc.hpp"
 #include "tls-zone66.hpp"
+#include "tls-zone66-map.hpp"
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
 #include "img-ega-planar.hpp"
@@ -109,6 +110,7 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WackyTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new WordrescTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66TilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66MapTilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));

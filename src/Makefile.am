@@ -51,6 +51,7 @@ libgamegraphics_la_SOURCES += tls-vinyl.cpp
 libgamegraphics_la_SOURCES += tls-wacky.cpp
 libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
+libgamegraphics_la_SOURCES += tls-zone66-map.cpp
 
 EXTRA_libgamegraphics_la_SOURCES  = baseimage.hpp
 EXTRA_libgamegraphics_la_SOURCES += basetileset.hpp
@@ -101,6 +102,7 @@ EXTRA_libgamegraphics_la_SOURCES += tls-vinyl.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wacky.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-wordresc.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-zone66.hpp
+EXTRA_libgamegraphics_la_SOURCES += tls-zone66-map.hpp
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
 
