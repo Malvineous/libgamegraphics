@@ -29,7 +29,7 @@ filter_pad::filter_pad(std::string padData, stream::len lenPadPos)
 {
 }
 
-void filter_pad::reset()
+void filter_pad::reset(stream::len lenInput)
 {
 	this->lenProcessed = 0;
 	return;
@@ -77,7 +77,7 @@ filter_unpad::filter_unpad(stream::len lenPadData, stream::len lenPadPos)
 {
 }
 
-void filter_unpad::reset()
+void filter_unpad::reset(stream::len lenInput)
 {
 	this->lenProcessed = 0;
 	return;

@@ -49,7 +49,7 @@ class filter_pcx_unrle: virtual public filter
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-		virtual void reset()
+		virtual void reset(stream::len lenInput)
 		{
 			this->count = 0;
 			return;
@@ -124,7 +124,7 @@ class filter_pcx_rle: virtual public filter
 		unsigned int count; ///< How many times to repeat prev
 
 	public:
-		virtual void reset()
+		virtual void reset(stream::len lenInput)
 		{
 			this->val = 0;
 			this->count = 0;

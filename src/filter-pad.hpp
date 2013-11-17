@@ -43,7 +43,7 @@ class filter_pad: virtual public filter
 		 */
 		filter_pad(std::string padData, stream::len lenPadPos);
 
-		virtual void reset();
+		virtual void reset(stream::len lenInput);
 		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn);
 
@@ -69,7 +69,7 @@ class filter_unpad: virtual public filter
 		 */
 		filter_unpad(stream::len lenPadData, stream::len lenPadPos);
 
-		virtual void reset();
+		virtual void reset(stream::len lenInput);
 		virtual void transform(uint8_t *out, stream::len *lenOut,
 			const uint8_t *in, stream::len *lenIn);
 

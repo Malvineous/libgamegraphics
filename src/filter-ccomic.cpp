@@ -32,7 +32,7 @@ const unsigned int MAX_ESCAPE_LEN = 0x7F;
 /// Length of each plane in input (1bpp) data
 const unsigned int PLANE_LEN = 8000;
 
-void filter_ccomic_unrle::reset()
+void filter_ccomic_unrle::reset(stream::len lenInput)
 {
 	this->lenBlock = 0;
 	this->repeat = 0;
@@ -136,7 +136,7 @@ bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stre
 	return true;
 }
 
-void filter_ccomic_rle::reset()
+void filter_ccomic_rle::reset(stream::len lenInput)
 {
 	this->val = 0;
 	this->count = 0;
