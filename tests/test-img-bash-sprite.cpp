@@ -83,8 +83,8 @@ using namespace camoto;
 		<< u16le(0); \
 	this->img = ImagePtr(new BashSpriteImage(this->base));
 
-#define IMG_HOTSPOT_X -1
-#define IMG_HOTSPOT_Y 1
+#define IMG_HOTSPOT_X 1
+#define IMG_HOTSPOT_Y -1
 #define IMG_HITRECT_X 6
 #define IMG_HITRECT_Y 6
 
