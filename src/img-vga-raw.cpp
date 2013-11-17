@@ -56,16 +56,22 @@ ImagePtr VGARawBaseImageType::create(stream::inout_sptr psImage,
 	memset(buf, 0, 64);
 	for (int i = 0; i < 1000; i++) psImage->write(buf, 64);
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
+		pal = palFile->getPalette();
+	}
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
 ImagePtr VGARawBaseImageType::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
-	PaletteTablePtr pal = palFile->getPalette();
+	PaletteTablePtr pal;
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
+		pal = palFile->getPalette();
+	}
 	return ImagePtr(new VGARawImage(psImage, 320, 200, pal));
 }
 
