@@ -71,7 +71,7 @@ StdImageDataPtr CGAImage::toStandard()
 
 	// Read the data as 2bpp and write it to the buffer as 8bpp
 	while (dataSize--) {
-		int val;
+		unsigned int val;
 		this->data->read(2, &val);
 		*imgData++ = (uint8_t)val;
 	}

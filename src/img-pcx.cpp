@@ -465,7 +465,7 @@ StdImageDataPtr PCXImage::toStandard()
 	//bitstream_sptr bits(new bitstream(filtered, bitstream::bigEndian));
 
 	fn_getnextchar cbNext = boost::bind(&stream::input::try_read, filtered, _1, 1);
-	int val;
+	unsigned int val;
 	bool eof = false;
 	for (unsigned int y = 0; y < height; y++) {
 		memset(line, 0, width); // blank out line
