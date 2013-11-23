@@ -31,6 +31,7 @@
 #include "tls-cosmo.hpp"
 #include "tls-czone.hpp"
 #include "tls-ddave.hpp"
+#include "tls-got.hpp"
 #include "tls-harry-chr.hpp"
 #include "tls-harry-hsb.hpp"
 #include "tls-harry-ico.hpp"
@@ -100,6 +101,7 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveCGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveEGATilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new DDaveVGATilesetType()));
+	this->vcTilesetTypes.push_back(TilesetTypePtr(new GOTTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryCHRTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryHSBTilesetType()));
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new HarryICOTilesetType()));
