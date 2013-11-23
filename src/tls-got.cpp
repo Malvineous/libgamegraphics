@@ -195,6 +195,8 @@ TilesetPtr GOTTilesetType::create(stream::inout_sptr psTileset,
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
+	(*pal)[0].alpha = 0;
+	(*pal)[15].alpha = 0;
 	return TilesetPtr(new GOTTileset(psTileset, pal));
 }
 
@@ -208,6 +210,8 @@ TilesetPtr GOTTilesetType::open(stream::inout_sptr psTileset,
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
+	(*pal)[0].alpha = 0;
+	(*pal)[15].alpha = 0;
 	return TilesetPtr(new GOTTileset(psTileset, pal));
 }
 
