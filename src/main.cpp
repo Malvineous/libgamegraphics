@@ -53,6 +53,7 @@
 #include "img-tv-fog.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
+#include "img-vga-raw-planar.hpp"
 #include "pal-vga-raw.hpp"
 #include "pal-gmf-harry.hpp"
 
@@ -123,6 +124,8 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new TVFogImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA6RawImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VGA8RawImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGA6RawPlanarImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new VGA8RawPlanarImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new VinylSCRImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Zone66TileImageType()));
 

@@ -1,5 +1,5 @@
 /**
- * @file   img-gra-vinyl.cpp
+ * @file   img-scr-vinyl.cpp
  * @brief  Vinyl Goddess From Mars SCR image format.
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
@@ -20,6 +20,7 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include "img-scr-vinyl.hpp"
+#include "img-vga-raw-planar.hpp"
 #include "pal-vga-raw.hpp"
 
 /// Offset where planar VGA data begins
@@ -78,7 +79,7 @@ ImagePtr VinylSCRImageType::create(stream::inout_sptr psImage,
 		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VinylSCRImage(psImage, pal));
+	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
 }
 
 ImagePtr VinylSCRImageType::open(stream::inout_sptr psImage,
@@ -90,7 +91,7 @@ ImagePtr VinylSCRImageType::open(stream::inout_sptr psImage,
 		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VinylSCRImage(psImage, pal));
+	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
 }
 
 SuppFilenames VinylSCRImageType::getRequiredSupps(const std::string& filenameImage) const
@@ -102,97 +103,6 @@ SuppFilenames VinylSCRImageType::getRequiredSupps(const std::string& filenameIma
 	return supps;
 }
 
-
-VinylSCRImage::VinylSCRImage(stream::inout_sptr data, PaletteTablePtr pal)
-	:	data(data),
-		pal(pal)
-{
-}
-
-VinylSCRImage::~VinylSCRImage()
-{
-}
-
-int VinylSCRImage::getCaps()
-{
-	return Image::ColourDepthVGA
-		| (this->pal ? Image::HasPalette : 0)
-	;
-}
-
-void VinylSCRImage::getDimensions(unsigned int *width, unsigned int *height)
-{
-	*width = 320;
-	*height = 200;
-	return;
-}
-
-StdImageDataPtr VinylSCRImage::toStandard()
-{
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	unsigned long dataSize = width * height;
-
-	uint8_t *rawData = new uint8_t[dataSize];
-	StdImageDataPtr raw(rawData);
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-	this->data->seekg(SCR_DATA_OFFSET, stream::start);
-	this->data->read(rawData, dataSize);
-
-	// Convert the planar data to linear
-	unsigned int planeWidth = width / 4;
-	unsigned int planeSize = planeWidth * height;
-	for (unsigned int i = 0; i < dataSize; i++) {
-		imgData[i % planeSize * 4 + i / planeSize] = rawData[i];
-	}
-	return ret;
-}
-
-StdImageDataPtr VinylSCRImage::toStandardMask()
-{
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
-
-	// Return an entirely opaque mask
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-	memset(imgData, 0, dataSize);
-
-	return ret;
-}
-
-void VinylSCRImage::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask)
-{
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	unsigned int dataSize = width * height;
-
-	uint8_t *rawData = new uint8_t[dataSize];
-	StdImageDataPtr raw(rawData);
-
-	// Convert the linear data to planar
-	unsigned int planeWidth = width / 4;
-	unsigned int planeSize = planeWidth * height;
-	for (unsigned int i = 0; i < dataSize; i++) {
-		rawData[i] = newContent[i % planeSize * 4 + i / planeSize];
-	}
-
-	this->data->seekp(SCR_DATA_OFFSET, stream::start);
-	this->data->write(rawData, dataSize);
-
-	return;
-}
-
-PaletteTablePtr VinylSCRImage::getPalette()
-{
-	return this->pal;
-}
 
 } // namespace gamegraphics
 } // namespace camoto

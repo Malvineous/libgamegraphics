@@ -1,6 +1,6 @@
 /**
- * @file   img-vga.hpp
- * @brief  Image implementation adding support for VGA mode 13 format.
+ * @file   img-vga-planar.hpp
+ * @brief  Image implementation adding support for VGA mode X planar format.
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_IMG_VGA_HPP_
-#define _CAMOTO_IMG_VGA_HPP_
+#ifndef _CAMOTO_IMG_VGA_PLANAR_HPP_
+#define _CAMOTO_IMG_VGA_PLANAR_HPP_
 
 #include <boost/iostreams/stream.hpp>
 #include "baseimage.hpp"
@@ -33,7 +33,7 @@ namespace gamegraphics {
  * does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class VGAImage: virtual public BaseImage
+class VGAPlanarImage: virtual public BaseImage
 {
 	public:
 		/// Constructor
@@ -44,8 +44,8 @@ class VGAImage: virtual public BaseImage
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		VGAImage(stream::inout_sptr data, stream::pos off);
-		virtual ~VGAImage();
+		VGAPlanarImage(stream::inout_sptr data, stream::pos off);
+		virtual ~VGAPlanarImage();
 
 		virtual int getCaps();
 		//virtual void getDimensions(unsigned int *width, unsigned int *height);
@@ -63,4 +63,4 @@ class VGAImage: virtual public BaseImage
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_IMG_VGA_HPP_
+#endif // _CAMOTO_IMG_VGA_PLANAR_HPP_

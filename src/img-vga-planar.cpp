@@ -1,6 +1,6 @@
 /**
- * @file   img-vga.cpp
- * @brief  Image implementation adding support for VGA mode 13 format.
+ * @file   img-vga-planar.cpp
+ * @brief  Image implementation adding support for VGA mode X planar format.
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,43 +18,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "img-vga.hpp"
+#include "img-vga-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-VGAImage::VGAImage(stream::inout_sptr data,
+VGAPlanarImage::VGAPlanarImage(stream::inout_sptr data,
 	stream::pos off)
 	:	data(data),
 		off(off)
 {
 }
 
-VGAImage::~VGAImage()
+VGAPlanarImage::~VGAPlanarImage()
 {
 }
 
-int VGAImage::getCaps()
+int VGAPlanarImage::getCaps()
 {
 	return Image::ColourDepthVGA;
 }
 
-StdImageDataPtr VGAImage::toStandard()
+StdImageDataPtr VGAPlanarImage::toStandard()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
 	assert((width != 0) && (height != 0));
 	unsigned long dataSize = width * height;
 
+	uint8_t *rawData = new uint8_t[dataSize];
+	StdImageDataPtr raw(rawData);
 	uint8_t *imgData = new uint8_t[dataSize];
 	StdImageDataPtr ret(imgData);
 	this->data->seekg(this->off, stream::start);
-	this->data->read(imgData, dataSize);
+	this->data->read(rawData, dataSize);
+
+	// Convert the planar data to linear
+	unsigned int planeWidth = width / 4;
+	unsigned int planeSize = planeWidth * height;
+	for (unsigned int i = 0; i < dataSize; i++) {
+		imgData[i % planeSize * 4 + i / planeSize] = rawData[i];
+	}
 
 	return ret;
 }
 
-StdImageDataPtr VGAImage::toStandardMask()
+StdImageDataPtr VGAPlanarImage::toStandardMask()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -69,7 +78,7 @@ StdImageDataPtr VGAImage::toStandardMask()
 	return ret;
 }
 
-void VGAImage::fromStandard(StdImageDataPtr newContent,
+void VGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -85,10 +94,18 @@ void VGAImage::fromStandard(StdImageDataPtr newContent,
 		this->data->truncate(dataSize + this->off);
 	} // else size didn't need to change, e.g. fixed-size VGA image
 
-	// No conversion needed, write out as-is
-	uint8_t *imgData = (uint8_t *)newContent.get();
+	uint8_t *rawData = new uint8_t[dataSize];
+	StdImageDataPtr raw(rawData);
+
+	// Convert the linear data to planar
+	unsigned int planeWidth = width / 4;
+	unsigned int planeSize = planeWidth * height;
+	for (unsigned int i = 0; i < dataSize; i++) {
+		rawData[i] = newContent[i % planeSize * 4 + i / planeSize];
+	}
+
 	this->data->seekp(this->off, stream::start);
-	this->data->write(imgData, dataSize);
+	this->data->write(rawData, dataSize);
 
 	return;
 }

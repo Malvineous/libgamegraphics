@@ -1,5 +1,5 @@
 /**
- * @file   img-gra-vinyl.hpp
+ * @file   img-scr-vinyl.hpp
  * @brief  Vinyl Goddess From Mars SCR image format.
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
@@ -22,7 +22,7 @@
 #define _CAMOTO_IMG_SCR_VINYL_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "baseimage.hpp"
+#include "img-vga-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -41,34 +41,6 @@ class VinylSCRImageType: virtual public ImageType
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-};
-
-/// Vinyl SCR Image implementation.
-class VinylSCRImage: virtual public BaseImage
-{
-	public:
-		/// Constructor
-		/**
-		 * @param data
-		 *   Image data
-		 *
-		 * @param pal
-		 *   Image palette
-		 */
-		VinylSCRImage(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~VinylSCRImage();
-
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-		virtual PaletteTablePtr getPalette();
-
-	protected:
-		stream::inout_sptr data;
-		PaletteTablePtr pal;
 };
 
 } // namespace gamegraphics
