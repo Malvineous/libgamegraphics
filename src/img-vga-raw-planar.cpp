@@ -92,12 +92,12 @@ VGA6RawPlanarImageType::VGA6RawPlanarImageType()
 
 std::string VGA6RawPlanarImageType::getCode() const
 {
-	return "img-vga-raw-fullscreen";
+	return "img-vga-planar-fullscreen";
 }
 
 std::string VGA6RawPlanarImageType::getFriendlyName() const
 {
-	return "Raw VGA fullscreen image (6-bit palette)";
+	return "Planar VGA fullscreen image (6-bit palette)";
 }
 
 
@@ -108,12 +108,12 @@ VGA8RawPlanarImageType::VGA8RawPlanarImageType()
 
 std::string VGA8RawPlanarImageType::getCode() const
 {
-	return "img-vga-raw8-fullscreen";
+	return "img-vga-planar8-fullscreen";
 }
 
 std::string VGA8RawPlanarImageType::getFriendlyName() const
 {
-	return "Raw VGA fullscreen image (24-bit palette)";
+	return "Planar VGA fullscreen image (24-bit palette)";
 }
 
 
