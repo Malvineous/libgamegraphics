@@ -58,7 +58,8 @@ ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage)
 {
 	stream::pos len = psImage->size();
 
-	if (len != 768) return DefinitelyNo;
+	// Allow palettes with 256 entries, but also ones with only 16 (Duke II)
+	if ((len != 16 * 3) && (len != 256 * 3)) return DefinitelyNo;
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
