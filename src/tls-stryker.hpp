@@ -1,6 +1,6 @@
 /**
- * @file   tls-cosmo.hpp
- * @brief  Cosmo's Cosmic Adventures tileset
+ * @file   tls-stryker.hpp
+ * @brief  Major Stryker tileset
  *
  * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_COSMO_HPP_
-#define _CAMOTO_TLS_COSMO_HPP_
+#ifndef _CAMOTO_TLS_STRYKER_HPP_
+#define _CAMOTO_TLS_STRYKER_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/palettetable.hpp>
@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CosmoTilesetType: virtual public TilesetType
+class StrykerTilesetType: virtual public TilesetType
 {
 	public:
-		CosmoTilesetType();
-		virtual ~CosmoTilesetType();
+		StrykerTilesetType();
+		virtual ~StrykerTilesetType();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,7 +46,7 @@ class CosmoTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-class CosmoMaskedTilesetType: virtual public CosmoTilesetType
+class StrykerMaskedTilesetType: virtual public StrykerTilesetType
 {
 	public:
 		virtual std::string getCode() const;
@@ -61,4 +61,4 @@ class CosmoMaskedTilesetType: virtual public CosmoTilesetType
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_COSMO_HPP_
+#endif // _CAMOTO_TLS_STRYKER_HPP_

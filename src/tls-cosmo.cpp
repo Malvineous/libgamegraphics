@@ -24,19 +24,37 @@
 #include <camoto/iostream_helpers.hpp>
 #include "img-ega-byteplanar.hpp"
 #include "tls-cosmo.hpp"
+#include "tls-ega-apogee.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Number of planes in each image
-#define NUMPLANES_SPRITE  5
-#define NUMPLANES_TILE    4
-
 /// Offset of first tileset in a tileset collection.
 #define CCA_FIRST_TILE_OFFSET 0
 
+/// Width of each tile, in pixels
 #define CCA_TILE_WIDTH 8
+
+/// Height of each tile, in pixels
 #define CCA_TILE_HEIGHT 8
+
+/// Size of a tile with the given number of planes, in bytes
+#define CCA_TILE_SIZE(p) (CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * (p))
+
+/// Size in bytes of standard Cosmo tileset (40 tiles by 100 tiles)
+#define CCA_SIZE_STANDARD ((40 * 50) * CCA_TILE_SIZE(EGA_NUMPLANES_SOLID))
+
+/// Size in bytes of Cosmo backdrop (40 tiles by 18 tiles)
+#define CCA_SIZE_BACKDROP ((40 * 18) * CCA_TILE_SIZE(EGA_NUMPLANES_SOLID))
+
+/// Size in bytes of Duke Nukem II backdrop (40 tiles by 25 tiles)
+#define DN2_SIZE_BACKDROP ((40 * 25) * CCA_TILE_SIZE(EGA_NUMPLANES_SOLID))
+
+/// Size in bytes of masked Cosmo tileset (40 tiles by 100 tiles)
+#define CCA_SIZE_STDMASK ((40 * 25) * CCA_TILE_SIZE(EGA_NUMPLANES_MASKED))
+
+/// Ideal width of tileset, in number of tiles
+#define CCA_IDEAL_WIDTH 40
 
 //
 // CosmoTilesetType
@@ -80,13 +98,13 @@ CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGr
 	stream::pos len = psGraphics->size();
 
 	// Standard tileset
-	if (len == 2000 * 32) return PossiblyYes;
+	if (len == CCA_SIZE_STANDARD) return PossiblyYes;
 
 	// Map backdrop (Cosmo)
-	if (len == 720 * 32) return PossiblyYes;
+	if (len == CCA_SIZE_BACKDROP) return PossiblyYes;
 
 	// Map backdrop (Duke II)
-	if (len == 1000 * 32) return PossiblyYes;
+	if (len == DN2_SIZE_BACKDROP) return PossiblyYes;
 
 	return DefinitelyNo;
 }
@@ -97,7 +115,8 @@ TilesetPtr CosmoTilesetType::create(stream::inout_sptr psGraphics,
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	return TilesetPtr(
-		new CosmoTileset(psGraphics, NUMPLANES_TILE, PaletteTablePtr())
+		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+			EGA_NUMPLANES_SOLID, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
@@ -105,7 +124,8 @@ TilesetPtr CosmoTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	return TilesetPtr(
-		new CosmoTileset(psGraphics, NUMPLANES_TILE, PaletteTablePtr())
+		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+			EGA_NUMPLANES_SOLID, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
@@ -133,7 +153,7 @@ std::string CosmoMaskedTilesetType::getFriendlyName() const
 CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
-	if (len == 1000 * 40) return PossiblyYes;
+	if (len == CCA_SIZE_STDMASK) return PossiblyYes;
 	return DefinitelyNo;
 }
 
@@ -143,7 +163,8 @@ TilesetPtr CosmoMaskedTilesetType::create(stream::inout_sptr psGraphics,
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	return TilesetPtr(
-		new CosmoTileset(psGraphics, NUMPLANES_SPRITE, PaletteTablePtr())
+		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+			EGA_NUMPLANES_MASKED, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
@@ -151,97 +172,9 @@ TilesetPtr CosmoMaskedTilesetType::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	return TilesetPtr(
-		new CosmoTileset(psGraphics, NUMPLANES_SPRITE, PaletteTablePtr())
+		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+			EGA_NUMPLANES_MASKED, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
-}
-
-
-//
-// CosmoTileset
-//
-
-CosmoTileset::CosmoTileset(stream::inout_sptr data,
-	uint8_t numPlanes, PaletteTablePtr pal)
-	:	FATTileset(data, CCA_FIRST_TILE_OFFSET),
-		numPlanes(numPlanes),
-		pal(pal)
-{
-	int tileSize = this->numPlanes << 3; // multiply by eight (bytes per plane)
-
-	stream::pos len = this->data->size();
-
-	this->data->seekg(0, stream::start);
-	int numImages = len / tileSize;
-
-	this->items.reserve(numImages);
-	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = i * tileSize;
-		fat->size = tileSize;
-		fat->lenHeader = 0;
-		this->items.push_back(ep);
-	}
-
-}
-
-CosmoTileset::~CosmoTileset()
-{
-}
-
-int CosmoTileset::getCaps()
-{
-	return Tileset::ColourDepthEGA
-		| (this->pal ? Tileset::HasPalette : 0);
-}
-
-void CosmoTileset::resize(EntryPtr& id, stream::len newSize)
-{
-	if (newSize != CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * this->numPlanes) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
-}
-
-void CosmoTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
-{
-	*width = CCA_TILE_WIDTH;
-	*height = CCA_TILE_HEIGHT;
-	return;
-}
-
-unsigned int CosmoTileset::getLayoutWidth()
-{
-	return 40;
-}
-
-PaletteTablePtr CosmoTileset::getPalette()
-{
-	return this->pal;
-}
-
-ImagePtr CosmoTileset::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
-{
-	PLANE_LAYOUT planes;
-	int offset = (this->numPlanes == NUMPLANES_TILE) ? 1 : 0;
-	planes[PLANE_BLUE] = 2 - offset;
-	planes[PLANE_GREEN] = 3 - offset;
-	planes[PLANE_RED] = 4 - offset;
-	planes[PLANE_INTENSITY] = 5 - offset;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1 - offset;
-
-	EGABytePlanarImage *ega = new EGABytePlanarImage();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, CCA_TILE_WIDTH, CCA_TILE_HEIGHT, planes, this->pal
-	);
-
-	return conv;
 }
 
 } // namespace gamegraphics

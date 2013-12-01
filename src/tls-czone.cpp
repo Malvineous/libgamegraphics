@@ -24,15 +24,18 @@
 #include <boost/bind.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include "tls-czone.hpp"
-#include "tls-cosmo.hpp"
+#include "tls-ega-apogee.hpp"
 #include "tileset-fat.hpp" // for FATEntry
 #include "pal-vga-raw.hpp"
 
-/// Number of planes in the solid tileset
-#define NUMPLANES_SOLID   4
+/// Width of each tile, in pixels
+#define CZ_TILE_WIDTH 8
 
-/// Number of planes in the masked tileset
-#define NUMPLANES_MASKED  5
+/// Height of each tile, in pixels
+#define CZ_TILE_HEIGHT 8
+
+/// Ideal width of tileset, in number of tiles
+#define CZ_IDEAL_WIDTH 40
 
 namespace camoto {
 namespace gamegraphics {
@@ -191,10 +194,12 @@ TilesetPtr CZoneTileset::openTileset(const EntryPtr& id)
 	TilesetPtr tileset;
 	switch (pFAT->index) {
 		case 0: // solid
-			tileset.reset(new CosmoTileset(sub, NUMPLANES_SOLID, this->pal));
+			tileset.reset(new EGAApogeeTileset(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
+				EGA_NUMPLANES_SOLID, CZ_IDEAL_WIDTH, this->pal));
 			break;
 		case 1: // masked
-			tileset.reset(new CosmoTileset(sub, NUMPLANES_MASKED, this->pal));
+			tileset.reset(new EGAApogeeTileset(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
+				EGA_NUMPLANES_MASKED, CZ_IDEAL_WIDTH, this->pal));
 			break;
 	}
 	return tileset;
