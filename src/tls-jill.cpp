@@ -122,10 +122,13 @@ TilesetPtr JillTilesetType::open(stream::inout_sptr psGraphics,
 	return TilesetPtr(new JillTileset(psGraphics, pal));
 }
 
-SuppFilenames JillTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames JillTilesetType::getRequiredSupps(
+	const std::string& filenameTileset) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	SuppFilenames supps;
+	std::string baseName = filenameTileset.substr(0, filenameTileset.length() - 3);
+	supps[SuppItem::Palette] = baseName + "pal";
+	return supps;
 }
 
 
@@ -333,8 +336,7 @@ JillImage::JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
 	:	VGAImage(data, 3), // 3 == skip width/height/flag fields
 		colourMap(colourMap)
 {
-	assert(data->tellg() == 0);
-
+	this->data->seekg(0, stream::start);
 	data >> u8(this->width) >> u8(this->height);
 }
 
@@ -397,6 +399,21 @@ void JillImage::fromStandard(StdImageDataPtr newContent,
 	// Update dimensions
 	this->data->seekp(0, stream::start);
 	this->data << u8(this->width) << u8(this->height);
+
+	uint8_t *img = new uint8_t[this->width * this->height];
+	boost::shared_array<uint8_t> pimg(img);
+	this->data->seekg(3, stream::start);
+	this->data->read(img, this->width * this->height);
+
+	// Apply the colour map
+	uint8_t *p = img;
+	for (int i = 0; i < this->width * this->height; i++) {
+		*p = this->colourMap[*p];
+		p++;
+	}
+
+	this->data->seekp(3, stream::start);
+	this->data->write(img, this->width * this->height);
 
 	return;
 }
