@@ -24,7 +24,7 @@
 #include <iostream>
 #include <camoto/iostream_helpers.hpp>
 #include "tls-harry-ico.hpp"
-#include "pal-gmf-harry.hpp"
+#include "img-pcx.hpp"
 #include "img-ddave.hpp"
 
 namespace camoto {
@@ -121,7 +121,7 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new PCXImage(suppData[SuppItem::Palette], 8, 1));
 		pal = palFile->getPalette();
 	}
 
@@ -133,7 +133,7 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new PCXImage(suppData[SuppItem::Palette], 8, 1));
 		pal = palFile->getPalette();
 	}
 
@@ -143,7 +143,7 @@ TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
 SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
-	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file
+	supps[SuppItem::Palette] = "pre2.pcx"; // any UI image file
 	return supps;
 }
 
