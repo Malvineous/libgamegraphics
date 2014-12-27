@@ -151,9 +151,7 @@ CComicTileset::CComicTileset(stream::inout_sptr data,
 	int tileSize = this->numPlanes << 5; // multiply by 32 (bytes per plane)
 	int lenHeader = (this->numPlanes == NUMPLANES_TILES) ? 4 : 0;
 
-	stream::pos len = this->data->size();
-
-	this->data->seekg(0, stream::start);
+	stream::pos len = this->data->size() - lenHeader;
 	int numImages = len / tileSize;
 
 	this->items.reserve(numImages);

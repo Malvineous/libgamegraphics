@@ -25,6 +25,7 @@ File formats from the following games have been implemented:
 
   * Catacomb/Catacomb II (tiles)
   * Captain Comic (tiles, sprites and fullscreen images)
+  * Captain Comic II (tiles, fullscreen, no sprites yet)
   * Cosmo's Cosmic Adventures (tiles)
   * Crystal Caves (tiles, sprites and fullscreen images)
   * Dangerous Dave (tiles)

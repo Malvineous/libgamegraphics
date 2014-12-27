@@ -1,8 +1,8 @@
 /**
- * @file  filter-ccomic.cpp
- * @brief Filter algorithm for compressing and expanding Captain Comic images.
+ * @file  filter-ccomic2.cpp
+ * @brief Filter algorithm for compressing and expanding Captain Comic 2 images.
  *
- * Copyright (C) 2010-2013 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2014 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,13 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "filter-ccomic.hpp"
+#include "filter-ccomic2.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
+const unsigned int TILE_LEN = 128;
+
 /// Largest RLE length
-const unsigned int MAX_RLE_COUNT = 0x7F;
+const unsigned int MAX_RLE_COUNT = 0x80;
 
 /// Largest number of continuous escaped bytes
 const unsigned int MAX_ESCAPE_LEN = 0x7F;
@@ -32,27 +34,23 @@ const unsigned int MAX_ESCAPE_LEN = 0x7F;
 /// Length of each plane in input (1bpp) data
 const unsigned int PLANE_LEN = 8000;
 
-void filter_ccomic_unrle::reset(stream::len lenInput)
+filter_ccomic2_unrle::filter_ccomic2_unrle(unsigned int lenHeader)
+	:	lenHeader(lenHeader),
+		escape(lenHeader)
 {
-	this->lenBlock = 0;
+}
+
+void filter_ccomic2_unrle::reset(stream::len lenInput)
+{
 	this->repeat = 0;
-	this->escape = 0;
+	this->escape = this->lenHeader;
 	return;
 }
 
-void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
+void filter_ccomic2_unrle::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
 {
 	stream::len r = 0, w = 0;
-
-	if ((lenBlock == 0) && (*lenIn != 0)) {
-		// Need to read block size at start
-		if (*lenIn - r < 2) throw filter_error("No room to read plane size");
-		this->lenBlock = *in++;
-		this->lenBlock |= (*in++) << 8;
-		r += 2;
-		this->lenBlock *= 4; // number of planes
-	}
 
 	// While there's more space to write, and either more data to read or
 	// more data to write
@@ -66,32 +64,33 @@ void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
 				&& (r < *lenIn) // and one last byte in the buffer
 			)
 		)
-		&& lenBlock         // and the format says there's data to read
 	) {
 
 		// Write out any repeats we've got stored up
-		while ((w < *lenOut) && this->repeat && lenBlock) {
+		while ((w < *lenOut) && this->repeat) {
 			*out++ = this->val;
 			this->repeat--;
-			this->lenBlock--;
 			w++;
 		}
 
 		// Write out any escaped data
-		while ((r < *lenIn) && (w < *lenOut) && this->escape && lenBlock) {
+		while ((r < *lenIn) && (w < *lenOut) && this->escape) {
 			*out++ = *in++;
 			this->escape--;
-			this->lenBlock--;
 			r++;
 			w++;
 		}
 
 		// Loop while there's no bytes to write but more to read
-		while ((this->repeat == 0) && (this->escape == 0) && (r < *lenIn - 1) && lenBlock) {
+		while ((this->repeat == 0) && (this->escape == 0) && (r < *lenIn - 1)) {
 			if (*in & 0x80) { // RLE trigger
-				this->repeat = (*in++) & 0x7F;
+				this->repeat = 256 - (*in++);
 				this->val = *in++;
 				r += 2;
+			} else if (*in == 0) {
+				// end of tile, just ignore
+				in++;
+				r++;
 			} else { // escaped byte
 				this->escape = *in++;
 				r++;
@@ -105,20 +104,18 @@ void filter_ccomic_unrle::transform(uint8_t *out, stream::len *lenOut,
 }
 
 
-bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut)
+bool filter_ccomic2_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stream::len *lenOut)
 {
-	if (this->escapeBuf.size()) {
+	while (this->escapeBuf.size()) {
 		// If there's not enough space to write it now, wait until we're
 		// called again with an empty buffer.
-		if (w + this->escapeBuf.size() + 1 > *lenOut) return false;
-		assert(this->escapeBuf.size() <= MAX_ESCAPE_LEN);
+		if (w + this->escapeBuf.size() + 3 > *lenOut) return false;
 
-		unsigned int len;
-		if (((this->col % PLANE_LEN) + this->escapeBuf.size()) > PLANE_LEN) {
+		unsigned int len = std::min((unsigned int)this->escapeBuf.size(), MAX_ESCAPE_LEN);
+		if (((this->col % PLANE_LEN) + this->count) > PLANE_LEN) {
 			len = PLANE_LEN - (this->col % PLANE_LEN);
-		} else {
-			len = this->escapeBuf.size();
 		}
+		assert(len <= MAX_ESCAPE_LEN);
 		*out++ = (uint8_t)len;
 		w++;
 		std::vector<uint8_t>::iterator itStart = this->escapeBuf.begin();
@@ -135,29 +132,39 @@ bool filter_ccomic_rle::writeEscapeBuf(uint8_t*& out, stream::len& w, const stre
 	return true;
 }
 
-void filter_ccomic_rle::reset(stream::len lenInput)
+
+filter_ccomic2_rle::filter_ccomic2_rle(unsigned int lenHeader)
+	:	lenHeader(lenHeader)
 {
+}
+
+void filter_ccomic2_rle::reset(stream::len lenInput)
+{
+	this->totalWritten = 0;
 	this->val = 0;
 	this->count = 0;
-	this->writtenSize = false;
 	this->col = 0;
 	return;
 }
 
-void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
+void filter_ccomic2_rle::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
 {
 	stream::len r = 0, w = 0;
-	if (!this->writtenSize) {
-		// Write 8000 as a UINT16LE at the start of the file
-		assert(*lenOut > 2); // will always be >= 4096 at this point
-		*out++ = 0x40;
-		*out++ = 0x1F;
-		w += 2;
-		this->writtenSize = true;
-	}
 	while (
-		(w + 2 < *lenOut) && ( // while there's enough room to write two or more bytes, and
+		(this->totalWritten < this->lenHeader)
+		&& (w < *lenOut)
+		&& (r < *lenIn)
+	) {
+		// Have to pass through more bytes unchanged
+		*out++ = *in++;
+		r++;
+		w++;
+		this->totalWritten++;
+	}
+
+	while (
+		(w + 3 < *lenOut) && ( // while there's enough room to write three or more bytes, and
 			(r < *lenIn)         // there's more data to read
 			|| (
 				(*lenIn == 0)      // or there's no more data to read...
@@ -186,15 +193,14 @@ void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 				if (!this->writeEscapeBuf(out, w, lenOut)) break;
 				if (*lenOut - w < 2) break; // need more data to continue
 				assert(this->escapeBuf.size() == 0);
-				assert(this->count <= MAX_RLE_COUNT);
-
+				//assert(this->count <= MAX_RLE_COUNT);
 				if (((this->col % PLANE_LEN) + this->count) > PLANE_LEN) {
 					// This RLE code would run across a scanline boundary, so split it
 					// into two RLE codes - one for the top scanline and one for the
 					// bottom one.
-					unsigned int first = PLANE_LEN - (this->col % PLANE_LEN);
+					unsigned int first = std::min(MAX_RLE_COUNT, PLANE_LEN - (this->col % PLANE_LEN));
 					assert(first > 0);
-					*out++ = 0x80 | (uint8_t)first;
+					*out++ = 256 - first;
 					*out++ = this->val;
 					w += 2;
 					this->col += first;
@@ -203,11 +209,12 @@ void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 					// might be able to add to them and write out a larger number later.
 					continue;
 				}
-				*out++ = 0x80 | (uint8_t)this->count;
+				unsigned int amt = std::min(MAX_RLE_COUNT, this->count);
+				*out++ = 256 - amt;
 				*out++ = this->val;
 				w += 2;
-				this->col += this->count;
-				this->count = 0;
+				this->col += amt;
+				this->count -= amt;
 			}
 
 			// This byte is different to the last one, but the last one wasn't
@@ -215,9 +222,6 @@ void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 			// max and is now at zero.
 			assert(this->count <= 1);
 			if (this->count) {
-				if (this->escapeBuf.size() > MAX_ESCAPE_LEN - 1) {
-					if (!this->writeEscapeBuf(out, w, lenOut)) break;
-				}
 				this->escapeBuf.push_back(this->val);
 				// this->count should be set to 0 now, but there's no need
 			}
@@ -235,6 +239,7 @@ void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 			// there's no more data to read.
 			if (*lenIn == 0) {
 				assert(this->count <= 1);
+
 				if (!this->writeEscapeBuf(out, w, lenOut)) break;
 			}
 
@@ -243,6 +248,7 @@ void filter_ccomic_rle::transform(uint8_t *out, stream::len *lenOut,
 
 	*lenOut = w;
 	*lenIn = r;
+	this->totalWritten += w; // not really necessary
 	return;
 }
 
