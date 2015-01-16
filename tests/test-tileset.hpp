@@ -96,8 +96,8 @@ struct FIXTURE_NAME: public default_sample {
 		);
 
 		boost::test_tools::predicate_result ret =
-			this->default_sample::is_equal(strExpected, this->base->str(), 8);
-		BOOST_CHECK_EQUAL(strExpected.length(), this->base->str().length());
+			this->default_sample::is_equal(strExpected, *(this->base->str()), 8);
+		BOOST_CHECK_EQUAL(strExpected.length(), this->base->str()->length());
 		return ret;
 	}
 
@@ -111,8 +111,8 @@ struct FIXTURE_NAME: public default_sample {
 
 		stream::string_sptr sstr = boost::dynamic_pointer_cast<stream::string>(this->suppData[type]);
 		boost::test_tools::predicate_result ret =
-			this->default_sample::is_equal(strExpected, sstr->str(), 8);
-		BOOST_CHECK_EQUAL(strExpected.length(), sstr->str().length());
+			this->default_sample::is_equal(strExpected, *(sstr->str()), 8);
+		BOOST_CHECK_EQUAL(strExpected.length(), sstr->str()->length());
 		return ret;
 	}
 

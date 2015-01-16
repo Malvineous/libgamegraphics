@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	img.setPalette(pal);
 	ss->flush();
 
-	std::string s = ss->str();
-	uint8_t *buf = (uint8_t *)s.c_str();
+	boost::shared_ptr<std::string> s = ss->str();
+	uint8_t *buf = (uint8_t *)s->c_str();
 
 	BOOST_REQUIRE_EQUAL(buf[0], 0);
 	BOOST_REQUIRE_EQUAL(buf[1], 0);
@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE(pal_vga8_raw_write)
 	img.setPalette(pal);
 	ss->flush();
 
-	std::string s = ss->str();
-	uint8_t *buf = (uint8_t *)s.c_str();
+	boost::shared_ptr<std::string> s = ss->str();
+	uint8_t *buf = (uint8_t *)s->c_str();
 
 	BOOST_REQUIRE_EQUAL(buf[0], 0);
 	BOOST_REQUIRE_EQUAL(buf[1], 0);

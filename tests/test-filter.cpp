@@ -35,10 +35,10 @@ boost::test_tools::predicate_result filter_sample::is_equal(const std::string& s
 	stream::copy(out, this->in_filt);
 
 	// See if the stringstream now matches what we expected
-	std::string& strCheck = out->str();
-	if (strExpected.compare(strCheck)) {
+	boost::shared_ptr<std::string> strCheck = out->str();
+	if (strExpected.compare(*strCheck)) {
 		boost::test_tools::predicate_result res(false);
-		this->print_wrong(res, strExpected, strCheck, 16);
+		this->print_wrong(res, strExpected, *strCheck, 16);
 		return res;
 	}
 

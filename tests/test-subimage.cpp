@@ -50,7 +50,7 @@ using namespace camoto;
 
 struct subimage: public default_sample {
 
-	std::string d;
+	boost::shared_ptr<std::string> d;
 	stream::string_sptr base;
 	ImagePtr img;
 	SuppData suppData;
@@ -59,8 +59,8 @@ struct subimage: public default_sample {
 	subimage()
 		:	base(new stream::string())
 	{
-		this->d = makeString(TESTDATA_INITIAL);
-		this->base->open(&this->d);
+		this->d.reset(new std::string(makeString(TESTDATA_INITIAL)));
+		this->base->open(this->d);
 	}
 
 	void openImage(int width, int height)

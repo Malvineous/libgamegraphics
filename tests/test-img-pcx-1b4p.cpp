@@ -170,8 +170,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_bad_rle))
 {
 	BOOST_TEST_MESSAGE("Converting img-pcx-1b4p to stdformat with bad RLE code");
 
-	std::string d = makeString(TESTDATA_INITIAL_8x8_BADRLE);
-	this->base->open(&d);
+	boost::shared_ptr<std::string> d(new std::string(makeString(TESTDATA_INITIAL_8x8_BADRLE)));
+	this->base->open(d);
 	this->openImage(8, 8);
 
 	StdImageDataPtr output = this->img->toStandard();
@@ -222,8 +222,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_truncated))
 {
 	BOOST_TEST_MESSAGE("Converting truncated img-pcx-1b4p to stdformat");
 
-	std::string d = makeString(TESTDATA_INITIAL_8x8_TRUNCATED);
-	this->base->open(&d);
+	boost::shared_ptr<std::string> d(new std::string(makeString(TESTDATA_INITIAL_8x8_TRUNCATED)));
+	this->base->open(d);
 	this->openImage(8, 8);
 
 	StdImageDataPtr output = this->img->toStandard();

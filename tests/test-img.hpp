@@ -222,8 +222,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_ ## w ## x ## h)) \
 { \
 	BOOST_TEST_MESSAGE("Converting " TOSTRING(IMG_CLASS) " to stdformat " __STRING(w) "x" __STRING(h)); \
 \
-	std::string d = makeString(TESTDATA_INITIAL_ ## w ## x ## h); \
-	this->base->open(&d); \
+	boost::shared_ptr<std::string> d(new std::string(makeString(TESTDATA_INITIAL_ ## w ## x ## h))); \
+	this->base->open(d); \
 	this->openImage(w, h); \
 \
 	StdImageDataPtr output = this->img->toStandard(); \
@@ -320,14 +320,14 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(from_standard_ ## w ## x ## h)) \
 	BOOST_CHECK_MESSAGE( \
 		default_sample::is_equal( \
 			makeString(TESTDATA_INITIAL_ ## w ## x ## h), \
-			this->base->str(), \
+			*(this->base->str()), \
 			this->dataWidth \
 		), \
 		"Error converting " __STRING(w) "x" __STRING(h) " standard format to " TOSTRING(IMG_CLASS) \
 	); \
 \
 	/* Make sure the right amount of data was written out */ \
-	BOOST_REQUIRE_EQUAL(this->base->str().length(), targetSize); \
+	BOOST_REQUIRE_EQUAL(this->base->str()->length(), targetSize); \
 }
 
 FROM_STANDARD_TEST(8, 8)
