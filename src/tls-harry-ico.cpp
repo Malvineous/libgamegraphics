@@ -95,7 +95,7 @@ HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_spt
 				>> u16le(width)
 				>> u16le(height)
 			;
-		} catch (const stream::incomplete_read& e) {
+		} catch (const stream::incomplete_read&) {
 			// If EOF is encountered here it's not a valid file
 			// TESTED BY: fmt_harry_ico_isinstance_c02
 			return DefinitelyNo;
