@@ -161,7 +161,7 @@ void FATTileset::remove(EntryPtr& id)
 	this->shiftFiles(
 		pFATDel,
 		pFATDel->offset,
-		-(pFATDel->size + pFATDel->lenHeader),
+		-((stream::delta)pFATDel->size + (stream::delta)pFATDel->lenHeader),
 		-1
 	);
 
