@@ -1,5 +1,5 @@
 Camoto: Classic-game Modding Tools
-Copyright 2010-2012 Adam Nielsen <malvineous@shikadi.net>
+Copyright 2010-2015 Adam Nielsen <malvineous@shikadi.net>
 http://www.shikadi.net/camoto/
 
 Camoto is a collection of utilities for editing (modding) "classic games",
@@ -35,7 +35,7 @@ File formats from the following games have been implemented:
   * Jill of the Jungle (tiles, read-only)
   * Major Stryker
   * Monster Bash (tiles)
-  * Raptor
+  * Raptor (some fullscreen)
   * Secret Agent (tiles, sprites and fullscreen images)
   * Vinyl Goddess From Mars (tiles, some fullscreen)
   * Wacky Wheels (tiles and fullscreen images)
@@ -51,8 +51,8 @@ intended as both command-line interfaces to the library as well as an example
 of how to use the library.  The programs are installed as part of the
 "make install" process.  See the manpages for full details.
 
-Both libgamecommon and png++ are required dependencies of this library.
-png++ can be obtained from http://www.nongnu.org/pngpp/
+libgamecommon, libpng and png++ >= 0.2.7 are required dependencies of this
+library.  png++ can be obtained from http://www.nongnu.org/pngpp/
 
 The library is then compiled and installed in the usual way:
 
@@ -62,7 +62,9 @@ The library is then compiled and installed in the usual way:
 
 If you downloaded the git release, run ./autogen.sh before the commands above.
 
-All supported image formats are fully documented on the ModdingWiki - see
-http://www.shikadi.net/moddingwiki/Category:Graphics_Files
+All supported file formats are fully documented on the ModdingWiki - see:
+
+ * http://www.shikadi.net/moddingwiki/Category:Image_formats
+ * http://www.shikadi.net/moddingwiki/Category:Tileset_formats
 
 This library is released under the GPLv3 license.
