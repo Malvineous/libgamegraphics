@@ -862,6 +862,8 @@ finishTesting:
 		gg::TilesetPtr pTileset(pGfxType->open(psTileset, suppData));
 		assert(pTileset);
 
+		bool modified = false; // have we changed the tileset file?
+
 		// Run through the actions on the command line
 		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
 			if (i->string_key.compare("list") == 0) {
@@ -973,6 +975,7 @@ finishTesting:
 						iRet = RET_NONCRITICAL_FAILURE;
 					} else {
 						pngToImage(img, strLocalFile);
+						modified = true;
 						if (bScript) std::cout << "ok";
 					}
 				}
@@ -1003,6 +1006,7 @@ finishTesting:
 				}
 				try {
 					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore, 0);
+					modified = true;
 
 					gg::ImagePtr img = nextTileset->openImage(ep);
 					if (!img) {
@@ -1040,6 +1044,7 @@ finishTesting:
 				try {
 					gg::Tileset::EntryPtr ep = nextTileset->insert(epBefore,
 						gg::Tileset::SubTileset);
+					modified = true;
 					nextTileset->flush();
 					if (bScript) std::cout << "ok";
 				} catch (std::exception& e) {
@@ -1068,6 +1073,7 @@ finishTesting:
 								if (nextTileset->getCaps() & gg::Tileset::ChangeDimensions) {
 									try {
 										nextTileset->setTilesetDimensions(newWidth, newHeight);
+										modified = true;
 										std::cout << std::endl;
 									} catch (std::exception& e) {
 										std::cout << " [failed; " << e.what()
@@ -1092,6 +1098,7 @@ finishTesting:
 							gg::ImagePtr img = nextTileset->openImage(ep);
 							if (img->getCaps() & gg::Image::CanSetDimensions) {
 								img->setDimensions(newWidth, newHeight);
+								modified = true;
 								std::cout << std::endl;
 							} else {
 								std::cout << " [failed; this image's size is fixed]"
@@ -1124,8 +1131,10 @@ finishTesting:
 
 		} // for (all command line elements)
 
-		// Save changes
-		pTileset->flush();
+		if (modified) {
+			// Save changes
+			pTileset->flush();
+		}
 
 	} catch (const stream::error& e) {
 		std::cerr << PROGNAME ": I/O error - " << e.what() << std::endl;
