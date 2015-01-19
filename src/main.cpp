@@ -47,6 +47,7 @@
 #include "tls-zone66-map.hpp"
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
+#include "img-ega-backdrop.hpp"
 #include "img-ega-planar.hpp"
 #include "img-mono.hpp"
 #include "img-nukem2.hpp"
@@ -121,6 +122,7 @@ ActualManager::ActualManager()
 	this->vcTilesetTypes.push_back(TilesetTypePtr(new Zone66MapTilesetType()));
 
 	this->vcImageTypes.push_back(ImageTypePtr(new CComicImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new CosmoBackdropImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new EGARawPlanarBGRIImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new MonoImageType()));
