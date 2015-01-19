@@ -126,6 +126,7 @@ ActualManager::ActualManager()
 	this->vcImageTypes.push_back(ImageTypePtr(new CGARawLinearImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new EGARawPlanarBGRIImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new MonoImageType()));
+	this->vcImageTypes.push_back(ImageTypePtr(new Nukem2BackdropImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new Nukem2ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_LinearVGA_ImageType()));
 	this->vcImageTypes.push_back(ImageTypePtr(new PCX_PlanarEGA_ImageType()));

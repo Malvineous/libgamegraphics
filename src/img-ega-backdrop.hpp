@@ -61,6 +61,17 @@ class CosmoBackdropImageType: virtual public BackdropImageType
 		virtual std::vector<std::string> getGameList() const;
 };
 
+class Nukem2BackdropImageType: virtual public BackdropImageType
+{
+	public:
+		Nukem2BackdropImageType();
+
+		virtual std::string getCode() const;
+		virtual std::string getFriendlyName() const;
+		virtual std::vector<std::string> getFileExtensions() const;
+		virtual std::vector<std::string> getGameList() const;
+};
+
 } // namespace gamegraphics
 } // namespace camoto
 

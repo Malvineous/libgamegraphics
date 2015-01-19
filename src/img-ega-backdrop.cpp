@@ -120,3 +120,37 @@ std::vector<std::string> CosmoBackdropImageType::getGameList() const
 	vcGames.push_back("Cosmo's Cosmic Adventures");
 	return vcGames;
 }
+
+
+Nukem2BackdropImageType::Nukem2BackdropImageType()
+	:	BackdropImageType(
+			 8,  8, // tile size
+			40, 25, // image size (in tiles)
+			EGA_NUMPLANES_SOLID
+		)
+{
+}
+
+std::string Nukem2BackdropImageType::getCode() const
+{
+	return "img-nukem2-backdrop";
+}
+
+std::string Nukem2BackdropImageType::getFriendlyName() const
+{
+	return "Duke Nukem II level backdrop";
+}
+
+std::vector<std::string> Nukem2BackdropImageType::getFileExtensions() const
+{
+	std::vector<std::string> vcExtensions;
+	vcExtensions.push_back("mni");
+	return vcExtensions;
+}
+
+std::vector<std::string> Nukem2BackdropImageType::getGameList() const
+{
+	std::vector<std::string> vcGames;
+	vcGames.push_back("Duke Nukem II");
+	return vcGames;
+}
