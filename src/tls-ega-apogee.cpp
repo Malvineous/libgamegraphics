@@ -1,6 +1,6 @@
 /**
- * @file   tls-ega-apogee.cpp
- * @brief  Common EGA tileset routines used by Apogee games
+ * @file  tls-ega-apogee.cpp
+ * @brief Common EGA tileset routines used by Apogee games
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileset_Format

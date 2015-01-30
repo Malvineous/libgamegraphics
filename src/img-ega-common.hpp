@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-common.hpp
- * @brief  Declarations shared between most EGA image types.
+ * @file  img-ega-common.hpp
+ * @brief Declarations shared between most EGA image types.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

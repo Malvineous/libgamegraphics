@@ -1,6 +1,6 @@
 /**
- * @file   manager.hpp
- * @brief  Manager class, used for accessing the graphics format handlers.
+ * @file  camoto/gamegraphics/manager.hpp
+ * @brief Manager class, used for accessing the graphics format handlers.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

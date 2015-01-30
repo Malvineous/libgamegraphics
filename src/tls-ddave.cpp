@@ -1,6 +1,6 @@
 /**
- * @file   tls-ddave.cpp
- * @brief  Dangerous Dave tileset handler.
+ * @file  tls-ddave.cpp
+ * @brief Dangerous Dave tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Dangerous_Dave_Graphics_Format

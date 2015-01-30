@@ -1,6 +1,6 @@
 /**
- * @file   tls-actrinfo.cpp
- * @brief  Cosmo/Duke II actor tileset
+ * @file  tls-actrinfo.cpp
+ * @brief Cosmo/Duke II actor tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileinfo_Format

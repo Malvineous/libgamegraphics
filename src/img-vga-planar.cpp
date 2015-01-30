@@ -1,6 +1,6 @@
 /**
- * @file   img-vga-planar.cpp
- * @brief  Image implementation adding support for VGA mode X planar format.
+ * @file  img-vga-planar.cpp
+ * @brief Image implementation adding support for VGA mode X planar format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

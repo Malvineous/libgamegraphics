@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-backdrop.cpp
- * @brief  Image implementation of EGA "backdrop" style tiled images.
+ * @file  img-ega-backdrop.cpp
+ * @brief Image implementation of EGA "backdrop" style tiled images.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileset_Format

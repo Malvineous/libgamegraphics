@@ -1,6 +1,6 @@
 /**
- * @file   palettetable.hpp
- * @brief  Palette functions, for accessing indexed colour maps used by images.
+ * @file  camoto/gamegraphics/palettetable.hpp
+ * @brief Palette functions, for accessing indexed colour maps used by images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

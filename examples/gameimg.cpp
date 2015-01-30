@@ -1,6 +1,6 @@
 /**
- * @file   gameimg.cpp
- * @brief  Command-line interface to single image parts of libgamegraphics.
+ * @file  gameimg.cpp
+ * @brief Command-line interface to single image parts of libgamegraphics.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-ico.hpp
- * @brief  Halloween Harry .ICO tileset handler.
+ * @file  tls-harry-ico.hpp
+ * @brief Halloween Harry .ICO tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   common.hpp
- * @brief  Functions shared between gametls and gameimg
+ * @file  common.hpp
+ * @brief Functions shared between gametls and gameimg
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-hocus.cpp
- * @brief  Hocus Pocus tileset
+ * @file  tls-hocus.cpp
+ * @brief Hocus Pocus tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Hocus_Pocus

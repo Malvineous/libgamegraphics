@@ -1,6 +1,6 @@
 /**
- * @file   tls-catacomb.cpp
- * @brief  Catacomb/Catacomb II CGA and EGA tilesets
+ * @file  tls-catacomb.cpp
+ * @brief Catacomb/Catacomb II CGA and EGA tilesets
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Catacomb_Tileset_Format

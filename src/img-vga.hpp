@@ -1,6 +1,6 @@
 /**
- * @file   img-vga.hpp
- * @brief  Image implementation adding support for VGA mode 13 format.
+ * @file  img-vga.hpp
+ * @brief Image implementation adding support for VGA mode 13 format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

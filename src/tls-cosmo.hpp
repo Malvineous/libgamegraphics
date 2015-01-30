@@ -1,6 +1,6 @@
 /**
- * @file   tls-cosmo.hpp
- * @brief  Cosmo's Cosmic Adventures tileset
+ * @file  tls-cosmo.hpp
+ * @brief Cosmo's Cosmic Adventures tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-bash.cpp
- * @brief  Monster Bash tileset handler
+ * @file  tls-bash.cpp
+ * @brief Monster Bash tileset handler
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Monster_Bash_Tileset_Format

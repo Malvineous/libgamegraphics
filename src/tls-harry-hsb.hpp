@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-hsb.hpp
- * @brief  Halloween Harry .HSB tileset handler.
+ * @file  tls-harry-hsb.hpp
+ * @brief Halloween Harry .HSB tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

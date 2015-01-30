@@ -1,6 +1,6 @@
 /**
- * @file   baseimage.hpp
- * @brief  Base class for all Image subclasses.
+ * @file  baseimage.hpp
+ * @brief Base class for all Image subclasses.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,10 +1,7 @@
 /**
- * @file   img-palette.cpp
- * @brief  Image implementation of a Palette file.  This will be inherited by
- *         classes implementing a specific palette file formats.
- *
- * This file format is fully documented on the ModdingWiki:
- *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format
+ * @file  img-palette.cpp
+ * @brief Image implementation of a Palette file.  This will be inherited by
+ *        classes implementing a specific palette file formats.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

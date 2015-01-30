@@ -1,6 +1,6 @@
 /**
- * @file   tls-bash-sprite.hpp
- * @brief  Monster Bash sprite handler
+ * @file  tls-bash-sprite.hpp
+ * @brief Monster Bash sprite handler
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-chr.hpp
- * @brief  Halloween Harry .CHR tileset handler.
+ * @file  tls-harry-chr.hpp
+ * @brief Halloween Harry .CHR tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

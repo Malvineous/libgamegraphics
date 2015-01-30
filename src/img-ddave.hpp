@@ -1,6 +1,6 @@
 /**
- * @file   img-ddave.hpp
- * @brief  Image specialisation for Dangerous Dave CGA/EGA/VGA images.
+ * @file  img-ddave.hpp
+ * @brief Image specialisation for Dangerous Dave CGA/EGA/VGA images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

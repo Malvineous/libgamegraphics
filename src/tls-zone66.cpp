@@ -1,6 +1,6 @@
 /**
- * @file   tls-zone66.cpp
- * @brief  Zone 66 tileset handler.
+ * @file  tls-zone66.cpp
+ * @brief Zone 66 tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Zone_66_Tileset_Format

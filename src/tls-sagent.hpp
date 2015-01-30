@@ -1,6 +1,6 @@
 /**
- * @file   tls-sagent.hpp
- * @brief  Secret Agent encryption wrapper around Crystal Caves tileset handler
+ * @file  tls-sagent.hpp
+ * @brief Secret Agent encryption wrapper around Crystal Caves tileset handler
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

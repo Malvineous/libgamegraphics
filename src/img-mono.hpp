@@ -1,6 +1,6 @@
 /**
- * @file   img-mono.hpp
- * @brief  Image implementation adding support for monochrome graphics.
+ * @file  img-mono.hpp
+ * @brief Image implementation adding support for monochrome graphics.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

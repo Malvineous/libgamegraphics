@@ -1,6 +1,6 @@
 /**
- * @file   tls-catacomb.hpp
- * @brief  Catacomb/Catacomb II CGA and EGA tilesets
+ * @file  tls-catacomb.hpp
+ * @brief Catacomb/Catacomb II CGA and EGA tilesets
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

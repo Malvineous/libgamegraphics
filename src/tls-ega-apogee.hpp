@@ -1,6 +1,6 @@
 /**
- * @file   tls-ega-apogee.hpp
- * @brief  Common EGA tileset routines used by Apogee games
+ * @file  tls-ega-apogee.hpp
+ * @brief Common EGA tileset routines used by Apogee games
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

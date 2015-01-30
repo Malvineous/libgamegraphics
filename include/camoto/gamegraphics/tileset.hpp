@@ -1,7 +1,7 @@
 /**
- * @file   tileset.hpp
- * @brief  Declaration of top-level Tileset class, for accessing files
- *         storing game images.
+ * @file  camoto/gamegraphics/tileset.hpp
+ * @brief Declaration of top-level Tileset class, for accessing files
+ *        storing game images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

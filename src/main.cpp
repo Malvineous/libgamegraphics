@@ -1,6 +1,6 @@
 /**
- * @file   main.cpp
- * @brief  Entry point for libgamegraphics.
+ * @file  main.cpp
+ * @brief Entry point for libgamegraphics.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

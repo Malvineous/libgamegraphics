@@ -1,6 +1,6 @@
 /**
- * @file   img-bash-sprite.hpp
- * @brief  Image implementation for Monster Bash sprite frames.
+ * @file  img-bash-sprite.hpp
+ * @brief Image implementation for Monster Bash sprite frames.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

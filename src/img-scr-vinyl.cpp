@@ -1,6 +1,6 @@
 /**
- * @file   img-scr-vinyl.cpp
- * @brief  Vinyl Goddess From Mars SCR image format.
+ * @file  img-scr-vinyl.cpp
+ * @brief Vinyl Goddess From Mars SCR image format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   img-tv-fog.hpp
- * @brief  Terminal Velocity fog mapping table.
+ * @file  img-tv-fog.hpp
+ * @brief Terminal Velocity fog mapping table.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

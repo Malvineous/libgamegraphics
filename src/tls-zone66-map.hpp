@@ -1,6 +1,6 @@
 /**
- * @file   tls-zone66-map.hpp
- * @brief  Zone 66 map tileset
+ * @file  tls-zone66-map.hpp
+ * @brief Zone 66 map tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

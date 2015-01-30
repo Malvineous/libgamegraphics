@@ -1,6 +1,6 @@
 /**
- * @file   tilesetFromList.hpp
- * @brief  Tiles stored as a grid in an image file.
+ * @file  tilesetFromList.hpp
+ * @brief Tiles stored as a grid in an image file.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

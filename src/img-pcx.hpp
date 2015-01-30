@@ -1,6 +1,6 @@
 /**
- * @file   img-pcx.hpp
- * @brief  Image specialisation for PCX format images.
+ * @file  img-pcx.hpp
+ * @brief Image specialisation for PCX format images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

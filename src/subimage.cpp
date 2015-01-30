@@ -1,6 +1,6 @@
 /**
- * @file   subimage.cpp
- * @brief  Image specialisation images within other images.
+ * @file  subimage.cpp
+ * @brief Image specialisation images within other images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

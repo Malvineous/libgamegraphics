@@ -1,6 +1,6 @@
 /**
- * @file   gamegraphics.hpp
- * @brief  Main header for libgamegraphics (includes everything.)
+ * @file  camoto/gamegraphics.hpp
+ * @brief Main header for libgamegraphics (includes everything.)
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -36,7 +36,7 @@ squash all their data files together into one big file, and this library
 provides access to those single big files.  Files can be listed and extracted,
 as well as added, removed, renamed and rearranged.
 
-\section structure Structure
+\section libgamegraphics_structure Structure
 
 The main interface to the library is the getManager() function, which returns
 an instance of the Manager class.  The Manager is used to query supported
@@ -52,7 +52,7 @@ will again return an Graphics instance.
 The Graphics class is used to directly manipulate the graphics file, such as by
 adding and removing files.
 
-\section example Examples
+\section libgamegraphics_example Examples
 
 The libgamegraphics distribution comes with example code in the form of the
 <a href="http://github.com/Malvineous/libgamegraphics/blob/master/examples/gamearch.cpp">gamearch
@@ -80,10 +80,10 @@ VOL4E1.ANM
 Done.
 @endverbatim
 
-\section info More information
+\section libgamegraphics_info More information
 
-Additional information including a mailing list is available from the Camoto
-homepage <http://www.shikadi.net/camoto>.
+Additional information is available from the Camoto homepage
+<http://www.shikadi.net/camoto>.
 
 **/
 }

@@ -1,6 +1,6 @@
 /**
- * @file   img-pic-raptor.cpp
- * @brief  Raptor PIC image format.
+ * @file  img-pic-raptor.cpp
+ * @brief Raptor PIC image format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-stryker.hpp
- * @brief  Major Stryker tileset
+ * @file  tls-stryker.hpp
+ * @brief Major Stryker tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

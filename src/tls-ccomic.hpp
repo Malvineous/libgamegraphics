@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccomic.hpp
- * @brief  Captain Comic tileset
+ * @file  tls-ccomic.hpp
+ * @brief Captain Comic tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

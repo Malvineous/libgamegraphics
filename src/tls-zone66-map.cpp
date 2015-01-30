@@ -1,6 +1,6 @@
 /**
- * @file   tls-zone66-map.cpp
- * @brief  Zone 66 map tileset
+ * @file  tls-zone66-map.cpp
+ * @brief Zone 66 map tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Zone_66_Level_Format

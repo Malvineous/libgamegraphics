@@ -1,6 +1,6 @@
 /**
- * @file   tls-zone66.hpp
- * @brief  Zone 66 tileset handler.
+ * @file  tls-zone66.hpp
+ * @brief Zone 66 tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

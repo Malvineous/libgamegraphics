@@ -1,7 +1,7 @@
 /**
- * @file   img-palette.hpp
- * @brief  Image implementation of a Palette file.  This will be inherited by
- *         classes implementing a specific palette file formats.
+ * @file  img-palette.hpp
+ * @brief Image implementation of a Palette file.  This will be inherited by
+ *        classes implementing a specific palette file formats.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -28,28 +28,20 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Image specialisation for palette files.
-class Palette: virtual public BaseImage {
-
+class Palette: virtual public BaseImage
+{
 	public:
 		Palette();
-
 		virtual ~Palette();
 
 		virtual int getCaps();
-
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
 		virtual StdImageDataPtr toStandard();
-
 		virtual StdImageDataPtr toStandardMask();
-
 		virtual PaletteTablePtr getPalette() = 0;
-
 		virtual void setPalette(PaletteTablePtr newPalette) = 0;
-
 		virtual void fromStandard(StdImageDataPtr newContent,
 			StdImageDataPtr newMask);
-
 };
 
 } // namespace gamearchive

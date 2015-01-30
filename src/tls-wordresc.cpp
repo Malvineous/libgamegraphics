@@ -1,6 +1,6 @@
 /**
- * @file   tls-wordresc.cpp
- * @brief  Word Rescue tileset
+ * @file  tls-wordresc.cpp
+ * @brief Word Rescue tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Word_Rescue

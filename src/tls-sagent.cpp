@@ -1,6 +1,6 @@
 /**
- * @file   tls-sagent.cpp
- * @brief  Secret Agent encryption wrapper around Crystal Caves tileset handler
+ * @file  tls-sagent.cpp
+ * @brief Secret Agent encryption wrapper around Crystal Caves tileset handler
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format

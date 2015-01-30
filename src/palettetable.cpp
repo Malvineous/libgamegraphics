@@ -1,6 +1,6 @@
 /**
- * @file   palettetable.cpp
- * @brief  Palette functions, for accessing indexed colour maps used by images.
+ * @file  palettetable.cpp
+ * @brief Palette functions, for accessing indexed colour maps used by images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

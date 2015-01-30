@@ -1,6 +1,6 @@
 /**
- * @file   img-bash-sprite.cpp
- * @brief  Image implementation for Monster Bash sprite frames.
+ * @file  img-bash-sprite.cpp
+ * @brief Image implementation for Monster Bash sprite frames.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Monster_Bash_Sprite_Format

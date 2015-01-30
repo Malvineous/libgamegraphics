@@ -1,6 +1,6 @@
 /**
- * @file   basetileset.hpp
- * @brief  Base class for all Tileset subclasses.
+ * @file  basetileset.hpp
+ * @brief Base class for all Tileset subclasses.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

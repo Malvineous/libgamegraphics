@@ -1,6 +1,6 @@
 /**
- * @file   tls-czone.hpp
- * @brief  Duke Nukem II CZone tileset
+ * @file  tls-czone.hpp
+ * @brief Duke Nukem II CZone tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

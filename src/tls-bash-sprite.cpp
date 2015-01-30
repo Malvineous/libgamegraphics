@@ -1,6 +1,6 @@
 /**
- * @file   tls-bash.cpp
- * @brief  Monster Bash sprite handler
+ * @file  tls-bash.cpp
+ * @brief Monster Bash sprite handler
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Monster_Bash_Sprite_Format

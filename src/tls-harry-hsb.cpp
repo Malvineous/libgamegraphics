@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-hsb.cpp
- * @brief  Halloween Harry .HSB tileset handler.
+ * @file  tls-harry-hsb.cpp
+ * @brief Halloween Harry .HSB tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/HSB_Format_(Halloween_Harry)

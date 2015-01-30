@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves-sub.cpp
- * @brief  Crystal Caves sub tileset handler (containing images)
+ * @file  tls-ccaves-sub.cpp
+ * @brief Crystal Caves sub tileset handler (containing images)
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Crystal_Caves_Tileset_Format

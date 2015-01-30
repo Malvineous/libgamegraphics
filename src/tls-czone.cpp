@@ -1,6 +1,6 @@
 /**
- * @file   tls-czone.cpp
- * @brief  Duke Nukem II CZone tileset
+ * @file  tls-czone.cpp
+ * @brief Duke Nukem II CZone tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Duke_Nukem_II_CZone_Format

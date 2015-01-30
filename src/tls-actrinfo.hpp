@@ -1,6 +1,6 @@
 /**
- * @file   tls-actrinfo.hpp
- * @brief  Cosmo/Duke II actor tileset
+ * @file  tls-actrinfo.hpp
+ * @brief Cosmo/Duke II actor tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

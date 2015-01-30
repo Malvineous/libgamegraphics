@@ -1,6 +1,6 @@
 /**
- * @file   img-vga-raw.cpp
- * @brief  VGAImage specialisation for fixed-size headerless images.
+ * @file  img-vga-raw.cpp
+ * @brief VGAImage specialisation for fixed-size headerless images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

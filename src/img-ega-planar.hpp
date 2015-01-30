@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-planar.hpp
- * @brief  Image implementation adding support for the EGA byte-planar format.
+ * @file  img-ega-planar.hpp
+ * @brief Image implementation adding support for the EGA byte-planar format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

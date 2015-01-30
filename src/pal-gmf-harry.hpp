@@ -1,6 +1,6 @@
 /**
- * @file   pal-gmf-harry.hpp
- * @brief  Interface to the palette stored inside Halloween Harry levels.
+ * @file  pal-gmf-harry.hpp
+ * @brief Interface to the palette stored inside Halloween Harry levels.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

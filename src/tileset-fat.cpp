@@ -1,6 +1,6 @@
 /**
- * @file   tileset-fat.cpp
- * @brief  Generic FAT-based tileset handler.
+ * @file  tileset-fat.cpp
+ * @brief Generic FAT-based tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

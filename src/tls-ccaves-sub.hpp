@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves-sub.hpp
- * @brief  Crystal Caves sub tileset handler (containing images)
+ * @file  tls-ccaves-sub.hpp
+ * @brief Crystal Caves sub tileset handler (containing images)
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccomic2.cpp
- * @brief  Captain Comic II tileset
+ * @file  tls-ccomic2.cpp
+ * @brief Captain Comic II tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Captain_Comic_II

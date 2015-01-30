@@ -1,6 +1,6 @@
 /**
- * @file   tls-jill.hpp
- * @brief  Jill of the Jungle tileset
+ * @file  tls-jill.hpp
+ * @brief Jill of the Jungle tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

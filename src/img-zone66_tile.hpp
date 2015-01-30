@@ -1,6 +1,6 @@
 /**
- * @file   img-zone66_tile.hpp
- * @brief  Image implementation for Zone66 tiles.
+ * @file  img-zone66_tile.hpp
+ * @brief Image implementation for Zone66 tiles.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

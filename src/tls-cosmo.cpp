@@ -1,6 +1,6 @@
 /**
- * @file   tls-cosmo.cpp
- * @brief  Cosmo's Cosmic Adventures tileset
+ * @file  tls-cosmo.cpp
+ * @brief Cosmo's Cosmic Adventures tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileset_Format

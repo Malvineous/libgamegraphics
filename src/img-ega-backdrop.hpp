@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-backdrop.hpp
- * @brief  Image implementation of EGA "backdrop" style tiled images.
+ * @file  img-ega-backdrop.hpp
+ * @brief Image implementation of EGA "backdrop" style tiled images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

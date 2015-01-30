@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-byteplanar.cpp
- * @brief  Image composed of 8x8 EGA byte-planar tiles.
+ * @file  img-ega-byteplanar.cpp
+ * @brief Image composed of 8x8 EGA byte-planar tiles.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

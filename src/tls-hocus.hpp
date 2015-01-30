@@ -1,6 +1,6 @@
 /**
- * @file   tls-hocus.hpp
- * @brief  Hocus Pocus tileset
+ * @file  tls-hocus.hpp
+ * @brief Hocus Pocus tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

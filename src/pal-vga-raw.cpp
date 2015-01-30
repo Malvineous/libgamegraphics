@@ -1,6 +1,6 @@
 /**
- * @file   pal-vga-raw.cpp
- * @brief  Palette interface to 768-byte raw 6-bit VGA palette files.
+ * @file  pal-vga-raw.cpp
+ * @brief Palette interface to 768-byte raw 6-bit VGA palette files.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

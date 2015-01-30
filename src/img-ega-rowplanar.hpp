@@ -1,6 +1,6 @@
 /**
- * @file   img-ega-rowplanar.hpp
- * @brief  Image implementation adding support for the EGA row-planar format.
+ * @file  img-ega-rowplanar.hpp
+ * @brief Image implementation adding support for the EGA row-planar format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

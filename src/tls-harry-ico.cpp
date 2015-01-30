@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-ico.cpp
- * @brief  Halloween Harry .ICO tileset handler.
+ * @file  tls-harry-ico.cpp
+ * @brief Halloween Harry .ICO tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/ICO_Format_(Halloween_Harry)

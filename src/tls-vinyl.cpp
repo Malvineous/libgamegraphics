@@ -1,6 +1,6 @@
 /**
- * @file   tls-vinyl.cpp
- * @brief  Vinyl Goddess From Mars tileset handler.
+ * @file  tls-vinyl.cpp
+ * @brief Vinyl Goddess From Mars tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/VGFM_Tileset_Format

@@ -1,6 +1,6 @@
 /**
- * @file   tls-wacky.cpp
- * @brief  Wacky Wheels tileset
+ * @file  tls-wacky.cpp
+ * @brief Wacky Wheels tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Wacky_Wheels

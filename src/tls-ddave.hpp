@@ -1,6 +1,6 @@
 /**
- * @file   tls-ddave.hpp
- * @brief  Dangerous Dave tileset handler.
+ * @file  tls-ddave.hpp
+ * @brief Dangerous Dave tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

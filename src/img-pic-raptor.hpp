@@ -1,6 +1,6 @@
 /**
- * @file   img-pic-raptor.hpp
- * @brief  Raptor PIC image format.
+ * @file  img-pic-raptor.hpp
+ * @brief Raptor PIC image format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -58,12 +58,6 @@ class RaptorPICImage: virtual public VGAImage
 		 *
 		 * @param data
 		 *   VGA data
-		 *
-		 * @param width
-		 *   Image width
-		 *
-		 * @param height
-		 *   Image height
 		 *
 		 * @param pal
 		 *   Image palette

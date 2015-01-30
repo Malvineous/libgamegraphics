@@ -1,6 +1,6 @@
 /**
- * @file   tilesetFromImages.cpp
- * @brief  Tiles loaded from a list of images.
+ * @file  tilesetFromImages.cpp
+ * @brief Tiles loaded from a list of images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

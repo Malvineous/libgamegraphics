@@ -1,6 +1,6 @@
 /**
- * @file   tls-ccaves-main.hpp
- * @brief  Crystal Caves top-level tileset handler (containing sub tilesets)
+ * @file  tls-ccaves-main.hpp
+ * @brief Crystal Caves top-level tileset handler (containing sub tilesets)
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

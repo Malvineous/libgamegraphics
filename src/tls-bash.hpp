@@ -1,6 +1,6 @@
 /**
- * @file   tls-bash.hpp
- * @brief  Monster Bash tileset handler
+ * @file  tls-bash.hpp
+ * @brief Monster Bash tileset handler
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

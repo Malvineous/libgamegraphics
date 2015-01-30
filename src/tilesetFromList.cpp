@@ -1,6 +1,6 @@
 /**
- * @file   tilesetFromList.cpp
- * @brief  Tiles loaded from a list of image files and coordinates.
+ * @file  tilesetFromList.cpp
+ * @brief Tiles loaded from a list of image files and coordinates.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

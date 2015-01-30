@@ -1,7 +1,7 @@
 /**
- * @file   imagetype.hpp
- * @brief  ImageType class, used to identify and open an instance of a
- *         particular image format.
+ * @file  camoto/gamegraphics/imagetype.hpp
+ * @brief ImageType class, used to identify and open an instance of a
+ *        particular image format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

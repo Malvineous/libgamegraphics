@@ -1,6 +1,6 @@
 /**
- * @file   tls-stryker.cpp
- * @brief  Major Stryker tileset
+ * @file  tls-stryker.cpp
+ * @brief Major Stryker tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Stryker_Tileset_Format

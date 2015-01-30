@@ -1,6 +1,6 @@
 /**
- * @file   tls-harry-chr.cpp
- * @brief  Halloween Harry .CHR tileset handler.
+ * @file  tls-harry-chr.cpp
+ * @brief Halloween Harry .CHR tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/CHR_Format_(Halloween_Harry)

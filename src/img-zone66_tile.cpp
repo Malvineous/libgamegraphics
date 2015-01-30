@@ -1,6 +1,6 @@
 /**
- * @file   img-zone66_tile.cpp
- * @brief  Image implementation for Zone66 tiles.
+ * @file  img-zone66_tile.cpp
+ * @brief Image implementation for Zone66 tiles.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Zone_66_Tileset_Format

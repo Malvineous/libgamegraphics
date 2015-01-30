@@ -1,6 +1,6 @@
 /**
- * @file   img-nukem2.hpp
- * @brief  Image implementation for Duke Nukem II full screen images.
+ * @file  img-nukem2.hpp
+ * @brief Image implementation for Duke Nukem II full screen images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

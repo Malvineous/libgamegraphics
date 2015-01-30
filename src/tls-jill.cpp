@@ -1,6 +1,6 @@
 /**
- * @file   tls-jill.cpp
- * @brief  Jill of the Jungle tileset
+ * @file  tls-jill.cpp
+ * @brief Jill of the Jungle tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/SHA_Format

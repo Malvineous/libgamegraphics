@@ -1,6 +1,6 @@
 /**
- * @file   gametls.cpp
- * @brief  Command-line interface to libgamegraphics.
+ * @file  gametls.cpp
+ * @brief Command-line interface to libgamegraphics.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,6 +1,6 @@
 /**
- * @file   tls-wordresc.hpp
- * @brief  Word Rescue tileset
+ * @file  tls-wordresc.hpp
+ * @brief Word Rescue tileset
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

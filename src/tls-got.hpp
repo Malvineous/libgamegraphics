@@ -1,6 +1,6 @@
 /**
- * @file   tls-got.hpp
- * @brief  God of Thunder tileset handler.
+ * @file  tls-got.hpp
+ * @brief God of Thunder tileset handler.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

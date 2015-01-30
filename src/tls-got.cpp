@@ -1,6 +1,6 @@
 /**
- * @file   tls-got.cpp
- * @brief  God of Thunder tileset handler.
+ * @file  tls-got.cpp
+ * @brief God of Thunder tileset handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/God_of_Thunder
@@ -47,12 +47,6 @@ class GOTImage: virtual public VGAPlanarImage
 		 *
 		 * @param data
 		 *   VGA data
-		 *
-		 * @param width
-		 *   Image width
-		 *
-		 * @param height
-		 *   Image height
 		 *
 		 * @param pal
 		 *   Image palette

@@ -1,6 +1,6 @@
 /**
- * @file   image.hpp
- * @brief  Image class interface, used to convert between various game
+ * @file  camoto/gamegraphics/image.hpp
+ * @brief Image class interface, used to convert between various game
  *         formats and a standard image data format.  Actual format conversions
  *         are handled by other classes which implement this interface.
  *
@@ -162,7 +162,7 @@ class Image
 		 * @param x
 		 *   X coordinate of new hotspot.
 		 *
-		 * @param height
+		 * @param y
 		 *   Y coordinate of new hotspot.
 		 *
 		 * @throw stream::error on I/O error.
