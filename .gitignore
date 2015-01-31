@@ -41,6 +41,7 @@ doc/game*.html
 # Compiled binaries
 examples/gametls
 examples/gameimg
+examples/hello
 tests/tests
 utils/dumpb800
 utils/dumppal

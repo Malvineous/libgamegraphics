@@ -1,10 +1,13 @@
 bin_PROGRAMS = gametls gameimg
+noinst_PROGRAMS = hello
 
 gametls_SOURCES = gametls.cpp
 EXTRA_gametls_SOURCES = common.hpp
 
 gameimg_SOURCES = gameimg.cpp
 EXTRA_gameimg_SOURCES = common.hpp
+
+hello_SOURCES = hello.cpp
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
 

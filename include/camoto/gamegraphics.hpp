@@ -30,27 +30,36 @@ namespace gamegraphics {
 
 \mainpage libgamegraphics
 
-libgamegraphics provides a standard interface to access different game data
-"graphicss" regardless of their file format.  Just like a .zip file, many games
-squash all their data files together into one big file, and this library
-provides access to those single big files.  Files can be listed and extracted,
-as well as added, removed, renamed and rearranged.
+libgamegraphics provides a standard interface to access images in different file
+formats, many of which are unique to a single game only.
+
+Graphics are split into two categories - images and tilesets.  An image is a
+single picture, while a tileset is a collection of many images.  While images
+have width and height, a tileset often (but not always) requires all its images
+to be the same size.
+
+When reading images and tilesets, there are \a capability flags that need to be
+checked to discover whether an image can be resized, whether all the images in
+a tileset can be resized together, or whether a tileset can have a new image
+inserted, and so on.
 
 \section libgamegraphics_structure Structure
 
 The main interface to the library is the getManager() function, which returns
 an instance of the Manager class.  The Manager is used to query supported
 graphics formats, and for each supported file format it returns an instance of
-the GraphicsType class.
+the ImageType or TilesetType class.
 
-The GraphicsType class can be used to examine files and check what file format
+The Type class can be used to examine files and check what file format
 they are in, and if they are in the correct format, to open them.  Successfully
-opening an graphics file produces an instance of the Graphics class.  The
-GraphicsType class can also be used to create new graphicss from scratch, which
-will again return an Graphics instance.
+opening an image file produces an instance of the Image class, and opening a
+tileset file produces an instance of the Tileset class.  The Type classes can
+also be used to create new files from scratch, which will again return an Image
+or Tileset instance.
 
-The Graphics class is used to directly manipulate the graphics file, such as by
-adding and removing files.
+The Image and Tileset classes are used to directly manipulate the graphics
+files, such as by importing/exporting image data or inserting and removing
+tiles.
 
 \section libgamegraphics_example Examples
 
@@ -66,18 +75,7 @@ For a small "hello world" example, try this:
 When run, this program produces output similar to the following:
 
 @verbatim
-Found 456 files.
-LOGO.ANM
-CINEOV2.ANM
-CINEOV3.ANM
-RADLOGO.ANM
-DUKETEAM.ANM
-VOL41A.ANM
-VOL42A.ANM
-VOL43A.ANM
-VOL4E1.ANM
-...
-Done.
+This image is 320x200 pixels in size.
 @endverbatim
 
 \section libgamegraphics_info More information
