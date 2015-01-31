@@ -53,12 +53,12 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Image implementation for tiles within a VGFM tileset.
-class VGFMTileImage: virtual public BaseImage
+class Image_VGFMTile: virtual public Image_Base
 {
 	public:
-		VGFMTileImage(VinylTileset *tileset, unsigned int index,
+		Image_VGFMTile(Tileset_Vinyl *tileset, unsigned int index,
 			unsigned int size, PaletteTablePtr pal);
-		virtual ~VGFMTileImage();
+		virtual ~Image_VGFMTile();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
@@ -69,13 +69,13 @@ class VGFMTileImage: virtual public BaseImage
 		virtual PaletteTablePtr getPalette();
 
 	protected:
-		VinylTileset *tileset;
+		Tileset_Vinyl *tileset;
 		unsigned int index; ///< Tile index into tileset
 		unsigned int size;
 		PaletteTablePtr pal;
 };
 
-VGFMTileImage::VGFMTileImage(VinylTileset *tileset, unsigned int index,
+Image_VGFMTile::Image_VGFMTile(Tileset_Vinyl *tileset, unsigned int index,
 	unsigned int size, PaletteTablePtr pal)
 	:	tileset(tileset),
 		index(index),
@@ -84,78 +84,78 @@ VGFMTileImage::VGFMTileImage(VinylTileset *tileset, unsigned int index,
 {
 }
 
-VGFMTileImage::~VGFMTileImage()
+Image_VGFMTile::~Image_VGFMTile()
 {
 }
 
-int VGFMTileImage::getCaps()
+int Image_VGFMTile::getCaps()
 {
 	return Image::ColourDepthVGA | Image::HasPalette;
 }
 
-void VGFMTileImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_VGFMTile::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = VGFM_TILE_WIDTH;
 	*height = VGFM_TILE_HEIGHT;//this->size / VGFM_TILE_WIDTH_BYTES;
 	return;
 }
 
-StdImageDataPtr VGFMTileImage::toStandard()
+StdImageDataPtr Image_VGFMTile::toStandard()
 {
 	return this->tileset->toStandard(this->index);
 }
 
-StdImageDataPtr VGFMTileImage::toStandardMask()
+StdImageDataPtr Image_VGFMTile::toStandardMask()
 {
 	return this->tileset->toStandardMask(this->index);
 }
 
-void VGFMTileImage::fromStandard(StdImageDataPtr newContent,
+void Image_VGFMTile::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
 {
 	this->tileset->fromStandard(this->index, newContent, newMask);
 	return;
 }
 
-PaletteTablePtr VGFMTileImage::getPalette()
+PaletteTablePtr Image_VGFMTile::getPalette()
 {
 	return this->pal;
 }
 
 
-VinylTilesetType::VinylTilesetType()
+TilesetType_Vinyl::TilesetType_Vinyl()
 {
 }
 
-VinylTilesetType::~VinylTilesetType()
+TilesetType_Vinyl::~TilesetType_Vinyl()
 {
 }
 
-std::string VinylTilesetType::getCode() const
+std::string TilesetType_Vinyl::getCode() const
 {
 	return "tls-vinyl";
 }
 
-std::string VinylTilesetType::getFriendlyName() const
+std::string TilesetType_Vinyl::getFriendlyName() const
 {
 	return "Vinyl Goddess From Mars tileset";
 }
 
-std::vector<std::string> VinylTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Vinyl::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tls");
 	return vcExtensions;
 }
 
-std::vector<std::string> VinylTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Vinyl::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Vinyl Goddess From Mars");
 	return vcGames;
 }
 
-VinylTilesetType::Certainty VinylTilesetType::isInstance(
+TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 	stream::input_sptr psTileset) const
 {
 	stream::pos len = psTileset->size();
@@ -191,7 +191,7 @@ VinylTilesetType::Certainty VinylTilesetType::isInstance(
 	return PossiblyYes;
 }
 
-TilesetPtr VinylTilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_Vinyl::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(4);
@@ -200,30 +200,30 @@ TilesetPtr VinylTilesetType::create(stream::inout_sptr psTileset,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 8));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 8));
 		pal = palFile->getPalette();
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
 
-	return TilesetPtr(new VinylTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_Vinyl(psTileset, pal));
 }
 
-TilesetPtr VinylTilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_Vinyl::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 8));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 8));
 		pal = palFile->getPalette();
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
 
-	return TilesetPtr(new VinylTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_Vinyl(psTileset, pal));
 }
 
-SuppFilenames VinylTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_Vinyl::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -233,8 +233,8 @@ SuppFilenames VinylTilesetType::getRequiredSupps(
 }
 
 
-VinylTileset::VinylTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	:	FATTileset(data, VGFM_FIRST_TILE_OFFSET),
+Tileset_Vinyl::Tileset_Vinyl(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Tileset_FAT(data, VGFM_FIRST_TILE_OFFSET),
 		pal(pal),
 		pixelsChanged(false)
 {
@@ -275,7 +275,7 @@ VinylTileset::VinylTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	this->data->read(this->pixels.data(), lenPixels);
 }
 
-VinylTileset::~VinylTileset()
+Tileset_Vinyl::~Tileset_Vinyl()
 {
 	if (this->pixelsChanged) {
 		std::cerr
@@ -284,12 +284,12 @@ VinylTileset::~VinylTileset()
 	}
 }
 
-int VinylTileset::getCaps()
+int Tileset_Vinyl::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
-void VinylTileset::flush()
+void Tileset_Vinyl::flush()
 {
 	if (this->pixelsChanged) {
 
@@ -405,26 +405,26 @@ void VinylTileset::flush()
 		this->pixelsChanged = false;
 	}
 
-	this->FATTileset::flush();
+	this->Tileset_FAT::flush();
 	return;
 }
 
-ImagePtr VinylTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_Vinyl::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
 
-	return ImagePtr(new VGFMTileImage(this, fat->index, fat->size, this->pal));
+	return ImagePtr(new Image_VGFMTile(this, fat->index, fat->size, this->pal));
 }
 
-PaletteTablePtr VinylTileset::getPalette()
+PaletteTablePtr Tileset_Vinyl::getPalette()
 {
 	return this->pal;
 }
 
-VinylTileset::FATEntry *VinylTileset::preInsertFile(
-	const VinylTileset::FATEntry *idBeforeThis, VinylTileset::FATEntry *pNewEntry)
+Tileset_Vinyl::FATEntry *Tileset_Vinyl::preInsertFile(
+	const Tileset_Vinyl::FATEntry *idBeforeThis, Tileset_Vinyl::FATEntry *pNewEntry)
 {
 	pNewEntry->lenHeader = VGFM_FAT_ENTRY_LEN;
 
@@ -443,21 +443,21 @@ VinylTileset::FATEntry *VinylTileset::preInsertFile(
 	return pNewEntry;
 }
 
-void VinylTileset::postInsertFile(FATEntry *pNewEntry)
+void Tileset_Vinyl::postInsertFile(FATEntry *pNewEntry)
 {
 	this->updateFileCount(this->items.size());
 	this->pixelsChanged = true; // optimise pixels on flush()
 	return;
 }
 
-void VinylTileset::postRemoveFile(const FATEntry *pid)
+void Tileset_Vinyl::postRemoveFile(const FATEntry *pid)
 {
 	this->updateFileCount(this->items.size());
 	this->pixelsChanged = true; // optimise pixels on flush()
 	return;
 }
 
-StdImageDataPtr VinylTileset::toStandard(unsigned int index)
+StdImageDataPtr Tileset_Vinyl::toStandard(unsigned int index)
 {
 	FATEntry *fatEntry = dynamic_cast<FATEntry *>(this->items[index].get());
 	assert(fatEntry);
@@ -493,7 +493,7 @@ StdImageDataPtr VinylTileset::toStandard(unsigned int index)
 	return ret;
 }
 
-StdImageDataPtr VinylTileset::toStandardMask(unsigned int index)
+StdImageDataPtr Tileset_Vinyl::toStandardMask(unsigned int index)
 {
 	FATEntry *fatEntry = dynamic_cast<FATEntry *>(this->items[index].get());
 	assert(fatEntry);
@@ -523,7 +523,7 @@ StdImageDataPtr VinylTileset::toStandardMask(unsigned int index)
 	return ret;
 }
 
-void VinylTileset::fromStandard(unsigned int index, StdImageDataPtr newContent,
+void Tileset_Vinyl::fromStandard(unsigned int index, StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
 {
 	FATEntry *fatEntry = dynamic_cast<FATEntry *>(this->items[index].get());
@@ -588,7 +588,7 @@ void VinylTileset::fromStandard(unsigned int index, StdImageDataPtr newContent,
 	return;
 }
 
-void VinylTileset::updateFileCount(uint32_t newCount)
+void Tileset_Vinyl::updateFileCount(uint32_t newCount)
 {
 	this->data->seekp(VGFM_TILECOUNT_OFFSET, stream::start);
 	this->data << u16le(newCount);

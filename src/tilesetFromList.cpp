@@ -31,7 +31,7 @@ TilesetPtr createTilesetFromList(const TileList& tileList, ImagePtr img,
 	return TilesetPtr(new TilesetFromList(tileList, img, layoutWidth));
 }
 
-struct ImageEntry: public BaseTileset::BaseTilesetEntry {
+struct ImageEntry: public Tileset_Base::Tileset_BaseEntry {
 	unsigned int index; ///< Zero-based index of tile
 };
 
@@ -95,7 +95,7 @@ ImagePtr TilesetFromList::openImage(const EntryPtr& id)
 	assert(t.yOffset + t.height <= imgHeight);
 #endif
 
-	ImagePtr subimg(new SubImage(this->img, this->stdImg, this->stdMask, t.xOffset,
+	ImagePtr subimg(new Image_Sub(this->img, this->stdImg, this->stdMask, t.xOffset,
 		t.yOffset, t.width, t.height, this->fnImageChanged));
 	return subimg;
 }

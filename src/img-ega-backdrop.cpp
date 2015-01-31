@@ -29,7 +29,7 @@
 using namespace camoto;
 using namespace camoto::gamegraphics;
 
-BackdropImageType::BackdropImageType(unsigned int width, unsigned int height,
+ImageType_Backdrop::ImageType_Backdrop(unsigned int width, unsigned int height,
 	unsigned int tileWidth, unsigned int tileHeight, unsigned int planeCount)
 	:	width(width),
 		height(height),
@@ -39,7 +39,7 @@ BackdropImageType::BackdropImageType(unsigned int width, unsigned int height,
 {
 }
 
-ImageType::Certainty BackdropImageType::isInstance(stream::input_sptr psImage)
+ImageType::Certainty ImageType_Backdrop::isInstance(stream::input_sptr psImage)
 	const
 {
 	unsigned int tileSize = this->tileWidth / 8 * this->tileHeight
@@ -54,13 +54,13 @@ ImageType::Certainty BackdropImageType::isInstance(stream::input_sptr psImage)
 	return PossiblyYes;
 }
 
-ImagePtr BackdropImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Backdrop::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	return this->open(psImage, suppData);
 }
 
-ImagePtr BackdropImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Backdrop::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	PLANE_LAYOUT planes;
@@ -71,7 +71,7 @@ ImagePtr BackdropImageType::open(stream::inout_sptr psImage,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 0;
 
-	EGABytePlanarTiledImage *ega = new EGABytePlanarTiledImage();
+	Image_EGABytePlanarTiled *ega = new Image_EGABytePlanarTiled();
 	ImagePtr img(ega);
 	ega->setParams(
 		psImage, 0, this->width * this->tileWidth, this->height * this->tileHeight,
@@ -81,15 +81,15 @@ ImagePtr BackdropImageType::open(stream::inout_sptr psImage,
 	return img;
 }
 
-SuppFilenames BackdropImageType::getRequiredSupps(
+SuppFilenames ImageType_Backdrop::getRequiredSupps(
 	const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }
 
 
-CosmoBackdropImageType::CosmoBackdropImageType()
-	:	BackdropImageType(
+ImageType_CosmoBackdrop::ImageType_CosmoBackdrop()
+	:	ImageType_Backdrop(
 			 8,  8, // tile size
 			40, 18, // image size (in tiles)
 			EGA_NUMPLANES_SOLID
@@ -97,24 +97,24 @@ CosmoBackdropImageType::CosmoBackdropImageType()
 {
 }
 
-std::string CosmoBackdropImageType::getCode() const
+std::string ImageType_CosmoBackdrop::getCode() const
 {
 	return "img-cosmo-backdrop";
 }
 
-std::string CosmoBackdropImageType::getFriendlyName() const
+std::string ImageType_CosmoBackdrop::getFriendlyName() const
 {
 	return "Cosmo's Cosmic Adventures level backdrop";
 }
 
-std::vector<std::string> CosmoBackdropImageType::getFileExtensions() const
+std::vector<std::string> ImageType_CosmoBackdrop::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> CosmoBackdropImageType::getGameList() const
+std::vector<std::string> ImageType_CosmoBackdrop::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Cosmo's Cosmic Adventures");
@@ -122,8 +122,8 @@ std::vector<std::string> CosmoBackdropImageType::getGameList() const
 }
 
 
-Nukem2BackdropImageType::Nukem2BackdropImageType()
-	:	BackdropImageType(
+ImageType_Nukem2Backdrop::ImageType_Nukem2Backdrop()
+	:	ImageType_Backdrop(
 			 8,  8, // tile size
 			40, 25, // image size (in tiles)
 			EGA_NUMPLANES_SOLID
@@ -131,24 +131,24 @@ Nukem2BackdropImageType::Nukem2BackdropImageType()
 {
 }
 
-std::string Nukem2BackdropImageType::getCode() const
+std::string ImageType_Nukem2Backdrop::getCode() const
 {
 	return "img-nukem2-backdrop";
 }
 
-std::string Nukem2BackdropImageType::getFriendlyName() const
+std::string ImageType_Nukem2Backdrop::getFriendlyName() const
 {
 	return "Duke Nukem II level backdrop";
 }
 
-std::vector<std::string> Nukem2BackdropImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Nukem2Backdrop::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> Nukem2BackdropImageType::getGameList() const
+std::vector<std::string> ImageType_Nukem2Backdrop::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Duke Nukem II");

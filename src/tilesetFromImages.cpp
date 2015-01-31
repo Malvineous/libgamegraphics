@@ -24,15 +24,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetFromImages: virtual public BaseTileset
+class Image_TilesetFroms: virtual public Tileset_Base
 {
 	public:
-		struct ImageEntry: virtual public BaseTileset::BaseTilesetEntry {
+		struct ImageEntry: virtual public Tileset_Base::Tileset_BaseEntry {
 			TilesetFromImages_Item item;
 		};
 
-		TilesetFromImages(TilesetFromImages_List& content, unsigned int layoutWidth);
-		virtual ~TilesetFromImages();
+		Image_TilesetFroms(TilesetFromImages_List& content, unsigned int layoutWidth);
+		virtual ~Image_TilesetFroms();
 
 		virtual int getCaps();
 		virtual const VC_ENTRYPTR& getItems() const;
@@ -54,11 +54,11 @@ class TilesetFromImages: virtual public BaseTileset
 TilesetPtr createTilesetFromImages(TilesetFromImages_List& content,
 	unsigned int layoutWidth)
 {
-	return TilesetPtr(new TilesetFromImages(content, layoutWidth));
+	return TilesetPtr(new Image_TilesetFroms(content, layoutWidth));
 }
 
 
-TilesetFromImages::TilesetFromImages(TilesetFromImages_List& content,
+Image_TilesetFroms::Image_TilesetFroms(TilesetFromImages_List& content,
 	unsigned int layoutWidth)
 	:	layoutWidth(layoutWidth),
 		caps(0)
@@ -77,56 +77,56 @@ TilesetFromImages::TilesetFromImages(TilesetFromImages_List& content,
 	}
 }
 
-TilesetFromImages::~TilesetFromImages()
+Image_TilesetFroms::~Image_TilesetFroms()
 {
 }
 
-int TilesetFromImages::getCaps()
+int Image_TilesetFroms::getCaps()
 {
 	return this->caps;
 }
 
-const Tileset::VC_ENTRYPTR& TilesetFromImages::getItems() const
+const Tileset::VC_ENTRYPTR& Image_TilesetFroms::getItems() const
 {
 	return this->items;
 }
 
-ImagePtr TilesetFromImages::openImage(const EntryPtr& id)
+ImagePtr Image_TilesetFroms::openImage(const EntryPtr& id)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 	return fat->item.image;
 }
 
-TilesetPtr TilesetFromImages::openTileset(const EntryPtr& id)
+TilesetPtr Image_TilesetFroms::openTileset(const EntryPtr& id)
 {
 	ImageEntry *fat = dynamic_cast<ImageEntry *>(id.get());
 	assert(fat);
 	return fat->item.tileset;
 }
 
-Tileset::EntryPtr TilesetFromImages::insert(const EntryPtr& idBeforeThis, int attr)
+Tileset::EntryPtr Image_TilesetFroms::insert(const EntryPtr& idBeforeThis, int attr)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
-void TilesetFromImages::remove(EntryPtr& id)
+void Image_TilesetFroms::remove(EntryPtr& id)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
-void TilesetFromImages::flush()
+void Image_TilesetFroms::flush()
 {
 	return;
 }
 
-void TilesetFromImages::resize(EntryPtr& id, stream::len newSize)
+void Image_TilesetFroms::resize(EntryPtr& id, stream::len newSize)
 {
 	// This isn't a real tileset, so sure, we can resize ;-)
 	return;
 }
 
-unsigned int TilesetFromImages::getLayoutWidth()
+unsigned int Image_TilesetFroms::getLayoutWidth()
 {
 	return this->layoutWidth;
 }

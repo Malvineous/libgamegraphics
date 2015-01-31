@@ -32,10 +32,10 @@ namespace gamegraphics {
 /// Offset of first tileset in a tileset collection.
 #define EGA_APOGEE_FIRST_TILE_OFFSET 0
 
-EGAApogeeTileset::EGAApogeeTileset(stream::inout_sptr data,
+Tileset_EGAApogee::Tileset_EGAApogee(stream::inout_sptr data,
 	unsigned int tileWidth, unsigned int tileHeight, unsigned int numPlanes,
 	unsigned int idealWidth, PaletteTablePtr pal)
-	:	FATTileset(data, EGA_APOGEE_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, EGA_APOGEE_FIRST_TILE_OFFSET),
 		tileWidth(tileWidth),
 		tileHeight(tileHeight),
 		numPlanes(numPlanes),
@@ -64,17 +64,17 @@ EGAApogeeTileset::EGAApogeeTileset(stream::inout_sptr data,
 
 }
 
-EGAApogeeTileset::~EGAApogeeTileset()
+Tileset_EGAApogee::~Tileset_EGAApogee()
 {
 }
 
-int EGAApogeeTileset::getCaps()
+int Tileset_EGAApogee::getCaps()
 {
 	return Tileset::ColourDepthEGA
 		| (this->pal ? Tileset::HasPalette : 0);
 }
 
-void EGAApogeeTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_EGAApogee::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != this->tileWidth / 8 * this->tileHeight * this->numPlanes) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -82,24 +82,24 @@ void EGAApogeeTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void EGAApogeeTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_EGAApogee::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->tileWidth;
 	*height = this->tileHeight;
 	return;
 }
 
-unsigned int EGAApogeeTileset::getLayoutWidth()
+unsigned int Tileset_EGAApogee::getLayoutWidth()
 {
 	return this->idealWidth;
 }
 
-PaletteTablePtr EGAApogeeTileset::getPalette()
+PaletteTablePtr Tileset_EGAApogee::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr EGAApogeeTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_EGAApogee::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	PLANE_LAYOUT planes;
@@ -111,7 +111,7 @@ ImagePtr EGAApogeeTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 1 - offset;
 
-	EGABytePlanarImage *ega = new EGABytePlanarImage();
+	Image_EGABytePlanar *ega = new Image_EGABytePlanar();
 	ImagePtr conv(ega);
 	ega->setParams(
 		content, 0, this->tileWidth, this->tileHeight, planes, this->pal

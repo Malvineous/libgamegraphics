@@ -40,11 +40,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CZoneTileset: virtual public Tileset
+class Tileset_CZone: virtual public Tileset
 {
 	public:
-		CZoneTileset(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~CZoneTileset();
+		Tileset_CZone(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Tileset_CZone();
 
 		virtual int getCaps();
 		virtual const VC_ENTRYPTR& getItems() const;
@@ -67,42 +67,42 @@ class CZoneTileset: virtual public Tileset
 };
 
 //
-// CZoneTilesetType
+// TilesetType_CZone
 //
 
-CZoneTilesetType::CZoneTilesetType()
+TilesetType_CZone::TilesetType_CZone()
 {
 }
 
-CZoneTilesetType::~CZoneTilesetType()
+TilesetType_CZone::~TilesetType_CZone()
 {
 }
 
-std::string CZoneTilesetType::getCode() const
+std::string TilesetType_CZone::getCode() const
 {
 	return "tls-nukem2-czone";
 }
 
-std::string CZoneTilesetType::getFriendlyName() const
+std::string TilesetType_CZone::getFriendlyName() const
 {
 	return "Duke Nukem II CZone Tileset";
 }
 
-std::vector<std::string> CZoneTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_CZone::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> CZoneTilesetType::getGameList() const
+std::vector<std::string> TilesetType_CZone::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Duke Nukem II");
 	return vcGames;
 }
 
-CZoneTilesetType::Certainty CZoneTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CZone::Certainty TilesetType_CZone::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -112,25 +112,25 @@ CZoneTilesetType::Certainty CZoneTilesetType::isInstance(stream::input_sptr psGr
 	return DefinitelyNo;
 }
 
-TilesetPtr CZoneTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CZone::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
 	// Zero tiles, 0x0
-	return TilesetPtr(new CZoneTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_CZone(psGraphics, pal));
 }
 
-TilesetPtr CZoneTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CZone::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
-	return TilesetPtr(new CZoneTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_CZone(psGraphics, pal));
 }
 
-SuppFilenames CZoneTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CZone::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "gamepal.pal";
@@ -139,15 +139,15 @@ SuppFilenames CZoneTilesetType::getRequiredSupps(const std::string& filenameGrap
 
 
 //
-// CZoneTileset
+// Tileset_CZone
 //
 
-CZoneTileset::CZoneTileset(stream::inout_sptr data, PaletteTablePtr pal)
+Tileset_CZone::Tileset_CZone(stream::inout_sptr data, PaletteTablePtr pal)
 	:	data(data),
 		pal(pal)
 {
 	{
-		FATTileset::FATEntry *fat = new FATTileset::FATEntry();
+		Tileset_FAT::FATEntry *fat = new Tileset_FAT::FATEntry();
 		EntryPtr ep(fat);
 		fat->valid = true;
 		fat->attr = Tileset::SubTileset;
@@ -158,7 +158,7 @@ CZoneTileset::CZoneTileset(stream::inout_sptr data, PaletteTablePtr pal)
 		this->items.push_back(ep);
 	}
 	{
-		FATTileset::FATEntry *fat = new FATTileset::FATEntry();
+		Tileset_FAT::FATEntry *fat = new Tileset_FAT::FATEntry();
 		EntryPtr ep(fat);
 		fat->valid = true;
 		fat->attr = Tileset::SubTileset;
@@ -170,60 +170,60 @@ CZoneTileset::CZoneTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	}
 }
 
-CZoneTileset::~CZoneTileset()
+Tileset_CZone::~Tileset_CZone()
 {
 }
 
-int CZoneTileset::getCaps()
+int Tileset_CZone::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthEGA;
 }
 
-const CZoneTileset::VC_ENTRYPTR& CZoneTileset::getItems() const
+const Tileset_CZone::VC_ENTRYPTR& Tileset_CZone::getItems() const
 {
 	return this->items;
 }
 
-TilesetPtr CZoneTileset::openTileset(const EntryPtr& id)
+TilesetPtr Tileset_CZone::openTileset(const EntryPtr& id)
 {
-	FATTileset::FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATTileset::FATEntry>(id);
+	Tileset_FAT::FATEntryPtr pFAT = boost::dynamic_pointer_cast<Tileset_FAT::FATEntry>(id);
 	assert(pFAT);
-	stream::fn_truncate fnTruncate = boost::bind<void>(&CZoneTileset::resize, this, id, _1);
+	stream::fn_truncate fnTruncate = boost::bind<void>(&Tileset_CZone::resize, this, id, _1);
 	stream::sub_sptr sub(new stream::sub);
 	sub->open(this->data, pFAT->offset + pFAT->lenHeader, pFAT->size, fnTruncate);
 	TilesetPtr tileset;
 	switch (pFAT->index) {
 		case 0: // solid
-			tileset.reset(new EGAApogeeTileset(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
+			tileset.reset(new Tileset_EGAApogee(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
 				EGA_NUMPLANES_SOLID, CZ_IDEAL_WIDTH, this->pal));
 			break;
 		case 1: // masked
-			tileset.reset(new EGAApogeeTileset(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
+			tileset.reset(new Tileset_EGAApogee(sub, CZ_TILE_WIDTH, CZ_TILE_HEIGHT,
 				EGA_NUMPLANES_MASKED, CZ_IDEAL_WIDTH, this->pal));
 			break;
 	}
 	return tileset;
 }
 
-ImagePtr CZoneTileset::openImage(const EntryPtr& id)
+ImagePtr Tileset_CZone::openImage(const EntryPtr& id)
 {
 	assert(false);
 	return ImagePtr();
 }
 
-CZoneTileset::EntryPtr CZoneTileset::insert(const EntryPtr& idBeforeThis, int attr)
+Tileset_CZone::EntryPtr Tileset_CZone::insert(const EntryPtr& idBeforeThis, int attr)
 {
 	throw stream::error("tilesets are fixed in this format");
 }
 
-void CZoneTileset::remove(EntryPtr& id)
+void Tileset_CZone::remove(EntryPtr& id)
 {
 	throw stream::error("tilesets are fixed in this format");
 }
 
-void CZoneTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_CZone::resize(EntryPtr& id, stream::len newSize)
 {
-	FATTileset::FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATTileset::FATEntry>(id);
+	Tileset_FAT::FATEntryPtr pFAT = boost::dynamic_pointer_cast<Tileset_FAT::FATEntry>(id);
 	assert(pFAT);
 	stream::len correctSize;
 	if (pFAT->index == 0) correctSize = 32000;
@@ -235,35 +235,35 @@ void CZoneTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void CZoneTileset::flush()
+void Tileset_CZone::flush()
 {
 	return;
 }
 
-void CZoneTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_CZone::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = 0;
 	*height = 0;
 	return;
 }
 
-void CZoneTileset::setTilesetDimensions(unsigned int width, unsigned int height)
+void Tileset_CZone::setTilesetDimensions(unsigned int width, unsigned int height)
 {
 	assert(false);
 	return;
 }
 
-unsigned int CZoneTileset::getLayoutWidth()
+unsigned int Tileset_CZone::getLayoutWidth()
 {
 	return 40;
 }
 
-PaletteTablePtr CZoneTileset::getPalette()
+PaletteTablePtr Tileset_CZone::getPalette()
 {
 	return this->pal;
 }
 
-void CZoneTileset::setPalette(PaletteTablePtr newPalette)
+void Tileset_CZone::setPalette(PaletteTablePtr newPalette)
 {
 	assert(false);
 	return;

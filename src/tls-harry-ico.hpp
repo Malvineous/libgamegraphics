@@ -27,12 +27,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class HarryICOTilesetType: virtual public TilesetType
+class TilesetType_HarryICO: virtual public TilesetType
 {
 	public:
-		HarryICOTilesetType();
+		TilesetType_HarryICO();
 
-		virtual ~HarryICOTilesetType();
+		virtual ~TilesetType_HarryICO();
 
 		virtual std::string getCode() const;
 
@@ -53,12 +53,12 @@ class HarryICOTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 };
 
-class HarryICOTileset: virtual public FATTileset
+class Tileset_HarryICO: virtual public Tileset_FAT
 {
 	public:
-		HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal);
+		Tileset_HarryICO(stream::inout_sptr data, PaletteTablePtr pal);
 
-		virtual ~HarryICOTileset();
+		virtual ~Tileset_HarryICO();
 
 		virtual int getCaps();
 

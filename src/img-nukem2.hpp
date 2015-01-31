@@ -28,12 +28,12 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Duke Nukem II full-screen images.
-class Nukem2ImageType: virtual public ImageType
+class ImageType_Nukem2: virtual public ImageType
 {
 	public:
-		Nukem2ImageType();
+		ImageType_Nukem2();
 
-		virtual ~Nukem2ImageType();
+		virtual ~ImageType_Nukem2();
 
 		virtual std::string getCode() const;
 
@@ -55,14 +55,14 @@ class Nukem2ImageType: virtual public ImageType
 };
 
 /// Duke Nukem II full-screen Image implementation.
-class Nukem2Image: virtual public EGAPlanarImage {
+class Image_Nukem2: virtual public Image_EGAPlanar {
 
 	public:
 		/// Constructor
-		Nukem2Image(stream::inout_sptr data);
+		Image_Nukem2(stream::inout_sptr data);
 
 		/// Destructor
-		virtual ~Nukem2Image();
+		virtual ~Image_Nukem2();
 
 		virtual int getCaps();
 

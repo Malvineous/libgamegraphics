@@ -26,12 +26,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class WackyTilesetType: virtual public TilesetType {
+class TilesetType_Wacky: virtual public TilesetType {
 
 	public:
-		WackyTilesetType();
+		TilesetType_Wacky();
 
-		virtual ~WackyTilesetType();
+		virtual ~TilesetType_Wacky();
 
 		virtual std::string getCode() const;
 

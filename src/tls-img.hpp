@@ -27,12 +27,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetFromImage: virtual public BaseTileset
+class Image_TilesetFrom: virtual public Tileset_Base
 {
 	public:
-		TilesetFromImage(ImagePtr img, unsigned int tileWidth,
+		Image_TilesetFrom(ImagePtr img, unsigned int tileWidth,
 			unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh);
-		virtual ~TilesetFromImage();
+		virtual ~Image_TilesetFrom();
 
 		virtual int getCaps();
 		virtual const VC_ENTRYPTR& getItems() const;

@@ -26,12 +26,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class HocusTilesetType: virtual public TilesetType {
+class TilesetType_Hocus: virtual public TilesetType {
 
 	public:
-		HocusTilesetType();
+		TilesetType_Hocus();
 
-		virtual ~HocusTilesetType();
+		virtual ~TilesetType_Hocus();
 
 		virtual std::string getCode() const;
 

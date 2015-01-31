@@ -1,6 +1,6 @@
 /**
  * @file  img-vga-raw-planar.hpp
- * @brief VGAImage specialisation for planar fixed-size headerless images.
+ * @brief Image_VGA specialisation for planar fixed-size headerless images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for full screen raw VGA images.
-class VGARawPlanarBaseImageType: virtual public ImageType
+class ImageType_VGARawPlanarBase: virtual public ImageType
 {
 	public:
 		virtual std::vector<std::string> getFileExtensions() const;
@@ -44,26 +44,26 @@ class VGARawPlanarBaseImageType: virtual public ImageType
 		unsigned int depth; // palette depth (6 or 8)
 };
 
-class VGA6RawPlanarImageType: virtual public VGARawPlanarBaseImageType
+class ImageType_VGA6RawPlanar: virtual public ImageType_VGARawPlanarBase
 {
 	public:
-		VGA6RawPlanarImageType();
+		ImageType_VGA6RawPlanar();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
 };
 
-class VGA8RawPlanarImageType: virtual public VGARawPlanarBaseImageType
+class ImageType_VGA8RawPlanar: virtual public ImageType_VGARawPlanarBase
 {
 	public:
-		VGA8RawPlanarImageType();
+		ImageType_VGA8RawPlanar();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
 };
 
 /// Raw planar VGA Image implementation.
-class VGARawPlanarImage: virtual public VGAPlanarImage
+class Image_VGARawPlanar: virtual public Image_VGAPlanar
 {
 	protected:
 		int width, height;
@@ -87,8 +87,8 @@ class VGARawPlanarImage: virtual public VGAPlanarImage
 		 * @param pal
 		 *   Image palette
 		 */
-		VGARawPlanarImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
-		virtual ~VGARawPlanarImage();
+		Image_VGARawPlanar(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
+		virtual ~Image_VGARawPlanar();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

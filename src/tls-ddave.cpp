@@ -53,29 +53,29 @@
 namespace camoto {
 namespace gamegraphics {
 
-DDaveTilesetType::DDaveTilesetType()
+TilesetType_DDave::TilesetType_DDave()
 {
 }
 
-DDaveTilesetType::~DDaveTilesetType()
+TilesetType_DDave::~TilesetType_DDave()
 {
 }
 
-std::vector<std::string> DDaveTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_DDave::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("dav");
 	return vcExtensions;
 }
 
-std::vector<std::string> DDaveTilesetType::getGameList() const
+std::vector<std::string> TilesetType_DDave::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Dangerous Dave");
 	return vcGames;
 }
 
-DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
+TilesetType_DDave::Certainty TilesetType_DDave::isInstance(
 	stream::input_sptr psTileset) const
 {
 	stream::pos len = psTileset->size();
@@ -119,7 +119,7 @@ DDaveTilesetType::Certainty DDaveTilesetType::isInstance(
 	return DefinitelyYes;
 }
 
-SuppFilenames DDaveTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_DDave::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -127,17 +127,17 @@ SuppFilenames DDaveTilesetType::getRequiredSupps(
 }
 
 
-std::string DDaveCGATilesetType::getCode() const
+std::string TilesetType_DDaveCGA::getCode() const
 {
 	return "tls-ddave-cga";
 }
 
-std::string DDaveCGATilesetType::getFriendlyName() const
+std::string TilesetType_DDaveCGA::getFriendlyName() const
 {
 	return "Dangerous Dave CGA tileset";
 }
 
-TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveCGA::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(4);
@@ -151,10 +151,10 @@ TilesetPtr DDaveCGATilesetType::create(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::CGA, pal));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::CGA, pal));
 }
 
-TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveCGA::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
@@ -164,26 +164,26 @@ TilesetPtr DDaveCGATilesetType::open(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::CGA, pal));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::CGA, pal));
 }
 
-bool DDaveCGATilesetType::isInstance(int firstTileSize) const
+bool TilesetType_DDaveCGA::isInstance(int firstTileSize) const
 {
 	return (firstTileSize == 64);
 }
 
 
-std::string DDaveEGATilesetType::getCode() const
+std::string TilesetType_DDaveEGA::getCode() const
 {
 	return "tls-ddave-ega";
 }
 
-std::string DDaveEGATilesetType::getFriendlyName() const
+std::string TilesetType_DDaveEGA::getFriendlyName() const
 {
 	return "Dangerous Dave EGA tileset";
 }
 
-TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveEGA::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(4);
@@ -195,10 +195,10 @@ TilesetPtr DDaveEGATilesetType::create(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::EGA, PaletteTablePtr()));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::EGA, PaletteTablePtr()));
 }
 
-TilesetPtr DDaveEGATilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveEGA::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
@@ -206,26 +206,26 @@ TilesetPtr DDaveEGATilesetType::open(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::EGA, PaletteTablePtr()));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::EGA, PaletteTablePtr()));
 }
 
-bool DDaveEGATilesetType::isInstance(int firstTileSize) const
+bool TilesetType_DDaveEGA::isInstance(int firstTileSize) const
 {
 	return (firstTileSize == 128);
 }
 
 
-std::string DDaveVGATilesetType::getCode() const
+std::string TilesetType_DDaveVGA::getCode() const
 {
 	return "tls-ddave-vga";
 }
 
-std::string DDaveVGATilesetType::getFriendlyName() const
+std::string TilesetType_DDaveVGA::getFriendlyName() const
 {
 	return "Dangerous Dave VGA tileset";
 }
 
-TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveVGA::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(4);
@@ -235,7 +235,7 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
@@ -244,16 +244,16 @@ TilesetPtr DDaveVGATilesetType::create(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::VGA, pal));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::VGA, pal));
 }
 
-TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_DDaveVGA::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
@@ -262,10 +262,10 @@ TilesetPtr DDaveVGATilesetType::open(stream::inout_sptr psTileset,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new DDaveTileset(decoded, DDaveTileset::VGA, pal));
+	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::VGA, pal));
 }
 
-SuppFilenames DDaveVGATilesetType::getRequiredSupps(
+SuppFilenames TilesetType_DDaveVGA::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -273,15 +273,15 @@ SuppFilenames DDaveVGATilesetType::getRequiredSupps(
 	return supps;
 }
 
-bool DDaveVGATilesetType::isInstance(int firstTileSize) const
+bool TilesetType_DDaveVGA::isInstance(int firstTileSize) const
 {
 	return (firstTileSize == 256);
 }
 
 
-DDaveTileset::DDaveTileset(stream::inout_sptr data,
+Tileset_DDave::Tileset_DDave(stream::inout_sptr data,
 	ImageType imgType, PaletteTablePtr pal)
-	:	FATTileset(data, DD_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, DD_FIRST_TILE_OFFSET),
 		imgType(imgType),
 		pal(pal)
 {
@@ -322,11 +322,11 @@ DDaveTileset::DDaveTileset(stream::inout_sptr data,
 	}
 }
 
-DDaveTileset::~DDaveTileset()
+Tileset_DDave::~Tileset_DDave()
 {
 }
 
-int DDaveTileset::getCaps()
+int Tileset_DDave::getCaps()
 {
 	return 0
 		| (this->pal ? Tileset::HasPalette : 0)
@@ -336,7 +336,7 @@ int DDaveTileset::getCaps()
 	;
 }
 
-ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_DDave::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
@@ -346,26 +346,25 @@ ImagePtr DDaveTileset::createImageInstance(const EntryPtr& id,
 	bool fixedSize = fat->index < DD_FIRST_TILE_WITH_DIMS;
 	switch (this->imgType) {
 		case CGA:
-			conv.reset(new DDaveCGAImage(content, fixedSize));
+			conv.reset(new Image_DDaveCGA(content, fixedSize));
 			break;
 		case EGA:
-			conv.reset(new DDaveEGAImage(content, fixedSize));
+			conv.reset(new Image_DDaveEGA(content, fixedSize));
 			break;
 		case VGA: {
-			//VGAPalette vgaPal;
-			conv.reset(new DDaveVGAImage(content, fixedSize, this->pal));
+			conv.reset(new Image_DDaveVGA(content, fixedSize, this->pal));
 			break;
 		}
 	}
 	return conv;
 }
 
-PaletteTablePtr DDaveTileset::getPalette()
+PaletteTablePtr Tileset_DDave::getPalette()
 {
 	return this->pal;
 }
 
-void DDaveTileset::updateFileOffset(const FATEntry *pid,
+void Tileset_DDave::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
 {
 	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
@@ -373,8 +372,8 @@ void DDaveTileset::updateFileOffset(const FATEntry *pid,
 	return;
 }
 
-DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
-	const DDaveTileset::FATEntry *idBeforeThis, DDaveTileset::FATEntry *pNewEntry)
+Tileset_DDave::FATEntry *Tileset_DDave::preInsertFile(
+	const Tileset_DDave::FATEntry *idBeforeThis, Tileset_DDave::FATEntry *pNewEntry)
 {
 	pNewEntry->lenHeader = 0;
 
@@ -398,13 +397,13 @@ DDaveTileset::FATEntry *DDaveTileset::preInsertFile(
 	return pNewEntry;
 }
 
-void DDaveTileset::postInsertFile(FATEntry *pNewEntry)
+void Tileset_DDave::postInsertFile(FATEntry *pNewEntry)
 {
 	this->updateFileCount(this->items.size());
 	return;
 }
 
-void DDaveTileset::postRemoveFile(const FATEntry *pid)
+void Tileset_DDave::postRemoveFile(const FATEntry *pid)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -427,7 +426,7 @@ void DDaveTileset::postRemoveFile(const FATEntry *pid)
 	return;
 }
 
-void DDaveTileset::updateFileCount(uint32_t newCount)
+void Tileset_DDave::updateFileCount(uint32_t newCount)
 {
 	this->data->seekp(DD_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);

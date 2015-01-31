@@ -27,11 +27,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CComic2TilesetType: virtual public TilesetType
+class TilesetType_CComic2: virtual public TilesetType
 {
 	public:
-		CComic2TilesetType();
-		virtual ~CComic2TilesetType();
+		TilesetType_CComic2();
+		virtual ~TilesetType_CComic2();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -45,7 +45,7 @@ class CComic2TilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-class CComic2SpriteType: virtual public CComic2TilesetType
+class CComic2SpriteType: virtual public TilesetType_CComic2
 {
 	public:
 		virtual std::string getCode() const;
@@ -57,18 +57,18 @@ class CComic2SpriteType: virtual public CComic2TilesetType
 			SuppData& suppData) const;
 };
 
-class CComic2Tileset: virtual public FATTileset
+class Tileset_CComic2: virtual public Tileset_FAT
 {
 	public:
-		CComic2Tileset(stream::inout_sptr data, uint8_t numPlanes);
-		virtual ~CComic2Tileset();
+		Tileset_CComic2(stream::inout_sptr data, uint8_t numPlanes);
+		virtual ~Tileset_CComic2();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 

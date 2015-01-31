@@ -50,15 +50,15 @@ namespace gamegraphics {
 /// Number of tiles in the Catacomb II tileset
 #define CATII_NUMTILES 1618
 
-CatacombTilesetType::CatacombTilesetType()
+TilesetType_Catacomb::TilesetType_Catacomb()
 {
 }
 
-CatacombTilesetType::~CatacombTilesetType()
+TilesetType_Catacomb::~TilesetType_Catacomb()
 {
 }
 
-std::vector<std::string> CatacombTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Catacomb::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("cat");
@@ -66,7 +66,7 @@ std::vector<std::string> CatacombTilesetType::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> CatacombTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Catacomb::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Catacomb");
@@ -74,7 +74,7 @@ std::vector<std::string> CatacombTilesetType::getGameList() const
 	return vcGames;
 }
 
-SuppFilenames CatacombTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Catacomb::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -82,28 +82,28 @@ SuppFilenames CatacombTilesetType::getRequiredSupps(const std::string& filenameG
 
 
 //
-// CatacombEGATilesetType
+// TilesetType_CatacombEGA
 //
 
-CatacombEGATilesetType::CatacombEGATilesetType()
+TilesetType_CatacombEGA::TilesetType_CatacombEGA()
 {
 }
 
-CatacombEGATilesetType::~CatacombEGATilesetType()
+TilesetType_CatacombEGA::~TilesetType_CatacombEGA()
 {
 }
 
-std::string CatacombEGATilesetType::getCode() const
+std::string TilesetType_CatacombEGA::getCode() const
 {
 	return "tls-catacomb-ega";
 }
 
-std::string CatacombEGATilesetType::getFriendlyName() const
+std::string TilesetType_CatacombEGA::getFriendlyName() const
 {
 	return "Catacomb EGA Tileset";
 }
 
-CatacombEGATilesetType::Certainty CatacombEGATilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CatacombEGA::Certainty TilesetType_CatacombEGA::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -116,44 +116,44 @@ CatacombEGATilesetType::Certainty CatacombEGATilesetType::isInstance(stream::inp
 	return DefinitelyNo;
 }
 
-TilesetPtr CatacombEGATilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CatacombEGA::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CatacombTileset(psGraphics, CAT_EGA));
+	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_EGA));
 }
 
-TilesetPtr CatacombEGATilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CatacombEGA::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CatacombTileset(psGraphics, CAT_EGA));
+	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_EGA));
 }
 
 
 //
-// CatacombCGATilesetType
+// TilesetType_CatacombCGA
 //
 
-CatacombCGATilesetType::CatacombCGATilesetType()
+TilesetType_CatacombCGA::TilesetType_CatacombCGA()
 {
 }
 
-CatacombCGATilesetType::~CatacombCGATilesetType()
+TilesetType_CatacombCGA::~TilesetType_CatacombCGA()
 {
 }
 
-std::string CatacombCGATilesetType::getCode() const
+std::string TilesetType_CatacombCGA::getCode() const
 {
 	return "tls-catacomb-cga";
 }
 
-std::string CatacombCGATilesetType::getFriendlyName() const
+std::string TilesetType_CatacombCGA::getFriendlyName() const
 {
 	return "Catacomb CGA Tileset";
 }
 
-CatacombCGATilesetType::Certainty CatacombCGATilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CatacombCGA::Certainty TilesetType_CatacombCGA::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -166,28 +166,28 @@ CatacombCGATilesetType::Certainty CatacombCGATilesetType::isInstance(stream::inp
 	return DefinitelyNo;
 }
 
-TilesetPtr CatacombCGATilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CatacombCGA::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	return TilesetPtr(new CatacombTileset(psGraphics, CAT_CGA));
+	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_CGA));
 }
 
-TilesetPtr CatacombCGATilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CatacombCGA::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CatacombTileset(psGraphics, CAT_CGA));
+	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_CGA));
 }
 
 
 //
-// CatacombTileset
+// Tileset_Catacomb
 //
 
-CatacombTileset::CatacombTileset(stream::inout_sptr data,
-	CatacombImageType imageType)
-	:	FATTileset(data, CAT_FIRST_TILE_OFFSET),
+Tileset_Catacomb::Tileset_Catacomb(stream::inout_sptr data,
+	ImageType_Catacomb imageType)
+	:	Tileset_FAT(data, CAT_FIRST_TILE_OFFSET),
 		imageType(imageType)
 {
 	unsigned int tileSize;
@@ -215,16 +215,16 @@ CatacombTileset::CatacombTileset(stream::inout_sptr data,
 
 }
 
-CatacombTileset::~CatacombTileset()
+Tileset_Catacomb::~Tileset_Catacomb()
 {
 }
 
-int CatacombTileset::getCaps()
+int Tileset_Catacomb::getCaps()
 {
 	return 0;
 }
 
-void CatacombTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_Catacomb::resize(EntryPtr& id, stream::len newSize)
 {
 	unsigned int tileSize;
 	switch (this->imageType) {
@@ -237,19 +237,19 @@ void CatacombTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void CatacombTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_Catacomb::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = CAT_TILE_WIDTH;
 	*height = CAT_TILE_HEIGHT;
 	return;
 }
 
-unsigned int CatacombTileset::getLayoutWidth()
+unsigned int Tileset_Catacomb::getLayoutWidth()
 {
 	return 2;
 }
 
-ImagePtr CatacombTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_Catacomb::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	ImagePtr conv;
@@ -263,7 +263,7 @@ ImagePtr CatacombTileset::createImageInstance(const EntryPtr& id,
 			planes[PLANE_HITMAP] = 0;
 			planes[PLANE_OPACITY] = 0;
 
-			EGAPlanarImage *ega = new EGAPlanarImage();
+			Image_EGAPlanar *ega = new Image_EGAPlanar();
 			ega->setParams(
 				content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT, planes
 			);
@@ -272,7 +272,7 @@ ImagePtr CatacombTileset::createImageInstance(const EntryPtr& id,
 			break;
 		}
 		case CAT_CGA: {
-			CGAImage *cga = new CGAImage(content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT,
+			Image_CGA *cga = new Image_CGA(content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT,
 				CGAPal_CyanMagentaBright);
 			conv.reset(cga);
 			break;

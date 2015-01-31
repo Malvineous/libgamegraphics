@@ -29,7 +29,7 @@ namespace gamegraphics {
 
 /// Base filetype handler for standard .PCX images.  Use one of the
 /// specialisations instead of this.
-class PCXBaseImageType: virtual public ImageType
+class ImageType_PCXBase: virtual public ImageType
 {
 	public:
 		/// Base PCX file handler.
@@ -42,8 +42,8 @@ class PCXBaseImageType: virtual public ImageType
 		 *   Number of colour planes.  This must match the file being opened or a
 		 *   stream::error will be thrown.
 		 */
-		PCXBaseImageType(int bitsPerPlane, int numPlanes);
-		virtual ~PCXBaseImageType();
+		ImageType_PCXBase(int bitsPerPlane, int numPlanes);
+		virtual ~ImageType_PCXBase();
 
 		virtual std::string getCode() const;
 		//virtual std::string getFriendlyName() const;
@@ -63,29 +63,29 @@ class PCXBaseImageType: virtual public ImageType
 };
 
 /// Filetype handler for planar EGA (1b4p) .PCX images.
-class PCX_PlanarEGA_ImageType: virtual public PCXBaseImageType
+class ImageType_PCX_PlanarEGA: virtual public ImageType_PCXBase
 {
 	public:
-		PCX_PlanarEGA_ImageType();
-		virtual ~PCX_PlanarEGA_ImageType();
+		ImageType_PCX_PlanarEGA();
+		virtual ~ImageType_PCX_PlanarEGA();
 
 		virtual std::string getFriendlyName() const;
 		virtual std::vector<std::string> getGameList() const;
 };
 
 /// Filetype handler for linear VGA (8b1p) .PCX images.
-class PCX_LinearVGA_ImageType: virtual public PCXBaseImageType
+class ImageType_PCX_LinearVGA: virtual public ImageType_PCXBase
 {
 	public:
-		PCX_LinearVGA_ImageType();
-		virtual ~PCX_LinearVGA_ImageType();
+		ImageType_PCX_LinearVGA();
+		virtual ~ImageType_PCX_LinearVGA();
 
 		virtual std::string getFriendlyName() const;
 		virtual std::vector<std::string> getGameList() const;
 };
 
 /// Standard PCX Image implementation.
-class PCXImage: virtual public BaseImage
+class Image_PCX: virtual public Image_Base
 {
 	public:
 		/// Constructor
@@ -106,8 +106,8 @@ class PCXImage: virtual public BaseImage
 		 * @throw stream::error
 		 *   Read error or invalid file format.
 		 */
-		PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes);
-		virtual ~PCXImage();
+		Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes);
+		virtual ~Image_PCX();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

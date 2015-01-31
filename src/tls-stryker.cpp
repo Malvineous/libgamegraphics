@@ -54,42 +54,42 @@ namespace gamegraphics {
 #define MS_SIZE_STDMASK ((20 * 12) * MS_TILE_SIZE(EGA_NUMPLANES_MASKED))
 
 //
-// StrykerTilesetType
+// TilesetType_Stryker
 //
 
-StrykerTilesetType::StrykerTilesetType()
+TilesetType_Stryker::TilesetType_Stryker()
 {
 }
 
-StrykerTilesetType::~StrykerTilesetType()
+TilesetType_Stryker::~TilesetType_Stryker()
 {
 }
 
-std::string StrykerTilesetType::getCode() const
+std::string TilesetType_Stryker::getCode() const
 {
 	return "tls-stryker";
 }
 
-std::string StrykerTilesetType::getFriendlyName() const
+std::string TilesetType_Stryker::getFriendlyName() const
 {
 	return "Major Stryker Tileset";
 }
 
-std::vector<std::string> StrykerTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Stryker::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("dr1");
 	return vcExtensions;
 }
 
-std::vector<std::string> StrykerTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Stryker::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Major Stryker");
 	return vcGames;
 }
 
-StrykerTilesetType::Certainty StrykerTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Stryker::Certainty TilesetType_Stryker::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -99,18 +99,18 @@ StrykerTilesetType::Certainty StrykerTilesetType::isInstance(stream::input_sptr 
 	return DefinitelyNo;
 }
 
-TilesetPtr StrykerTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Stryker::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0, ideal width of standard tileset (20)
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
 			EGA_NUMPLANES_SOLID, MS_STD_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
-TilesetPtr StrykerTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Stryker::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	stream::pos len = psGraphics->size();
@@ -119,12 +119,12 @@ TilesetPtr StrykerTilesetType::open(stream::inout_sptr psGraphics,
 	if (len == MS_SIZE_BACKDROP) idealWidth = 16;
 
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
 			EGA_NUMPLANES_SOLID, idealWidth, PaletteTablePtr())
 	);
 }
 
-SuppFilenames StrykerTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Stryker::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -132,42 +132,42 @@ SuppFilenames StrykerTilesetType::getRequiredSupps(const std::string& filenameGr
 
 
 //
-// StrykerMaskedTilesetType
+// TilesetType_StrykerMasked
 //
 
-std::string StrykerMaskedTilesetType::getCode() const
+std::string TilesetType_StrykerMasked::getCode() const
 {
 	return "tls-stryker-masked";
 }
 
-std::string StrykerMaskedTilesetType::getFriendlyName() const
+std::string TilesetType_StrykerMasked::getFriendlyName() const
 {
 	return "Major Stryker Masked Tileset";
 }
 
-StrykerMaskedTilesetType::Certainty StrykerMaskedTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_StrykerMasked::Certainty TilesetType_StrykerMasked::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len == MS_SIZE_STDMASK) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr StrykerMaskedTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_StrykerMasked::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
 			EGA_NUMPLANES_MASKED, MS_STD_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
-TilesetPtr StrykerMaskedTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_StrykerMasked::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, MS_TILE_WIDTH, MS_TILE_HEIGHT,
 			EGA_NUMPLANES_MASKED, MS_STD_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }

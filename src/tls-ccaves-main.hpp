@@ -27,11 +27,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CCavesMainTilesetType: virtual public TilesetType
+class TilesetType_CCavesMain: virtual public TilesetType
 {
 	public:
-		CCavesMainTilesetType();
-		virtual ~CCavesMainTilesetType();
+		TilesetType_CCavesMain();
+		virtual ~TilesetType_CCavesMain();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -50,16 +50,16 @@ class CCavesMainTilesetType: virtual public TilesetType
 		stream::len pad;
 };
 
-class CCavesMainTileset: virtual public FATTileset
+class Tileset_CCavesMain: virtual public Tileset_FAT
 {
 	public:
-		CCavesMainTileset(stream::inout_sptr data,
+		Tileset_CCavesMain(stream::inout_sptr data,
 			unsigned int numPlanes, stream::len pad);
-		virtual ~CCavesMainTileset();
+		virtual ~Tileset_CCavesMain();
 
 		virtual int getCaps();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 

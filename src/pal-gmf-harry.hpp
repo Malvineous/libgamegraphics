@@ -28,13 +28,13 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Halloween Harry palette files.
-class GMFHarryPaletteImageType: virtual public ImageType {
+class ImageType_Palette_HarryGMF: virtual public ImageType {
 
 	public:
 
-		GMFHarryPaletteImageType();
+		ImageType_Palette_HarryGMF();
 
-		virtual ~GMFHarryPaletteImageType();
+		virtual ~ImageType_Palette_HarryGMF();
 
 		virtual std::string getCode() const;
 
@@ -57,15 +57,15 @@ class GMFHarryPaletteImageType: virtual public ImageType {
 };
 
 /// Palette interface to Halloween Harry GMF files.
-class GMFHarryPalette: virtual public Palette {
+class Palette_HarryGMF: virtual public Palette {
 
 	private:
 		stream::inout_sptr data;
 
 	public:
-		GMFHarryPalette(stream::inout_sptr data);
+		Palette_HarryGMF(stream::inout_sptr data);
 
-		virtual ~GMFHarryPalette();
+		virtual ~Palette_HarryGMF();
 
 		virtual PaletteTablePtr getPalette();
 

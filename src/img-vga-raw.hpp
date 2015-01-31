@@ -1,6 +1,6 @@
 /**
  * @file  img-vga-raw.hpp
- * @brief VGAImage specialisation for fixed-size headerless images.
+ * @brief Image_VGA specialisation for fixed-size headerless images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for full screen raw VGA images.
-class VGARawBaseImageType: virtual public ImageType
+class ImageType_VGARawBase: virtual public ImageType
 {
 	public:
 		virtual std::vector<std::string> getFileExtensions() const;
@@ -44,26 +44,26 @@ class VGARawBaseImageType: virtual public ImageType
 		unsigned int depth; // palette depth (6 or 8)
 };
 
-class VGA6RawImageType: virtual public VGARawBaseImageType
+class ImageType_VGA6Raw: virtual public ImageType_VGARawBase
 {
 	public:
-		VGA6RawImageType();
+		ImageType_VGA6Raw();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
 };
 
-class VGA8RawImageType: virtual public VGARawBaseImageType
+class ImageType_VGA8Raw: virtual public ImageType_VGARawBase
 {
 	public:
-		VGA8RawImageType();
+		ImageType_VGA8Raw();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
 };
 
 /// Raw VGA Image implementation.
-class VGARawImage: virtual public VGAImage
+class Image_VGARaw: virtual public Image_VGA
 {
 	protected:
 		int width, height;
@@ -87,8 +87,8 @@ class VGARawImage: virtual public VGAImage
 		 * @param pal
 		 *   Image palette
 		 */
-		VGARawImage(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
-		virtual ~VGARawImage();
+		Image_VGARaw(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
+		virtual ~Image_VGARaw();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

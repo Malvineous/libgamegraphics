@@ -30,12 +30,12 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Halloween Harry .HSB tileset type
-class HarryHSBTilesetType: virtual public TilesetType
+class TilesetType_HarryHSB: virtual public TilesetType
 {
 	public:
-		HarryHSBTilesetType();
+		TilesetType_HarryHSB();
 
-		virtual ~HarryHSBTilesetType();
+		virtual ~TilesetType_HarryHSB();
 
 		virtual std::string getCode() const;
 
@@ -57,7 +57,7 @@ class HarryHSBTilesetType: virtual public TilesetType
 };
 
 /// Image inside Halloween Harry .HSB tileset
-class HarryHSBImage: virtual public VGAImage
+class Image_HarryHSB: virtual public Image_VGA
 {
 	public:
 		/// Constructor
@@ -70,9 +70,9 @@ class HarryHSBImage: virtual public VGAImage
 		 * @param pal
 		 *   Image palette.
 		 */
-		HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal);
+		Image_HarryHSB(stream::inout_sptr data, PaletteTablePtr pal);
 
-		virtual ~HarryHSBImage();
+		virtual ~Image_HarryHSB();
 
 		virtual int getCaps();
 
@@ -92,13 +92,13 @@ class HarryHSBImage: virtual public VGAImage
 };
 
 /// Halloween Harry .HSB tileset
-class HarryHSBTileset: virtual public FATTileset
+class Tileset_HarryHSB: virtual public Tileset_FAT
 {
 	public:
-		HarryHSBTileset(stream::inout_sptr data,
+		Tileset_HarryHSB(stream::inout_sptr data,
 			PaletteTablePtr pal);
 
-		virtual ~HarryHSBTileset();
+		virtual ~Tileset_HarryHSB();
 
 		virtual int getCaps();
 

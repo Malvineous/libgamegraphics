@@ -36,32 +36,32 @@
 namespace camoto {
 namespace gamegraphics {
 
-HarryHSBTilesetType::HarryHSBTilesetType()
+TilesetType_HarryHSB::TilesetType_HarryHSB()
 {
 }
 
-HarryHSBTilesetType::~HarryHSBTilesetType()
+TilesetType_HarryHSB::~TilesetType_HarryHSB()
 {
 }
 
-std::string HarryHSBTilesetType::getCode() const
+std::string TilesetType_HarryHSB::getCode() const
 {
 	return "tls-harry-hsb";
 }
 
-std::string HarryHSBTilesetType::getFriendlyName() const
+std::string TilesetType_HarryHSB::getFriendlyName() const
 {
 	return "Halloween Harry HSB tileset";
 }
 
-std::vector<std::string> HarryHSBTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_HarryHSB::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("hsb");
 	return vcExtensions;
 }
 
-std::vector<std::string> HarryHSBTilesetType::getGameList() const
+std::vector<std::string> TilesetType_HarryHSB::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -69,7 +69,7 @@ std::vector<std::string> HarryHSBTilesetType::getGameList() const
 	return vcGames;
 }
 
-HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
+TilesetType_HarryHSB::Certainty TilesetType_HarryHSB::isInstance(
 	stream::input_sptr psTileset) const
 {
 	stream::pos len = psTileset->size();
@@ -114,7 +114,7 @@ HarryHSBTilesetType::Certainty HarryHSBTilesetType::isInstance(
 
 }
 
-TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_HarryHSB::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(0);
@@ -122,24 +122,24 @@ TilesetPtr HarryHSBTilesetType::create(stream::inout_sptr psTileset,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new Palette_HarryGMF(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_HarryHSB(psTileset, pal));
 }
 
-TilesetPtr HarryHSBTilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_HarryHSB::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new GMFHarryPalette(suppData[SuppItem::Palette]));
+		ImagePtr palFile(new Palette_HarryGMF(suppData[SuppItem::Palette]));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new HarryHSBTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_HarryHSB(psTileset, pal));
 }
 
-SuppFilenames HarryHSBTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_HarryHSB::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -148,8 +148,8 @@ SuppFilenames HarryHSBTilesetType::getRequiredSupps(
 }
 
 
-HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
-	:	VGAImage(data, HSB_HEADER_LEN),
+Image_HarryHSB::Image_HarryHSB(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Image_VGA(data, HSB_HEADER_LEN),
 		pal(pal)
 {
 	assert(data->tellg() == 0);
@@ -168,25 +168,25 @@ HarryHSBImage::HarryHSBImage(stream::inout_sptr data, PaletteTablePtr pal)
 	}
 }
 
-HarryHSBImage::~HarryHSBImage()
+Image_HarryHSB::~Image_HarryHSB()
 {
 }
 
-int HarryHSBImage::getCaps()
+int Image_HarryHSB::getCaps()
 {
-	return this->VGAImage::getCaps()
+	return this->Image_VGA::getCaps()
 		| Image::HasPalette
 		| Image::CanSetDimensions;
 }
 
-void HarryHSBImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_HarryHSB::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void HarryHSBImage::setDimensions(unsigned int width, unsigned int height)
+void Image_HarryHSB::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -194,11 +194,11 @@ void HarryHSBImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-void HarryHSBImage::fromStandard(StdImageDataPtr newContent,
+void Image_HarryHSB::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
-	this->VGAImage::fromStandard(newContent, newMask);
+	this->Image_VGA::fromStandard(newContent, newMask);
 
 	// Update dimensions
 	this->data->seekp(0, stream::start);
@@ -211,15 +211,15 @@ void HarryHSBImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr HarryHSBImage::getPalette()
+PaletteTablePtr Image_HarryHSB::getPalette()
 {
 	return this->pal;
 }
 
 
-HarryHSBTileset::HarryHSBTileset(stream::inout_sptr data,
+Tileset_HarryHSB::Tileset_HarryHSB(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	:	FATTileset(data, HSB_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, HSB_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -257,24 +257,24 @@ HarryHSBTileset::HarryHSBTileset(stream::inout_sptr data,
 	}
 }
 
-HarryHSBTileset::~HarryHSBTileset()
+Tileset_HarryHSB::~Tileset_HarryHSB()
 {
 }
 
-int HarryHSBTileset::getCaps()
+int Tileset_HarryHSB::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
-PaletteTablePtr HarryHSBTileset::getPalette()
+PaletteTablePtr Tileset_HarryHSB::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr HarryHSBTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_HarryHSB::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	return ImagePtr(new HarryHSBImage(content, this->pal));
+	return ImagePtr(new Image_HarryHSB(content, this->pal));
 }
 
 } // namespace gamegraphics

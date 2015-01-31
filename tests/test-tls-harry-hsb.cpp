@@ -1,6 +1,6 @@
 /**
  * @file   test-tls-harry-hsb.cpp
- * @brief  Test code for HarryHSBTileset class.
+ * @brief  Test code for Tileset_HarryHSB class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

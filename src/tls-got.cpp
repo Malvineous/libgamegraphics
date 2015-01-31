@@ -37,7 +37,7 @@ namespace gamegraphics {
 
 
 /// Raw VGA Image implementation.
-class GOTImage: virtual public VGAPlanarImage
+class Image_GOT: virtual public Image_VGAPlanar
 {
 	public:
 		/// Constructor
@@ -51,8 +51,8 @@ class GOTImage: virtual public VGAPlanarImage
 		 * @param pal
 		 *   Image palette
 		 */
-		GOTImage(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~GOTImage();
+		Image_GOT(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Image_GOT();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);
@@ -63,22 +63,22 @@ class GOTImage: virtual public VGAPlanarImage
 		PaletteTablePtr pal;
 };
 
-GOTImage::GOTImage(stream::inout_sptr data, PaletteTablePtr pal)
-	:	VGAPlanarImage(data, GOT_HEADER_LEN),
+Image_GOT::Image_GOT(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Image_VGAPlanar(data, GOT_HEADER_LEN),
 		pal(pal)
 {
 }
 
-GOTImage::~GOTImage()
+Image_GOT::~Image_GOT()
 {
 }
 
-int GOTImage::getCaps()
+int Image_GOT::getCaps()
 {
 	return ColourDepthVGA | HasPalette;
 }
 
-void GOTImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_GOT::getDimensions(unsigned int *width, unsigned int *height)
 {
 	this->data->seekg(0, stream::start);
 	this->data
@@ -89,7 +89,7 @@ void GOTImage::getDimensions(unsigned int *width, unsigned int *height)
 	return;
 }
 
-void GOTImage::setDimensions(unsigned int width, unsigned int height)
+void Image_GOT::setDimensions(unsigned int width, unsigned int height)
 {
 	if (width % 4 != 0) {
 		throw stream::error("God of Thunder tiles can only have a width that is a multiple of 4.");
@@ -103,44 +103,44 @@ void GOTImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-PaletteTablePtr GOTImage::getPalette()
+PaletteTablePtr Image_GOT::getPalette()
 {
 	return this->pal;
 }
 
 
-GOTTilesetType::GOTTilesetType()
+TilesetType_GOT::TilesetType_GOT()
 {
 }
 
-GOTTilesetType::~GOTTilesetType()
+TilesetType_GOT::~TilesetType_GOT()
 {
 }
 
-std::string GOTTilesetType::getCode() const
+std::string TilesetType_GOT::getCode() const
 {
 	return "tls-got";
 }
 
-std::string GOTTilesetType::getFriendlyName() const
+std::string TilesetType_GOT::getFriendlyName() const
 {
 	return "God of Thunder tileset";
 }
 
-std::vector<std::string> GOTTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_GOT::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> GOTTilesetType::getGameList() const
+std::vector<std::string> TilesetType_GOT::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("God of Thunder");
 	return vcGames;
 }
 
-GOTTilesetType::Certainty GOTTilesetType::isInstance(
+TilesetType_GOT::Certainty TilesetType_GOT::isInstance(
 	stream::input_sptr psTileset) const
 {
 	stream::pos len = psTileset->size();
@@ -176,7 +176,7 @@ GOTTilesetType::Certainty GOTTilesetType::isInstance(
 	return DefinitelyYes;
 }
 
-TilesetPtr GOTTilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_GOT::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(0);
@@ -184,32 +184,32 @@ TilesetPtr GOTTilesetType::create(stream::inout_sptr psTileset,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
 	(*pal)[0].alpha = 0;
 	(*pal)[15].alpha = 0;
-	return TilesetPtr(new GOTTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_GOT(psTileset, pal));
 }
 
-TilesetPtr GOTTilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_GOT::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 8));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 8));
 		pal = palFile->getPalette();
 	} else {
 		throw stream::error("no palette specified (missing supplementary item)");
 	}
 	(*pal)[0].alpha = 0;
 	(*pal)[15].alpha = 0;
-	return TilesetPtr(new GOTTileset(psTileset, pal));
+	return TilesetPtr(new Tileset_GOT(psTileset, pal));
 }
 
-SuppFilenames GOTTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_GOT::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -218,9 +218,9 @@ SuppFilenames GOTTilesetType::getRequiredSupps(
 }
 
 
-GOTTileset::GOTTileset(stream::inout_sptr data,
+Tileset_GOT::Tileset_GOT(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	:	FATTileset(data, GOT_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, GOT_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	assert(this->pal);
@@ -251,29 +251,29 @@ GOTTileset::GOTTileset(stream::inout_sptr data,
 	}
 }
 
-GOTTileset::~GOTTileset()
+Tileset_GOT::~Tileset_GOT()
 {
 }
 
-int GOTTileset::getCaps()
+int Tileset_GOT::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
-unsigned int GOTTileset::getLayoutWidth()
+unsigned int Tileset_GOT::getLayoutWidth()
 {
 	return 8;
 }
 
-PaletteTablePtr GOTTileset::getPalette()
+PaletteTablePtr Tileset_GOT::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr GOTTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_GOT::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	ImagePtr img(new GOTImage(content, this->pal));
+	ImagePtr img(new Image_GOT(content, this->pal));
 	return img;
 }
 

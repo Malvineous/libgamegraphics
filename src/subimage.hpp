@@ -37,7 +37,7 @@ namespace gamegraphics {
 typedef boost::function<void()> fn_image_changed;
 
 /// Image stored within another Image.
-class SubImage: virtual public BaseImage
+class Image_Sub: virtual public Image_Base
 {
 	public:
 		/// Constructor
@@ -76,10 +76,10 @@ class SubImage: virtual public BaseImage
 		 *   this subimage.  Unless this function has been called at least once,
 		 *   there is no need for the owner to write back to img.
 		 */
-		SubImage(ImagePtr img, StdImageDataPtr stdImg, StdImageDataPtr stdMask,
+		Image_Sub(ImagePtr img, StdImageDataPtr stdImg, StdImageDataPtr stdMask,
 			unsigned int xOffset, unsigned int yOffset, unsigned int width,
 			unsigned int height, fn_image_changed fnImageChanged);
-		virtual ~SubImage();
+		virtual ~Image_Sub();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

@@ -23,39 +23,39 @@
 namespace camoto {
 namespace gamegraphics {
 
-GMFHarryPaletteImageType::GMFHarryPaletteImageType()
+ImageType_Palette_HarryGMF::ImageType_Palette_HarryGMF()
 {
 }
 
-GMFHarryPaletteImageType::~GMFHarryPaletteImageType()
+ImageType_Palette_HarryGMF::~ImageType_Palette_HarryGMF()
 {
 }
 
-std::string GMFHarryPaletteImageType::getCode() const
+std::string ImageType_Palette_HarryGMF::getCode() const
 {
 	return "pal-gmf-harry";
 }
 
-std::string GMFHarryPaletteImageType::getFriendlyName() const
+std::string ImageType_Palette_HarryGMF::getFriendlyName() const
 {
 	return "Halloween Harry VGA palette";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> GMFHarryPaletteImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Palette_HarryGMF::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gmf");
 	return vcExtensions;
 }
 
-std::vector<std::string> GMFHarryPaletteImageType::getGameList() const
+std::vector<std::string> ImageType_Palette_HarryGMF::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input_sptr psImage) const
 {
 	psImage->seekg(0, stream::start);
 
@@ -76,35 +76,35 @@ ImageType::Certainty GMFHarryPaletteImageType::isInstance(stream::input_sptr psI
 	return DefinitelyYes;
 }
 
-ImagePtr GMFHarryPaletteImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Palette_HarryGMF::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new GMFHarryPalette(psImage));
+	return ImagePtr(new Palette_HarryGMF(psImage));
 }
 
-ImagePtr GMFHarryPaletteImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Palette_HarryGMF::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new GMFHarryPalette(psImage));
+	return ImagePtr(new Palette_HarryGMF(psImage));
 }
 
-SuppFilenames GMFHarryPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
 }
 
 
-GMFHarryPalette::GMFHarryPalette(stream::inout_sptr data)
+Palette_HarryGMF::Palette_HarryGMF(stream::inout_sptr data)
 	:	data(data)
 {
 }
 
-GMFHarryPalette::~GMFHarryPalette()
+Palette_HarryGMF::~Palette_HarryGMF()
 {
 }
 
-PaletteTablePtr GMFHarryPalette::getPalette()
+PaletteTablePtr Palette_HarryGMF::getPalette()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
@@ -128,7 +128,7 @@ PaletteTablePtr GMFHarryPalette::getPalette()
 	return pal;
 }
 
-void GMFHarryPalette::setPalette(PaletteTablePtr newPalette)
+void Palette_HarryGMF::setPalette(PaletteTablePtr newPalette)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);

@@ -26,15 +26,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGAPlanarImage::EGAPlanarImage()
+Image_EGAPlanar::Image_EGAPlanar()
 {
 }
 
-EGAPlanarImage::~EGAPlanarImage()
+Image_EGAPlanar::~Image_EGAPlanar()
 {
 }
 
-void EGAPlanarImage::setParams(stream::inout_sptr data,
+void Image_EGAPlanar::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
 {
@@ -46,19 +46,19 @@ void EGAPlanarImage::setParams(stream::inout_sptr data,
 	return;
 }
 
-int EGAPlanarImage::getCaps()
+int Image_EGAPlanar::getCaps()
 {
 	return ColourDepthEGA;
 }
 
-void EGAPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_EGAPlanar::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
+void Image_EGAPlanar::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -75,12 +75,12 @@ void EGAPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr EGAPlanarImage::toStandard()
+StdImageDataPtr Image_EGAPlanar::toStandard()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGAPlanarImage::toStandardMask()
+StdImageDataPtr Image_EGAPlanar::toStandardMask()
 {
 	if ((this->planes[PLANE_OPACITY] == 0) && (this->planes[PLANE_HITMAP] == 0)) {
 		// Mask is unused, skip the conversion and return an opaque mask
@@ -101,7 +101,7 @@ StdImageDataPtr EGAPlanarImage::toStandardMask()
 	return this->doConversion(true);
 }
 
-void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
+void Image_EGAPlanar::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -198,7 +198,7 @@ void EGAPlanarImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
+StdImageDataPtr Image_EGAPlanar::doConversion(bool mask)
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;
@@ -302,41 +302,41 @@ StdImageDataPtr EGAPlanarImage::doConversion(bool mask)
 
 
 //
-// EGARawPlanarBGRIImageType
+// ImageType_EGARawPlanarBGRI
 //
 
-EGARawPlanarBGRIImageType::EGARawPlanarBGRIImageType()
+ImageType_EGARawPlanarBGRI::ImageType_EGARawPlanarBGRI()
 {
 }
 
-EGARawPlanarBGRIImageType::~EGARawPlanarBGRIImageType()
+ImageType_EGARawPlanarBGRI::~ImageType_EGARawPlanarBGRI()
 {
 }
 
-std::string EGARawPlanarBGRIImageType::getCode() const
+std::string ImageType_EGARawPlanarBGRI::getCode() const
 {
 	return "img-ega-raw-planar-bgri-fullscreen";
 }
 
-std::string EGARawPlanarBGRIImageType::getFriendlyName() const
+std::string ImageType_EGARawPlanarBGRI::getFriendlyName() const
 {
 	return "Raw Planar EGA fullscreen image (BGRI)";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> EGARawPlanarBGRIImageType::getFileExtensions() const
+std::vector<std::string> ImageType_EGARawPlanarBGRI::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> EGARawPlanarBGRIImageType::getGameList() const
+std::vector<std::string> ImageType_EGARawPlanarBGRI::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty EGARawPlanarBGRIImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_EGARawPlanarBGRI::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -347,7 +347,7 @@ ImageType::Certainty EGARawPlanarBGRIImageType::isInstance(stream::input_sptr ps
 	return DefinitelyNo;
 }
 
-ImagePtr EGARawPlanarBGRIImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_EGARawPlanarBGRI::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(32000);
@@ -360,10 +360,10 @@ ImagePtr EGARawPlanarBGRIImageType::create(stream::inout_sptr psImage,
 	return this->open(psImage, dummy);
 }
 
-ImagePtr EGARawPlanarBGRIImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_EGARawPlanarBGRI::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	EGAPlanarImage *ega = new EGAPlanarImage();
+	Image_EGAPlanar *ega = new Image_EGAPlanar();
 	ImagePtr img(ega);
 
 	PLANE_LAYOUT planes;
@@ -378,7 +378,7 @@ ImagePtr EGARawPlanarBGRIImageType::open(stream::inout_sptr psImage,
 	return img;
 }
 
-SuppFilenames EGARawPlanarBGRIImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_EGARawPlanarBGRI::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }

@@ -32,7 +32,7 @@ namespace gamegraphics {
 /// Flag set when the image is more than 64 pixels wide.
 #define MBF_WIDE (1<<6)
 
-BashSpriteImage::BashSpriteImage(stream::inout_sptr data)
+Image_BashSprite::Image_BashSprite(stream::inout_sptr data)
 	:	data(data)
 {
 	this->data->seekg(0, stream::start);
@@ -49,11 +49,11 @@ BashSpriteImage::BashSpriteImage(stream::inout_sptr data)
 	;
 }
 
-BashSpriteImage::~BashSpriteImage()
+Image_BashSprite::~Image_BashSprite()
 {
 }
 
-int BashSpriteImage::getCaps()
+int Image_BashSprite::getCaps()
 {
 	return Image::ColourDepthEGA
 		| Image::CanSetDimensions
@@ -62,14 +62,14 @@ int BashSpriteImage::getCaps()
 	;
 }
 
-void BashSpriteImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_BashSprite::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
+void Image_BashSprite::setDimensions(unsigned int width, unsigned int height)
 {
 	if (this->data->size() < 12) {
 		// Need to enlarge stream to write image size
@@ -91,14 +91,14 @@ void BashSpriteImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-void BashSpriteImage::getHotspot(signed int *x, signed int *y)
+void Image_BashSprite::getHotspot(signed int *x, signed int *y)
 {
 	*x = -this->hotspotX;
 	*y = -this->hotspotY;
 	return;
 }
 
-void BashSpriteImage::setHotspot(signed int x, signed int y)
+void Image_BashSprite::setHotspot(signed int x, signed int y)
 {
 	if (this->data->size() < 12) {
 		// Need to enlarge stream to write image size
@@ -116,14 +116,14 @@ void BashSpriteImage::setHotspot(signed int x, signed int y)
 	return;
 }
 
-void BashSpriteImage::getHitRect(signed int *x, signed int *y)
+void Image_BashSprite::getHitRect(signed int *x, signed int *y)
 {
 	*x = this->rectX;
 	*y = this->rectY;
 	return;
 }
 
-void BashSpriteImage::setHitRect(signed int x, signed int y)
+void Image_BashSprite::setHitRect(signed int x, signed int y)
 {
 	if (this->data->size() < 12) {
 		// Need to enlarge stream to write image size
@@ -141,19 +141,19 @@ void BashSpriteImage::setHitRect(signed int x, signed int y)
 	return;
 }
 
-StdImageDataPtr BashSpriteImage::toStandard()
+StdImageDataPtr Image_BashSprite::toStandard()
 {
 	ImagePtr ega = this->toEGA();
 	return ega->toStandard();
 }
 
-StdImageDataPtr BashSpriteImage::toStandardMask()
+StdImageDataPtr Image_BashSprite::toStandardMask()
 {
 	ImagePtr ega = this->toEGA();
 	return ega->toStandardMask();
 }
 
-void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
+void Image_BashSprite::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
 {
 	assert((this->width != 0) && (this->height != 0));
@@ -168,7 +168,7 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 		planes[PLANE_HITMAP] = 0;
 		planes[PLANE_OPACITY] = 5;
 
-		EGAPlanarImage *ega = new EGAPlanarImage();
+		Image_EGAPlanar *ega = new Image_EGAPlanar();
 		ImagePtr conv(ega);
 		ega->setParams(content, 0, this->width, this->height, planes);
 		ega->fromStandard(newContent, newMask);
@@ -229,7 +229,7 @@ void BashSpriteImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-ImagePtr BashSpriteImage::toEGA()
+ImagePtr Image_BashSprite::toEGA()
 {
 	assert((this->width != 0) && (this->height != 0));
 
@@ -282,7 +282,7 @@ ImagePtr BashSpriteImage::toEGA()
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 5;
 
-	EGAPlanarImage *ega = new EGAPlanarImage();
+	Image_EGAPlanar *ega = new Image_EGAPlanar();
 	ImagePtr conv(ega);
 	ega->setParams(content, 0, this->width, this->height, planes);
 	return conv;

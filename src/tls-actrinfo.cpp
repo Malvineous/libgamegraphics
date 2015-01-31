@@ -51,19 +51,19 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Tileset for the full list of actors, one sub-tileset for each actor.
-class ActrinfoTileset: virtual public FATTileset
+class Tileset_Actrinfo: virtual public Tileset_FAT
 {
 	public:
-		ActrinfoTileset(stream::inout_sptr dataInfo, stream::inout_sptr dataTiles,
+		Tileset_Actrinfo(stream::inout_sptr dataInfo, stream::inout_sptr dataTiles,
 			PaletteTablePtr pal);
-		virtual ~ActrinfoTileset();
+		virtual ~Tileset_Actrinfo();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
 		virtual unsigned int getLayoutWidth();
 		virtual PaletteTablePtr getPalette();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 
@@ -73,19 +73,19 @@ class ActrinfoTileset: virtual public FATTileset
 };
 
 /// Tileset containing each frame for a single actor.
-class SingleActorTileset: virtual public FATTileset
+class Tileset_SingleActor: virtual public Tileset_FAT
 {
 	public:
-		SingleActorTileset(stream::inout_sptr fat, stream::inout_sptr data,
+		Tileset_SingleActor(stream::inout_sptr fat, stream::inout_sptr data,
 			PaletteTablePtr pal);
-		virtual ~SingleActorTileset();
+		virtual ~Tileset_SingleActor();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
 		virtual unsigned int getLayoutWidth();
 		virtual PaletteTablePtr getPalette();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 
@@ -101,47 +101,47 @@ class SingleActorTileset: virtual public FATTileset
 };
 
 //
-// ActrinfoTilesetType
+// TilesetType_Actrinfo
 //
 
-ActrinfoTilesetType::ActrinfoTilesetType()
+TilesetType_Actrinfo::TilesetType_Actrinfo()
 {
 }
 
-ActrinfoTilesetType::~ActrinfoTilesetType()
+TilesetType_Actrinfo::~TilesetType_Actrinfo()
 {
 }
 
-std::string ActrinfoTilesetType::getCode() const
+std::string TilesetType_Actrinfo::getCode() const
 {
 	return "tls-actrinfo";
 }
 
-std::string ActrinfoTilesetType::getFriendlyName() const
+std::string TilesetType_Actrinfo::getFriendlyName() const
 {
 	return "Cosmo Actor Tileset";
 }
 
-std::vector<std::string> ActrinfoTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Actrinfo::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> ActrinfoTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Actrinfo::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Cosmo's Cosmic Adventures");
 	return vcGames;
 }
 
-ActrinfoTilesetType::Certainty ActrinfoTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(stream::input_sptr psGraphics) const
 {
 	return Unsure;
 }
 
-TilesetPtr ActrinfoTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Actrinfo::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
@@ -150,22 +150,22 @@ TilesetPtr ActrinfoTilesetType::create(stream::inout_sptr psGraphics,
 		throw stream::error("no actor info file specified (missing supplementary item)");
 	}
 	return TilesetPtr(
-		new ActrinfoTileset(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
+		new Tileset_Actrinfo(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
 	);
 }
 
-TilesetPtr ActrinfoTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Actrinfo::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	if (suppData.find(SuppItem::FAT) == suppData.end()) {
 		throw stream::error("no actor info file specified (missing supplementary item)");
 	}
 	return TilesetPtr(
-		new ActrinfoTileset(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
+		new Tileset_Actrinfo(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
 	);
 }
 
-SuppFilenames ActrinfoTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Actrinfo::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
 	if (filenameGraphics.compare("players.mni") == 0) {
@@ -180,12 +180,12 @@ SuppFilenames ActrinfoTilesetType::getRequiredSupps(const std::string& filenameG
 
 
 //
-// ActrinfoTileset
+// Tileset_Actrinfo
 //
 
-ActrinfoTileset::ActrinfoTileset(stream::inout_sptr dataInfo,
+Tileset_Actrinfo::Tileset_Actrinfo(stream::inout_sptr dataInfo,
 	stream::inout_sptr dataTiles, PaletteTablePtr pal)
-	:	FATTileset(dataInfo, ACTR_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(dataInfo, ACTR_FIRST_TILE_OFFSET),
 		dataTiles(dataTiles),
 		pal(pal)
 {
@@ -221,17 +221,17 @@ ActrinfoTileset::ActrinfoTileset(stream::inout_sptr dataInfo,
 	}
 }
 
-ActrinfoTileset::~ActrinfoTileset()
+Tileset_Actrinfo::~Tileset_Actrinfo()
 {
 }
 
-int ActrinfoTileset::getCaps()
+int Tileset_Actrinfo::getCaps()
 {
 	return Tileset::ColourDepthEGA
 		| (this->pal ? Tileset::HasPalette : 0);
 }
 
-void ActrinfoTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_Actrinfo::resize(EntryPtr& id, stream::len newSize)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
@@ -242,35 +242,35 @@ void ActrinfoTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-unsigned int ActrinfoTileset::getLayoutWidth()
+unsigned int Tileset_Actrinfo::getLayoutWidth()
 {
 	return 1;
 }
 
-PaletteTablePtr ActrinfoTileset::getPalette()
+PaletteTablePtr Tileset_Actrinfo::getPalette()
 {
 	return this->pal;
 }
 
-TilesetPtr ActrinfoTileset::createTilesetInstance(const EntryPtr& id,
+TilesetPtr Tileset_Actrinfo::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
 
 	return TilesetPtr(
-		new SingleActorTileset(content, this->dataTiles, this->pal)
+		new Tileset_SingleActor(content, this->dataTiles, this->pal)
 	);
 }
 
 
 //
-// SingleActorTileset
+// Tileset_SingleActor
 //
 
-SingleActorTileset::SingleActorTileset(stream::inout_sptr dataInfo,
+Tileset_SingleActor::Tileset_SingleActor(stream::inout_sptr dataInfo,
 	stream::inout_sptr data, PaletteTablePtr pal)
-	:	FATTileset(data, ACTR_SINGLE_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, ACTR_SINGLE_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos lenFAT = dataInfo->size();
@@ -310,17 +310,17 @@ SingleActorTileset::SingleActorTileset(stream::inout_sptr dataInfo,
 	}
 }
 
-SingleActorTileset::~SingleActorTileset()
+Tileset_SingleActor::~Tileset_SingleActor()
 {
 }
 
-int SingleActorTileset::getCaps()
+int Tileset_SingleActor::getCaps()
 {
 	return Tileset::ColourDepthEGA
 		| (this->pal ? Tileset::HasPalette : 0);
 }
 
-void SingleActorTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_SingleActor::resize(EntryPtr& id, stream::len newSize)
 {
 	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
 	assert(fat);
@@ -331,17 +331,17 @@ void SingleActorTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-unsigned int SingleActorTileset::getLayoutWidth()
+unsigned int Tileset_SingleActor::getLayoutWidth()
 {
 	return 40;
 }
 
-PaletteTablePtr SingleActorTileset::getPalette()
+PaletteTablePtr Tileset_SingleActor::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr SingleActorTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_SingleActor::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	ActorEntry *fat = dynamic_cast<ActorEntry *>(id.get());
@@ -355,7 +355,7 @@ ImagePtr SingleActorTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 1;
 
-	EGABytePlanarTiledImage *ega = new EGABytePlanarTiledImage();
+	Image_EGABytePlanarTiled *ega = new Image_EGABytePlanarTiled();
 	ImagePtr conv(ega);
 	ega->setParams(
 		content, 0, fat->width * ACTR_TILE_WIDTH, fat->height * ACTR_TILE_HEIGHT,

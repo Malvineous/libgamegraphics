@@ -43,39 +43,39 @@
 namespace camoto {
 namespace gamegraphics {
 
-Zone66TilesetType::Zone66TilesetType()
+TilesetType_Zone66::TilesetType_Zone66()
 {
 }
 
-Zone66TilesetType::~Zone66TilesetType()
+TilesetType_Zone66::~TilesetType_Zone66()
 {
 }
 
-std::string Zone66TilesetType::getCode() const
+std::string TilesetType_Zone66::getCode() const
 {
 	return "tls-zone66";
 }
 
-std::string Zone66TilesetType::getFriendlyName() const
+std::string TilesetType_Zone66::getFriendlyName() const
 {
 	return "Zone 66 tileset";
 }
 
-std::vector<std::string> Zone66TilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Zone66::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("z66");
 	return vcExtensions;
 }
 
-std::vector<std::string> Zone66TilesetType::getGameList() const
+std::vector<std::string> TilesetType_Zone66::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Zone 66");
 	return vcGames;
 }
 
-Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
+TilesetType_Zone66::Certainty TilesetType_Zone66::isInstance(
 	stream::input_sptr psTileset) const
 {
 	stream::pos len = psTileset->size();
@@ -113,7 +113,7 @@ Zone66TilesetType::Certainty Zone66TilesetType::isInstance(
 	return DefinitelyYes;
 }
 
-TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_Zone66::create(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	psTileset->truncate(4);
@@ -123,25 +123,25 @@ TilesetPtr Zone66TilesetType::create(stream::inout_sptr psTileset,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66Tileset(psTileset, pal));
+	return TilesetPtr(new Tileset_Zone66(psTileset, pal));
 }
 
-TilesetPtr Zone66TilesetType::open(stream::inout_sptr psTileset,
+TilesetPtr TilesetType_Zone66::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66Tileset(psTileset, pal));
+	return TilesetPtr(new Tileset_Zone66(psTileset, pal));
 }
 
-SuppFilenames Zone66TilesetType::getRequiredSupps(
+SuppFilenames TilesetType_Zone66::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -150,9 +150,9 @@ SuppFilenames Zone66TilesetType::getRequiredSupps(
 }
 
 
-Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
+Tileset_Zone66::Tileset_Zone66(stream::inout_sptr data,
 	PaletteTablePtr pal)
-	:	FATTileset(data, Z66_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, Z66_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -193,35 +193,35 @@ Zone66Tileset::Zone66Tileset(stream::inout_sptr data,
 	}
 }
 
-Zone66Tileset::~Zone66Tileset()
+Tileset_Zone66::~Tileset_Zone66()
 {
 }
 
-int Zone66Tileset::getCaps()
+int Tileset_Zone66::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
-ImagePtr Zone66Tileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_Zone66::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	ImagePtr img(new Zone66TileImage(content, this->pal));
+	ImagePtr img(new Image_Zone66Tile(content, this->pal));
 	return img;
 }
 
-PaletteTablePtr Zone66Tileset::getPalette()
+PaletteTablePtr Tileset_Zone66::getPalette()
 {
 	return this->pal;
 }
 
-void Zone66Tileset::setPalette(PaletteTablePtr newPalette)
+void Tileset_Zone66::setPalette(PaletteTablePtr newPalette)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;
 	return;
 }
 
-void Zone66Tileset::updateFileOffset(const FATEntry *pid,
+void Tileset_Zone66::updateFileOffset(const FATEntry *pid,
 	stream::len offDelta)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
@@ -235,8 +235,8 @@ void Zone66Tileset::updateFileOffset(const FATEntry *pid,
 	return;
 }
 
-Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
-	const Zone66Tileset::FATEntry *idBeforeThis, Zone66Tileset::FATEntry *pNewEntry)
+Tileset_Zone66::FATEntry *Tileset_Zone66::preInsertFile(
+	const Tileset_Zone66::FATEntry *idBeforeThis, Tileset_Zone66::FATEntry *pNewEntry)
 {
 	uint32_t fatSize = Z66_FAT_OFFSET + this->items.size() * Z66_FAT_ENTRY_LEN;
 
@@ -267,7 +267,7 @@ Zone66Tileset::FATEntry *Zone66Tileset::preInsertFile(
 	return pNewEntry;
 }
 
-void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
+void Tileset_Zone66::postInsertFile(FATEntry *pNewEntry)
 {
 	// Now the FAT vector has been updated, recalculate the file offsets so they
 	// are correct (i.e. entry 0 is still at offset 0).
@@ -276,7 +276,7 @@ void Zone66Tileset::postInsertFile(FATEntry *pNewEntry)
 	return;
 }
 
-void Zone66Tileset::postRemoveFile(const FATEntry *pid)
+void Tileset_Zone66::postRemoveFile(const FATEntry *pid)
 {
 	// Update the offsets now there's one less FAT entry taking up space.  This
 	// must be called before the FAT is altered, because it will write a new
@@ -299,7 +299,7 @@ void Zone66Tileset::postRemoveFile(const FATEntry *pid)
 	return;
 }
 
-void Zone66Tileset::updateFileCount(uint32_t newCount)
+void Tileset_Zone66::updateFileCount(uint32_t newCount)
 {
 	this->data->seekp(Z66_TILECOUNT_OFFSET, stream::start);
 	this->data << u32le(newCount);

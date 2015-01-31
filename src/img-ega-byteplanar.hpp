@@ -35,7 +35,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGABytePlanarImage: virtual public BaseImage {
+class Image_EGABytePlanar: virtual public Image_Base {
 	protected:
 		stream::inout_sptr data;
 		stream::pos offset;
@@ -44,8 +44,8 @@ class EGABytePlanarImage: virtual public BaseImage {
 		PaletteTablePtr pal;
 
 	public:
-		EGABytePlanarImage();
-		virtual ~EGABytePlanarImage();
+		Image_EGABytePlanar();
+		virtual ~Image_EGABytePlanar();
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.

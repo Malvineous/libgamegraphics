@@ -27,11 +27,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Image implementation for frames within a Monster Bash sprite.
-class BashSpriteImage: virtual public BaseImage
+class Image_BashSprite: virtual public Image_Base
 {
 	public:
-		BashSpriteImage(stream::inout_sptr data);
-		virtual ~BashSpriteImage();
+		Image_BashSprite(stream::inout_sptr data);
+		virtual ~Image_BashSprite();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class GOTTilesetType: virtual public TilesetType
+class TilesetType_GOT: virtual public TilesetType
 {
 	public:
-		GOTTilesetType();
-		virtual ~GOTTilesetType();
+		TilesetType_GOT();
+		virtual ~TilesetType_GOT();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,12 +46,12 @@ class GOTTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
 };
 
-class GOTTileset: virtual public FATTileset
+class Tileset_GOT: virtual public Tileset_FAT
 {
 	public:
-		GOTTileset(stream::inout_sptr data,
+		Tileset_GOT(stream::inout_sptr data,
 			PaletteTablePtr pal);
-		virtual ~GOTTileset();
+		virtual ~Tileset_GOT();
 
 		virtual int getCaps();
 		virtual unsigned int getLayoutWidth();

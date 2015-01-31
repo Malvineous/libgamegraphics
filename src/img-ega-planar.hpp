@@ -37,7 +37,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGAPlanarImage: virtual public BaseImage
+class Image_EGAPlanar: virtual public Image_Base
 {
 	protected:
 		stream::inout_sptr data;
@@ -46,8 +46,8 @@ class EGAPlanarImage: virtual public BaseImage
 		PLANE_LAYOUT planes;
 
 	public:
-		EGAPlanarImage();
-		virtual ~EGAPlanarImage();
+		Image_EGAPlanar();
+		virtual ~Image_EGAPlanar();
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.
@@ -67,11 +67,11 @@ class EGAPlanarImage: virtual public BaseImage
 };
 
 /// Filetype handler for full screen raw EGA images.
-class EGARawPlanarBGRIImageType: virtual public ImageType
+class ImageType_EGARawPlanarBGRI: virtual public ImageType
 {
 	public:
-		EGARawPlanarBGRIImageType();
-		virtual ~EGARawPlanarBGRIImageType();
+		ImageType_EGARawPlanarBGRI();
+		virtual ~ImageType_EGARawPlanarBGRI();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

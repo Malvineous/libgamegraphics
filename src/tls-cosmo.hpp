@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CosmoTilesetType: virtual public TilesetType
+class TilesetType_Cosmo: virtual public TilesetType
 {
 	public:
-		CosmoTilesetType();
-		virtual ~CosmoTilesetType();
+		TilesetType_Cosmo();
+		virtual ~TilesetType_Cosmo();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,7 +46,7 @@ class CosmoTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-class CosmoMaskedTilesetType: virtual public CosmoTilesetType
+class TilesetType_CosmoMasked: virtual public TilesetType_Cosmo
 {
 	public:
 		virtual std::string getCode() const;

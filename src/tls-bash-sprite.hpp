@@ -26,11 +26,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class MonsterBashSpriteTilesetType: virtual public TilesetType
+class TilesetType_MonsterBashSprite: virtual public TilesetType
 {
 	public:
-		MonsterBashSpriteTilesetType();
-		virtual ~MonsterBashSpriteTilesetType();
+		TilesetType_MonsterBashSprite();
+		virtual ~TilesetType_MonsterBashSprite();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

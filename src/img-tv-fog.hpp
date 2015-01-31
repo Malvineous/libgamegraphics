@@ -27,13 +27,13 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Terminal Velocity fog mapping files.
-class TVFogImageType: virtual public ImageType {
+class ImageType_TVFog: virtual public ImageType {
 
 	public:
 
-		TVFogImageType();
+		ImageType_TVFog();
 
-		virtual ~TVFogImageType();
+		virtual ~ImageType_TVFog();
 
 		virtual std::string getCode() const;
 

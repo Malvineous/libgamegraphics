@@ -26,15 +26,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarImage::EGABytePlanarImage()
+Image_EGABytePlanar::Image_EGABytePlanar()
 {
 }
 
-EGABytePlanarImage::~EGABytePlanarImage()
+Image_EGABytePlanar::~Image_EGABytePlanar()
 {
 }
 
-void EGABytePlanarImage::setParams(stream::inout_sptr data,
+void Image_EGABytePlanar::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes,
 	PaletteTablePtr pal
 )
@@ -48,19 +48,19 @@ void EGABytePlanarImage::setParams(stream::inout_sptr data,
 	return;
 }
 
-int EGABytePlanarImage::getCaps()
+int Image_EGABytePlanar::getCaps()
 {
 	return Image::ColourDepthEGA | (this->pal ? Image::HasPalette : 0);
 }
 
-void EGABytePlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_EGABytePlanar::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
+void Image_EGABytePlanar::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 
@@ -78,17 +78,17 @@ void EGABytePlanarImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandard()
+StdImageDataPtr Image_EGABytePlanar::toStandard()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGABytePlanarImage::toStandardMask()
+StdImageDataPtr Image_EGABytePlanar::toStandardMask()
 {
 	return this->doConversion(true);
 }
 
-void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
+void Image_EGABytePlanar::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -185,12 +185,12 @@ void EGABytePlanarImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr EGABytePlanarImage::getPalette()
+PaletteTablePtr Image_EGABytePlanar::getPalette()
 {
 	return this->pal;
 }
 
-StdImageDataPtr EGABytePlanarImage::doConversion(bool mask)
+StdImageDataPtr Image_EGABytePlanar::doConversion(bool mask)
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;

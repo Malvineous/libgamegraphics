@@ -28,10 +28,10 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Cosmo "backdrop" tiled images.
-class BackdropImageType: virtual public ImageType
+class ImageType_Backdrop: virtual public ImageType
 {
 	public:
-		BackdropImageType(unsigned int width, unsigned int height,
+		ImageType_Backdrop(unsigned int width, unsigned int height,
 			unsigned int tileWidth, unsigned int tileHeight, unsigned int planeCount);
 
 		virtual Certainty isInstance(stream::input_sptr fsImage) const;
@@ -50,10 +50,10 @@ class BackdropImageType: virtual public ImageType
 		unsigned int planeCount;
 };
 
-class CosmoBackdropImageType: virtual public BackdropImageType
+class ImageType_CosmoBackdrop: virtual public ImageType_Backdrop
 {
 	public:
-		CosmoBackdropImageType();
+		ImageType_CosmoBackdrop();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -61,10 +61,10 @@ class CosmoBackdropImageType: virtual public BackdropImageType
 		virtual std::vector<std::string> getGameList() const;
 };
 
-class Nukem2BackdropImageType: virtual public BackdropImageType
+class ImageType_Nukem2Backdrop: virtual public ImageType_Backdrop
 {
 	public:
-		Nukem2BackdropImageType();
+		ImageType_Nukem2Backdrop();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

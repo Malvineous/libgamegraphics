@@ -34,42 +34,42 @@ namespace gamegraphics {
 #define WW_TILES_X (320 / WW_TILE_WIDTH)  ///< Number of tiles in a row
 #define WW_TILES_Y (200 / WW_TILE_HEIGHT) ///< Number of tile rows
 
-WackyTilesetType::WackyTilesetType()
+TilesetType_Wacky::TilesetType_Wacky()
 {
 }
 
-WackyTilesetType::~WackyTilesetType()
+TilesetType_Wacky::~TilesetType_Wacky()
 {
 }
 
-std::string WackyTilesetType::getCode() const
+std::string TilesetType_Wacky::getCode() const
 {
 	return "tls-wacky";
 }
 
-std::string WackyTilesetType::getFriendlyName() const
+std::string TilesetType_Wacky::getFriendlyName() const
 {
 	return "Wacky Wheels Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> WackyTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Wacky::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pcx");
 	return vcExtensions;
 }
 
-std::vector<std::string> WackyTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Wacky::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Wacky Wheels");
 	return vcGames;
 }
 
-WackyTilesetType::Certainty WackyTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Wacky::Certainty TilesetType_Wacky::isInstance(stream::input_sptr psGraphics) const
 {
-	PCX_LinearVGA_ImageType pcx;
+	ImageType_PCX_LinearVGA pcx;
 	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
@@ -84,22 +84,22 @@ WackyTilesetType::Certainty WackyTilesetType::isInstance(stream::input_sptr psGr
 	return PossiblyYes; // best we can hope for
 }
 
-TilesetPtr WackyTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Wacky::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	// TODO
 	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr WackyTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Wacky::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	ImagePtr img(new PCXImage(psGraphics, 8, 1));
-	return TilesetPtr(new TilesetFromImage(img,
+	ImagePtr img(new Image_PCX(psGraphics, 8, 1));
+	return TilesetPtr(new Image_TilesetFrom(img,
 		WW_TILE_WIDTH, WW_TILE_HEIGHT, WW_TILES_X, WW_TILES_Y));
 }
 
-SuppFilenames WackyTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Wacky::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

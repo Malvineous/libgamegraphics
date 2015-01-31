@@ -42,36 +42,36 @@ namespace gamegraphics {
 #define CC_FIRST_TILE_OFFSET    3
 
 //
-// CCavesSubTilesetType
+// TilesetType_CCavesSub
 //
 
-CCavesSubTilesetType::CCavesSubTilesetType()
+TilesetType_CCavesSub::TilesetType_CCavesSub()
 {
 }
 
-CCavesSubTilesetType::~CCavesSubTilesetType()
+TilesetType_CCavesSub::~TilesetType_CCavesSub()
 {
 }
 
-std::string CCavesSubTilesetType::getCode() const
+std::string TilesetType_CCavesSub::getCode() const
 {
 	return "tls-ccaves-sub";
 }
 
-std::string CCavesSubTilesetType::getFriendlyName() const
+std::string TilesetType_CCavesSub::getFriendlyName() const
 {
 	return "Crystal Caves Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> CCavesSubTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_CCavesSub::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> CCavesSubTilesetType::getGameList() const
+std::vector<std::string> TilesetType_CCavesSub::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
@@ -79,7 +79,7 @@ std::vector<std::string> CCavesSubTilesetType::getGameList() const
 	return vcGames;
 }
 
-CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -102,22 +102,22 @@ CCavesSubTilesetType::Certainty CCavesSubTilesetType::isInstance(stream::input_s
 	return PossiblyYes;
 }
 
-TilesetPtr CCavesSubTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CCavesSub::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	psGraphics->write("\x00\x00\x00", 3);
-	return TilesetPtr(new CCavesSubTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(new Tileset_CCavesSub(psGraphics, NUMPLANES_SPRITE));
 }
 
-TilesetPtr CCavesSubTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CCavesSub::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CCavesSubTileset(psGraphics, NUMPLANES_SPRITE));
+	return TilesetPtr(new Tileset_CCavesSub(psGraphics, NUMPLANES_SPRITE));
 }
 
-SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesSub::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -125,12 +125,12 @@ SuppFilenames CCavesSubTilesetType::getRequiredSupps(const std::string& filename
 
 
 //
-// CCavesSubTileset
+// Tileset_CCavesSub
 //
 
-CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
+Tileset_CCavesSub::Tileset_CCavesSub(stream::inout_sptr data,
 	uint8_t numPlanes)
-	:	FATTileset(data, CC_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, CC_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -163,16 +163,16 @@ CCavesSubTileset::CCavesSubTileset(stream::inout_sptr data,
 
 }
 
-CCavesSubTileset::~CCavesSubTileset()
+Tileset_CCavesSub::~Tileset_CCavesSub()
 {
 }
 
-int CCavesSubTileset::getCaps()
+int Tileset_CCavesSub::getCaps()
 {
 	return Tileset::ChangeDimensions | Tileset::ColourDepthEGA;
 }
 
-void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_CCavesSub::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != (unsigned)(this->width * this->height * this->numPlanes)) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -180,14 +180,14 @@ void CCavesSubTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void CCavesSubTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_CCavesSub::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width * 8;
 	*height = this->height;
 	return;
 }
 
-void CCavesSubTileset::setTilesetDimensions(unsigned int width, unsigned int height)
+void Tileset_CCavesSub::setTilesetDimensions(unsigned int width, unsigned int height)
 {
 	// TODO: confirm this, it could just leave the unused bits blank
 	if (width % 8) throw stream::error("width must be a multiple of 8");
@@ -208,12 +208,12 @@ void CCavesSubTileset::setTilesetDimensions(unsigned int width, unsigned int hei
 	return;
 }
 
-unsigned int CCavesSubTileset::getLayoutWidth()
+unsigned int Tileset_CCavesSub::getLayoutWidth()
 {
 	return 10;
 }
 
-ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_CCavesSub::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	PLANE_LAYOUT planes;
@@ -224,7 +224,7 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = -1;
 
-	EGABytePlanarImage *ega = new EGABytePlanarImage();
+	Image_EGABytePlanar *ega = new Image_EGABytePlanar();
 	ImagePtr conv(ega);
 	ega->setParams(
 		content, 0, this->width * 8, this->height, planes, PaletteTablePtr()
@@ -233,8 +233,8 @@ ImagePtr CCavesSubTileset::createImageInstance(const EntryPtr& id,
 	return conv;
 }
 
-CCavesSubTileset::FATEntry *CCavesSubTileset::preInsertFile(
-	const CCavesSubTileset::FATEntry *idBeforeThis, CCavesSubTileset::FATEntry *pNewEntry)
+Tileset_CCavesSub::FATEntry *Tileset_CCavesSub::preInsertFile(
+	const Tileset_CCavesSub::FATEntry *idBeforeThis, Tileset_CCavesSub::FATEntry *pNewEntry)
 {
 	if (this->items.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
@@ -250,7 +250,7 @@ CCavesSubTileset::FATEntry *CCavesSubTileset::preInsertFile(
 	return pNewEntry;
 }
 
-void CCavesSubTileset::postRemoveFile(const FATEntry *pid)
+void Tileset_CCavesSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
 	this->data->seekp(0, stream::start);

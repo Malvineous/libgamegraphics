@@ -32,39 +32,39 @@
 namespace camoto {
 namespace gamegraphics {
 
-CComicImageType::CComicImageType()
+ImageType_CComic::ImageType_CComic()
 {
 }
 
-CComicImageType::~CComicImageType()
+ImageType_CComic::~ImageType_CComic()
 {
 }
 
-std::string CComicImageType::getCode() const
+std::string ImageType_CComic::getCode() const
 {
 	return "img-ccomic";
 }
 
-std::string CComicImageType::getFriendlyName() const
+std::string ImageType_CComic::getFriendlyName() const
 {
 	return "Captain Comic full-screen image";
 }
 
-std::vector<std::string> CComicImageType::getFileExtensions() const
+std::vector<std::string> ImageType_CComic::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ega");
 	return vcExtensions;
 }
 
-std::vector<std::string> CComicImageType::getGameList() const
+std::vector<std::string> ImageType_CComic::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic");
 	return vcGames;
 }
 
-ImageType::Certainty CComicImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_CComic::isInstance(stream::input_sptr psImage) const
 {
 	// TESTED BY: img_ccomic_isinstance_c02
 	if (psImage->size() < 2) return DefinitelyNo;
@@ -111,25 +111,25 @@ ImageType::Certainty CComicImageType::isInstance(stream::input_sptr psImage) con
 	return DefinitelyYes;
 }
 
-ImagePtr CComicImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_CComic::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new CComicImage(psImage));
+	return ImagePtr(new Image_CComic(psImage));
 }
 
-ImagePtr CComicImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_CComic::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new CComicImage(psImage));
+	return ImagePtr(new Image_CComic(psImage));
 }
 
-SuppFilenames CComicImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_CComic::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }
 
 
-CComicImage::CComicImage(stream::inout_sptr data)
+Image_CComic::Image_CComic(stream::inout_sptr data)
 	:	data(data)
 {
 	filter_sptr filtRead(new filter_ccomic_unrle());
@@ -146,7 +146,7 @@ CComicImage::CComicImage(stream::inout_sptr data)
 	this->setParams(decoded, 0, 320, 200, planes);
 }
 
-CComicImage::~CComicImage()
+Image_CComic::~Image_CComic()
 {
 }
 

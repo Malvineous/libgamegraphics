@@ -34,7 +34,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class EGARowPlanarImage: virtual public BaseImage {
+class Image_EGARowPlanar: virtual public Image_Base {
 	protected:
 		stream::inout_sptr data;
 		stream::pos offset;
@@ -42,9 +42,9 @@ class EGARowPlanarImage: virtual public BaseImage {
 		PLANE_LAYOUT planes;
 
 	public:
-		EGARowPlanarImage();
+		Image_EGARowPlanar();
 
-		virtual ~EGARowPlanarImage();
+		virtual ~Image_EGARowPlanar();
 
 		/// These could be set in the constructor, but often descendent classes
 		/// won't have these values until the end of their constructors.

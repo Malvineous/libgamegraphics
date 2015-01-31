@@ -33,7 +33,7 @@ namespace gamegraphics {
  * does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class VGAPlanarImage: virtual public BaseImage
+class Image_VGAPlanar: virtual public Image_Base
 {
 	public:
 		/// Constructor
@@ -44,8 +44,8 @@ class VGAPlanarImage: virtual public BaseImage
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		VGAPlanarImage(stream::inout_sptr data, stream::pos off);
-		virtual ~VGAPlanarImage();
+		Image_VGAPlanar(stream::inout_sptr data, stream::pos off);
+		virtual ~Image_VGAPlanar();
 
 		virtual int getCaps();
 		//virtual void getDimensions(unsigned int *width, unsigned int *height);

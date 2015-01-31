@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 		"Couldn't insert new tile in empty tileset");
 	ImagePtr img3(pTileset->openImage(ep3));
 	// Get offsets of each tile for later testing
-	FATTileset::FATEntryPtr fat3 =
-		boost::dynamic_pointer_cast<FATTileset::FATEntry>(ep3);
+	Tileset_FAT::FATEntryPtr fat3 =
+		boost::dynamic_pointer_cast<Tileset_FAT::FATEntry>(ep3);
 	int off3;
 	if (fat3) off3 = fat3->offset;
 
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE(TEST_NAME(manipulate_zero_length_tiles))
 	ImagePtr img2(pTileset->openImage(ep2));
 
 	// Get offsets of first tile for later testing
-	FATTileset::FATEntryPtr fat1 =
-		boost::dynamic_pointer_cast<FATTileset::FATEntry>(ep1);
+	Tileset_FAT::FATEntryPtr fat1 =
+		boost::dynamic_pointer_cast<Tileset_FAT::FATEntry>(ep1);
 	int off1;
 	if (fat1) off1 = fat1->offset;
 

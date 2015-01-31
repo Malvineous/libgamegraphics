@@ -27,11 +27,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class MonsterBashBackgroundTilesetType: virtual public TilesetType
+class TilesetType_MonsterBashBackground: virtual public TilesetType
 {
 	public:
-		MonsterBashBackgroundTilesetType();
-		virtual ~MonsterBashBackgroundTilesetType();
+		TilesetType_MonsterBashBackground();
+		virtual ~TilesetType_MonsterBashBackground();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,11 +46,11 @@ class MonsterBashBackgroundTilesetType: virtual public TilesetType
 			const;
 };
 
-class MonsterBashForegroundTilesetType: virtual public TilesetType
+class TilesetType_MonsterBashForeground: virtual public TilesetType
 {
 	public:
-		MonsterBashForegroundTilesetType();
-		virtual ~MonsterBashForegroundTilesetType();
+		TilesetType_MonsterBashForeground();
+		virtual ~TilesetType_MonsterBashForeground();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -65,18 +65,18 @@ class MonsterBashForegroundTilesetType: virtual public TilesetType
 			const;
 };
 
-class MonsterBashTileset: virtual public FATTileset
+class Tileset_MonsterBash: virtual public Tileset_FAT
 {
 	public:
-		MonsterBashTileset(stream::inout_sptr data, uint8_t numPlanes);
-		virtual ~MonsterBashTileset();
+		Tileset_MonsterBash(stream::inout_sptr data, uint8_t numPlanes);
+		virtual ~Tileset_MonsterBash();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
 		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,

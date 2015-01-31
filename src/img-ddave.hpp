@@ -31,7 +31,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Dangerous Dave CGA Image implementation.
-class DDaveCGAImage: virtual public CGAImage {
+class Image_DDaveCGA: virtual public Image_CGA {
 
 	public:
 		/// Constructor
@@ -44,9 +44,9 @@ class DDaveCGAImage: virtual public CGAImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveCGAImage(stream::inout_sptr data, bool fixedSize);
+		Image_DDaveCGA(stream::inout_sptr data, bool fixedSize);
 
-		virtual ~DDaveCGAImage();
+		virtual ~Image_DDaveCGA();
 
 		virtual int getCaps();
 
@@ -60,7 +60,7 @@ class DDaveCGAImage: virtual public CGAImage {
 };
 
 /// Dangerous Dave EGA Image implementation.
-class DDaveEGAImage: virtual public EGARowPlanarImage {
+class Image_DDaveEGA: virtual public Image_EGARowPlanar {
 
 	public:
 		/// Constructor
@@ -73,9 +73,9 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		DDaveEGAImage(stream::inout_sptr data, bool fixedSize);
+		Image_DDaveEGA(stream::inout_sptr data, bool fixedSize);
 
-		virtual ~DDaveEGAImage();
+		virtual ~Image_DDaveEGA();
 
 		virtual int getCaps();
 
@@ -90,7 +90,7 @@ class DDaveEGAImage: virtual public EGARowPlanarImage {
 };
 
 /// Dangerous Dave VGA Image implementation.
-class DDaveVGAImage: virtual public VGAImage {
+class Image_DDaveVGA: virtual public Image_VGA {
 
 	public:
 		/// Constructor
@@ -106,10 +106,10 @@ class DDaveVGAImage: virtual public VGAImage {
 		 * @param pal
 		 *   Image palette.
 		 */
-		DDaveVGAImage(stream::inout_sptr data, bool fixedSize,
+		Image_DDaveVGA(stream::inout_sptr data, bool fixedSize,
 			PaletteTablePtr pal);
 
-		virtual ~DDaveVGAImage();
+		virtual ~Image_DDaveVGA();
 
 		virtual int getCaps();
 

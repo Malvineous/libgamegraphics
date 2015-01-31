@@ -31,31 +31,31 @@
 namespace camoto {
 namespace gamegraphics {
 
-std::string RaptorPICImageType::getCode() const
+std::string ImageType_RaptorPIC::getCode() const
 {
 	return "img-pic-raptor";
 }
 
-std::string RaptorPICImageType::getFriendlyName() const
+std::string ImageType_RaptorPIC::getFriendlyName() const
 {
 	return "Raptor PIC image";
 }
 
-std::vector<std::string> RaptorPICImageType::getFileExtensions() const
+std::vector<std::string> ImageType_RaptorPIC::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pic");
 	return vcExtensions;
 }
 
-std::vector<std::string> RaptorPICImageType::getGameList() const
+std::vector<std::string> ImageType_RaptorPIC::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Raptor");
 	return vcGames;
 }
 
-ImageType::Certainty RaptorPICImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_RaptorPIC::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 	if (len < 20) return DefinitelyNo;
@@ -74,7 +74,7 @@ ImageType::Certainty RaptorPICImageType::isInstance(stream::input_sptr psImage) 
 	return DefinitelyYes;
 }
 
-ImagePtr RaptorPICImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_RaptorPIC::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(20);
@@ -90,25 +90,25 @@ ImagePtr RaptorPICImageType::create(stream::inout_sptr psImage,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new RaptorPICImage(psImage, pal));
+	return ImagePtr(new Image_RaptorPIC(psImage, pal));
 }
 
-ImagePtr RaptorPICImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_RaptorPIC::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new RaptorPICImage(psImage, pal));
+	return ImagePtr(new Image_RaptorPIC(psImage, pal));
 }
 
-SuppFilenames RaptorPICImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_RaptorPIC::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "palette_dat";
@@ -116,17 +116,17 @@ SuppFilenames RaptorPICImageType::getRequiredSupps(const std::string& filenameIm
 }
 
 
-RaptorPICImage::RaptorPICImage(stream::inout_sptr data, PaletteTablePtr pal)
-	:	VGAImage(data, PIC_DATA_OFFSET),
+Image_RaptorPIC::Image_RaptorPIC(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Image_VGA(data, PIC_DATA_OFFSET),
 		pal(pal)
 {
 }
 
-RaptorPICImage::~RaptorPICImage()
+Image_RaptorPIC::~Image_RaptorPIC()
 {
 }
 
-int RaptorPICImage::getCaps()
+int Image_RaptorPIC::getCaps()
 {
 	return Image::ColourDepthVGA
 		| Image::CanSetDimensions
@@ -134,7 +134,7 @@ int RaptorPICImage::getCaps()
 	;
 }
 
-void RaptorPICImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_RaptorPIC::getDimensions(unsigned int *width, unsigned int *height)
 {
 	this->data->seekg(12, stream::start);
 	this->data
@@ -144,7 +144,7 @@ void RaptorPICImage::getDimensions(unsigned int *width, unsigned int *height)
 	return;
 }
 
-void RaptorPICImage::setDimensions(unsigned int width, unsigned int height)
+void Image_RaptorPIC::setDimensions(unsigned int width, unsigned int height)
 {
 	this->data->seekp(12, stream::start);
 	this->data
@@ -154,7 +154,7 @@ void RaptorPICImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-PaletteTablePtr RaptorPICImage::getPalette()
+PaletteTablePtr Image_RaptorPIC::getPalette()
 {
 	return this->pal;
 }

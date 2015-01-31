@@ -27,11 +27,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class SAgent2kTilesetType: virtual public CCavesMainTilesetType
+class TilesetType_SAgent2k: virtual public TilesetType_CCavesMain
 {
 	public:
-		SAgent2kTilesetType();
-		virtual ~SAgent2kTilesetType();
+		TilesetType_SAgent2k();
+		virtual ~TilesetType_SAgent2k();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -44,11 +44,11 @@ class SAgent2kTilesetType: virtual public CCavesMainTilesetType
 			SuppData& suppData) const;
 };
 
-class SAgent8kTilesetType: virtual public CCavesMainTilesetType
+class TilesetType_SAgent8k: virtual public TilesetType_CCavesMain
 {
 	public:
-		SAgent8kTilesetType();
-		virtual ~SAgent8kTilesetType();
+		TilesetType_SAgent8k();
+		virtual ~TilesetType_SAgent8k();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

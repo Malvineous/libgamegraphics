@@ -34,42 +34,42 @@ namespace gamegraphics {
 #define WR_TILES_X (320 / WR_TILE_WIDTH)  ///< Number of tiles in a row
 #define WR_TILES_Y (200 / WR_TILE_HEIGHT) ///< Number of tile rows
 
-WordrescTilesetType::WordrescTilesetType()
+TilesetType_Wordresc::TilesetType_Wordresc()
 {
 }
 
-WordrescTilesetType::~WordrescTilesetType()
+TilesetType_Wordresc::~TilesetType_Wordresc()
 {
 }
 
-std::string WordrescTilesetType::getCode() const
+std::string TilesetType_Wordresc::getCode() const
 {
 	return "tls-wordresc";
 }
 
-std::string WordrescTilesetType::getFriendlyName() const
+std::string TilesetType_Wordresc::getFriendlyName() const
 {
 	return "Word Rescue Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> WordrescTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Wordresc::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("wr");
 	return vcExtensions;
 }
 
-std::vector<std::string> WordrescTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Wordresc::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
 	return vcGames;
 }
 
-WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(stream::input_sptr psGraphics) const
 {
-	PCX_PlanarEGA_ImageType pcx;
+	ImageType_PCX_PlanarEGA pcx;
 	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
@@ -84,23 +84,23 @@ WordrescTilesetType::Certainty WordrescTilesetType::isInstance(stream::input_spt
 	return PossiblyYes; // best we can hope for
 }
 
-TilesetPtr WordrescTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Wordresc::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	// TODO
 	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr WordrescTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Wordresc::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	PCX_PlanarEGA_ImageType pcx;
-	ImagePtr img = pcx.open(psGraphics, suppData);//(new PCXImage(psGraphics));
-	return TilesetPtr(new TilesetFromImage(img,
+	ImageType_PCX_PlanarEGA pcx;
+	ImagePtr img = pcx.open(psGraphics, suppData);//(new Image_PCX(psGraphics));
+	return TilesetPtr(new Image_TilesetFrom(img,
 		WR_TILE_WIDTH, WR_TILE_HEIGHT, WR_TILES_X, WR_TILES_Y));
 }
 
-SuppFilenames WordrescTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Wordresc::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

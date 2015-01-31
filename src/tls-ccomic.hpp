@@ -27,12 +27,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CComicTilesetType: virtual public TilesetType {
+class TilesetType_CComic: virtual public TilesetType {
 
 	public:
-		CComicTilesetType();
+		TilesetType_CComic();
 
-		virtual ~CComicTilesetType();
+		virtual ~TilesetType_CComic();
 
 		virtual std::string getCode() const;
 
@@ -54,7 +54,7 @@ class CComicTilesetType: virtual public TilesetType {
 
 };
 
-class CComicSpriteType: virtual public CComicTilesetType {
+class CComicSpriteType: virtual public TilesetType_CComic {
 
 	public:
 		virtual std::string getCode() const;
@@ -71,12 +71,12 @@ class CComicSpriteType: virtual public CComicTilesetType {
 
 };
 
-class CComicTileset: virtual public FATTileset {
+class Tileset_CComic: virtual public Tileset_FAT {
 
 	public:
-		CComicTileset(stream::inout_sptr data, uint8_t numPlanes);
+		Tileset_CComic(stream::inout_sptr data, uint8_t numPlanes);
 
-		virtual ~CComicTileset();
+		virtual ~Tileset_CComic();
 
 		virtual int getCaps();
 
@@ -86,7 +86,7 @@ class CComicTileset: virtual public FATTileset {
 
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);

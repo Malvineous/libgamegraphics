@@ -23,7 +23,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-CGAImage::CGAImage(stream::inout_sptr data, stream::pos off,
+Image_CGA::Image_CGA(stream::inout_sptr data, stream::pos off,
 	unsigned int width, unsigned int height, CGAPaletteType cgaPal)
 	:	parent(data),
 		data(new bitstream(data, bitstream::bigEndian)),
@@ -34,23 +34,23 @@ CGAImage::CGAImage(stream::inout_sptr data, stream::pos off,
 {
 }
 
-CGAImage::~CGAImage()
+Image_CGA::~Image_CGA()
 {
 }
 
-int CGAImage::getCaps()
+int Image_CGA::getCaps()
 {
 	return ColourDepthCGA | HasPalette;
 }
 
-void CGAImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_CGA::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void CGAImage::setDimensions(unsigned int width, unsigned int height)
+void Image_CGA::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -58,7 +58,7 @@ void CGAImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr CGAImage::toStandard()
+StdImageDataPtr Image_CGA::toStandard()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -79,7 +79,7 @@ StdImageDataPtr CGAImage::toStandard()
 	return ret;
 }
 
-StdImageDataPtr CGAImage::toStandardMask()
+StdImageDataPtr Image_CGA::toStandardMask()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -94,7 +94,7 @@ StdImageDataPtr CGAImage::toStandardMask()
 	return ret;
 }
 
-void CGAImage::fromStandard(StdImageDataPtr newContent,
+void Image_CGA::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -118,48 +118,48 @@ void CGAImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr CGAImage::getPalette()
+PaletteTablePtr Image_CGA::getPalette()
 {
 	return createPalette_CGA(this->cgaPal);
 }
 
 
 //
-// CGARawLinearImageType
+// ImageType_CGARawLinear
 //
 
-CGARawLinearImageType::CGARawLinearImageType()
+ImageType_CGARawLinear::ImageType_CGARawLinear()
 {
 }
 
-CGARawLinearImageType::~CGARawLinearImageType()
+ImageType_CGARawLinear::~ImageType_CGARawLinear()
 {
 }
 
-std::string CGARawLinearImageType::getCode() const
+std::string ImageType_CGARawLinear::getCode() const
 {
 	return "img-cga-raw-linear-fullscreen";
 }
 
-std::string CGARawLinearImageType::getFriendlyName() const
+std::string ImageType_CGARawLinear::getFriendlyName() const
 {
 	return "Raw Linear CGA fullscreen image";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> CGARawLinearImageType::getFileExtensions() const
+std::vector<std::string> ImageType_CGARawLinear::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> CGARawLinearImageType::getGameList() const
+std::vector<std::string> ImageType_CGARawLinear::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty CGARawLinearImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_CGARawLinear::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -170,7 +170,7 @@ ImageType::Certainty CGARawLinearImageType::isInstance(stream::input_sptr psImag
 	return DefinitelyNo;
 }
 
-ImagePtr CGARawLinearImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_CGARawLinear::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(16000);
@@ -183,16 +183,16 @@ ImagePtr CGARawLinearImageType::create(stream::inout_sptr psImage,
 	return this->open(psImage, dummy);
 }
 
-ImagePtr CGARawLinearImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_CGARawLinear::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	CGAImage *cga = new CGAImage(psImage, 0, 320, 200,
+	Image_CGA *cga = new Image_CGA(psImage, 0, 320, 200,
 		CGAPal_CyanMagentaBright);
 	ImagePtr img(cga);
 	return img;
 }
 
-SuppFilenames CGARawLinearImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_CGARawLinear::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }

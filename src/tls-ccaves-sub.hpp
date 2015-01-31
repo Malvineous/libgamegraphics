@@ -27,13 +27,13 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CCavesSubTilesetType: virtual public TilesetType {
+class TilesetType_CCavesSub: virtual public TilesetType {
 
 	public:
 
-		CCavesSubTilesetType();
+		TilesetType_CCavesSub();
 
-		virtual ~CCavesSubTilesetType();
+		virtual ~TilesetType_CCavesSub();
 
 		virtual std::string getCode() const;
 
@@ -55,14 +55,14 @@ class CCavesSubTilesetType: virtual public TilesetType {
 
 };
 
-class CCavesSubTileset: virtual public FATTileset {
+class Tileset_CCavesSub: virtual public Tileset_FAT {
 	protected:
 		uint8_t width, height, numPlanes;
 
 	public:
-		CCavesSubTileset(stream::inout_sptr data, uint8_t numPlanes);
+		Tileset_CCavesSub(stream::inout_sptr data, uint8_t numPlanes);
 
-		virtual ~CCavesSubTileset();
+		virtual ~Tileset_CCavesSub();
 
 		virtual int getCaps();
 
@@ -74,7 +74,7 @@ class CCavesSubTileset: virtual public FATTileset {
 
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);

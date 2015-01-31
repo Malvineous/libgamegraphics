@@ -24,7 +24,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-FATTileset::FATTileset(stream::inout_sptr data,
+Tileset_FAT::Tileset_FAT(stream::inout_sptr data,
 	stream::pos offFirstTile)
 	:	data(new stream::seg()),
 		offFirstTile(offFirstTile)
@@ -32,22 +32,22 @@ FATTileset::FATTileset(stream::inout_sptr data,
 	this->data->open(data);
 }
 
-FATTileset::~FATTileset()
+Tileset_FAT::~Tileset_FAT()
 {
 }
 
-const FATTileset::VC_ENTRYPTR& FATTileset::getItems(void) const
+const Tileset_FAT::VC_ENTRYPTR& Tileset_FAT::getItems(void) const
 {
 	return this->items;
 }
 
-TilesetPtr FATTileset::openTileset(const EntryPtr& id)
+TilesetPtr Tileset_FAT::openTileset(const EntryPtr& id)
 {
 	stream::inout_sptr sub = this->openStream(id);
 	return this->createTilesetInstance(id, sub);
 }
 
-ImagePtr FATTileset::openImage(const EntryPtr& id)
+ImagePtr Tileset_FAT::openImage(const EntryPtr& id)
 {
 	stream::inout_sptr sub = this->openStream(id);
 	/// @todo What happens if the entry gets deleted, then the image resized?
@@ -55,7 +55,7 @@ ImagePtr FATTileset::openImage(const EntryPtr& id)
 	return this->createImageInstance(id, sub);
 }
 
-FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
+Tileset_FAT::EntryPtr Tileset_FAT::insert(const EntryPtr& idBeforeThis, int attr)
 {
 	FATEntry *pNewFile = this->createNewFATEntry();
 	EntryPtr ep(pNewFile);
@@ -139,7 +139,7 @@ FATTileset::EntryPtr FATTileset::insert(const EntryPtr& idBeforeThis, int attr)
 	return ep;
 }
 
-void FATTileset::remove(EntryPtr& id)
+void Tileset_FAT::remove(EntryPtr& id)
 {
 	// Make sure the caller doesn't try to remove something that doesn't exist!
 	assert(id->isValid());
@@ -177,7 +177,7 @@ void FATTileset::remove(EntryPtr& id)
 	return;
 }
 
-void FATTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_FAT::resize(EntryPtr& id, stream::len newSize)
 {
 	FATEntry *pFAT = dynamic_cast<FATEntry *>(id.get());
 	assert(pFAT);
@@ -227,7 +227,7 @@ void FATTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void FATTileset::flush()
+void Tileset_FAT::flush()
 {
 	// Write out to the underlying stream
 	this->data->flush();
@@ -235,7 +235,7 @@ void FATTileset::flush()
 	return;
 }
 
-void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
+void Tileset_FAT::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
 	stream::delta deltaOffset, int deltaIndex)
 {
 	for (VC_ENTRYPTR::iterator i = this->items.begin(); i != this->items.end(); i++) {
@@ -275,7 +275,7 @@ void FATTileset::shiftFiles(const FATEntry *fatSkip, stream::pos offStart,
 	return;
 }
 
-TilesetPtr FATTileset::createTilesetInstance(const EntryPtr& id,
+TilesetPtr Tileset_FAT::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	// Caller didn't check id->attr
@@ -285,7 +285,7 @@ TilesetPtr FATTileset::createTilesetInstance(const EntryPtr& id,
 		" attributes to detect this)");
 }
 
-ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_FAT::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	// Caller didn't check id->attr
@@ -295,51 +295,51 @@ ImagePtr FATTileset::createImageInstance(const EntryPtr& id,
 		" attributes to detect this)");
 }
 
-void FATTileset::updateFileOffset(const FATTileset::FATEntry *pid,
+void Tileset_FAT::updateFileOffset(const Tileset_FAT::FATEntry *pid,
 	stream::len offDelta)
 {
 	// Default implementation is a no-op
 	return;
 }
 
-void FATTileset::updateFileSize(const FATTileset::FATEntry *pid,
+void Tileset_FAT::updateFileSize(const Tileset_FAT::FATEntry *pid,
 	stream::len sizeDelta)
 {
 	// Default implementation is a no-op
 	return;
 }
 
-FATTileset::FATEntry *FATTileset::preInsertFile(
-	const FATTileset::FATEntry *idBeforeThis, FATTileset::FATEntry *pNewEntry)
+Tileset_FAT::FATEntry *Tileset_FAT::preInsertFile(
+	const Tileset_FAT::FATEntry *idBeforeThis, Tileset_FAT::FATEntry *pNewEntry)
 {
 	// Default implementation is a no-op
 	return pNewEntry;
 }
 
-void FATTileset::postInsertFile(FATTileset::FATEntry *pNewEntry)
+void Tileset_FAT::postInsertFile(Tileset_FAT::FATEntry *pNewEntry)
 {
 	// Default implementation is a no-op
 	return;
 }
 
-void FATTileset::preRemoveFile(const FATTileset::FATEntry *pid)
+void Tileset_FAT::preRemoveFile(const Tileset_FAT::FATEntry *pid)
 {
 	// Default implementation is a no-op
 	return;
 }
 
-void FATTileset::postRemoveFile(const FATTileset::FATEntry *pid)
+void Tileset_FAT::postRemoveFile(const Tileset_FAT::FATEntry *pid)
 {
 	// Default implementation is a no-op
 	return;
 }
 
-FATTileset::FATEntry *FATTileset::createNewFATEntry()
+Tileset_FAT::FATEntry *Tileset_FAT::createNewFATEntry()
 {
 	return new FATEntry();
 }
 
-stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
+stream::inout_sptr Tileset_FAT::openStream(const EntryPtr& id)
 {
 	assert(id->isValid());
 
@@ -350,7 +350,7 @@ stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
 	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
 	assert(pFAT);
 
-	stream::fn_truncate fnTruncate = boost::bind<void>(&FATTileset::resize, this, id, _1);
+	stream::fn_truncate fnTruncate = boost::bind<void>(&Tileset_FAT::resize, this, id, _1);
 
 	stream::sub_sptr sub(new stream::sub);
 	sub->open(
@@ -369,7 +369,7 @@ stream::inout_sptr FATTileset::openStream(const EntryPtr& id)
 	return sub;
 }
 
-void FATTileset::cleanOpenSubstreams()
+void Tileset_FAT::cleanOpenSubstreams()
 {
 	bool clean;
 	do {
@@ -392,7 +392,7 @@ void FATTileset::cleanOpenSubstreams()
 	return;
 }
 
-bool FATTileset::entryInRange(const FATEntry *fat, stream::pos offStart,
+bool Tileset_FAT::entryInRange(const FATEntry *fat, stream::pos offStart,
 	const FATEntry *fatSkip) const
 {
 	// Don't move any files earlier than the start of the shift block.

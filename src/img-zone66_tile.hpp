@@ -28,13 +28,13 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Zone 66 tiles.
-class Zone66TileImageType: virtual public ImageType {
+class ImageType_Zone66Tile: virtual public ImageType {
 
 	public:
 
-		Zone66TileImageType();
+		ImageType_Zone66Tile();
 
-		virtual ~Zone66TileImageType();
+		virtual ~ImageType_Zone66Tile();
 
 		virtual std::string getCode() const;
 
@@ -57,17 +57,17 @@ class Zone66TileImageType: virtual public ImageType {
 };
 
 /// Zone66 Image implementation for a tile within a tileset.
-class Zone66TileImage: virtual public BaseImage {
+class Image_Zone66Tile: virtual public Image_Base {
 	protected:
 		stream::inout_sptr data;
 		PaletteTablePtr pal;
 		int width, height;
 
 	public:
-		Zone66TileImage(stream::inout_sptr data,
+		Image_Zone66Tile(stream::inout_sptr data,
 			PaletteTablePtr pal);
 
-		virtual ~Zone66TileImage();
+		virtual ~Image_Zone66Tile();
 
 		virtual int getCaps();
 

@@ -28,18 +28,18 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Flag for tileset image type.
-enum CatacombImageType {
+enum ImageType_Catacomb {
 	CAT_CGA = 0,
 	CAT_EGA = 1
 };
 
 /// Common code for Catacomb tilesets.
-class CatacombTilesetType: virtual public TilesetType
+class TilesetType_Catacomb: virtual public TilesetType
 {
 	public:
-		CatacombTilesetType();
+		TilesetType_Catacomb();
 
-		virtual ~CatacombTilesetType();
+		virtual ~TilesetType_Catacomb();
 
 		virtual std::vector<std::string> getFileExtensions() const;
 
@@ -49,12 +49,12 @@ class CatacombTilesetType: virtual public TilesetType
 };
 
 /// CGA-specific code for Catacomb tilesets.
-class CatacombCGATilesetType: virtual public CatacombTilesetType
+class TilesetType_CatacombCGA: virtual public TilesetType_Catacomb
 {
 	public:
-		CatacombCGATilesetType();
+		TilesetType_CatacombCGA();
 
-		virtual ~CatacombCGATilesetType();
+		virtual ~TilesetType_CatacombCGA();
 
 		virtual std::string getCode() const;
 
@@ -70,12 +70,12 @@ class CatacombCGATilesetType: virtual public CatacombTilesetType
 };
 
 /// EGA-specific code for Catacomb tilesets.
-class CatacombEGATilesetType: virtual public CatacombTilesetType
+class TilesetType_CatacombEGA: virtual public TilesetType_Catacomb
 {
 	public:
-		CatacombEGATilesetType();
+		TilesetType_CatacombEGA();
 
-		virtual ~CatacombEGATilesetType();
+		virtual ~TilesetType_CatacombEGA();
 
 		virtual std::string getCode() const;
 
@@ -91,12 +91,12 @@ class CatacombEGATilesetType: virtual public CatacombTilesetType
 };
 
 /// Tileset format handler.
-class CatacombTileset: virtual public FATTileset
+class Tileset_Catacomb: virtual public Tileset_FAT
 {
 	public:
-		CatacombTileset(stream::inout_sptr data, CatacombImageType imageType);
+		Tileset_Catacomb(stream::inout_sptr data, ImageType_Catacomb imageType);
 
-		virtual ~CatacombTileset();
+		virtual ~Tileset_Catacomb();
 
 		virtual int getCaps();
 
@@ -106,13 +106,13 @@ class CatacombTileset: virtual public FATTileset
 
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 
 	protected:
-		CatacombImageType imageType;
+		ImageType_Catacomb imageType;
 };
 
 } // namespace gamegraphics

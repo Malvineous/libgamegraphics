@@ -180,17 +180,17 @@ stream::len putNextChar(stream::output_sptr src, uint8_t *lastChar, uint8_t out)
 }
 
 
-PCXBaseImageType::PCXBaseImageType(int bitsPerPlane, int numPlanes)
+ImageType_PCXBase::ImageType_PCXBase(int bitsPerPlane, int numPlanes)
 	:	bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
 {
 }
 
-PCXBaseImageType::~PCXBaseImageType()
+ImageType_PCXBase::~ImageType_PCXBase()
 {
 }
 
-std::string PCXBaseImageType::getCode() const
+std::string ImageType_PCXBase::getCode() const
 {
 	std::stringstream code;
 	code << "img-pcx-" << (int)this->bitsPerPlane << "b"
@@ -198,14 +198,14 @@ std::string PCXBaseImageType::getCode() const
 	return code.str();
 }
 
-std::vector<std::string> PCXBaseImageType::getFileExtensions() const
+std::vector<std::string> ImageType_PCXBase::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pcx");
 	return vcExtensions;
 }
 
-ImageType::Certainty PCXBaseImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_PCXBase::isInstance(stream::input_sptr psImage) const
 {
 	psImage->seekg(0, stream::start);
 
@@ -242,7 +242,7 @@ ImageType::Certainty PCXBaseImageType::isInstance(stream::input_sptr psImage) co
 	return DefinitelyYes;
 }
 
-ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_PCXBase::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	// Create a 16-colour 1-bit-per-plane image
@@ -289,36 +289,36 @@ ImagePtr PCXBaseImageType::create(stream::inout_sptr psImage,
 		psImage->write("\0", 1);
 	}
 
-	return ImagePtr(new PCXImage(psImage, this->bitsPerPlane, this->numPlanes));
+	return ImagePtr(new Image_PCX(psImage, this->bitsPerPlane, this->numPlanes));
 }
 
-ImagePtr PCXBaseImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_PCXBase::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new PCXImage(psImage, this->bitsPerPlane, this->numPlanes));
+	return ImagePtr(new Image_PCX(psImage, this->bitsPerPlane, this->numPlanes));
 }
 
-SuppFilenames PCXBaseImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_PCXBase::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }
 
 
-PCX_PlanarEGA_ImageType::PCX_PlanarEGA_ImageType()
-	:	PCXBaseImageType(1, 4)
+ImageType_PCX_PlanarEGA::ImageType_PCX_PlanarEGA()
+	:	ImageType_PCXBase(1, 4)
 {
 }
 
-PCX_PlanarEGA_ImageType::~PCX_PlanarEGA_ImageType()
+ImageType_PCX_PlanarEGA::~ImageType_PCX_PlanarEGA()
 {
 }
 
-std::string PCX_PlanarEGA_ImageType::getFriendlyName() const
+std::string ImageType_PCX_PlanarEGA::getFriendlyName() const
 {
 	return "PCX image (16-colour planar EGA)";
 }
 
-std::vector<std::string> PCX_PlanarEGA_ImageType::getGameList() const
+std::vector<std::string> ImageType_PCX_PlanarEGA::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
@@ -326,21 +326,21 @@ std::vector<std::string> PCX_PlanarEGA_ImageType::getGameList() const
 }
 
 
-PCX_LinearVGA_ImageType::PCX_LinearVGA_ImageType()
-	:	PCXBaseImageType(8, 1)
+ImageType_PCX_LinearVGA::ImageType_PCX_LinearVGA()
+	:	ImageType_PCXBase(8, 1)
 {
 }
 
-PCX_LinearVGA_ImageType::~PCX_LinearVGA_ImageType()
+ImageType_PCX_LinearVGA::~ImageType_PCX_LinearVGA()
 {
 }
 
-std::string PCX_LinearVGA_ImageType::getFriendlyName() const
+std::string ImageType_PCX_LinearVGA::getFriendlyName() const
 {
 	return "PCX image (256-colour linear VGA)";
 }
 
-std::vector<std::string> PCX_LinearVGA_ImageType::getGameList() const
+std::vector<std::string> ImageType_PCX_LinearVGA::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Halloween Harry");
@@ -348,7 +348,7 @@ std::vector<std::string> PCX_LinearVGA_ImageType::getGameList() const
 }
 
 
-PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
+Image_PCX::Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
 	:	data(data),
 		bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
@@ -380,11 +380,11 @@ PCXImage::PCXImage(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPla
 	}
 }
 
-PCXImage::~PCXImage()
+Image_PCX::~Image_PCX()
 {
 }
 
-int PCXImage::getCaps()
+int Image_PCX::getCaps()
 {
 	int depth;
 	int numColours = 1 << (this->numPlanes * this->bitsPerPlane);
@@ -397,14 +397,14 @@ int PCXImage::getCaps()
 		| depth;
 }
 
-void PCXImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_PCX::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void PCXImage::setDimensions(unsigned int width, unsigned int height)
+void Image_PCX::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -412,7 +412,7 @@ void PCXImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr PCXImage::toStandard()
+StdImageDataPtr Image_PCX::toStandard()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -495,7 +495,7 @@ StdImageDataPtr PCXImage::toStandard()
 	return ret;
 }
 
-StdImageDataPtr PCXImage::toStandardMask()
+StdImageDataPtr Image_PCX::toStandardMask()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -510,7 +510,7 @@ StdImageDataPtr PCXImage::toStandardMask()
 	return ret;
 }
 
-void PCXImage::fromStandard(StdImageDataPtr newContent,
+void Image_PCX::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -644,7 +644,7 @@ void PCXImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr PCXImage::getPalette()
+PaletteTablePtr Image_PCX::getPalette()
 {
 	if (!this->pal) {
 
@@ -693,7 +693,7 @@ PaletteTablePtr PCXImage::getPalette()
 	return this->pal;
 }
 
-void PCXImage::setPalette(PaletteTablePtr newPalette)
+void Image_PCX::setPalette(PaletteTablePtr newPalette)
 {
 	this->pal = newPalette;
 	return;

@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Raptor PIC images.
-class RaptorPICImageType: virtual public ImageType
+class ImageType_RaptorPIC: virtual public ImageType
 {
 	public:
 		virtual std::string getCode() const;
@@ -44,7 +44,7 @@ class RaptorPICImageType: virtual public ImageType
 };
 
 /// Raptor PIC Image implementation.
-class RaptorPICImage: virtual public VGAImage
+class Image_RaptorPIC: virtual public Image_VGA
 {
 	protected:
 		int width, height;
@@ -62,8 +62,8 @@ class RaptorPICImage: virtual public VGAImage
 		 * @param pal
 		 *   Image palette
 		 */
-		RaptorPICImage(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~RaptorPICImage();
+		Image_RaptorPIC(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Image_RaptorPIC();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

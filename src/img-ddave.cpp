@@ -24,9 +24,9 @@
 namespace camoto {
 namespace gamegraphics {
 
-DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
+Image_DDaveCGA::Image_DDaveCGA(stream::inout_sptr data,
 	bool fixedSize)
-	:	CGAImage(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
+	:	Image_CGA(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
 		stream_data(data),
 		fixedSize(fixedSize)
 {
@@ -35,21 +35,21 @@ DDaveCGAImage::DDaveCGAImage(stream::inout_sptr data,
 	}
 }
 
-DDaveCGAImage::~DDaveCGAImage()
+Image_DDaveCGA::~Image_DDaveCGA()
 {
 }
 
-int DDaveCGAImage::getCaps()
+int Image_DDaveCGA::getCaps()
 {
-	return this->CGAImage::getCaps()
+	return this->Image_CGA::getCaps()
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
 }
 
-void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,
+void Image_DDaveCGA::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
-	this->CGAImage::fromStandard(newContent, newMask);
+	this->Image_CGA::fromStandard(newContent, newMask);
 
 	if (!this->fixedSize) {
 		// Update offset
@@ -60,7 +60,7 @@ void DDaveCGAImage::fromStandard(StdImageDataPtr newContent,
 }
 
 
-DDaveEGAImage::DDaveEGAImage(stream::inout_sptr data,
+Image_DDaveEGA::Image_DDaveEGA(stream::inout_sptr data,
 	bool fixedSize)
 	:	fixedSize(fixedSize)
 {
@@ -80,21 +80,21 @@ DDaveEGAImage::DDaveEGAImage(stream::inout_sptr data,
 		this->width, this->height, planes);
 }
 
-DDaveEGAImage::~DDaveEGAImage()
+Image_DDaveEGA::~Image_DDaveEGA()
 {
 }
 
-int DDaveEGAImage::getCaps()
+int Image_DDaveEGA::getCaps()
 {
-	return this->EGARowPlanarImage::getCaps()
+	return this->Image_EGARowPlanar::getCaps()
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
 }
 
-void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
+void Image_DDaveEGA::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
-	this->EGARowPlanarImage::fromStandard(newContent, newMask);
+	this->Image_EGARowPlanar::fromStandard(newContent, newMask);
 
 	if (!this->fixedSize) {
 		// Update offset
@@ -106,9 +106,9 @@ void DDaveEGAImage::fromStandard(StdImageDataPtr newContent,
 
 
 
-DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
+Image_DDaveVGA::Image_DDaveVGA(stream::inout_sptr data,
 	bool fixedSize, PaletteTablePtr pal)
-	:	VGAImage(data, fixedSize ? 0 : 4),
+	:	Image_VGA(data, fixedSize ? 0 : 4),
 		fixedSize(fixedSize),
 		pal(pal)
 {
@@ -125,25 +125,25 @@ DDaveVGAImage::DDaveVGAImage(stream::inout_sptr data,
 	}
 }
 
-DDaveVGAImage::~DDaveVGAImage()
+Image_DDaveVGA::~Image_DDaveVGA()
 {
 }
 
-int DDaveVGAImage::getCaps()
+int Image_DDaveVGA::getCaps()
 {
-	return this->VGAImage::getCaps()
+	return this->Image_VGA::getCaps()
 		| Image::HasPalette
 		| (this->fixedSize ? 0 : Image::CanSetDimensions);
 }
 
-void DDaveVGAImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_DDaveVGA::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
+void Image_DDaveVGA::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	this->width = width;
@@ -151,10 +151,10 @@ void DDaveVGAImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
+void Image_DDaveVGA::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
 {
-	this->VGAImage::fromStandard(newContent, newMask);
+	this->Image_VGA::fromStandard(newContent, newMask);
 
 	if (!this->fixedSize) {
 		// Update dimensions
@@ -164,7 +164,7 @@ void DDaveVGAImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr DDaveVGAImage::getPalette()
+PaletteTablePtr Image_DDaveVGA::getPalette()
 {
 	return this->pal;
 }

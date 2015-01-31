@@ -37,36 +37,36 @@ namespace gamegraphics {
 #define ICO_HEADER_LEN  4
 
 //
-// HarryICOTilesetType
+// TilesetType_HarryICO
 //
 
-HarryICOTilesetType::HarryICOTilesetType()
+TilesetType_HarryICO::TilesetType_HarryICO()
 {
 }
 
-HarryICOTilesetType::~HarryICOTilesetType()
+TilesetType_HarryICO::~TilesetType_HarryICO()
 {
 }
 
-std::string HarryICOTilesetType::getCode() const
+std::string TilesetType_HarryICO::getCode() const
 {
 	return "tls-harry-ico";
 }
 
-std::string HarryICOTilesetType::getFriendlyName() const
+std::string TilesetType_HarryICO::getFriendlyName() const
 {
 	return "Halloween Harry ICO Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> HarryICOTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_HarryICO::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ico");
 	return vcExtensions;
 }
 
-std::vector<std::string> HarryICOTilesetType::getGameList() const
+std::vector<std::string> TilesetType_HarryICO::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -74,7 +74,7 @@ std::vector<std::string> HarryICOTilesetType::getGameList() const
 	return vcGames;
 }
 
-HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -113,7 +113,7 @@ HarryICOTilesetType::Certainty HarryICOTilesetType::isInstance(stream::input_spt
 	return DefinitelyYes;
 }
 
-TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_HarryICO::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->truncate(0);
@@ -121,26 +121,26 @@ TilesetPtr HarryICOTilesetType::create(stream::inout_sptr psGraphics,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new PCXImage(suppData[SuppItem::Palette], 8, 1));
+		ImagePtr palFile(new Image_PCX(suppData[SuppItem::Palette], 8, 1));
 		pal = palFile->getPalette();
 	}
 
-	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_HarryICO(psGraphics, pal));
 }
 
-TilesetPtr HarryICOTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_HarryICO::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new PCXImage(suppData[SuppItem::Palette], 8, 1));
+		ImagePtr palFile(new Image_PCX(suppData[SuppItem::Palette], 8, 1));
 		pal = palFile->getPalette();
 	}
 
-	return TilesetPtr(new HarryICOTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_HarryICO(psGraphics, pal));
 }
 
-SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_HarryICO::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "pre2.pcx"; // any UI image file
@@ -149,11 +149,11 @@ SuppFilenames HarryICOTilesetType::getRequiredSupps(const std::string& filenameG
 
 
 //
-// HarryICOTileset
+// Tileset_HarryICO
 //
 
-HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	:	FATTileset(data, ICO_FIRST_TILE_OFFSET),
+Tileset_HarryICO::Tileset_HarryICO(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Tileset_FAT(data, ICO_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -190,29 +190,29 @@ HarryICOTileset::HarryICOTileset(stream::inout_sptr data, PaletteTablePtr pal)
 	}
 }
 
-HarryICOTileset::~HarryICOTileset()
+Tileset_HarryICO::~Tileset_HarryICO()
 {
 }
 
-int HarryICOTileset::getCaps()
+int Tileset_HarryICO::getCaps()
 {
 	return Tileset::HasPalette | Tileset::ColourDepthVGA;
 }
 
-unsigned int HarryICOTileset::getLayoutWidth()
+unsigned int Tileset_HarryICO::getLayoutWidth()
 {
 	return 16;
 }
 
-PaletteTablePtr HarryICOTileset::getPalette()
+PaletteTablePtr Tileset_HarryICO::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr HarryICOTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_HarryICO::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	return ImagePtr(new DDaveVGAImage(content, false, this->pal));
+	return ImagePtr(new Image_DDaveVGA(content, false, this->pal));
 }
 
 } // namespace gamegraphics

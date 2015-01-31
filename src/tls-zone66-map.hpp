@@ -29,11 +29,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// File handler for Zone 66 map tileset files.
-class Zone66MapTilesetType: virtual public TilesetType
+class TilesetType_Zone66Map: virtual public TilesetType
 {
 	public:
-		Zone66MapTilesetType();
-		virtual ~Zone66MapTilesetType();
+		TilesetType_Zone66Map();
+		virtual ~TilesetType_Zone66Map();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -48,11 +48,11 @@ class Zone66MapTilesetType: virtual public TilesetType
 };
 
 /// Handler for Zone 66 map tilesets.
-class Zone66MapTileset: virtual public FATTileset
+class Tileset_Zone66Map: virtual public Tileset_FAT
 {
 	public:
-		Zone66MapTileset(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~Zone66MapTileset();
+		Tileset_Zone66Map(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Tileset_Zone66Map();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
@@ -60,7 +60,7 @@ class Zone66MapTileset: virtual public FATTileset
 		virtual unsigned int getLayoutWidth();
 		virtual PaletteTablePtr getPalette();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 

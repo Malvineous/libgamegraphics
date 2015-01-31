@@ -44,64 +44,64 @@ namespace gamegraphics {
 /// Minimum length (in bytes) of a sprite file
 #define MB_MIN_FILE_LEN       1
 
-class MonsterBashSprite: virtual public FATTileset
+class Tileset_MonsterBashSprite: virtual public Tileset_FAT
 {
 	public:
-		MonsterBashSprite(stream::inout_sptr data);
-		virtual ~MonsterBashSprite();
+		Tileset_MonsterBashSprite(stream::inout_sptr data);
+		virtual ~Tileset_MonsterBashSprite();
 
 		virtual int getCaps();
 		//void resize(EntryPtr& id, stream::len newSize);
 		//virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
 		virtual unsigned int getLayoutWidth();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry);
-		virtual void postInsertFile(FATTileset::FATEntry *pNewEntry);
-		virtual void updateFileSize(const FATTileset::FATEntry *pid,
+		virtual void postInsertFile(Tileset_FAT::FATEntry *pNewEntry);
+		virtual void updateFileSize(const Tileset_FAT::FATEntry *pid,
 			stream::len sizeDelta);
 
 	protected:
 		unsigned int lenTile;   ///< Length of each image, in bytes
 };
 
-MonsterBashSpriteTilesetType::MonsterBashSpriteTilesetType()
+TilesetType_MonsterBashSprite::TilesetType_MonsterBashSprite()
 {
 }
 
-MonsterBashSpriteTilesetType::~MonsterBashSpriteTilesetType()
+TilesetType_MonsterBashSprite::~TilesetType_MonsterBashSprite()
 {
 }
 
-std::string MonsterBashSpriteTilesetType::getCode() const
+std::string TilesetType_MonsterBashSprite::getCode() const
 {
 	return "tls-bash-sprite";
 }
 
-std::string MonsterBashSpriteTilesetType::getFriendlyName() const
+std::string TilesetType_MonsterBashSprite::getFriendlyName() const
 {
 	return "Monster Bash Sprite";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> MonsterBashSpriteTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_MonsterBashSprite::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("spr");
 	return vcExtensions;
 }
 
-std::vector<std::string> MonsterBashSpriteTilesetType::getGameList() const
+std::vector<std::string> TilesetType_MonsterBashSprite::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
 	return vcGames;
 }
 
-MonsterBashSpriteTilesetType::Certainty MonsterBashSpriteTilesetType::isInstance(
+TilesetType_MonsterBashSprite::Certainty TilesetType_MonsterBashSprite::isInstance(
 	stream::input_sptr psGraphics) const
 {
 	stream::len lenRemaining = psGraphics->size();
@@ -142,20 +142,20 @@ MonsterBashSpriteTilesetType::Certainty MonsterBashSpriteTilesetType::isInstance
 	return DefinitelyYes;
 }
 
-TilesetPtr MonsterBashSpriteTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashSprite::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics << u8(0xFF);
-	return TilesetPtr(new MonsterBashSprite(psGraphics));
+	return TilesetPtr(new Tileset_MonsterBashSprite(psGraphics));
 }
 
-TilesetPtr MonsterBashSpriteTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashSprite::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new MonsterBashSprite(psGraphics));
+	return TilesetPtr(new Tileset_MonsterBashSprite(psGraphics));
 }
 
-SuppFilenames MonsterBashSpriteTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_MonsterBashSprite::getRequiredSupps(
 	const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
@@ -163,8 +163,8 @@ SuppFilenames MonsterBashSpriteTilesetType::getRequiredSupps(
 }
 
 
-MonsterBashSprite::MonsterBashSprite(stream::inout_sptr data)
-	:	FATTileset(data, MB_FIRST_TILE_OFFSET)
+Tileset_MonsterBashSprite::Tileset_MonsterBashSprite(stream::inout_sptr data)
+	:	Tileset_FAT(data, MB_FIRST_TILE_OFFSET)
 {
 	// Skip signature byte
 	data->seekg(1, stream::start);
@@ -200,28 +200,28 @@ MonsterBashSprite::MonsterBashSprite(stream::inout_sptr data)
 
 }
 
-MonsterBashSprite::~MonsterBashSprite()
+Tileset_MonsterBashSprite::~Tileset_MonsterBashSprite()
 {
 }
 
-int MonsterBashSprite::getCaps()
+int Tileset_MonsterBashSprite::getCaps()
 {
 	return Tileset::ColourDepthEGA;
 }
 
-unsigned int MonsterBashSprite::getLayoutWidth()
+unsigned int Tileset_MonsterBashSprite::getLayoutWidth()
 {
 	return 1;
 }
 
-ImagePtr MonsterBashSprite::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_MonsterBashSprite::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	return ImagePtr(new BashSpriteImage(content));
+	return ImagePtr(new Image_BashSprite(content));
 }
 
-MonsterBashSprite::FATEntry *MonsterBashSprite::preInsertFile(
-	const MonsterBashSprite::FATEntry *idBeforeThis, MonsterBashSprite::FATEntry *pNewEntry)
+Tileset_MonsterBashSprite::FATEntry *Tileset_MonsterBashSprite::preInsertFile(
+	const Tileset_MonsterBashSprite::FATEntry *idBeforeThis, Tileset_MonsterBashSprite::FATEntry *pNewEntry)
 {
 	// Set tile defaults
 	pNewEntry->size = MB_MIN_IMAGE_LEN + 1;
@@ -242,7 +242,7 @@ MonsterBashSprite::FATEntry *MonsterBashSprite::preInsertFile(
 	return pNewEntry;
 }
 
-void MonsterBashSprite::postInsertFile(FATTileset::FATEntry *pNewEntry)
+void Tileset_MonsterBashSprite::postInsertFile(Tileset_FAT::FATEntry *pNewEntry)
 {
 	/// @todo Not necessary because of updateFileSize()?
 	this->data->seekp(pNewEntry->offset, stream::start);
@@ -261,7 +261,7 @@ void MonsterBashSprite::postInsertFile(FATTileset::FATEntry *pNewEntry)
 	return;
 }
 
-void MonsterBashSprite::updateFileSize(const FATTileset::FATEntry *pid,
+void Tileset_MonsterBashSprite::updateFileSize(const Tileset_FAT::FATEntry *pid,
 	stream::len sizeDelta)
 {
 	this->data->seekp(pid->offset, stream::start);

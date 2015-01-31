@@ -49,42 +49,42 @@ namespace gamegraphics {
 #define Z66_PAL_DEPTH 6
 
 //
-// Zone66MapTilesetType
+// TilesetType_Zone66Map
 //
 
-Zone66MapTilesetType::Zone66MapTilesetType()
+TilesetType_Zone66Map::TilesetType_Zone66Map()
 {
 }
 
-Zone66MapTilesetType::~Zone66MapTilesetType()
+TilesetType_Zone66Map::~TilesetType_Zone66Map()
 {
 }
 
-std::string Zone66MapTilesetType::getCode() const
+std::string TilesetType_Zone66Map::getCode() const
 {
 	return "tls-zone66-map";
 }
 
-std::string Zone66MapTilesetType::getFriendlyName() const
+std::string TilesetType_Zone66Map::getFriendlyName() const
 {
 	return "Zone 66 Map Tileset";
 }
 
-std::vector<std::string> Zone66MapTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Zone66Map::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("z66");
 	return vcExtensions;
 }
 
-std::vector<std::string> Zone66MapTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Zone66Map::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Zone 66");
 	return vcGames;
 }
 
-Zone66MapTilesetType::Certainty Zone66MapTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Zone66Map::Certainty TilesetType_Zone66Map::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -94,31 +94,31 @@ Zone66MapTilesetType::Certainty Zone66MapTilesetType::isInstance(stream::input_s
 	return PossiblyYes;
 }
 
-TilesetPtr Zone66MapTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Zone66Map::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], Z66_PAL_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], Z66_PAL_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66MapTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_Zone66Map(psGraphics, pal));
 }
 
-TilesetPtr Zone66MapTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Zone66Map::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], Z66_PAL_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], Z66_PAL_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return TilesetPtr(new Zone66MapTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_Zone66Map(psGraphics, pal));
 }
 
-SuppFilenames Zone66MapTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Zone66Map::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "mpal.z66";
@@ -127,11 +127,11 @@ SuppFilenames Zone66MapTilesetType::getRequiredSupps(const std::string& filename
 
 
 //
-// Zone66MapTileset
+// Tileset_Zone66Map
 //
 
-Zone66MapTileset::Zone66MapTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	:	FATTileset(data, Z66_FIRST_TILE_OFFSET),
+Tileset_Zone66Map::Tileset_Zone66Map(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Tileset_FAT(data, Z66_FIRST_TILE_OFFSET),
 		pal(pal)
 {
 	stream::pos len = this->data->size();
@@ -154,17 +154,17 @@ Zone66MapTileset::Zone66MapTileset(stream::inout_sptr data, PaletteTablePtr pal)
 
 }
 
-Zone66MapTileset::~Zone66MapTileset()
+Tileset_Zone66Map::~Tileset_Zone66Map()
 {
 }
 
-int Zone66MapTileset::getCaps()
+int Tileset_Zone66Map::getCaps()
 {
 	return Tileset::ColourDepthVGA
 		| (this->pal ? Tileset::HasPalette : 0);
 }
 
-void Zone66MapTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_Zone66Map::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != Z66_TILE_SIZE) {
 		throw stream::error("Zone 66 map tiles are a fixed size");
@@ -172,27 +172,27 @@ void Zone66MapTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void Zone66MapTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_Zone66Map::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = Z66_TILE_WIDTH;
 	*height = Z66_TILE_HEIGHT;
 	return;
 }
 
-unsigned int Zone66MapTileset::getLayoutWidth()
+unsigned int Tileset_Zone66Map::getLayoutWidth()
 {
 	return 18;
 }
 
-PaletteTablePtr Zone66MapTileset::getPalette()
+PaletteTablePtr Tileset_Zone66Map::getPalette()
 {
 	return this->pal;
 }
 
-ImagePtr Zone66MapTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_Zone66Map::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
-	return ImagePtr(new VGARawImage(content, Z66_TILE_WIDTH, Z66_TILE_HEIGHT,
+	return ImagePtr(new Image_VGARaw(content, Z66_TILE_WIDTH, Z66_TILE_HEIGHT,
 		this->pal));
 }
 

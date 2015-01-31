@@ -25,11 +25,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-struct ImageEntry: public BaseTileset::BaseTilesetEntry {
+struct ImageEntry: public Tileset_Base::Tileset_BaseEntry {
 	int index; ///< Zero-based index of tile
 };
 
-TilesetFromImage::TilesetFromImage(ImagePtr img, unsigned int tileWidth,
+Image_TilesetFrom::Image_TilesetFrom(ImagePtr img, unsigned int tileWidth,
 	unsigned int tileHeight, unsigned int tilesWide, unsigned int tilesHigh)
 	:	img(img),
 		tileWidth(tileWidth),
@@ -48,14 +48,14 @@ TilesetFromImage::TilesetFromImage(ImagePtr img, unsigned int tileWidth,
 		fat->index = i;
 		this->items.push_back(ep);
 	}
-	this->fnImageChanged = boost::bind<void>(&TilesetFromImage::imageChanged, this);
+	this->fnImageChanged = boost::bind<void>(&Image_TilesetFrom::imageChanged, this);
 }
 
-TilesetFromImage::~TilesetFromImage()
+Image_TilesetFrom::~Image_TilesetFrom()
 {
 }
 
-int TilesetFromImage::getCaps()
+int Image_TilesetFrom::getCaps()
 {
 	int caps = 0;
 	int imgCaps = this->img->getCaps();
@@ -69,12 +69,12 @@ int TilesetFromImage::getCaps()
 	return caps;
 }
 
-const Tileset::VC_ENTRYPTR& TilesetFromImage::getItems() const
+const Tileset::VC_ENTRYPTR& Image_TilesetFrom::getItems() const
 {
 	return this->items;
 }
 
-ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
+ImagePtr Image_TilesetFrom::openImage(const EntryPtr& id)
 {
 	if ((!this->stdImg) && (!this->stdMask)) {
 		this->stdImg = this->img->toStandard();
@@ -92,22 +92,22 @@ ImagePtr TilesetFromImage::openImage(const EntryPtr& id)
 	assert(y + this->tileHeight <= imgHeight);
 #endif
 
-	ImagePtr subimg(new SubImage(this->img, this->stdImg, this->stdMask, x, y,
+	ImagePtr subimg(new Image_Sub(this->img, this->stdImg, this->stdMask, x, y,
 		this->tileWidth, this->tileHeight, this->fnImageChanged));
 	return subimg;
 }
 
-Tileset::EntryPtr TilesetFromImage::insert(const EntryPtr& idBeforeThis, int attr)
+Tileset::EntryPtr Image_TilesetFrom::insert(const EntryPtr& idBeforeThis, int attr)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
-void TilesetFromImage::remove(EntryPtr& id)
+void Image_TilesetFrom::remove(EntryPtr& id)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
-void TilesetFromImage::flush()
+void Image_TilesetFrom::flush()
 {
 	if (this->hasImageChanged) {
 		this->img->fromStandard(this->stdImg, this->stdMask);
@@ -116,7 +116,7 @@ void TilesetFromImage::flush()
 	return;
 }
 
-void TilesetFromImage::resize(EntryPtr& id, stream::len newSize)
+void Image_TilesetFrom::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != this->tileWidth * this->tileHeight) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -124,30 +124,30 @@ void TilesetFromImage::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void TilesetFromImage::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Image_TilesetFrom::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->tileWidth;
 	*height = this->tileHeight;
 	return;
 }
 
-unsigned int TilesetFromImage::getLayoutWidth()
+unsigned int Image_TilesetFrom::getLayoutWidth()
 {
 	return this->tilesWide;
 }
 
-PaletteTablePtr TilesetFromImage::getPalette()
+PaletteTablePtr Image_TilesetFrom::getPalette()
 {
 	return this->img->getPalette();
 }
 
-void TilesetFromImage::setPalette(PaletteTablePtr newPalette)
+void Image_TilesetFrom::setPalette(PaletteTablePtr newPalette)
 {
 	this->img->setPalette(newPalette);
 	return;
 }
 
-void TilesetFromImage::imageChanged()
+void Image_TilesetFrom::imageChanged()
 {
 	this->hasImageChanged = true;
 	return;

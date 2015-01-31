@@ -31,11 +31,11 @@ namespace gamegraphics {
  * This class implements common functions that would otherwise have to be
  * implemented in each subclass.
  */
-class BaseTileset: virtual public Tileset
+class Tileset_Base: virtual public Tileset
 {
 	public:
 
-		class BaseTilesetEntry: virtual public Entry {
+		class Tileset_BaseEntry: virtual public Entry {
 			public:
 				virtual std::string getName() const;
 				virtual bool isValid() const;
@@ -51,8 +51,8 @@ class BaseTileset: virtual public Tileset
 				int attr;
 		};
 
-		BaseTileset();
-		virtual ~BaseTileset();
+		Tileset_Base();
+		virtual ~Tileset_Base();
 
 		/// Default function throwing invalid ID error.
 		virtual TilesetPtr openTileset(const EntryPtr& id);

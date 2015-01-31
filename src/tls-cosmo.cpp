@@ -57,35 +57,35 @@ namespace gamegraphics {
 #define CCA_IDEAL_WIDTH 40
 
 //
-// CosmoTilesetType
+// TilesetType_Cosmo
 //
 
-CosmoTilesetType::CosmoTilesetType()
+TilesetType_Cosmo::TilesetType_Cosmo()
 {
 }
 
-CosmoTilesetType::~CosmoTilesetType()
+TilesetType_Cosmo::~TilesetType_Cosmo()
 {
 }
 
-std::string CosmoTilesetType::getCode() const
+std::string TilesetType_Cosmo::getCode() const
 {
 	return "tls-cosmo";
 }
 
-std::string CosmoTilesetType::getFriendlyName() const
+std::string TilesetType_Cosmo::getFriendlyName() const
 {
 	return "Cosmo's Cosmic Adventures Tileset";
 }
 
-std::vector<std::string> CosmoTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Cosmo::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> CosmoTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Cosmo::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Cosmo's Cosmic Adventures");
@@ -93,7 +93,7 @@ std::vector<std::string> CosmoTilesetType::getGameList() const
 	return vcGames;
 }
 
-CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Cosmo::Certainty TilesetType_Cosmo::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -109,27 +109,27 @@ CosmoTilesetType::Certainty CosmoTilesetType::isInstance(stream::input_sptr psGr
 	return DefinitelyNo;
 }
 
-TilesetPtr CosmoTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Cosmo::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
 			EGA_NUMPLANES_SOLID, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
-TilesetPtr CosmoTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Cosmo::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
 			EGA_NUMPLANES_SOLID, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
-SuppFilenames CosmoTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Cosmo::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -137,42 +137,42 @@ SuppFilenames CosmoTilesetType::getRequiredSupps(const std::string& filenameGrap
 
 
 //
-// CosmoMaskedTilesetType
+// TilesetType_CosmoMasked
 //
 
-std::string CosmoMaskedTilesetType::getCode() const
+std::string TilesetType_CosmoMasked::getCode() const
 {
 	return "tls-cosmo-masked";
 }
 
-std::string CosmoMaskedTilesetType::getFriendlyName() const
+std::string TilesetType_CosmoMasked::getFriendlyName() const
 {
 	return "Cosmo's Cosmic Adventures Masked Tileset";
 }
 
-CosmoMaskedTilesetType::Certainty CosmoMaskedTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CosmoMasked::Certainty TilesetType_CosmoMasked::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len == CCA_SIZE_STDMASK) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr CosmoMaskedTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CosmoMasked::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 0x0
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
 			EGA_NUMPLANES_MASKED, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }
 
-TilesetPtr CosmoMaskedTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CosmoMasked::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	return TilesetPtr(
-		new EGAApogeeTileset(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
+		new Tileset_EGAApogee(psGraphics, CCA_TILE_WIDTH, CCA_TILE_HEIGHT,
 			EGA_NUMPLANES_MASKED, CCA_IDEAL_WIDTH, PaletteTablePtr())
 	);
 }

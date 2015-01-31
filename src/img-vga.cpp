@@ -23,23 +23,23 @@
 namespace camoto {
 namespace gamegraphics {
 
-VGAImage::VGAImage(stream::inout_sptr data,
+Image_VGA::Image_VGA(stream::inout_sptr data,
 	stream::pos off)
 	:	data(data),
 		off(off)
 {
 }
 
-VGAImage::~VGAImage()
+Image_VGA::~Image_VGA()
 {
 }
 
-int VGAImage::getCaps()
+int Image_VGA::getCaps()
 {
 	return Image::ColourDepthVGA;
 }
 
-StdImageDataPtr VGAImage::toStandard()
+StdImageDataPtr Image_VGA::toStandard()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -54,7 +54,7 @@ StdImageDataPtr VGAImage::toStandard()
 	return ret;
 }
 
-StdImageDataPtr VGAImage::toStandardMask()
+StdImageDataPtr Image_VGA::toStandardMask()
 {
 	unsigned int width, height;
 	this->getDimensions(&width, &height);
@@ -69,7 +69,7 @@ StdImageDataPtr VGAImage::toStandardMask()
 	return ret;
 }
 
-void VGAImage::fromStandard(StdImageDataPtr newContent,
+void Image_VGA::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {

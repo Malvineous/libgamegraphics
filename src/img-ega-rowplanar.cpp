@@ -26,15 +26,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGARowPlanarImage::EGARowPlanarImage()
+Image_EGARowPlanar::Image_EGARowPlanar()
 {
 }
 
-EGARowPlanarImage::~EGARowPlanarImage()
+Image_EGARowPlanar::~Image_EGARowPlanar()
 {
 }
 
-void EGARowPlanarImage::setParams(stream::inout_sptr data,
+void Image_EGARowPlanar::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
 )
 {
@@ -46,19 +46,19 @@ void EGARowPlanarImage::setParams(stream::inout_sptr data,
 	return;
 }
 
-int EGARowPlanarImage::getCaps()
+int Image_EGARowPlanar::getCaps()
 {
 	return ColourDepthEGA;
 }
 
-void EGARowPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_EGARowPlanar::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
+void Image_EGARowPlanar::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 
@@ -76,17 +76,17 @@ void EGARowPlanarImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr EGARowPlanarImage::toStandard()
+StdImageDataPtr Image_EGARowPlanar::toStandard()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGARowPlanarImage::toStandardMask()
+StdImageDataPtr Image_EGARowPlanar::toStandardMask()
 {
 	return this->doConversion(true);
 }
 
-void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
+void Image_EGARowPlanar::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -182,7 +182,7 @@ void EGARowPlanarImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-StdImageDataPtr EGARowPlanarImage::doConversion(bool mask)
+StdImageDataPtr Image_EGARowPlanar::doConversion(bool mask)
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;

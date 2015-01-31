@@ -26,11 +26,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class CZoneTilesetType: virtual public TilesetType {
+class TilesetType_CZone: virtual public TilesetType {
 
 	public:
-		CZoneTilesetType();
-		virtual ~CZoneTilesetType();
+		TilesetType_CZone();
+		virtual ~TilesetType_CZone();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

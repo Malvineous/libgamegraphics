@@ -23,7 +23,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-SubImage::SubImage(ImagePtr img, StdImageDataPtr stdImg,
+Image_Sub::Image_Sub(ImagePtr img, StdImageDataPtr stdImg,
 	StdImageDataPtr stdMask, unsigned int xOffset, unsigned int yOffset,
 	unsigned int width, unsigned int height, fn_image_changed fnImageChanged)
 	:	img(img),
@@ -37,24 +37,24 @@ SubImage::SubImage(ImagePtr img, StdImageDataPtr stdImg,
 {
 }
 
-SubImage::~SubImage()
+Image_Sub::~Image_Sub()
 {
 }
 
-int SubImage::getCaps()
+int Image_Sub::getCaps()
 {
 	int parentCaps = this->img->getCaps();
 	return parentCaps & Image::ColourDepthMask;
 }
 
-void SubImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_Sub::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void SubImage::setDimensions(unsigned int width, unsigned int height)
+void Image_Sub::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	if ((width != this->width) || (height != this->height)) {
@@ -63,17 +63,17 @@ void SubImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr SubImage::toStandard()
+StdImageDataPtr Image_Sub::toStandard()
 {
 	return this->extractPortion(this->parent);
 }
 
-StdImageDataPtr SubImage::toStandardMask()
+StdImageDataPtr Image_Sub::toStandardMask()
 {
 	return this->extractPortion(this->parentMask);
 }
 
-void SubImage::fromStandard(StdImageDataPtr newContent,
+void Image_Sub::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -108,7 +108,7 @@ void SubImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-StdImageDataPtr SubImage::extractPortion(const StdImageDataPtr& source)
+StdImageDataPtr Image_Sub::extractPortion(const StdImageDataPtr& source)
 {
 	const uint8_t *parentData = source.get();
 

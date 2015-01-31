@@ -40,9 +40,9 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_read)
 
 	stream::string_sptr ss(new stream::string());
 	ss->write(data, 768);
-	// Don't seek to 0 here to make sure VGAPalette handles it correctly
+	// Don't seek to 0 here to make sure Palette_VGA handles it correctly
 
-	VGAPalette img(ss, 6);
+	Palette_VGA img(ss, 6);
 
 	PaletteTablePtr pal = img.getPalette();
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
 	pal->push_back(p);
 
 	stream::string_sptr ss(new stream::string());
-	VGAPalette img(ss, 6);
+	Palette_VGA img(ss, 6);
 	img.setPalette(pal);
 	ss->flush();
 
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE(pal_vga8_raw_read)
 
 	stream::string_sptr ss(new stream::string());
 	ss->write(data, 768);
-	// Don't seek to 0 here to make sure VGAPalette handles it correctly
+	// Don't seek to 0 here to make sure Palette_VGA handles it correctly
 
-	VGAPalette img(ss, 8);
+	Palette_VGA img(ss, 8);
 
 	PaletteTablePtr pal = img.getPalette();
 
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(pal_vga8_raw_write)
 	pal->push_back(p);
 
 	stream::string_sptr ss(new stream::string());
-	VGAPalette img(ss, 8);
+	Palette_VGA img(ss, 8);
 	img.setPalette(pal);
 	ss->flush();
 

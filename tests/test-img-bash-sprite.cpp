@@ -68,7 +68,7 @@ using namespace camoto;
 // Because this format isn't exposed as an image type we need some custom code
 // to create instances of it.
 #define IMG_OPEN_CODE \
-	this->img = ImagePtr(new BashSpriteImage(this->base));
+	this->img = ImagePtr(new Image_BashSprite(this->base));
 
 // Use a blank image when creating new images
 #define IMG_CREATE_CODE \
@@ -81,7 +81,7 @@ using namespace camoto;
 		<< s16le(0) \
 		<< u16le(0) \
 		<< u16le(0); \
-	this->img = ImagePtr(new BashSpriteImage(this->base));
+	this->img = ImagePtr(new Image_BashSprite(this->base));
 
 #define IMG_HOTSPOT_X 1
 #define IMG_HOTSPOT_Y -1

@@ -27,11 +27,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for full screen 1bpp images.
-class MonoImageType: virtual public ImageType
+class ImageType_Mono: virtual public ImageType
 {
 	public:
-		MonoImageType();
-		virtual ~MonoImageType();
+		ImageType_Mono();
+		virtual ~ImageType_Mono();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;

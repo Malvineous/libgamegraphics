@@ -1,6 +1,6 @@
 /**
  * @file   test-tls-zone66.cpp
- * @brief  Test code for Zone66Tileset class.
+ * @brief  Test code for Tileset_Zone66 class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

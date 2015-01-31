@@ -34,115 +34,115 @@ namespace camoto {
 namespace gamegraphics {
 
 //
-// SAgent2kTilesetType
+// TilesetType_SAgent2k
 //
 
-SAgent2kTilesetType::SAgent2kTilesetType()
+TilesetType_SAgent2k::TilesetType_SAgent2k()
 {
 	this->pad = SAM_PAD_TILES8;
 }
 
-SAgent2kTilesetType::~SAgent2kTilesetType()
+TilesetType_SAgent2k::~TilesetType_SAgent2k()
 {
 }
 
-std::string SAgent2kTilesetType::getCode() const
+std::string TilesetType_SAgent2k::getCode() const
 {
 	return "tls-sagent-2k";
 }
 
-std::string SAgent2kTilesetType::getFriendlyName() const
+std::string TilesetType_SAgent2k::getFriendlyName() const
 {
 	return "Secret Agent 2K Concatenated Tileset";
 }
 
-std::vector<std::string> SAgent2kTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_SAgent2k::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> SAgent2kTilesetType::getGameList() const
+std::vector<std::string> TilesetType_SAgent2k::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Secret Agent");
 	return vcGames;
 }
 
-SAgent2kTilesetType::Certainty SAgent2kTilesetType::isInstance(
+TilesetType_SAgent2k::Certainty TilesetType_SAgent2k::isInstance(
 	stream::input_sptr psGraphics) const
 {
-	return this->CCavesMainTilesetType::isInstance(psGraphics);
+	return this->TilesetType_CCavesMain::isInstance(psGraphics);
 }
 
-TilesetPtr SAgent2kTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_SAgent2k::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return this->CCavesMainTilesetType::create(psGraphics, suppData);
+	return this->TilesetType_CCavesMain::create(psGraphics, suppData);
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr SAgent2kTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_SAgent2k::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return this->CCavesMainTilesetType::open(psGraphics, suppData);
+	return this->TilesetType_CCavesMain::open(psGraphics, suppData);
 }
 
 //
-// SAgent8kTilesetType
+// TilesetType_SAgent8k
 //
 
-SAgent8kTilesetType::SAgent8kTilesetType()
+TilesetType_SAgent8k::TilesetType_SAgent8k()
 {
 	this->pad = SAM_PAD_TILES16;
 }
 
-SAgent8kTilesetType::~SAgent8kTilesetType()
+TilesetType_SAgent8k::~TilesetType_SAgent8k()
 {
 }
 
-std::string SAgent8kTilesetType::getCode() const
+std::string TilesetType_SAgent8k::getCode() const
 {
 	return "tls-sagent-8k";
 }
 
-std::string SAgent8kTilesetType::getFriendlyName() const
+std::string TilesetType_SAgent8k::getFriendlyName() const
 {
 	return "Secret Agent 8K Concatenated Tileset";
 }
 
-std::vector<std::string> SAgent8kTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_SAgent8k::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> SAgent8kTilesetType::getGameList() const
+std::vector<std::string> TilesetType_SAgent8k::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Secret Agent");
 	return vcGames;
 }
 
-SAgent8kTilesetType::Certainty SAgent8kTilesetType::isInstance(
+TilesetType_SAgent8k::Certainty TilesetType_SAgent8k::isInstance(
 	stream::input_sptr psGraphics) const
 {
-	return this->CCavesMainTilesetType::isInstance(psGraphics);
+	return this->TilesetType_CCavesMain::isInstance(psGraphics);
 }
 
-TilesetPtr SAgent8kTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_SAgent8k::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return this->CCavesMainTilesetType::create(psGraphics, suppData);
+	return this->TilesetType_CCavesMain::create(psGraphics, suppData);
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr SAgent8kTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_SAgent8k::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return this->CCavesMainTilesetType::open(psGraphics, suppData);
+	return this->TilesetType_CCavesMain::open(psGraphics, suppData);
 }
 
 } // namespace gamegraphics

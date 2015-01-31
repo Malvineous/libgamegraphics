@@ -60,42 +60,42 @@ namespace gamegraphics {
 #define MB_TILE_LEN_FG  32 * MB_NUMPLANES_SPRITE
 
 //
-// MonsterBashBackgroundTilesetType
+// TilesetType_MonsterBashBackground
 //
 
-MonsterBashBackgroundTilesetType::MonsterBashBackgroundTilesetType()
+TilesetType_MonsterBashBackground::TilesetType_MonsterBashBackground()
 {
 }
 
-MonsterBashBackgroundTilesetType::~MonsterBashBackgroundTilesetType()
+TilesetType_MonsterBashBackground::~TilesetType_MonsterBashBackground()
 {
 }
 
-std::string MonsterBashBackgroundTilesetType::getCode() const
+std::string TilesetType_MonsterBashBackground::getCode() const
 {
 	return "tls-bash-bg";
 }
 
-std::string MonsterBashBackgroundTilesetType::getFriendlyName() const
+std::string TilesetType_MonsterBashBackground::getFriendlyName() const
 {
 	return "Monster Bash Background Tileset";
 }
 
-std::vector<std::string> MonsterBashBackgroundTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_MonsterBashBackground::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tbg");
 	return vcExtensions;
 }
 
-std::vector<std::string> MonsterBashBackgroundTilesetType::getGameList() const
+std::vector<std::string> TilesetType_MonsterBashBackground::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
 	return vcGames;
 }
 
-MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_MonsterBashBackground::Certainty TilesetType_MonsterBashBackground::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return PossiblyYes;
@@ -104,7 +104,7 @@ MonsterBashBackgroundTilesetType::Certainty MonsterBashBackgroundTilesetType::is
 	return DefinitelyNo;
 }
 
-TilesetPtr MonsterBashBackgroundTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashBackground::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	char empty[MB_TILE_LEN_BG];
@@ -112,16 +112,16 @@ TilesetPtr MonsterBashBackgroundTilesetType::create(stream::inout_sptr psGraphic
 	for (int i = 0; i < MB_NUM_TILES_BG; i++) {
 		psGraphics->write(empty, MB_TILE_LEN_BG);
 	}
-	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_TILE));
+	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_TILE));
 }
 
-TilesetPtr MonsterBashBackgroundTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashBackground::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_TILE));
+	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_TILE));
 }
 
-SuppFilenames MonsterBashBackgroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashBackground::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -129,28 +129,28 @@ SuppFilenames MonsterBashBackgroundTilesetType::getRequiredSupps(const std::stri
 
 
 //
-// MonsterBashForegroundTilesetType
+// TilesetType_MonsterBashForeground
 //
 
-MonsterBashForegroundTilesetType::MonsterBashForegroundTilesetType()
+TilesetType_MonsterBashForeground::TilesetType_MonsterBashForeground()
 {
 }
 
-MonsterBashForegroundTilesetType::~MonsterBashForegroundTilesetType()
+TilesetType_MonsterBashForeground::~TilesetType_MonsterBashForeground()
 {
 }
 
-std::string MonsterBashForegroundTilesetType::getCode() const
+std::string TilesetType_MonsterBashForeground::getCode() const
 {
 	return "tls-bash-fg";
 }
 
-std::string MonsterBashForegroundTilesetType::getFriendlyName() const
+std::string TilesetType_MonsterBashForeground::getFriendlyName() const
 {
 	return "Monster Bash Foreground Tileset";
 }
 
-std::vector<std::string> MonsterBashForegroundTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_MonsterBashForeground::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tfg");
@@ -158,14 +158,14 @@ std::vector<std::string> MonsterBashForegroundTilesetType::getFileExtensions() c
 	return vcExtensions;
 }
 
-std::vector<std::string> MonsterBashForegroundTilesetType::getGameList() const
+std::vector<std::string> TilesetType_MonsterBashForeground::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
 	return vcGames;
 }
 
-MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_MonsterBashForeground::Certainty TilesetType_MonsterBashForeground::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return PossiblyYes;
@@ -174,7 +174,7 @@ MonsterBashForegroundTilesetType::Certainty MonsterBashForegroundTilesetType::is
 	return DefinitelyNo;
 }
 
-TilesetPtr MonsterBashForegroundTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashForeground::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	char empty[MB_TILE_LEN_FG];
@@ -182,16 +182,16 @@ TilesetPtr MonsterBashForegroundTilesetType::create(stream::inout_sptr psGraphic
 	for (int i = 0; i < MB_NUM_TILES_FG; i++) {
 		psGraphics->write(empty, MB_TILE_LEN_FG);
 	}
-	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_SPRITE));
+	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_SPRITE));
 }
 
-TilesetPtr MonsterBashForegroundTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_MonsterBashForeground::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new MonsterBashTileset(psGraphics, MB_NUMPLANES_SPRITE));
+	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_SPRITE));
 }
 
-SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -199,12 +199,12 @@ SuppFilenames MonsterBashForegroundTilesetType::getRequiredSupps(const std::stri
 
 
 //
-// MonsterBashTileset
+// Tileset_MonsterBash
 //
 
-MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
+Tileset_MonsterBash::Tileset_MonsterBash(stream::inout_sptr data,
 	uint8_t numPlanes)
-	:	FATTileset(data, MB_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, MB_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -227,16 +227,16 @@ MonsterBashTileset::MonsterBashTileset(stream::inout_sptr data,
 
 }
 
-MonsterBashTileset::~MonsterBashTileset()
+Tileset_MonsterBash::~Tileset_MonsterBash()
 {
 }
 
-int MonsterBashTileset::getCaps()
+int Tileset_MonsterBash::getCaps()
 {
 	return Tileset::ColourDepthEGA;
 }
 
-void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_MonsterBash::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != this->lenTile) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -244,7 +244,7 @@ void MonsterBashTileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void MonsterBashTileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_MonsterBash::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = MB_TILE_WIDTH;
 	*height = MB_TILE_HEIGHT;
@@ -252,12 +252,12 @@ void MonsterBashTileset::getTilesetDimensions(unsigned int *width, unsigned int 
 }
 
 
-unsigned int MonsterBashTileset::getLayoutWidth()
+unsigned int Tileset_MonsterBash::getLayoutWidth()
 {
 	return 20;
 }
 
-ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_MonsterBash::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	PLANE_LAYOUT planes;
@@ -269,7 +269,7 @@ ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = 0 + offset;
 
-	EGAPlanarImage *ega = new EGAPlanarImage();
+	Image_EGAPlanar *ega = new Image_EGAPlanar();
 	ImagePtr conv(ega);
 	ega->setParams(
 		content, 0, MB_TILE_WIDTH, MB_TILE_HEIGHT, planes
@@ -278,8 +278,8 @@ ImagePtr MonsterBashTileset::createImageInstance(const EntryPtr& id,
 	return conv;
 }
 
-MonsterBashTileset::FATEntry *MonsterBashTileset::preInsertFile(
-	const MonsterBashTileset::FATEntry *idBeforeThis, MonsterBashTileset::FATEntry *pNewEntry)
+Tileset_MonsterBash::FATEntry *Tileset_MonsterBash::preInsertFile(
+	const Tileset_MonsterBash::FATEntry *idBeforeThis, Tileset_MonsterBash::FATEntry *pNewEntry)
 {
 	// All tiles are a fixed size in this format.
 	pNewEntry->size = this->lenTile;

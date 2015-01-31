@@ -1,6 +1,6 @@
 /**
  * @file   test-subimage.cpp
- * @brief  Test code for SubImage class.
+ * @brief  Test code for Image_Sub class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -72,7 +72,7 @@ struct subimage: public default_sample {
 		planes[PLANE_INTENSITY] = 5;
 		planes[PLANE_HITMAP] = 0;
 		planes[PLANE_OPACITY] = -1;
-		EGABytePlanarImage *ega = new EGABytePlanarImage();
+		Image_EGABytePlanar *ega = new Image_EGABytePlanar();
 		this->img.reset(ega);
 		ega->setParams(this->base, 0, width, height, planes, createPalette_DefaultEGA());
 		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(subimage_open)
 
 	StdImageDataPtr stdImg = this->img->toStandard();
 	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
 		0, 4, subWidth, subHeight,
 		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(subimage_open2)
 
 	StdImageDataPtr stdImg = this->img->toStandard();
 	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
 		16-subWidth, 16-subHeight, subWidth, subHeight,
 		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(subimage_open_mask)
 
 	StdImageDataPtr stdImg = this->img->toStandard();
 	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
 		16-subWidth, 16-subHeight, subWidth, subHeight,
 		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(subimage_edit)
 
 	StdImageDataPtr stdImg = this->img->toStandard();
 	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new SubImage(this->img, stdImg, stdMask,
+	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
 		16-subWidth, 16-subHeight, subWidth, subHeight,
 		boost::bind<void>(&subimage::updateImage, this)));
 	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");

@@ -31,40 +31,40 @@
 namespace camoto {
 namespace gamegraphics {
 
-TVFogImageType::TVFogImageType()
+ImageType_TVFog::ImageType_TVFog()
 {
 }
 
-TVFogImageType::~TVFogImageType()
+ImageType_TVFog::~ImageType_TVFog()
 {
 }
 
-std::string TVFogImageType::getCode() const
+std::string ImageType_TVFog::getCode() const
 {
 	return "img-tv-fog";
 }
 
-std::string TVFogImageType::getFriendlyName() const
+std::string ImageType_TVFog::getFriendlyName() const
 {
 	return "Terminal Velocity fog map";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> TVFogImageType::getFileExtensions() const
+std::vector<std::string> ImageType_TVFog::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("fog");
 	return vcExtensions;
 }
 
-std::vector<std::string> TVFogImageType::getGameList() const
+std::vector<std::string> ImageType_TVFog::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Terminal Velocity");
 	return vcGames;
 }
 
-ImageType::Certainty TVFogImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_TVFog::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -83,7 +83,7 @@ ImageType::Certainty TVFogImageType::isInstance(stream::input_sptr psImage) cons
 	return DefinitelyYes;
 }
 
-ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_TVFog::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
@@ -93,20 +93,20 @@ ImagePtr TVFogImageType::create(stream::inout_sptr psImage,
 		psImage->write((char *)&buf, 1);
 	}
 
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
-	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
+	return ImagePtr(new Image_VGARaw(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }
 
-ImagePtr TVFogImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_TVFog::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 	PaletteTablePtr pal = palFile->getPalette();
-	return ImagePtr(new VGARawImage(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
+	return ImagePtr(new Image_VGARaw(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
 }
 
-SuppFilenames TVFogImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_TVFog::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =

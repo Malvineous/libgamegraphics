@@ -31,11 +31,11 @@ namespace gamegraphics {
  * This class implements common functions that would otherwise have to be
  * implemented in each subclass.
  */
-class BaseImage: virtual public Image
+class Image_Base: virtual public Image
 {
 	public:
-		BaseImage();
-		virtual ~BaseImage();
+		Image_Base();
+		virtual ~Image_Base();
 
 		/// Default function to throw exception.
 		/**

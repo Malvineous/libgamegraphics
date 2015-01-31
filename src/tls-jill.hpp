@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class JillTilesetType: virtual public TilesetType
+class TilesetType_Jill: virtual public TilesetType
 {
 	public:
-		JillTilesetType();
-		virtual ~JillTilesetType();
+		TilesetType_Jill();
+		virtual ~TilesetType_Jill();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -47,15 +47,15 @@ class JillTilesetType: virtual public TilesetType
 			const;
 };
 
-class JillTileset: virtual public FATTileset
+class Tileset_Jill: virtual public Tileset_FAT
 {
 	public:
-		JillTileset(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~JillTileset();
+		Tileset_Jill(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Tileset_Jill();
 
 		virtual int getCaps();
 		virtual PaletteTablePtr getPalette();
-		// FATTileset
+		// Tileset_FAT
 		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
@@ -65,15 +65,15 @@ class JillTileset: virtual public FATTileset
 		PaletteTablePtr pal; ///< Palette for entire tileset (optional)
 };
 
-class JillTiles: virtual public FATTileset
+class Tileset_JillSub: virtual public Tileset_FAT
 {
 	public:
-		JillTiles(stream::inout_sptr data);
-		virtual ~JillTiles();
+		Tileset_JillSub(stream::inout_sptr data);
+		virtual ~Tileset_JillSub();
 
 		virtual int getCaps();
 		virtual unsigned int getLayoutWidth();
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
@@ -85,7 +85,7 @@ class JillTiles: virtual public FATTileset
 };
 
 /// Image implementation for a Jill of the Jungle tile.
-class JillImage: virtual public VGAImage
+class Image_Jill: virtual public Image_VGA
 {
 	public:
 		/// Constructor
@@ -98,8 +98,8 @@ class JillImage: virtual public VGAImage
 		 * @param colourMap
 		 *   Colour mapping table (not a palette) from the parent tileset.
 		 */
-		JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap);
-		virtual ~JillImage();
+		Image_Jill(stream::inout_sptr data, const StdImageDataPtr colourMap);
+		virtual ~Image_Jill();
 
 		virtual int getCaps();
 		virtual void getDimensions(unsigned int *width, unsigned int *height);

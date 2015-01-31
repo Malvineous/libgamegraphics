@@ -31,39 +31,39 @@
 namespace camoto {
 namespace gamegraphics {
 
-Zone66TileImageType::Zone66TileImageType()
+ImageType_Zone66Tile::ImageType_Zone66Tile()
 {
 }
 
-Zone66TileImageType::~Zone66TileImageType()
+ImageType_Zone66Tile::~ImageType_Zone66Tile()
 {
 }
 
-std::string Zone66TileImageType::getCode() const
+std::string ImageType_Zone66Tile::getCode() const
 {
 	return "img-zone66_tile";
 }
 
-std::string Zone66TileImageType::getFriendlyName() const
+std::string ImageType_Zone66Tile::getFriendlyName() const
 {
 	return "Zone 66 tile";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> Zone66TileImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Zone66Tile::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> Zone66TileImageType::getGameList() const
+std::vector<std::string> ImageType_Zone66Tile::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Zone 66");
 	return vcGames;
 }
 
-ImageType::Certainty Zone66TileImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -103,7 +103,7 @@ ImageType::Certainty Zone66TileImageType::isInstance(stream::input_sptr psImage)
 	return DefinitelyNo;
 }
 
-ImagePtr Zone66TileImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Zone66Tile::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage
@@ -114,25 +114,25 @@ ImagePtr Zone66TileImageType::create(stream::inout_sptr psImage,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new Zone66TileImage(psImage, pal));
+	return ImagePtr(new Image_Zone66Tile(psImage, pal));
 }
 
-ImagePtr Zone66TileImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Zone66Tile::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new Zone66TileImage(psImage, pal));
+	return ImagePtr(new Image_Zone66Tile(psImage, pal));
 }
 
-SuppFilenames Zone66TileImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Zone66Tile::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
@@ -140,7 +140,7 @@ SuppFilenames Zone66TileImageType::getRequiredSupps(const std::string& filenameI
 }
 
 
-Zone66TileImage::Zone66TileImage(stream::inout_sptr data,
+Image_Zone66Tile::Image_Zone66Tile(stream::inout_sptr data,
 	PaletteTablePtr pal)
 	:	data(data),
 		pal(pal)
@@ -161,23 +161,23 @@ Zone66TileImage::Zone66TileImage(stream::inout_sptr data,
 }
 
 
-Zone66TileImage::~Zone66TileImage()
+Image_Zone66Tile::~Image_Zone66Tile()
 {
 }
 
-int Zone66TileImage::getCaps()
+int Image_Zone66Tile::getCaps()
 {
 	return ColourDepthVGA | CanSetDimensions | HasPalette;
 }
 
-void Zone66TileImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_Zone66Tile::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
+void Image_Zone66Tile::setDimensions(unsigned int width, unsigned int height)
 {
 	this->data->seekg(0, stream::end);
 	if ((width == 320) && (height == 200)) {
@@ -196,7 +196,7 @@ void Zone66TileImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr Zone66TileImage::toStandard()
+StdImageDataPtr Image_Zone66Tile::toStandard()
 {
 	assert((this->width != 0) && (this->height != 0));
 
@@ -251,7 +251,7 @@ StdImageDataPtr Zone66TileImage::toStandard()
 	return ret;
 }
 
-StdImageDataPtr Zone66TileImage::toStandardMask()
+StdImageDataPtr Image_Zone66Tile::toStandardMask()
 {
 	assert((this->width != 0) && (this->height != 0));
 	int dataSize = this->width * this->height;
@@ -264,7 +264,7 @@ StdImageDataPtr Zone66TileImage::toStandardMask()
 	return ret;
 }
 
-void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
+void Image_Zone66Tile::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask)
 {
 	assert((this->width != 0) && (this->height != 0));
@@ -378,12 +378,12 @@ void Zone66TileImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr Zone66TileImage::getPalette()
+PaletteTablePtr Image_Zone66Tile::getPalette()
 {
 	return this->pal;
 }
 
-void Zone66TileImage::setPalette(PaletteTablePtr newPalette)
+void Image_Zone66Tile::setPalette(PaletteTablePtr newPalette)
 {
 	// This doesn't save anything to the file as the palette is stored externally.
 	this->pal = newPalette;

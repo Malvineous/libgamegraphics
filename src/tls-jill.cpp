@@ -45,42 +45,42 @@ namespace gamegraphics {
 #define BYTE_OFFSET 16  ///< 16 == VGA, 8 == EGA, 0 == CGA
 
 //
-// JillTilesetType
+// TilesetType_Jill
 //
 
-JillTilesetType::JillTilesetType()
+TilesetType_Jill::TilesetType_Jill()
 {
 }
 
-JillTilesetType::~JillTilesetType()
+TilesetType_Jill::~TilesetType_Jill()
 {
 }
 
-std::string JillTilesetType::getCode() const
+std::string TilesetType_Jill::getCode() const
 {
 	return "tls-jill";
 }
 
-std::string JillTilesetType::getFriendlyName() const
+std::string TilesetType_Jill::getFriendlyName() const
 {
 	return "Jill of the Jungle Tileset";
 }
 
-std::vector<std::string> JillTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_Jill::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("sha");
 	return vcExtensions;
 }
 
-std::vector<std::string> JillTilesetType::getGameList() const
+std::vector<std::string> TilesetType_Jill::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Jill of the Jungle");
 	return vcGames;
 }
 
-JillTilesetType::Certainty JillTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Jill::Certainty TilesetType_Jill::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len < 128 * 6) return DefinitelyNo; // missing offset table
@@ -94,35 +94,35 @@ JillTilesetType::Certainty JillTilesetType::isInstance(stream::input_sptr psGrap
 	return DefinitelyYes;
 }
 
-TilesetPtr JillTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Jill::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
 	psGraphics->seekp(0, stream::start);
 	for (int i = 0; i < 128; i++) psGraphics->write("\0\0\0\0\0\0", 6);
-	return TilesetPtr(new JillTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_Jill(psGraphics, pal));
 }
 
-TilesetPtr JillTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_Jill::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], 6));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
 	}
 
-	return TilesetPtr(new JillTileset(psGraphics, pal));
+	return TilesetPtr(new Tileset_Jill(psGraphics, pal));
 }
 
-SuppFilenames JillTilesetType::getRequiredSupps(
+SuppFilenames TilesetType_Jill::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
 	SuppFilenames supps;
@@ -133,11 +133,11 @@ SuppFilenames JillTilesetType::getRequiredSupps(
 
 
 //
-// JillTileset
+// Tileset_Jill
 //
 
-JillTileset::JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
-	:	FATTileset(data, JILL_FIRST_TILESET_OFFSET),
+Tileset_Jill::Tileset_Jill(stream::inout_sptr data, PaletteTablePtr pal)
+	:	Tileset_FAT(data, JILL_FIRST_TILESET_OFFSET),
 		pal(pal)
 {
 	this->items.reserve(JILL_NUM_TILESETS);
@@ -166,38 +166,38 @@ JillTileset::JillTileset(stream::inout_sptr data, PaletteTablePtr pal)
 
 }
 
-JillTileset::~JillTileset()
+Tileset_Jill::~Tileset_Jill()
 {
 }
 
-int JillTileset::getCaps()
+int Tileset_Jill::getCaps()
 {
 	return this->pal ? Tileset::HasPalette : 0;
 }
 
-PaletteTablePtr JillTileset::getPalette()
+PaletteTablePtr Tileset_Jill::getPalette()
 {
 	return this->pal;
 }
 
-TilesetPtr JillTileset::createTilesetInstance(const EntryPtr& id,
+TilesetPtr Tileset_Jill::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	// Make sure nobody tries to open an empty slot!
 	assert((id->getAttr() & Tileset::EmptySlot) == 0);
 
 	//stream::sub_sptr sub = boost::dynamic_pointer_cast<stream::sub>(content);
-	return TilesetPtr(new JillTiles(content));
+	return TilesetPtr(new Tileset_JillSub(content));
 }
 
-void JillTileset::updateFileOffset(const FATEntry *pid, stream::len offDelta)
+void Tileset_Jill::updateFileOffset(const FATEntry *pid, stream::len offDelta)
 {
 	this->data->seekp(pid->index * 4, stream::start);
 	this->data << u32le(pid->offset);
 	return;
 }
 
-void JillTileset::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
+void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 {
 	this->data->seekp((128 * 4) + pid->index * 2, stream::start);
 	this->data << u16le(pid->size);
@@ -206,11 +206,11 @@ void JillTileset::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 
 
 //
-// JillTiles
+// Tileset_JillSub
 //
 
-JillTiles::JillTiles(stream::inout_sptr data)
-	:	FATTileset(data, JILL_FIRST_TILE_OFFSET)
+Tileset_JillSub::Tileset_JillSub(stream::inout_sptr data)
+	:	Tileset_FAT(data, JILL_FIRST_TILE_OFFSET)
 {
 	uint8_t numImages;
 	uint16_t numRots;
@@ -271,21 +271,21 @@ JillTiles::JillTiles(stream::inout_sptr data)
 
 }
 
-JillTiles::~JillTiles()
+Tileset_JillSub::~Tileset_JillSub()
 {
 }
 
-int JillTiles::getCaps()
+int Tileset_JillSub::getCaps()
 {
 	return Tileset::ColourDepthVGA;
 }
 
-unsigned int JillTiles::getLayoutWidth()
+unsigned int Tileset_JillSub::getLayoutWidth()
 {
 	return 10;
 }
 
-ImagePtr JillTiles::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_JillSub::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
@@ -299,14 +299,14 @@ ImagePtr JillTiles::createImageInstance(const EntryPtr& id,
 			// Yes, definitely a palette
 			camoto::stream::sub_sptr sub(new stream::sub());
 			sub->open(content, 3, 768, NULL); // NULL because this is a fixed size
-			return ImagePtr(new VGAPalette(sub, 6));
+			return ImagePtr(new Palette_VGA(sub, 6));
 		}
 	}
-	return ImagePtr(new JillImage(content, this->colourMap));
+	return ImagePtr(new Image_Jill(content, this->colourMap));
 }
 
-JillTiles::FATEntry *JillTiles::preInsertFile(
-	const JillTiles::FATEntry *idBeforeThis, JillTiles::FATEntry *pNewEntry)
+Tileset_JillSub::FATEntry *Tileset_JillSub::preInsertFile(
+	const Tileset_JillSub::FATEntry *idBeforeThis, Tileset_JillSub::FATEntry *pNewEntry)
 {
 	if (this->items.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
@@ -319,7 +319,7 @@ JillTiles::FATEntry *JillTiles::preInsertFile(
 	return pNewEntry;
 }
 
-void JillTiles::postRemoveFile(const FATEntry *pid)
+void Tileset_JillSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
 	this->data->seekp(0, stream::start);
@@ -329,35 +329,35 @@ void JillTiles::postRemoveFile(const FATEntry *pid)
 
 
 //
-// JillImage
+// Image_Jill
 //
 
-JillImage::JillImage(stream::inout_sptr data, const StdImageDataPtr colourMap)
-	:	VGAImage(data, 3), // 3 == skip width/height/flag fields
+Image_Jill::Image_Jill(stream::inout_sptr data, const StdImageDataPtr colourMap)
+	:	Image_VGA(data, 3), // 3 == skip width/height/flag fields
 		colourMap(colourMap)
 {
 	this->data->seekg(0, stream::start);
 	data >> u8(this->width) >> u8(this->height);
 }
 
-JillImage::~JillImage()
+Image_Jill::~Image_Jill()
 {
 }
 
-int JillImage::getCaps()
+int Image_Jill::getCaps()
 {
-	return this->VGAImage::getCaps()
+	return this->Image_VGA::getCaps()
 		| Image::CanSetDimensions;
 }
 
-void JillImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_Jill::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void JillImage::setDimensions(unsigned int width, unsigned int height)
+void Image_Jill::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 	if ((width == 64) && (height == 12)) {
@@ -373,9 +373,9 @@ void JillImage::setDimensions(unsigned int width, unsigned int height)
 	return;
 }
 
-StdImageDataPtr JillImage::toStandard()
+StdImageDataPtr Image_Jill::toStandard()
 {
-	StdImageDataPtr img = this->VGAImage::toStandard();
+	StdImageDataPtr img = this->Image_VGA::toStandard();
 
 	uint8_t *p = img.get();
 
@@ -388,13 +388,13 @@ StdImageDataPtr JillImage::toStandard()
 	return img;
 }
 
-void JillImage::fromStandard(StdImageDataPtr newContent,
+void Image_Jill::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
 	std::cerr << "ERROR: Cannot overwrite Jill images yet (no colourmap handling)" << std::endl;
 
-	this->VGAImage::fromStandard(newContent, newMask);
+	this->Image_VGA::fromStandard(newContent, newMask);
 
 	// Update dimensions
 	this->data->seekp(0, stream::start);

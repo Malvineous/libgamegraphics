@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Image specialisation for palette files.
-class Palette: virtual public BaseImage
+class Palette: virtual public Image_Base
 {
 	public:
 		Palette();

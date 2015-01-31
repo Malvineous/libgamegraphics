@@ -47,43 +47,43 @@ namespace gamegraphics {
 #define CC_FIRST_TILE_OFFSET    3
 
 //
-// CCavesMainTilesetType
+// TilesetType_CCavesMain
 //
 
-CCavesMainTilesetType::CCavesMainTilesetType()
+TilesetType_CCavesMain::TilesetType_CCavesMain()
 	: pad(CC_PAD)
 {
 }
 
-CCavesMainTilesetType::~CCavesMainTilesetType()
+TilesetType_CCavesMain::~TilesetType_CCavesMain()
 {
 }
 
-std::string CCavesMainTilesetType::getCode() const
+std::string TilesetType_CCavesMain::getCode() const
 {
 	return "tls-ccaves-main";
 }
 
-std::string CCavesMainTilesetType::getFriendlyName() const
+std::string TilesetType_CCavesMain::getFriendlyName() const
 {
 	return "Crystal Caves Concatenated Tileset";
 }
 
-std::vector<std::string> CCavesMainTilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_CCavesMain::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> CCavesMainTilesetType::getGameList() const
+std::vector<std::string> TilesetType_CCavesMain::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
 	return vcGames;
 }
 
-CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 
@@ -123,24 +123,24 @@ CCavesMainTilesetType::Certainty CCavesMainTilesetType::isInstance(stream::input
 	return PossiblyYes;
 }
 
-TilesetPtr CCavesMainTilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CCavesMain::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	throw stream::error("not implemented yet");
 	psGraphics->seekp(0, stream::start);
 	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
 	psGraphics->write("\x00\x01\x08", 3);
-	return TilesetPtr(new CCavesMainTileset(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
+	return TilesetPtr(new Tileset_CCavesMain(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr CCavesMainTilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CCavesMain::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
-	return TilesetPtr(new CCavesMainTileset(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
+	return TilesetPtr(new Tileset_CCavesMain(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
 }
 
-SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesMain::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -148,12 +148,12 @@ SuppFilenames CCavesMainTilesetType::getRequiredSupps(const std::string& filenam
 
 
 //
-// CCavesMainTileset
+// Tileset_CCavesMain
 //
 
-CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
+Tileset_CCavesMain::Tileset_CCavesMain(stream::inout_sptr data,
 	unsigned int numPlanes, stream::len pad)
-	:	FATTileset(data, CC_FIRST_TILESET_OFFSET),
+	:	Tileset_FAT(data, CC_FIRST_TILESET_OFFSET),
 		numPlanes(numPlanes)
 {
 	stream::pos len = this->data->size();
@@ -194,20 +194,20 @@ CCavesMainTileset::CCavesMainTileset(stream::inout_sptr data,
 	}
 }
 
-CCavesMainTileset::~CCavesMainTileset()
+Tileset_CCavesMain::~Tileset_CCavesMain()
 {
 }
 
-int CCavesMainTileset::getCaps()
+int Tileset_CCavesMain::getCaps()
 {
 	return Tileset::ColourDepthEGA;
 }
 
-TilesetPtr CCavesMainTileset::createTilesetInstance(const EntryPtr& id,
+TilesetPtr Tileset_CCavesMain::createTilesetInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	return TilesetPtr(
-		new CCavesSubTileset(content, this->numPlanes)
+		new Tileset_CCavesSub(content, this->numPlanes)
 	);
 }
 

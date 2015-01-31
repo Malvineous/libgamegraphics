@@ -28,12 +28,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-class DDaveTilesetType: virtual public TilesetType {
+class TilesetType_DDave: virtual public TilesetType {
 
 	public:
-		DDaveTilesetType();
+		TilesetType_DDave();
 
-		virtual ~DDaveTilesetType();
+		virtual ~TilesetType_DDave();
 
 		virtual std::vector<std::string> getFileExtensions() const;
 
@@ -49,7 +49,7 @@ class DDaveTilesetType: virtual public TilesetType {
 
 };
 
-class DDaveCGATilesetType: virtual public DDaveTilesetType {
+class TilesetType_DDaveCGA: virtual public TilesetType_DDave {
 
 	public:
 
@@ -68,7 +68,7 @@ class DDaveCGATilesetType: virtual public DDaveTilesetType {
 
 };
 
-class DDaveEGATilesetType: virtual public DDaveTilesetType {
+class TilesetType_DDaveEGA: virtual public TilesetType_DDave {
 
 	public:
 
@@ -87,7 +87,7 @@ class DDaveEGATilesetType: virtual public DDaveTilesetType {
 
 };
 
-class DDaveVGATilesetType: virtual public DDaveTilesetType {
+class TilesetType_DDaveVGA: virtual public TilesetType_DDave {
 
 	public:
 
@@ -110,15 +110,15 @@ class DDaveVGATilesetType: virtual public DDaveTilesetType {
 };
 
 
-class DDaveTileset: virtual public FATTileset {
+class Tileset_DDave: virtual public Tileset_FAT {
 
 	public:
 		enum ImageType {CGA, EGA, VGA};
 
-		DDaveTileset(stream::inout_sptr data, ImageType imgType,
+		Tileset_DDave(stream::inout_sptr data, ImageType imgType,
 			PaletteTablePtr pal);
 
-		virtual ~DDaveTileset();
+		virtual ~Tileset_DDave();
 
 		virtual int getCaps();
 

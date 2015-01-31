@@ -26,15 +26,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-EGABytePlanarTiledImage::EGABytePlanarTiledImage()
+Image_EGABytePlanarTiled::Image_EGABytePlanarTiled()
 {
 }
 
-EGABytePlanarTiledImage::~EGABytePlanarTiledImage()
+Image_EGABytePlanarTiled::~Image_EGABytePlanarTiled()
 {
 }
 
-void EGABytePlanarTiledImage::setParams(stream::inout_sptr data,
+void Image_EGABytePlanarTiled::setParams(stream::inout_sptr data,
 	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes,
 	PaletteTablePtr pal
 )
@@ -48,19 +48,19 @@ void EGABytePlanarTiledImage::setParams(stream::inout_sptr data,
 	return;
 }
 
-int EGABytePlanarTiledImage::getCaps()
+int Image_EGABytePlanarTiled::getCaps()
 {
 	return Image::ColourDepthEGA | (this->pal ? Image::HasPalette : 0);
 }
 
-void EGABytePlanarTiledImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_EGABytePlanarTiled::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void EGABytePlanarTiledImage::setDimensions(unsigned int width, unsigned int height)
+void Image_EGABytePlanarTiled::setDimensions(unsigned int width, unsigned int height)
 {
 	assert(this->getCaps() & Image::CanSetDimensions);
 
@@ -78,17 +78,17 @@ void EGABytePlanarTiledImage::setDimensions(unsigned int width, unsigned int hei
 	return;
 }
 
-StdImageDataPtr EGABytePlanarTiledImage::toStandard()
+StdImageDataPtr Image_EGABytePlanarTiled::toStandard()
 {
 	return this->doConversion(false);
 }
 
-StdImageDataPtr EGABytePlanarTiledImage::toStandardMask()
+StdImageDataPtr Image_EGABytePlanarTiled::toStandardMask()
 {
 	return this->doConversion(true);
 }
 
-void EGABytePlanarTiledImage::fromStandard(StdImageDataPtr newContent,
+void Image_EGABytePlanarTiled::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
@@ -195,12 +195,12 @@ void EGABytePlanarTiledImage::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr EGABytePlanarTiledImage::getPalette()
+PaletteTablePtr Image_EGABytePlanarTiled::getPalette()
 {
 	return this->pal;
 }
 
-StdImageDataPtr EGABytePlanarTiledImage::doConversion(bool mask)
+StdImageDataPtr Image_EGABytePlanarTiled::doConversion(bool mask)
 {
 	// Sort out all the values we need to output for each plane
 	int numPlanes = 0;

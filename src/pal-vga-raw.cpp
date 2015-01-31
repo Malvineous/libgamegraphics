@@ -23,38 +23,38 @@
 namespace camoto {
 namespace gamegraphics {
 
-VGAPaletteImageType::VGAPaletteImageType()
+ImageType_Palette_VGA::ImageType_Palette_VGA()
 {
 }
 
-VGAPaletteImageType::~VGAPaletteImageType()
+ImageType_Palette_VGA::~ImageType_Palette_VGA()
 {
 }
 
-std::string VGAPaletteImageType::getCode() const
+std::string ImageType_Palette_VGA::getCode() const
 {
 	return "pal-vga-raw";
 }
 
-std::string VGAPaletteImageType::getFriendlyName() const
+std::string ImageType_Palette_VGA::getFriendlyName() const
 {
 	return "Standard VGA palette";
 }
 
-std::vector<std::string> VGAPaletteImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Palette_VGA::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> VGAPaletteImageType::getGameList() const
+std::vector<std::string> ImageType_Palette_VGA::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -78,57 +78,57 @@ ImageType::Certainty VGAPaletteImageType::isInstance(stream::input_sptr psImage)
 	return PossiblyYes;
 }
 
-ImagePtr VGAPaletteImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Palette_VGA::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new VGAPalette(psImage, 6));
+	return ImagePtr(new Palette_VGA(psImage, 6));
 }
 
-ImagePtr VGAPaletteImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Palette_VGA::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new VGAPalette(psImage, 6));
+	return ImagePtr(new Palette_VGA(psImage, 6));
 }
 
-SuppFilenames VGAPaletteImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_VGA::getRequiredSupps(const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
 }
 
 
-VGA8PaletteImageType::VGA8PaletteImageType()
+ImageType_VGA8Palette::ImageType_VGA8Palette()
 {
 }
 
-VGA8PaletteImageType::~VGA8PaletteImageType()
+ImageType_VGA8Palette::~ImageType_VGA8Palette()
 {
 }
 
-std::string VGA8PaletteImageType::getCode() const
+std::string ImageType_VGA8Palette::getCode() const
 {
 	return "pal-vga-raw8";
 }
 
-std::string VGA8PaletteImageType::getFriendlyName() const
+std::string ImageType_VGA8Palette::getFriendlyName() const
 {
 	return "8-bit per channel (24-bit RGB) palette";
 }
 
-std::vector<std::string> VGA8PaletteImageType::getFileExtensions() const
+std::vector<std::string> ImageType_VGA8Palette::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> VGA8PaletteImageType::getGameList() const
+std::vector<std::string> ImageType_VGA8Palette::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty VGA8PaletteImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_VGA8Palette::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -145,37 +145,37 @@ ImageType::Certainty VGA8PaletteImageType::isInstance(stream::input_sptr psImage
 	return PossiblyYes;
 }
 
-ImagePtr VGA8PaletteImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_VGA8Palette::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new VGAPalette(psImage, 8));
+	return ImagePtr(new Palette_VGA(psImage, 8));
 }
 
-ImagePtr VGA8PaletteImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_VGA8Palette::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new VGAPalette(psImage, 8));
+	return ImagePtr(new Palette_VGA(psImage, 8));
 }
 
-SuppFilenames VGA8PaletteImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_VGA8Palette::getRequiredSupps(const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
 }
 
 
-VGAPalette::VGAPalette(stream::inout_sptr data, unsigned int depth)
+Palette_VGA::Palette_VGA(stream::inout_sptr data, unsigned int depth)
 	:	data(data),
 		depth(depth)
 {
 	assert(data);
 }
 
-VGAPalette::~VGAPalette()
+Palette_VGA::~Palette_VGA()
 {
 }
 
-PaletteTablePtr VGAPalette::getPalette()
+PaletteTablePtr Palette_VGA::getPalette()
 {
 	PaletteTablePtr pal(new PaletteTable());
 	pal->reserve(256);
@@ -219,7 +219,7 @@ PaletteTablePtr VGAPalette::getPalette()
 	return pal;
 }
 
-void VGAPalette::setPalette(PaletteTablePtr newPalette)
+void Palette_VGA::setPalette(PaletteTablePtr newPalette)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);

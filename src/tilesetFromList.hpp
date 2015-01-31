@@ -28,7 +28,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetFromList: virtual public BaseTileset
+class TilesetFromList: virtual public Tileset_Base
 {
 	public:
 		TilesetFromList(const TileList& tileList, ImagePtr img,

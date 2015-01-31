@@ -79,7 +79,7 @@ using namespace camoto;
 	planes[PLANE_INTENSITY] = 5; \
 	planes[PLANE_HITMAP] = 0; \
 	planes[PLANE_OPACITY] = -1; \
-	EGARowPlanarImage *ega = new EGARowPlanarImage(); \
+	Image_EGARowPlanar *ega = new Image_EGARowPlanar(); \
 	this->img = ImagePtr(ega); \
 	ega->setParams(this->base, 0, width, height, planes); \
 	this->dataWidth = width / 8 * height * 5; // 5 == numplanes

@@ -1,6 +1,6 @@
 /**
  * @file   test-tls-vinyl.cpp
- * @brief  Test code for VinylTileset class.
+ * @brief  Test code for Tileset_Vinyl class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

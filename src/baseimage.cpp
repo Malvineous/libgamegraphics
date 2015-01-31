@@ -24,15 +24,15 @@
 namespace camoto {
 namespace gamegraphics {
 
-BaseImage::BaseImage()
+Image_Base::Image_Base()
 {
 }
 
-BaseImage::~BaseImage()
+Image_Base::~Image_Base()
 {
 }
 
-void BaseImage::setDimensions(unsigned int width, unsigned int height)
+void Image_Base::setDimensions(unsigned int width, unsigned int height)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -40,12 +40,12 @@ void BaseImage::setDimensions(unsigned int width, unsigned int height)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-PaletteTablePtr BaseImage::getPalette()
+PaletteTablePtr Image_Base::getPalette()
 {
 	return PaletteTablePtr();
 }
 
-void BaseImage::getHotspot(signed int *x, signed int *y)
+void Image_Base::getHotspot(signed int *x, signed int *y)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -53,7 +53,7 @@ void BaseImage::getHotspot(signed int *x, signed int *y)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-void BaseImage::setHotspot(signed int x, signed int y)
+void Image_Base::setHotspot(signed int x, signed int y)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -61,7 +61,7 @@ void BaseImage::setHotspot(signed int x, signed int y)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-void BaseImage::getHitRect(signed int *x, signed int *y)
+void Image_Base::getHitRect(signed int *x, signed int *y)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -69,7 +69,7 @@ void BaseImage::getHitRect(signed int *x, signed int *y)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-void BaseImage::setHitRect(signed int x, signed int y)
+void Image_Base::setHitRect(signed int x, signed int y)
 {
 	// Caller didn't check getCaps()
 	assert(false);
@@ -77,7 +77,7 @@ void BaseImage::setHitRect(signed int x, signed int y)
 		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-void BaseImage::setPalette(PaletteTablePtr newPalette)
+void Image_Base::setPalette(PaletteTablePtr newPalette)
 {
 	// Caller didn't check getCaps()
 	assert(false);

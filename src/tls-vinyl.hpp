@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class VinylTilesetType: virtual public TilesetType
+class TilesetType_Vinyl: virtual public TilesetType
 {
 	public:
-		VinylTilesetType();
-		virtual ~VinylTilesetType();
+		TilesetType_Vinyl();
+		virtual ~TilesetType_Vinyl();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,11 +46,11 @@ class VinylTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-class VinylTileset: virtual public FATTileset
+class Tileset_Vinyl: virtual public Tileset_FAT
 {
 	public:
-		VinylTileset(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~VinylTileset();
+		Tileset_Vinyl(stream::inout_sptr data, PaletteTablePtr pal);
+		virtual ~Tileset_Vinyl();
 
 		virtual int getCaps();
 		virtual void flush();
@@ -62,7 +62,7 @@ class VinylTileset: virtual public FATTileset
 		virtual void postInsertFile(FATEntry *pNewEntry);
 		virtual void postRemoveFile(const FATEntry *pid);
 
-		// Called by VGFMTileImage
+		// Called by Image_VGFMTile
 		virtual StdImageDataPtr toStandard(unsigned int index);
 		virtual StdImageDataPtr toStandardMask(unsigned int index);
 		virtual void fromStandard(unsigned int index, StdImageDataPtr newContent,

@@ -1,6 +1,6 @@
 /**
  * @file   test-tls-ddave.cpp
- * @brief  Test code for HarryICOTileset class.
+ * @brief  Test code for Tileset_HarryICO class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

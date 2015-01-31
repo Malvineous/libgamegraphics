@@ -33,7 +33,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Tileset implementation for tilesets with an associated size/offset table.
-class FATTileset: virtual public BaseTileset
+class Tileset_FAT: virtual public Tileset_Base
 {
 	public:
 		/// FAT-related fields to add to EntryPtr.
@@ -41,7 +41,7 @@ class FATTileset: virtual public BaseTileset
 		 * This shouldn't really be public, but sometimes it is handy to access the
 		 * FAT fields (especially from within the unit tests.)
 		 */
-		struct FATEntry: virtual public BaseTilesetEntry {
+		struct FATEntry: virtual public Tileset_BaseEntry {
 			/// Index of item in the tileset.
 			/**
 			 * We can't use the index into the vector as entries are passed around
@@ -91,10 +91,10 @@ class FATTileset: virtual public BaseTileset
 
 	public:
 
-		FATTileset(stream::inout_sptr data,
+		Tileset_FAT(stream::inout_sptr data,
 			stream::pos offFirstTile);
 
-		virtual ~FATTileset();
+		virtual ~Tileset_FAT();
 
 		virtual const VC_ENTRYPTR& getItems(void) const;
 

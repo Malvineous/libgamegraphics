@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Vinyl SCR images.
-class VinylSCRImageType: virtual public ImageType
+class ImageType_VinylSCR: virtual public ImageType
 {
 	public:
 		virtual std::string getCode() const;

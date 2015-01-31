@@ -33,39 +33,39 @@
 namespace camoto {
 namespace gamegraphics {
 
-Nukem2ImageType::Nukem2ImageType()
+ImageType_Nukem2::ImageType_Nukem2()
 {
 }
 
-Nukem2ImageType::~Nukem2ImageType()
+ImageType_Nukem2::~ImageType_Nukem2()
 {
 }
 
-std::string Nukem2ImageType::getCode() const
+std::string ImageType_Nukem2::getCode() const
 {
 	return "img-nukem2";
 }
 
-std::string Nukem2ImageType::getFriendlyName() const
+std::string ImageType_Nukem2::getFriendlyName() const
 {
 	return "Duke Nukem II full-screen image";
 }
 
-std::vector<std::string> Nukem2ImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Nukem2::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("mni");
 	return vcExtensions;
 }
 
-std::vector<std::string> Nukem2ImageType::getGameList() const
+std::vector<std::string> ImageType_Nukem2::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Duke Nukem II");
 	return vcGames;
 }
 
-ImageType::Certainty Nukem2ImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Nukem2::isInstance(stream::input_sptr psImage) const
 {
 	// Files are a fixed size.
 	// TESTED BY: img_nukem2_isinstance_c01
@@ -88,25 +88,25 @@ ImageType::Certainty Nukem2ImageType::isInstance(stream::input_sptr psImage) con
 	return DefinitelyYes;
 }
 
-ImagePtr Nukem2ImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Nukem2::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new Nukem2Image(psImage));
+	return ImagePtr(new Image_Nukem2(psImage));
 }
 
-ImagePtr Nukem2ImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Nukem2::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	return ImagePtr(new Nukem2Image(psImage));
+	return ImagePtr(new Image_Nukem2(psImage));
 }
 
-SuppFilenames Nukem2ImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Nukem2::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }
 
 
-Nukem2Image::Nukem2Image(stream::inout_sptr data)
+Image_Nukem2::Image_Nukem2(stream::inout_sptr data)
 	:	data(data)
 {
 	PLANE_LAYOUT planes;
@@ -145,27 +145,27 @@ Nukem2Image::Nukem2Image(stream::inout_sptr data)
 
 }
 
-Nukem2Image::~Nukem2Image()
+Image_Nukem2::~Image_Nukem2()
 {
 }
 
-int Nukem2Image::getCaps()
+int Image_Nukem2::getCaps()
 {
 	return ColourDepthEGA | HasPalette;
 }
 
-void Nukem2Image::getDimensions(unsigned int *width, unsigned int *height)
+void Image_Nukem2::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = N2IMG_WIDTH;
 	*height = N2IMG_HEIGHT;
 	return;
 }
 
-void Nukem2Image::fromStandard(StdImageDataPtr newContent,
+void Image_Nukem2::fromStandard(StdImageDataPtr newContent,
 	StdImageDataPtr newMask
 )
 {
-	this->EGAPlanarImage::fromStandard(newContent, newMask);
+	this->Image_EGAPlanar::fromStandard(newContent, newMask);
 
 	// Append the palette
 	assert(this->vgaPal->size() <= 16);
@@ -183,12 +183,12 @@ void Nukem2Image::fromStandard(StdImageDataPtr newContent,
 	return;
 }
 
-PaletteTablePtr Nukem2Image::getPalette()
+PaletteTablePtr Image_Nukem2::getPalette()
 {
 	return this->vgaPal;
 }
 
-void Nukem2Image::setPalette(PaletteTablePtr newPalette)
+void Image_Nukem2::setPalette(PaletteTablePtr newPalette)
 {
 	if (newPalette->size() > 16) {
 		throw stream::error("Duke Nukem II full-screen images can only support 16 "

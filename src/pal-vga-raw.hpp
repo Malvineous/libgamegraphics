@@ -28,11 +28,11 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for VGA 6-bit palette files.
-class VGAPaletteImageType: virtual public ImageType
+class ImageType_Palette_VGA: virtual public ImageType
 {
 	public:
-		VGAPaletteImageType();
-		virtual ~VGAPaletteImageType();
+		ImageType_Palette_VGA();
+		virtual ~ImageType_Palette_VGA();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -47,11 +47,11 @@ class VGAPaletteImageType: virtual public ImageType
 };
 
 /// Filetype handler for VGA 8-bit palette files.
-class VGA8PaletteImageType: virtual public VGAPaletteImageType
+class ImageType_VGA8Palette: virtual public ImageType_Palette_VGA
 {
 	public:
-		VGA8PaletteImageType();
-		virtual ~VGA8PaletteImageType();
+		ImageType_VGA8Palette();
+		virtual ~ImageType_VGA8Palette();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -66,7 +66,7 @@ class VGA8PaletteImageType: virtual public VGAPaletteImageType
 };
 
 /// Palette interface to 768-byte raw 6/8-bit VGA palette files.
-class VGAPalette: virtual public Palette
+class Palette_VGA: virtual public Palette
 {
 	public:
 		/// Create a new palette.
@@ -78,8 +78,8 @@ class VGAPalette: virtual public Palette
 		 *   Either 6 for a 6-bit raw VGA palette (values 0-63) or 8 for an 8-bit
 		 *   RGB palette (values 0-255).
 		 */
-		VGAPalette(stream::inout_sptr data, unsigned int depth);
-		virtual ~VGAPalette();
+		Palette_VGA(stream::inout_sptr data, unsigned int depth);
+		virtual ~Palette_VGA();
 
 		virtual PaletteTablePtr getPalette();
 		virtual void setPalette(PaletteTablePtr newPalette);

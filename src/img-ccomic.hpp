@@ -28,12 +28,12 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Captain Comic full-screen images.
-class CComicImageType: virtual public ImageType
+class ImageType_CComic: virtual public ImageType
 {
 	public:
-		CComicImageType();
+		ImageType_CComic();
 
-		virtual ~CComicImageType();
+		virtual ~ImageType_CComic();
 
 		virtual std::string getCode() const;
 
@@ -55,7 +55,7 @@ class CComicImageType: virtual public ImageType
 };
 
 /// Image implementation for Captain Comic full-screen images.
-class CComicImage: virtual public EGAPlanarImage
+class Image_CComic: virtual public Image_EGAPlanar
 {
 	public:
 		/// Constructor
@@ -68,9 +68,9 @@ class CComicImage: virtual public EGAPlanarImage
 		 * @throw stream::error
 		 *   Read error or invalid file format.
 		 */
-		CComicImage(stream::inout_sptr data);
+		Image_CComic(stream::inout_sptr data);
 
-		virtual ~CComicImage();
+		virtual ~Image_CComic();
 
 	protected:
 		stream::inout_sptr data;

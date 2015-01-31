@@ -24,38 +24,38 @@
 namespace camoto {
 namespace gamegraphics {
 
-MonoImageType::MonoImageType()
+ImageType_Mono::ImageType_Mono()
 {
 }
 
-MonoImageType::~MonoImageType()
+ImageType_Mono::~ImageType_Mono()
 {
 }
 
-std::string MonoImageType::getCode() const
+std::string ImageType_Mono::getCode() const
 {
 	return "img-mono-raw-fullscreen";
 }
 
-std::string MonoImageType::getFriendlyName() const
+std::string ImageType_Mono::getFriendlyName() const
 {
 	return "Raw monochrome fullscreen image";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> MonoImageType::getFileExtensions() const
+std::vector<std::string> ImageType_Mono::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> MonoImageType::getGameList() const
+std::vector<std::string> ImageType_Mono::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty MonoImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Mono::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -66,7 +66,7 @@ ImageType::Certainty MonoImageType::isInstance(stream::input_sptr psImage) const
 	return DefinitelyNo;
 }
 
-ImagePtr MonoImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_Mono::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(8000);
@@ -79,10 +79,10 @@ ImagePtr MonoImageType::create(stream::inout_sptr psImage,
 	return this->open(psImage, dummy);
 }
 
-ImagePtr MonoImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_Mono::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
-	EGAPlanarImage *ega = new EGAPlanarImage();
+	Image_EGAPlanar *ega = new Image_EGAPlanar();
 	ImagePtr img(ega);
 
 	PLANE_LAYOUT planes;
@@ -97,7 +97,7 @@ ImagePtr MonoImageType::open(stream::inout_sptr psImage,
 	return img;
 }
 
-SuppFilenames MonoImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Mono::getRequiredSupps(const std::string& filenameImage) const
 {
 	return SuppFilenames();
 }

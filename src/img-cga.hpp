@@ -37,7 +37,7 @@ namespace gamegraphics {
  *
  * Currently it only supports one format - 2bpp packed (not planar)
  */
-class CGAImage: virtual public BaseImage
+class Image_CGA: virtual public Image_Base
 {
 	public:
 		/// Constructor
@@ -57,11 +57,11 @@ class CGAImage: virtual public BaseImage
 		 * @param cgaPal
 		 *   CGA palette to use.  See generatePalette() for details.
 		 */
-		CGAImage(stream::inout_sptr data, stream::pos off, unsigned int width,
+		Image_CGA(stream::inout_sptr data, stream::pos off, unsigned int width,
 			unsigned int height, CGAPaletteType cgaPal);
 
 		/// Destructor.
-		virtual ~CGAImage();
+		virtual ~Image_CGA();
 
 		virtual int getCaps();
 
@@ -88,12 +88,12 @@ class CGAImage: virtual public BaseImage
 };
 
 /// Filetype handler for full screen raw CGA images.
-class CGARawLinearImageType: virtual public ImageType
+class ImageType_CGARawLinear: virtual public ImageType
 {
 	public:
-		CGARawLinearImageType();
+		ImageType_CGARawLinear();
 
-		virtual ~CGARawLinearImageType();
+		virtual ~ImageType_CGARawLinear();
 
 		virtual std::string getCode() const;
 

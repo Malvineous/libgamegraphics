@@ -32,38 +32,38 @@
 namespace camoto {
 namespace gamegraphics {
 
-std::string VinylSCRImageType::getCode() const
+std::string ImageType_VinylSCR::getCode() const
 {
 	return "img-scr-vinyl";
 }
 
-std::string VinylSCRImageType::getFriendlyName() const
+std::string ImageType_VinylSCR::getFriendlyName() const
 {
 	return "Vinyl Goddess From Mars SCR image";
 }
 
-std::vector<std::string> VinylSCRImageType::getFileExtensions() const
+std::vector<std::string> ImageType_VinylSCR::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gra");
 	return vcExtensions;
 }
 
-std::vector<std::string> VinylSCRImageType::getGameList() const
+std::vector<std::string> ImageType_VinylSCR::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Vinyl Goddess From Mars");
 	return vcGames;
 }
 
-ImageType::Certainty VinylSCRImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_VinylSCR::isInstance(stream::input_sptr psImage) const
 {
 	stream::len len = psImage->size();
 	if (len != 320*200) return DefinitelyNo;
 	return Unsure;
 }
 
-ImagePtr VinylSCRImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_VinylSCR::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(SCR_DATA_OFFSET);
@@ -76,25 +76,25 @@ ImagePtr VinylSCRImageType::create(stream::inout_sptr psImage,
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
+	return ImagePtr(new Image_VGARawPlanar(psImage, 320, 200, pal));
 }
 
-ImagePtr VinylSCRImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_VinylSCR::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], SCR_PALETTE_DEPTH));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
+	return ImagePtr(new Image_VGARawPlanar(psImage, 320, 200, pal));
 }
 
-SuppFilenames VinylSCRImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_VinylSCR::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =

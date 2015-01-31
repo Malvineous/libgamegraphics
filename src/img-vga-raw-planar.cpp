@@ -1,6 +1,6 @@
 /**
  * @file  img-vga-raw-planar.cpp
- * @brief VGAImage specialisation for planar fixed-size headerless images.
+ * @brief Image_VGA specialisation for planar fixed-size headerless images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -24,20 +24,20 @@
 namespace camoto {
 namespace gamegraphics {
 
-std::vector<std::string> VGARawPlanarBaseImageType::getFileExtensions() const
+std::vector<std::string> ImageType_VGARawPlanarBase::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> VGARawPlanarBaseImageType::getGameList() const
+std::vector<std::string> ImageType_VGARawPlanarBase::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty VGARawPlanarBaseImageType::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_VGARawPlanarBase::isInstance(stream::input_sptr psImage) const
 {
 	stream::pos len = psImage->size();
 
@@ -48,7 +48,7 @@ ImageType::Certainty VGARawPlanarBaseImageType::isInstance(stream::input_sptr ps
 	return DefinitelyNo;
 }
 
-ImagePtr VGARawPlanarBaseImageType::create(stream::inout_sptr psImage,
+ImagePtr ImageType_VGARawPlanarBase::create(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	psImage->truncate(64000);
@@ -58,24 +58,24 @@ ImagePtr VGARawPlanarBaseImageType::create(stream::inout_sptr psImage,
 
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], this->depth));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
+	return ImagePtr(new Image_VGARawPlanar(psImage, 320, 200, pal));
 }
 
-ImagePtr VGARawPlanarBaseImageType::open(stream::inout_sptr psImage,
+ImagePtr ImageType_VGARawPlanarBase::open(stream::inout_sptr psImage,
 	SuppData& suppData) const
 {
 	PaletteTablePtr pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new VGAPalette(suppData[SuppItem::Palette], this->depth));
+		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], this->depth));
 		pal = palFile->getPalette();
 	}
-	return ImagePtr(new VGARawPlanarImage(psImage, 320, 200, pal));
+	return ImagePtr(new Image_VGARawPlanar(psImage, 320, 200, pal));
 }
 
-SuppFilenames VGARawPlanarBaseImageType::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_VGARawPlanarBase::getRequiredSupps(const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =
@@ -85,69 +85,69 @@ SuppFilenames VGARawPlanarBaseImageType::getRequiredSupps(const std::string& fil
 }
 
 
-VGA6RawPlanarImageType::VGA6RawPlanarImageType()
+ImageType_VGA6RawPlanar::ImageType_VGA6RawPlanar()
 {
 	this->depth = 6;
 }
 
-std::string VGA6RawPlanarImageType::getCode() const
+std::string ImageType_VGA6RawPlanar::getCode() const
 {
 	return "img-vga-planar-fullscreen";
 }
 
-std::string VGA6RawPlanarImageType::getFriendlyName() const
+std::string ImageType_VGA6RawPlanar::getFriendlyName() const
 {
 	return "Planar VGA fullscreen image (6-bit palette)";
 }
 
 
-VGA8RawPlanarImageType::VGA8RawPlanarImageType()
+ImageType_VGA8RawPlanar::ImageType_VGA8RawPlanar()
 {
 	this->depth = 8;
 }
 
-std::string VGA8RawPlanarImageType::getCode() const
+std::string ImageType_VGA8RawPlanar::getCode() const
 {
 	return "img-vga-planar8-fullscreen";
 }
 
-std::string VGA8RawPlanarImageType::getFriendlyName() const
+std::string ImageType_VGA8RawPlanar::getFriendlyName() const
 {
 	return "Planar VGA fullscreen image (24-bit palette)";
 }
 
 
-VGARawPlanarImage::VGARawPlanarImage(stream::inout_sptr data, int width, int height,
+Image_VGARawPlanar::Image_VGARawPlanar(stream::inout_sptr data, int width, int height,
 	PaletteTablePtr pal)
-	:	VGAPlanarImage(data, 0),
+	:	Image_VGAPlanar(data, 0),
 		width(width),
 		height(height),
 		pal(pal)
 {
 }
 
-VGARawPlanarImage::~VGARawPlanarImage()
+Image_VGARawPlanar::~Image_VGARawPlanar()
 {
 }
 
-int VGARawPlanarImage::getCaps()
+int Image_VGARawPlanar::getCaps()
 {
 	return ColourDepthVGA | HasPalette;
 }
 
-void VGARawPlanarImage::getDimensions(unsigned int *width, unsigned int *height)
+void Image_VGARawPlanar::getDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = this->width;
 	*height = this->height;
 	return;
 }
 
-void VGARawPlanarImage::setDimensions(unsigned int width, unsigned int height)
+void Image_VGARawPlanar::setDimensions(unsigned int width, unsigned int height)
 {
 	throw stream::error("this image is a fixed size");
 }
 
-PaletteTablePtr VGARawPlanarImage::getPalette()
+PaletteTablePtr Image_VGARawPlanar::getPalette()
 {
 	return this->pal;
 }

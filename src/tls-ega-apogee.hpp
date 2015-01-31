@@ -34,13 +34,13 @@ namespace gamegraphics {
 /// Number of planes in each tile (nonmasked) image
 #define EGA_NUMPLANES_SOLID   4
 
-class EGAApogeeTileset: virtual public FATTileset
+class Tileset_EGAApogee: virtual public Tileset_FAT
 {
 	public:
-		EGAApogeeTileset(stream::inout_sptr data, unsigned int tileWidth,
+		Tileset_EGAApogee(stream::inout_sptr data, unsigned int tileWidth,
 			unsigned int tileHeight, unsigned int numPlanes, unsigned int idealWidth,
 			PaletteTablePtr pal);
-		virtual ~EGAApogeeTileset();
+		virtual ~Tileset_EGAApogee();
 
 		virtual int getCaps();
 		void resize(EntryPtr& id, stream::len newSize);
@@ -48,7 +48,7 @@ class EGAApogeeTileset: virtual public FATTileset
 		virtual unsigned int getLayoutWidth();
 		virtual PaletteTablePtr getPalette();
 
-		// FATTileset
+		// Tileset_FAT
 		virtual ImagePtr createImageInstance(const EntryPtr& id,
 			stream::inout_sptr content);
 

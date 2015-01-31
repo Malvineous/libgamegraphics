@@ -28,11 +28,11 @@
 namespace camoto {
 namespace gamegraphics {
 
-class StrykerTilesetType: virtual public TilesetType
+class TilesetType_Stryker: virtual public TilesetType
 {
 	public:
-		StrykerTilesetType();
-		virtual ~StrykerTilesetType();
+		TilesetType_Stryker();
+		virtual ~TilesetType_Stryker();
 
 		virtual std::string getCode() const;
 		virtual std::string getFriendlyName() const;
@@ -46,7 +46,7 @@ class StrykerTilesetType: virtual public TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
 };
 
-class StrykerMaskedTilesetType: virtual public StrykerTilesetType
+class TilesetType_StrykerMasked: virtual public TilesetType_Stryker
 {
 	public:
 		virtual std::string getCode() const;

@@ -40,43 +40,43 @@ namespace gamegraphics {
 #define CC2_TILE_HEIGHT 16
 
 //
-// CComic2TilesetType
+// TilesetType_CComic2
 //
 
-CComic2TilesetType::CComic2TilesetType()
+TilesetType_CComic2::TilesetType_CComic2()
 {
 }
 
-CComic2TilesetType::~CComic2TilesetType()
+TilesetType_CComic2::~TilesetType_CComic2()
 {
 }
 
-std::string CComic2TilesetType::getCode() const
+std::string TilesetType_CComic2::getCode() const
 {
 	return "tls-ccomic2";
 }
 
-std::string CComic2TilesetType::getFriendlyName() const
+std::string TilesetType_CComic2::getFriendlyName() const
 {
 	return "Captain Comic II Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> CComic2TilesetType::getFileExtensions() const
+std::vector<std::string> TilesetType_CComic2::getFileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("0");
 	return vcExtensions;
 }
 
-std::vector<std::string> CComic2TilesetType::getGameList() const
+std::vector<std::string> TilesetType_CComic2::getGameList() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic 2");
 	return vcGames;
 }
 
-CComic2TilesetType::Certainty CComic2TilesetType::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(stream::input_sptr psGraphics) const
 {
 	stream::pos len = psGraphics->size();
 	if (len > 65535) return DefinitelyNo; // file too large (probably)
@@ -89,7 +89,7 @@ CComic2TilesetType::Certainty CComic2TilesetType::isInstance(stream::input_sptr 
 	return Unsure;
 }
 
-TilesetPtr CComic2TilesetType::create(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CComic2::create(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	psGraphics->seekp(0, stream::start);
@@ -99,10 +99,10 @@ TilesetPtr CComic2TilesetType::create(stream::inout_sptr psGraphics,
 		<< u16le(0)
 	;
 	// Zero tiles, 0x0
-	return TilesetPtr(new CComic2Tileset(psGraphics, NUMPLANES_TILES));
+	return TilesetPtr(new Tileset_CComic2(psGraphics, NUMPLANES_TILES));
 }
 
-TilesetPtr CComic2TilesetType::open(stream::inout_sptr psGraphics,
+TilesetPtr TilesetType_CComic2::open(stream::inout_sptr psGraphics,
 	SuppData& suppData) const
 {
 	filter_sptr filtRead(new filter_ccomic2_unrle(CC2_FIRST_TILE_OFFSET));
@@ -110,10 +110,10 @@ TilesetPtr CComic2TilesetType::open(stream::inout_sptr psGraphics,
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psGraphics, filtRead, filtWrite, NULL);
 
-	return TilesetPtr(new CComic2Tileset(decoded, NUMPLANES_TILES));
+	return TilesetPtr(new Tileset_CComic2(decoded, NUMPLANES_TILES));
 }
 
-SuppFilenames CComic2TilesetType::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CComic2::getRequiredSupps(const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -121,12 +121,12 @@ SuppFilenames CComic2TilesetType::getRequiredSupps(const std::string& filenameGr
 
 
 //
-// CComic2Tileset
+// Tileset_CComic2
 //
 
-CComic2Tileset::CComic2Tileset(stream::inout_sptr data,
+Tileset_CComic2::Tileset_CComic2(stream::inout_sptr data,
 	uint8_t numPlanes)
-	:	FATTileset(data, CC2_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(data, CC2_FIRST_TILE_OFFSET),
 		numPlanes(numPlanes)
 {
 	int tileSize = this->numPlanes << 5; // multiply by 32 (bytes per plane)
@@ -151,16 +151,16 @@ CComic2Tileset::CComic2Tileset(stream::inout_sptr data,
 
 }
 
-CComic2Tileset::~CComic2Tileset()
+Tileset_CComic2::~Tileset_CComic2()
 {
 }
 
-int CComic2Tileset::getCaps()
+int Tileset_CComic2::getCaps()
 {
 	return Tileset::ColourDepthEGA;
 }
 
-void CComic2Tileset::resize(EntryPtr& id, stream::len newSize)
+void Tileset_CComic2::resize(EntryPtr& id, stream::len newSize)
 {
 	if (newSize != CC2_TILE_WIDTH / 8 * CC2_TILE_HEIGHT * this->numPlanes) {
 		throw stream::error("tiles in this tileset are a fixed size");
@@ -168,19 +168,19 @@ void CComic2Tileset::resize(EntryPtr& id, stream::len newSize)
 	return;
 }
 
-void CComic2Tileset::getTilesetDimensions(unsigned int *width, unsigned int *height)
+void Tileset_CComic2::getTilesetDimensions(unsigned int *width, unsigned int *height)
 {
 	*width = CC2_TILE_WIDTH;
 	*height = CC2_TILE_HEIGHT;
 	return;
 }
 
-unsigned int CComic2Tileset::getLayoutWidth()
+unsigned int Tileset_CComic2::getLayoutWidth()
 {
 	return 4;
 }
 
-ImagePtr CComic2Tileset::createImageInstance(const EntryPtr& id,
+ImagePtr Tileset_CComic2::createImageInstance(const EntryPtr& id,
 	stream::inout_sptr content)
 {
 	PLANE_LAYOUT planes;
@@ -192,7 +192,7 @@ ImagePtr CComic2Tileset::createImageInstance(const EntryPtr& id,
 	planes[PLANE_HITMAP] = 0;
 	planes[PLANE_OPACITY] = (this->numPlanes == NUMPLANES_TILES) ? 0 : 5;
 
-	EGAPlanarImage *ega = new EGAPlanarImage();
+	Image_EGAPlanar *ega = new Image_EGAPlanar();
 	ImagePtr conv(ega);
 	ega->setParams(
 		content, 0, CC2_TILE_WIDTH, CC2_TILE_HEIGHT, planes
