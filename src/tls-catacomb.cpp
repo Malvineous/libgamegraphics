@@ -194,6 +194,7 @@ Tileset_Catacomb::Tileset_Catacomb(stream::inout_sptr data,
 	switch (this->imageType) {
 		case CAT_EGA: tileSize = CAT_EGA_TILESIZE; break;
 		case CAT_CGA: tileSize = CAT_CGA_TILESIZE; break;
+		default: throw stream::error("Only CGA/EGA tiles are supported.");
 	}
 	stream::pos len = this->data->size();
 
@@ -230,6 +231,7 @@ void Tileset_Catacomb::resize(EntryPtr& id, stream::len newSize)
 	switch (this->imageType) {
 		case CAT_EGA: tileSize = CAT_EGA_TILESIZE; break;
 		case CAT_CGA: tileSize = CAT_CGA_TILESIZE; break;
+		default: throw stream::error("Only CGA/EGA tiles are supported.");
 	}
 	if (newSize != tileSize) {
 		throw stream::error("tiles in this tileset are a fixed size");
