@@ -28,6 +28,9 @@
 /// Offset where the VGA image data begins
 #define Z66_IMG_OFFSET 4
 
+/// Palette index to make transparent
+#define Z66_TRANSPARENT_COLOUR 0
+
 namespace camoto {
 namespace gamegraphics {
 
@@ -116,6 +119,7 @@ ImagePtr ImageType_Zone66Tile::create(stream::inout_sptr psImage,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
+		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
 	}
 	return ImagePtr(new Image_Zone66Tile(psImage, pal));
 }
@@ -128,6 +132,7 @@ ImagePtr ImageType_Zone66Tile::open(stream::inout_sptr psImage,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
+		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
 	}
 	return ImagePtr(new Image_Zone66Tile(psImage, pal));
 }

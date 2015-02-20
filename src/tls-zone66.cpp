@@ -40,6 +40,9 @@
 /// Maximum tiles to load in case of a corrupted file
 #define Z66_SAFETY_MAX_TILES   4096
 
+/// Palette index to make transparent
+#define Z66_TRANSPARENT_COLOUR 0
+
 namespace camoto {
 namespace gamegraphics {
 
@@ -125,6 +128,7 @@ TilesetPtr TilesetType_Zone66::create(stream::inout_sptr psTileset,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
+		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
 	}
 	return TilesetPtr(new Tileset_Zone66(psTileset, pal));
 }
@@ -137,6 +141,7 @@ TilesetPtr TilesetType_Zone66::open(stream::inout_sptr psTileset,
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
 		pal = palFile->getPalette();
+		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
 	}
 	return TilesetPtr(new Tileset_Zone66(psTileset, pal));
 }
