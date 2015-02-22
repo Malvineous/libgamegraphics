@@ -131,7 +131,7 @@ AM_CXXFLAGS  = $(DEBUG_CXXFLAGS)
 AM_CXXFLAGS += $(libgamecommon_CFLAGS)
 
 libgamegraphics_la_LDFLAGS  = $(AM_LDFLAGS)
-libgamegraphics_la_LDFLAGS += -version-info 1:0:0
+libgamegraphics_la_LDFLAGS += -version-info 2:0:0
 
 libgamegraphics_la_LIBADD  = $(BOOST_SYSTEM_LIBS)
 libgamegraphics_la_LIBADD += $(libgamecommon_LIBS)
