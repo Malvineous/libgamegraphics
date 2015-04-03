@@ -32,48 +32,19 @@ class ImageType_CComic: virtual public ImageType
 {
 	public:
 		ImageType_CComic();
-
 		virtual ~ImageType_CComic();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-};
-
-/// Image implementation for Captain Comic full-screen images.
-class Image_CComic: virtual public Image_EGAPlanar
-{
-	public:
-		/// Constructor
-		/**
-		 * Create an image from the supplied stream.
-		 *
-		 * @param data
-		 *   Raw image data in Captain Comic format.
-		 *
-		 * @throw stream::error
-		 *   Read error or invalid file format.
-		 */
-		Image_CComic(stream::inout_sptr data);
-
-		virtual ~Image_CComic();
-
-	protected:
-		stream::inout_sptr data;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics

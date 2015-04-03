@@ -20,6 +20,7 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/stream_filtered.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "filter-ccomic.hpp"
 #include "img-ccomic.hpp"
 
@@ -40,114 +41,118 @@ ImageType_CComic::~ImageType_CComic()
 {
 }
 
-std::string ImageType_CComic::getCode() const
+std::string ImageType_CComic::code() const
 {
 	return "img-ccomic";
 }
 
-std::string ImageType_CComic::getFriendlyName() const
+std::string ImageType_CComic::friendlyName() const
 {
 	return "Captain Comic full-screen image";
 }
 
-std::vector<std::string> ImageType_CComic::getFileExtensions() const
+std::vector<std::string> ImageType_CComic::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ega");
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_CComic::getGameList() const
+std::vector<std::string> ImageType_CComic::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic");
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_CComic::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_CComic::isInstance(
+	stream::input& content) const
 {
-	// TESTED BY: img_ccomic_isinstance_c02
-	if (psImage->size() < 2) return DefinitelyNo;
+	auto lenContent = content.size();
 
-	psImage->seekg(0, stream::start);
+	// Too short
+	// TESTED BY: img_ccomic_isinstance_c01
+	if (lenContent < 2) return DefinitelyNo;
+
+	content.seekg(0, stream::start);
 
 	uint16_t lenPlane;
-	psImage
+	content
 		>> u16le(lenPlane)
 	;
 
-	// TESTED BY: img_ccomic_isinstance_c01
+	// Plane must be correct size
+	// TESTED BY: img_ccomic_isinstance_c02
 	if (lenPlane != 8000) return DefinitelyNo;
 
 	lenPlane *= 4;  // count all planes
 	try {
 		while (lenPlane) {
 			uint8_t code;
-			psImage >> u8(code);
+			try {
+				content >> u8(code);
+			} catch (...) {
+				return DefinitelyNo;
+			}
 			if (code & 0x80) {
 				unsigned int repeat = code & 0x7F;
 				if (repeat > lenPlane) return DefinitelyNo;
-				psImage->seekg(1, stream::cur);
+				content.seekg(1, stream::cur);
 				lenPlane -= repeat;
 			} else {
 				if (code > lenPlane) return DefinitelyNo;
 				lenPlane -= code;
-				psImage->seekg(code, stream::cur);
+				content.seekg(code, stream::cur);
 			}
 		}
-	} catch (const stream::seek_error) {
+	} catch (const stream::error&) {
 		// TESTED BY: img_ccomic_isinstance_c03
-		return DefinitelyNo;
-	} catch (const stream::incomplete_read) {
-		// TESTED BY: img_ccomic_isinstance_c04
 		return DefinitelyNo;
 	}
 
 	// Should be no trailing data
-	// TESTED BY: img_ccomic_isinstance_c05
-	if (psImage->tellg() != psImage->size()) return DefinitelyNo;
+	// TESTED BY: img_ccomic_isinstance_c04
+	if (content.tellg() != lenContent) return DefinitelyNo;
 
 	// TESTED BY: img_ccomic_isinstance_c00
 	return DefinitelyYes;
 }
 
-ImagePtr ImageType_CComic::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_CComic::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Image_CComic(psImage));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_CComic::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_CComic::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Image_CComic(psImage));
+	auto content_filtered = std::make_unique<stream::filtered>(
+		std::move(content),
+		std::make_shared<filter_ccomic_unrle>(),
+		std::make_shared<filter_ccomic_rle>(),
+		nullptr
+	);
+
+	EGAPlaneLayout planes = {
+		PlanePurpose::Blue1,
+		PlanePurpose::Green1,
+		PlanePurpose::Red1,
+		PlanePurpose::Intensity1,
+		PlanePurpose::Unused,
+		PlanePurpose::Unused,
+	};
+
+	return std::make_unique<Image_EGAPlanar>(
+		std::move(content_filtered), 0, Point{CCIMG_WIDTH, CCIMG_HEIGHT}, planes,
+		nullptr
+	);
 }
 
-SuppFilenames ImageType_CComic::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_CComic::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	return SuppFilenames();
-}
-
-
-Image_CComic::Image_CComic(stream::inout_sptr data)
-	:	data(data)
-{
-	filter_sptr filtRead(new filter_ccomic_unrle());
-	filter_sptr filtWrite(new filter_ccomic_rle());
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(data, filtRead, filtWrite, NULL);
-
-	PLANE_LAYOUT planes;
-	memset(planes, 0, sizeof(planes));
-	planes[PLANE_BLUE] = 1;
-	planes[PLANE_GREEN] = 2;
-	planes[PLANE_RED] = 3;
-	planes[PLANE_INTENSITY] = 4;
-	this->setParams(decoded, 0, 320, 200, planes);
-}
-
-Image_CComic::~Image_CComic()
-{
 }
 
 } // namespace gamegraphics
