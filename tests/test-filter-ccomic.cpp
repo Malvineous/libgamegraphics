@@ -18,171 +18,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/test/unit_test.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <camoto/util.hpp>
-
-#include "tests.hpp"
-#include "test-filter.hpp"
 #include "../src/filter-ccomic.hpp"
+#include "test-filter.hpp"
 
-using namespace camoto;
-using namespace camoto::gamegraphics;
+class test_filter_ccomic: public test_filter
+{
+	public:
+		test_filter_ccomic()
+		{
+		}
 
-struct ccomic_compress_sample: public filter_sample {
-	ccomic_compress_sample()
-	{
-		this->filter.reset(new filter_ccomic_rle());
-	}
+		void addTests()
+		{
+			this->test_filter::addTests();
+
+			constexpr const unsigned int oneLine = 40;
+			std::string egaBufferBlank(oneLine * 200 * 4, '\x00');
+
+			// A single encoded plane (expands to exactly 8000 bytes)
+			std::string ccPlaneBlank;
+			for (int i = 0; i < 62; i++) ccPlaneBlank.append("\xFF\x00", 2);
+			ccPlaneBlank.append("\xFE\x00", 2);
+
+			this->process(std::make_unique<filter_ccomic_unrle>(),
+				STRING_WITH_NULLS("\x40\x1F")
+				+ ccPlaneBlank
+				+ ccPlaneBlank
+				+ ccPlaneBlank
+				+ ccPlaneBlank,
+				egaBufferBlank
+			);
+
+			std::string enc_alt = STRING_WITH_NULLS(
+				"\x40\x1F"
+				"\x0F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+				"\xF0\x00"
+			);
+			for (int i = 0; i < 250; i++) enc_alt.append("\xFF\x00", 2);
+			enc_alt.append("\xFA\x00\x01\x00", 4);
+
+			this->process(std::make_unique<filter_ccomic_unrle>(),
+				enc_alt,
+				egaBufferBlank
+			);
+
+			assert(egaBufferBlank.length() == 32000);
+
+			this->process(std::make_unique<filter_ccomic_rle>(),
+				egaBufferBlank,
+				STRING_WITH_NULLS("\x40\x1F")
+				+ ccPlaneBlank
+				+ ccPlaneBlank
+				+ ccPlaneBlank
+				+ ccPlaneBlank
+			);
+		}
 };
 
-struct ccomic_decompress_sample: public filter_sample {
-	ccomic_decompress_sample()
-	{
-		this->filter.reset(new filter_ccomic_unrle());
-	}
-};
-
-// A single encoded plane (expands to exactly 8000 bytes)
-#define DATA_ENCODED_ONEPLANE \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00" \
-	"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFE\x00" \
-
-#define DATA_ENCODED \
-	"\x40\x1F" \
-	DATA_ENCODED_ONEPLANE \
-	DATA_ENCODED_ONEPLANE \
-	DATA_ENCODED_ONEPLANE \
-	DATA_ENCODED_ONEPLANE
-
-#define EGAPLANE_BLANKLINE \
-	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00\x00\x00"
-
-#define EGAPLANE_10BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE \
-	EGAPLANE_BLANKLINE
-
-#define EGAPLANE_190LINES \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_10BLANKLINE
-
-#define DATA_DECODED \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_190LINES \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_190LINES \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_190LINES \
-	EGAPLANE_10BLANKLINE \
-	EGAPLANE_190LINES
-
-BOOST_FIXTURE_TEST_SUITE(ccomic_decompress_suite, ccomic_decompress_sample)
-
-BOOST_AUTO_TEST_CASE(decode)
-{
-	BOOST_TEST_MESSAGE("Expand some Captain Comic RLE data");
-
-	in << makeString(DATA_ENCODED);
-
-	BOOST_CHECK_MESSAGE(is_equal(makeString(DATA_DECODED)),
-		"Expanding Captain Comic RLE data failed");
-}
-
-BOOST_AUTO_TEST_CASE(decode_alt)
-{
-	BOOST_TEST_MESSAGE("Expand some Captain Comic RLE data");
-
-	in << makeString(
-		"\x40\x1F"
-		"\x0F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-		"\xF0\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00\xFF\x00"
-		"\xFF\x00\xFF\x00\xFF\x00"
-		"\xFA\x00\x01\x00"
-	);
-
-	BOOST_CHECK_MESSAGE(is_equal(makeString(DATA_DECODED)),
-		"Expanding Captain Comic RLE data failed");
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-
-BOOST_FIXTURE_TEST_SUITE(ccomic_compress_suite, ccomic_compress_sample)
-
-BOOST_AUTO_TEST_CASE(encode)
-{
-	BOOST_TEST_MESSAGE("RLE some data");
-
-	BOOST_REQUIRE_EQUAL(makeString(DATA_DECODED).length(), 32000);
-
-	in << makeString(DATA_DECODED);
-
-	BOOST_CHECK_MESSAGE(is_equal(makeString(DATA_ENCODED)),
-		"Encoding RLE data failed");
-}
-
-BOOST_AUTO_TEST_SUITE_END()
+IMPLEMENT_TESTS(filter_ccomic);
