@@ -19,65 +19,114 @@
  */
 
 #define BOOST_TEST_MODULE libgamegraphics
+#ifndef __WIN32__
+// Dynamically link to the Boost library on non-Windows platforms.
 #define BOOST_TEST_DYN_LINK
+#endif
 #include <boost/test/unit_test.hpp>
-
-#include <iostream>
 #include <iomanip>
 
-#include <camoto/debug.hpp>
+#include <camoto/debug.hpp> // for ANSI colours
+#include <camoto/util.hpp>  // createString
 #include "tests.hpp"
 
-void default_sample::printNice(boost::test_tools::predicate_result& res,
-	const std::string& s, const std::string& diff, unsigned int width)
+using namespace camoto;
+
+std::unique_ptr<stream::sub> stream_wrap(std::shared_ptr<stream::inout> base)
+{
+	return std::make_unique<stream::sub>(
+		base,
+		0,
+		base->size(),
+		[base](stream::output_sub* sub, stream::len newSize) {
+			// Adjust underlying stream
+			base->truncate(newSize);
+			// Update substream
+			sub->resize(newSize);
+		}
+	);
+}
+
+test_main::test_main()
+	: outputWidth(16)
+{
+}
+
+void test_main::printNice(boost::test_tools::predicate_result& res,
+	const std::string& s, const std::string& diff)
 {
 	const char *c = CLR_YELLOW;
 	res.message() << c;
-	for (int i = 0; i < s.length(); i++) {
-		if ((i > 0) && (i % width == 0)) {
+	std::ostringstream text;
+	text << c;
+	unsigned int len = s.length();
+	for (unsigned int i = 0; i < len; i++) {
+		if ((i > 0) && (i % this->outputWidth == 0)) {
+			res.message() << ' ' << text.str();
+//res.message() << "\" \\";
 			res.message() << CLR_NORM << "\n" << std::setfill('0') << std::setw(3)
 				<< std::hex << i << ": " << c;
+			text.str("");
+			text.seekp(0, std::ios::beg);
+			res.message() << c;
+			text << c;
+//res.message() << "\"";
 		}
 		if ((i >= diff.length()) || (s[i] != diff[i])) {
 			if (c != CLR_MAG) {
 				c = CLR_MAG;
-				res.message() << CLR_MAG;
+				res.message() << c;
+				text << c;
 			}
 		} else {
 			if (c != CLR_YELLOW) {
 				c = CLR_YELLOW;
-				res.message() << CLR_YELLOW;
+				res.message() << c;
+				text << c;
 			}
 		}
-		//if (s[i] < 32) {
-			res.message() << " " << std::setfill('0') << std::setw(2)
-				<< std::hex << (int)((uint8_t)s[i]);
-		//} else {
-		//	res.message() << s[i];
-		//}
+/*
+		res.message() << "\\x" << std::setfill('0') << std::setw(2)
+			<< std::hex << (int)((uint8_t)s[i]);
+/*/
+		if ((s[i] < 32) || (s[i] == 127)) {
+			text << '.';
+		} else {
+			text << s[i];
+		}
+		res.message() << std::setfill('0') << std::setw(2)
+			<< std::hex << (int)((uint8_t)s[i]) << ' ';
+// */
+	}
+
+	// If the last row was only a partial one, pad it out and write the text side
+	if (len > 0) {
+		for (int i = ((len - 1) % this->outputWidth) + 1; i < this->outputWidth; i++) {
+			res.message() << "   ";
+		}
+		res.message() << ' ' << text.str();
 	}
 	return;
 }
 
-void default_sample::print_wrong(boost::test_tools::predicate_result& res,
-	const std::string& strExpected, const std::string& strResult,
-	unsigned int width)
+void test_main::print_wrong(boost::test_tools::predicate_result& res,
+	const std::string& strExpected, const std::string& strResult)
 {
 	res.message() << "\nExp: ";
-	this->printNice(res, strExpected, strResult, width);
-	res.message() << CLR_NORM "\n" << "Got: ";
-	this->printNice(res, strResult, strExpected, width);
-	res.message() << CLR_NORM;
+	this->printNice(res, strExpected, strResult);
+	res.message() << CLR_NORM "\n\nGot: ";
+	this->printNice(res, strResult, strExpected);
+	res.message() << CLR_NORM "\n";
 
 	return;
 }
 
-boost::test_tools::predicate_result default_sample::is_equal(const std::string& expected,
-	const std::string& check, unsigned int width)
+boost::test_tools::predicate_result test_main::is_equal(
+	const std::string& strExpected, const std::string& strCheck)
 {
-	if (expected.compare(check)) {
+	if (strExpected.compare(strCheck)) {
 		boost::test_tools::predicate_result res(false);
-		this->print_wrong(res, expected, check, width);
+		this->print_wrong(res, strExpected, strCheck);
 		return res;
 	}
 

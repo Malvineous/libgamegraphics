@@ -21,25 +21,65 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_TESTS_HPP_
 #define _CAMOTO_GAMEGRAPHICS_TESTS_HPP_
 
+#include <memory>
 #include <boost/test/unit_test.hpp>
-#include <camoto/stream.hpp>
-#include <stdint.h>
+#include <camoto/util.hpp>
+#include <camoto/stream_sub.hpp>
 
-// Allow a string constant to be passed around with embedded nulls
-#define makeString(x)  std::string((const char *)(x), sizeof((x)) - 1)
+/// Allow a string constant to be passed around with embedded nulls
+#define STRING_WITH_NULLS(x)  std::string((x), sizeof((x)) - 1)
 
-struct default_sample {
+/// Wrap a shared stream in a unique substream so it can be shared without
+/// violating unique_ptr requirements.
+std::unique_ptr<camoto::stream::sub> stream_wrap(std::shared_ptr<camoto::stream::inout> base);
 
-	void printNice(boost::test_tools::predicate_result& res, const std::string& s,
-		const std::string& diff, unsigned int width);
+/// Base class for all tests
+class test_main
+{
+	public:
+		test_main();
 
-	void print_wrong(boost::test_tools::predicate_result& res,
-		const std::string& strExpected, const std::string& strResult,
-		unsigned int width);
+		void printNice(boost::test_tools::predicate_result& res,
+			const std::string& s, const std::string& diff);
 
-	boost::test_tools::predicate_result is_equal(
-		const std::string& expected, const std::string& check, unsigned int width);
+		void print_wrong(boost::test_tools::predicate_result& res,
+			const std::string& strExpected, const std::string& strResult);
 
+		boost::test_tools::predicate_result is_equal(const std::string& strExpected,
+			const std::string& strCheck);
+
+	public:
+		boost::unit_test::test_suite *ts; ///< Suite to add tests to
+		std::string basename; ///< Name of final class
+		unsigned int outputWidth; ///< Width of output hexdump, as number of bytes shown per line
 };
+
+/// Template class to add supported tests for each format to the test tree
+template<class T>
+class suite_test_tmpl {
+	public:
+		std::unique_ptr<T> test_results;
+
+		suite_test_tmpl(const std::string& basename)
+			:	test_results(std::make_unique<T>())
+		{
+			boost::unit_test::test_suite *ts
+				= BOOST_TEST_SUITE("test_" + basename);
+			this->test_results->ts = ts;
+			this->test_results->basename = basename;
+
+			this->test_results->addTests();
+			boost::unit_test::framework::master_test_suite().add(ts);
+		}
+};
+
+/// Add the tests for a given format
+#define IMPLEMENT_TESTS(fmt) \
+	class suite_ ## fmt: public suite_test_tmpl<test_ ## fmt> { \
+		public: \
+			suite_ ## fmt() \
+				:	suite_test_tmpl<test_ ## fmt>(TOSTRING(fmt)) \
+			{} \
+	} suite_ ## fmt ## _inst;
 
 #endif // _CAMOTO_GAMEGRAPHICS_TESTS_HPP_
