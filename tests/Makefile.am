@@ -12,6 +12,7 @@ tests_SOURCES += test-img-ccomic.cpp
 tests_SOURCES += test-img-ega-planar.cpp
 tests_SOURCES += test-img-ega-byteplanar.cpp
 tests_SOURCES += test-img-ega-rowplanar.cpp
+tests_SOURCES += test-img-nukem2.cpp
 tests_SOURCES += test-img-pcx-1b4p.cpp
 tests_SOURCES += test-img-pcx-8b1p.cpp
 tests_SOURCES += test-img-pic-raptor.cpp

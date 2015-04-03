@@ -32,53 +32,18 @@ class ImageType_Nukem2: virtual public ImageType
 {
 	public:
 		ImageType_Nukem2();
-
 		virtual ~ImageType_Nukem2();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
-		virtual ImagePtr create(stream::inout_sptr psImage,
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& fsImage) const;
+		virtual std::unique_ptr<Image> create(std::unique_ptr<stream::inout> content,
 			SuppData& suppData) const;
-
-		virtual ImagePtr open(stream::inout_sptr fsImage,
+		virtual std::unique_ptr<Image> open(std::unique_ptr<stream::inout> fsImage,
 			SuppData& suppData) const;
-
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-};
-
-/// Duke Nukem II full-screen Image implementation.
-class Image_Nukem2: virtual public Image_EGAPlanar {
-
-	public:
-		/// Constructor
-		Image_Nukem2(stream::inout_sptr data);
-
-		/// Destructor
-		virtual ~Image_Nukem2();
-
-		virtual int getCaps();
-
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-
-		virtual PaletteTablePtr getPalette();
-
-		virtual void setPalette(PaletteTablePtr newPalette);
-
-	protected:
-		stream::inout_sptr data;   ///< Underlying file
-		PaletteTablePtr vgaPal;    ///< Palette
-
 };
 
 } // namespace gamegraphics
