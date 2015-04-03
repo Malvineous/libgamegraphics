@@ -37,5 +37,13 @@ EXTRA_tests_SOURCES += test-tileset.hpp
 
 TESTS = tests
 
-AM_CPPFLAGS = $(BOOST_CPPFLAGS) -I $(top_srcdir)/include $(libgamecommon_CFLAGS)
-AM_LDFLAGS = $(BOOST_SYSTEM_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIBS) $(libgamecommon_LIBS) $(top_builddir)/src/libgamegraphics.la
+AM_CPPFLAGS  = $(BOOST_CPPFLAGS)
+AM_CPPFLAGS += -I $(top_srcdir)/include
+AM_CPPFLAGS += $(libgamecommon_CFLAGS)
+AM_CPPFLAGS += $(libgamearchive_CFLAGS)
+
+AM_LDFLAGS  = $(BOOST_SYSTEM_LIBS)
+AM_LDFLAGS += $(BOOST_UNIT_TEST_FRAMEWORK_LIBS)
+AM_LDFLAGS += $(libgamecommon_LIBS)
+AM_LDFLAGS += $(libgamearchive_LIBS)
+AM_LDFLAGS += $(top_builddir)/src/libgamegraphics.la
