@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "pal-vga-raw.hpp"
 
 namespace camoto {
@@ -31,40 +32,41 @@ ImageType_Palette_VGA::~ImageType_Palette_VGA()
 {
 }
 
-std::string ImageType_Palette_VGA::getCode() const
+std::string ImageType_Palette_VGA::code() const
 {
 	return "pal-vga-raw";
 }
 
-std::string ImageType_Palette_VGA::getFriendlyName() const
+std::string ImageType_Palette_VGA::friendlyName() const
 {
 	return "Standard VGA palette";
 }
 
-std::vector<std::string> ImageType_Palette_VGA::getFileExtensions() const
+std::vector<std::string> ImageType_Palette_VGA::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_Palette_VGA::getGameList() const
+std::vector<std::string> ImageType_Palette_VGA::games() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input& content)
+	const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
 	// Allow palettes with 256 entries, but also ones with only 16 (Duke II)
 	if ((len != 16 * 3) && (len != 256 * 3)) return DefinitelyNo;
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
-	psImage->seekg(0, stream::start);
-	psImage->try_read(buf, 768);
+	content.seekg(0, stream::start);
+	content.try_read(buf, 768);
 	for (int i = 0; i < 768; i++) {
 		// Some palettes do use 64 instead of the max value of 63
 		if (buf[i] > 64) return DefinitelyNo;
@@ -78,19 +80,20 @@ ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input_sptr psImag
 	return PossiblyYes;
 }
 
-ImagePtr ImageType_Palette_VGA::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Palette_VGA::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_VGA(psImage, 6));
+	return std::make_unique<Palette_VGA>(std::move(content), 6);
 }
 
-ImagePtr ImageType_Palette_VGA::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Palette_VGA::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_VGA(psImage, 6));
+	return std::make_unique<Palette_VGA>(std::move(content), 6);
 }
 
-SuppFilenames ImageType_Palette_VGA::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_VGA::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -105,85 +108,97 @@ ImageType_VGA8Palette::~ImageType_VGA8Palette()
 {
 }
 
-std::string ImageType_VGA8Palette::getCode() const
+std::string ImageType_VGA8Palette::code() const
 {
 	return "pal-vga-raw8";
 }
 
-std::string ImageType_VGA8Palette::getFriendlyName() const
+std::string ImageType_VGA8Palette::friendlyName() const
 {
 	return "8-bit per channel (24-bit RGB) palette";
 }
 
-std::vector<std::string> ImageType_VGA8Palette::getFileExtensions() const
+std::vector<std::string> ImageType_VGA8Palette::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_VGA8Palette::getGameList() const
+std::vector<std::string> ImageType_VGA8Palette::games() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_VGA8Palette::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_VGA8Palette::isInstance(stream::input& content)
+	const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
 	if (len != 768) return DefinitelyNo;
 
 	// See if the first colour is black, which is even more likely to mean it's
 	// a VGA palette.
-	psImage->seekg(0, stream::start);
+	content.seekg(0, stream::start);
 	uint8_t buf[3];
-	psImage->read((char *)buf, 3);
+	content.read((char *)buf, 3);
 	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return DefinitelyYes;
 
 	// TESTED BY: TODO
 	return PossiblyYes;
 }
 
-ImagePtr ImageType_VGA8Palette::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_VGA8Palette::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_VGA(psImage, 8));
+	return std::make_unique<Palette_VGA>(std::move(content), 8);
 }
 
-ImagePtr ImageType_VGA8Palette::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_VGA8Palette::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_VGA(psImage, 8));
+	return std::make_unique<Palette_VGA>(std::move(content), 8);
 }
 
-SuppFilenames ImageType_VGA8Palette::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_VGA8Palette::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
 }
 
 
-Palette_VGA::Palette_VGA(stream::inout_sptr data, unsigned int depth)
-	:	data(data),
+Palette_VGA::Palette_VGA(std::unique_ptr<stream::inout> content,
+	unsigned int depth)
+	:	content(std::move(content)),
 		depth(depth)
 {
-	assert(data);
 }
 
 Palette_VGA::~Palette_VGA()
 {
 }
 
-PaletteTablePtr Palette_VGA::getPalette()
+Image::Caps Palette_VGA::caps() const
 {
-	PaletteTablePtr pal(new PaletteTable());
+	return Caps::Default;
+}
+
+ColourDepth Palette_VGA::colourDepth() const
+{
+	return ColourDepth::VGA;
+}
+
+std::shared_ptr<const Palette> Palette_VGA::palette() const
+{
+	std::shared_ptr<Palette> pal(new Palette());
 	pal->reserve(256);
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
-	this->data->seekg(0, stream::start);
-	this->data->try_read(buf, 768);
+	this->content->seekg(0, stream::start);
+	this->content->try_read(buf, 768);
 	// If the palette data is cut off (short read) the rest of the entries will
 	// be black.
 	int i = 0;
@@ -219,7 +234,7 @@ PaletteTablePtr Palette_VGA::getPalette()
 	return pal;
 }
 
-void Palette_VGA::setPalette(PaletteTablePtr newPalette)
+void Palette_VGA::palette(std::shared_ptr<const Palette> newPalette)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);
@@ -230,14 +245,14 @@ void Palette_VGA::setPalette(PaletteTablePtr newPalette)
 		case 6: shift = 2; break;
 		case 8: shift = 0; break;
 	}
-	for (PaletteTable::const_iterator p = newPalette->begin(); p < newPalette->end(); p++) {
-		buf[i++] = p->red >> shift;
-		buf[i++] = p->green >> shift;
-		buf[i++] = p->blue >> shift;
+	for (auto& p : *newPalette) {
+		buf[i++] = p.red >> shift;
+		buf[i++] = p.green >> shift;
+		buf[i++] = p.blue >> shift;
 	}
-	this->data->truncate(768);
-	this->data->seekp(0, stream::start);
-	this->data->write(buf, 768);
+	this->content->truncate(768);
+	this->content->seekp(0, stream::start);
+	this->content->write(buf, 768);
 	return;
 }
 

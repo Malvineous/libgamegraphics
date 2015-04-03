@@ -34,16 +34,17 @@ class ImageType_Palette_VGA: virtual public ImageType
 		ImageType_Palette_VGA();
 		virtual ~ImageType_Palette_VGA();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 /// Filetype handler for VGA 8-bit palette files.
@@ -53,20 +54,21 @@ class ImageType_VGA8Palette: virtual public ImageType_Palette_VGA
 		ImageType_VGA8Palette();
 		virtual ~ImageType_VGA8Palette();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 /// Palette interface to 768-byte raw 6/8-bit VGA palette files.
-class Palette_VGA: virtual public Palette
+class Palette_VGA: virtual public Image_Palette
 {
 	public:
 		/// Create a new palette.
@@ -78,14 +80,16 @@ class Palette_VGA: virtual public Palette
 		 *   Either 6 for a 6-bit raw VGA palette (values 0-63) or 8 for an 8-bit
 		 *   RGB palette (values 0-255).
 		 */
-		Palette_VGA(stream::inout_sptr data, unsigned int depth);
+		Palette_VGA(std::unique_ptr<stream::inout> content, unsigned int depth);
 		virtual ~Palette_VGA();
 
-		virtual PaletteTablePtr getPalette();
-		virtual void setPalette(PaletteTablePtr newPalette);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual std::shared_ptr<const Palette> palette() const;
+		virtual void palette(std::shared_ptr<const Palette> newPalette);
 
 	private:
-		stream::inout_sptr data;
+		std::unique_ptr<stream::inout> content;
 		unsigned int depth;
 };
 
