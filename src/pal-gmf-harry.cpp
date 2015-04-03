@@ -18,10 +18,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "pal-gmf-harry.hpp"
+#include "img-palette.hpp"
 
 namespace camoto {
 namespace gamegraphics {
+
+/// Palette interface to Halloween Harry GMF files.
+class Palette_HarryGMF: virtual public Image_Palette
+{
+	private:
+		std::unique_ptr<stream::inout> content;
+
+	public:
+		Palette_HarryGMF(std::unique_ptr<stream::inout> content);
+		virtual ~Palette_HarryGMF();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual std::shared_ptr<const Palette> palette();
+		virtual void palette(std::shared_ptr<const Palette> newPalette);
+};
 
 ImageType_Palette_HarryGMF::ImageType_Palette_HarryGMF()
 {
@@ -31,43 +49,43 @@ ImageType_Palette_HarryGMF::~ImageType_Palette_HarryGMF()
 {
 }
 
-std::string ImageType_Palette_HarryGMF::getCode() const
+std::string ImageType_Palette_HarryGMF::code() const
 {
 	return "pal-gmf-harry";
 }
 
-std::string ImageType_Palette_HarryGMF::getFriendlyName() const
+std::string ImageType_Palette_HarryGMF::friendlyName() const
 {
 	return "Halloween Harry VGA palette";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> ImageType_Palette_HarryGMF::getFileExtensions() const
+std::vector<std::string> ImageType_Palette_HarryGMF::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gmf");
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_Palette_HarryGMF::getGameList() const
+std::vector<std::string> ImageType_Palette_HarryGMF::games() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input& content) const
 {
-	psImage->seekg(0, stream::start);
+	content.seekg(0, stream::start);
 
 	char sig[0x12];
-	psImage->read(sig, 0x12);
+	content.read(sig, 0x12);
 	if (strncmp(sig, "\x11SubZero Game File", 0x12) != 0) return DefinitelyNo;
 
-	psImage->seekg(0x1D, stream::start);
+	content.seekg(0x1D, stream::start);
 
 	// Check palette is within range
 	char pal[768];
-	psImage->read(pal, 768);
+	content.read(pal, 768);
 	for (int i = 0; i < 768; i++) {
 		// TESTED BY: TODO
 		if (pal[i] > 0x40) return DefinitelyNo;
@@ -76,27 +94,28 @@ ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input_sptr p
 	return DefinitelyYes;
 }
 
-ImagePtr ImageType_Palette_HarryGMF::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Palette_HarryGMF::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_HarryGMF(psImage));
+	return std::make_unique<Palette_HarryGMF>(std::move(content));
 }
 
-ImagePtr ImageType_Palette_HarryGMF::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Palette_HarryGMF::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Palette_HarryGMF(psImage));
+	return std::make_unique<Palette_HarryGMF>(std::move(content));
 }
 
-SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
 }
 
 
-Palette_HarryGMF::Palette_HarryGMF(stream::inout_sptr data)
-	:	data(data)
+Palette_HarryGMF::Palette_HarryGMF(std::unique_ptr<stream::inout> content)
+	:	content(std::move(content))
 {
 }
 
@@ -104,15 +123,25 @@ Palette_HarryGMF::~Palette_HarryGMF()
 {
 }
 
-PaletteTablePtr Palette_HarryGMF::getPalette()
+Image::Caps Palette_HarryGMF::caps() const
 {
-	PaletteTablePtr pal(new PaletteTable());
+	return Caps::HasPalette | Caps::SetPalette;
+}
+
+ColourDepth Palette_HarryGMF::colourDepth() const
+{
+	return ColourDepth::VGA;
+}
+
+std::shared_ptr<const Palette> Palette_HarryGMF::palette()
+{
+	auto pal = std::make_shared<Palette>();
 	pal->reserve(256);
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
-	data->seekg(0x1d, stream::start);
-	data->read((char *)buf, 768);
+	this->content->seekg(0x1d, stream::start);
+	this->content->read((char *)buf, 768);
 	// If the palette data is cut off (short read) the rest of the entries will
 	// be black.
 	int i = 0;
@@ -128,19 +157,19 @@ PaletteTablePtr Palette_HarryGMF::getPalette()
 	return pal;
 }
 
-void Palette_HarryGMF::setPalette(PaletteTablePtr newPalette)
+void Palette_HarryGMF::palette(std::shared_ptr<const Palette> newPalette)
 {
 	uint8_t buf[768];
 	memset(buf, 0, 768);
 	int i = 0;
-	for (PaletteTable::const_iterator p = newPalette->begin(); p < newPalette->end(); p++) {
+	for (Palette::const_iterator p = newPalette->begin(); p < newPalette->end(); p++) {
 		buf[i++] = p->red >> 2;
 		buf[i++] = p->green >> 2;
 		buf[i++] = p->blue >> 2;
 	}
-	this->data->truncate(768);
-	this->data->seekp(0x1D, stream::start);
-	this->data->write(buf, 768);
+	this->content->truncate(768);
+	this->content->seekp(0x1D, stream::start);
+	this->content->write(buf, 768);
 	return;
 }
 

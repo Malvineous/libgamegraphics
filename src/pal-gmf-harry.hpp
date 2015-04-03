@@ -22,54 +22,28 @@
 #define _CAMOTO_GAMEGRAPHICS_PAL_GMF_HARRY_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-palette.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Halloween Harry palette files.
-class ImageType_Palette_HarryGMF: virtual public ImageType {
-
+class ImageType_Palette_HarryGMF: virtual public ImageType
+{
 	public:
-
 		ImageType_Palette_HarryGMF();
-
 		virtual ~ImageType_Palette_HarryGMF();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-
-};
-
-/// Palette interface to Halloween Harry GMF files.
-class Palette_HarryGMF: virtual public Palette {
-
-	private:
-		stream::inout_sptr data;
-
-	public:
-		Palette_HarryGMF(stream::inout_sptr data);
-
-		virtual ~Palette_HarryGMF();
-
-		virtual PaletteTablePtr getPalette();
-
-		virtual void setPalette(PaletteTablePtr newPalette);
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics
