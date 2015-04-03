@@ -5,6 +5,7 @@ tests_SOURCES += test-filter.cpp
 tests_SOURCES += test-filter-ccomic.cpp
 tests_SOURCES += test-filter-ccomic2.cpp
 tests_SOURCES += test-filter-pad.cpp
+tests_SOURCES += test-image.cpp
 tests_SOURCES += test-img-bash-sprite.cpp
 tests_SOURCES += test-img-ccomic.cpp
 tests_SOURCES += test-img-ega-planar.cpp
@@ -27,8 +28,7 @@ tests_SOURCES += test-tls-zone66.cpp
 
 EXTRA_tests_SOURCES = tests.hpp
 EXTRA_tests_SOURCES += test-filter.hpp
-EXTRA_tests_SOURCES += test-img.hpp
-EXTRA_tests_SOURCES += test-img-defines.hpp
+EXTRA_tests_SOURCES += test-image.hpp
 EXTRA_tests_SOURCES += test-tileset.hpp
 EXTRA_tests_SOURCES += test-tileset_new.hpp
 
