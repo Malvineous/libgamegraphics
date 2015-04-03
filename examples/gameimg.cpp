@@ -103,15 +103,13 @@ int main(int iArgC, char *cArgV[])
 	std::string strFilename;
 	std::string strType;
 
-	boost::shared_ptr<gg::Manager> pManager(gg::getManager());
-
 	bool bForceOpen = false; // open anyway even if image not in given format?
 	try {
 		po::parsed_options pa = po::parse_command_line(iArgC, cArgV, poComplete);
 
 		// Parse the global command line options
-		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
-			if (i->string_key.empty()) {
+		for (auto& i : pa.options) {
+			if (i.string_key.empty()) {
 				// If we've already got an image filename, complain that a second one
 				// was given (probably a typo.)
 				if (!strFilename.empty()) {
@@ -119,9 +117,10 @@ int main(int iArgC, char *cArgV[])
 						"filenames given?!)" << std::endl;
 					return 1;
 				}
-				assert(i->value.size() > 0);  // can't have no values with no name!
-				strFilename = i->value[0];
-			} else if (i->string_key.compare("help") == 0) {
+				assert(i.value.size() > 0);  // can't have no values with no name!
+				strFilename = i.value[0];
+
+			} else if (i.string_key.compare("help") == 0) {
 				std::cout <<
 					"Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>\n"
 					"This program comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
@@ -135,32 +134,31 @@ int main(int iArgC, char *cArgV[])
 					<< poVisible << "\n"
 					<< std::endl;
 				return RET_OK;
-			} else if (
-				(i->string_key.compare("list-types") == 0)
-			) {
-				gg::ImageTypePtr nextType;
-				int i = 0;
-				while ((nextType = pManager->getImageType(i++))) {
-					std::string code = nextType->getCode();
+
+			} else if (i.string_key.compare("list-types") == 0) {
+				for (const auto& f : gg::ImageManager::formats()) {
+					std::string code = f->code();
 					std::cout << code;
 					int len = code.length();
 					if (len < 20) std::cout << std::string(20-code.length(), ' ');
-					std::cout << ' ' << nextType->getFriendlyName() << '\n';
+					std::cout << ' ' << f->friendlyName() << '\n';
 				}
 				return RET_OK;
+
 			} else if (
-				(i->string_key.compare("t") == 0) ||
-				(i->string_key.compare("type") == 0)
+				(i.string_key.compare("t") == 0) ||
+				(i.string_key.compare("type") == 0)
 			) {
-				if (i->value.size() == 0) {
+				if (i.value.size() == 0) {
 					std::cerr << PROGNAME ": --type (-t) requires a parameter."
 						<< std::endl;
 					return RET_BADARGS;
 				}
-				strType = i->value[0];
+				strType = i.value[0];
+
 			} else if (
-				(i->string_key.compare("f") == 0) ||
-				(i->string_key.compare("force") == 0)
+				(i.string_key.compare("f") == 0) ||
+				(i.string_key.compare("force") == 0)
 			) {
 				bForceOpen = true;
 			}
@@ -173,125 +171,119 @@ int main(int iArgC, char *cArgV[])
 		std::cout << "Opening " << strFilename << " as type "
 			<< (strType.empty() ? "<autodetect>" : strType) << std::endl;
 
-		stream::file_sptr psImage(new stream::file());
+		std::unique_ptr<stream::file> content;
 		try {
-			psImage->open(strFilename.c_str());
+			content = std::make_unique<stream::file>(strFilename, false);
 		} catch (const stream::open_error& e) {
 			std::cerr << "Error opening " << strFilename << ": " << e.what()
 				<< std::endl;
 			return RET_SHOWSTOPPER;
 		}
 
-		gg::ImageTypePtr pGfxType;
+		gg::ImageManager::handler_t pImageType;
 		if (strType.empty()) {
 			// Need to autodetect the file format.
-			gg::ImageTypePtr pTestType;
-			int i = 0;
-			while ((pTestType = pManager->getImageType(i++))) {
-				try {
-					gg::ImageType::Certainty cert = pTestType->isInstance(psImage);
-					switch (cert) {
-						case gg::ImageType::DefinitelyNo:
-							// Don't print anything (TODO: Maybe unless verbose?)
-							break;
-						case gg::ImageType::Unsure:
-							std::cout << "File could be a " << pTestType->getFriendlyName()
-								<< " [" << pTestType->getCode() << "]" << std::endl;
-							// If we haven't found a match already, use this one
-							if (!pGfxType) pGfxType = pTestType;
-							break;
-						case gg::ImageType::PossiblyYes:
-							std::cout << "File is likely to be a " << pTestType->getFriendlyName()
-								<< " [" << pTestType->getCode() << "]" << std::endl;
-							// Take this one as it's better than an uncertain match
-							pGfxType = pTestType;
-							break;
-						case gg::ImageType::DefinitelyYes:
-							std::cout << "File is definitely a " << pTestType->getFriendlyName()
-								<< " [" << pTestType->getCode() << "]" << std::endl;
-							pGfxType = pTestType;
-							// Don't bother checking any other formats if we got a 100% match
-							goto finishTesting;
-					}
-				} catch (const stream::error& e) {
-					std::cout << "Ignoring handler for " << pTestType->getFriendlyName()
-						<< " due to error: " << e.what() << std::endl;
+			for (const auto& i : gg::ImageManager::formats()) {
+				auto cert = i->isInstance(*content);
+				switch (cert) {
+					case gg::ImageType::DefinitelyNo:
+						// Don't print anything (TODO: Maybe unless verbose?)
+						break;
+					case gg::ImageType::Unsure:
+						std::cout << "File could be a " << i->friendlyName()
+							<< " [" << i->code() << "]" << std::endl;
+						// If we haven't found a match already, use this one
+						if (!pImageType) pImageType = i;
+						break;
+					case gg::ImageType::PossiblyYes:
+						std::cout << "File is likely to be a " << i->friendlyName()
+							<< " [" << i->code() << "]" << std::endl;
+						// Take this one as it's better than an uncertain match
+						pImageType = i;
+						break;
+					case gg::ImageType::DefinitelyYes:
+						std::cout << "File is definitely a " << i->friendlyName()
+							<< " [" << i->code() << "]" << std::endl;
+						pImageType = i;
+						// Don't bother checking any other formats if we got a 100% match
+						goto finishTesting;
 				}
 			}
 finishTesting:
-			if (!pGfxType) {
+			if (!pImageType) {
 				std::cerr << "Unable to automatically determine the file type.  Use "
 					"the --type option to manually specify the file format." << std::endl;
 				return RET_BE_MORE_SPECIFIC;
 			}
 		} else {
-			gg::ImageTypePtr pTestType(pManager->getImageTypeByCode(strType));
-			if (!pTestType) {
+			pImageType = gg::ImageManager::byCode(strType);
+			if (!pImageType) {
 				std::cerr << "Unknown file type given to -t/--type: " << strType
 					<< std::endl;
 				return RET_BADARGS;
 			}
-			pGfxType = pTestType;
 		}
 
-		assert(pGfxType != NULL);
+		assert(pImageType != NULL);
 
 		// Check to see if the file is actually in this format
-		if (!pGfxType->isInstance(psImage)) {
+		if (!pImageType->isInstance(*content)) {
 			if (bForceOpen) {
 				std::cerr << "Warning: " << strFilename << " is not a "
-					<< pGfxType->getFriendlyName() << ", open forced." << std::endl;
+					<< pImageType->friendlyName() << ", open forced." << std::endl;
 			} else {
 				std::cerr << "Invalid format: " << strFilename << " is not a "
-					<< pGfxType->getFriendlyName() << "\n"
+					<< pImageType->friendlyName() << "\n"
 					<< "Use the -f option to try anyway." << std::endl;
-				return 3;
+				return RET_SHOWSTOPPER;
 			}
 		}
 
 		// See if the format requires any supplemental files
-		camoto::SuppFilenames suppList = pGfxType->getRequiredSupps(strFilename);
+		camoto::SuppFilenames suppList = pImageType->getRequiredSupps(strFilename);
 		camoto::SuppData suppData;
-		if (suppList.size() > 0) {
-			for (camoto::SuppFilenames::iterator i = suppList.begin(); i != suppList.end(); i++) {
-				try {
-					stream::file_sptr suppStream(new stream::file());
-					std::cout << "Opening supplemental file " << i->second << std::endl;
-					suppStream->open(i->second);
-					suppData[i->first] = suppStream;
-				} catch (const stream::open_error& e) {
-					std::cerr << "Error opening supplemental file " << i->second
-						<< ": " << e.what() << std::endl;
-					return RET_SHOWSTOPPER;
-				}
+		for (auto& i : suppList) {
+			try {
+				std::cout << "Opening supplemental file " << i.second << std::endl;
+				suppData[i.first] = std::make_unique<stream::file>(i.second, false);
+			} catch (const stream::open_error& e) {
+				std::cerr << "Error opening supplemental file " << i.second
+					<< ": " << e.what() << std::endl;
+				return RET_SHOWSTOPPER;
 			}
 		}
 
 		// Open the image file
-		gg::ImagePtr img(pGfxType->open(psImage, suppData));
-		assert(img);
+		std::shared_ptr<gg::Image> pImage;
+		try {
+			pImage = pImageType->open(std::move(content), suppData);
+			assert(pImage);
+		} catch (const stream::error& e) {
+			std::cerr << "Error opening image file: " << e.what() << std::endl;
+			return RET_SHOWSTOPPER;
+		}
 
 		// Run through the actions on the command line
-		for (std::vector<po::option>::iterator i = pa.options.begin(); i != pa.options.end(); i++) {
+		for (auto& i : pa.options) {
 
-			if (i->string_key.compare("extract") == 0) {
-				imageToPng(img, i->value[0]);
+			if (i.string_key.compare("extract") == 0) {
+				imageToPng(*pImage, i.value[0]);
 
-			} else if (i->string_key.compare("print") == 0) {
-				imageToANSI(img);
+			} else if (i.string_key.compare("print") == 0) {
+				imageToANSI(*pImage);
 
-			} else if (i->string_key.compare("overwrite") == 0) {
-				pngToImage(img, i->value[0]);
+			} else if (i.string_key.compare("overwrite") == 0) {
+				pngToImage(&*pImage, i.value[0]);
 
 			// Ignore --type/-t
-			} else if (i->string_key.compare("type") == 0) {
-			} else if (i->string_key.compare("t") == 0) {
+			} else if (i.string_key.compare("type") == 0) {
+			} else if (i.string_key.compare("t") == 0) {
 			// Ignore --script/-s
-			} else if (i->string_key.compare("script") == 0) {
-			} else if (i->string_key.compare("s") == 0) {
+			} else if (i.string_key.compare("script") == 0) {
+			} else if (i.string_key.compare("s") == 0) {
 			// Ignore --force/-f
-			} else if (i->string_key.compare("force") == 0) {
-			} else if (i->string_key.compare("f") == 0) {
+			} else if (i.string_key.compare("force") == 0) {
+			} else if (i.string_key.compare("f") == 0) {
 
 			} // else it's the image filename, but we already have that
 

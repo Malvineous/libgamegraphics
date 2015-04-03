@@ -18,14 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/algorithm/string.hpp> // for case-insensitive string compare
-#include <boost/program_options.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/bind.hpp>
-#include <camoto/gamegraphics.hpp>
-#include <camoto/stream_file.hpp>
 #include <iostream>
-//#include <fstream>
+#include <boost/program_options.hpp>
+#include <camoto/stream_file.hpp>
+#include <camoto/util.hpp> // make_unique
+#include <camoto/gamegraphics.hpp>
 #include <png++/png.hpp>
 
 #define PROGNAME "dumppal"
@@ -122,10 +119,9 @@ int main(int iArgC, char *cArgV[])
 			std::cerr << "Error: no output format type (-t) given" << std::endl;
 			return 1;
 		}
-		// Get the format handler for this file format
-		gg::ManagerPtr pManager(gg::getManager());
 
-		gg::ImageTypePtr palType(pManager->getImageTypeByCode(strType));
+		// Get the format handler for this file format
+		gg::ImageManager::handler_t palType = gg::ImageManager::byCode(strType);
 		if (!palType) {
 			std::cerr << "Unknown file type given to -t/--type: " << strType
 				<< std::endl;
@@ -139,19 +135,19 @@ int main(int iArgC, char *cArgV[])
 			srcFile, png::require_color_space<png::index_pixel>()
 		);
 
-		stream::file_sptr outStream(new stream::file());
+		std::unique_ptr<stream::file> outStream;
 		try {
-			outStream->create(dstFile.c_str());
+			outStream = std::make_unique<stream::file>(dstFile, true);
 		} catch (const stream::open_error& e) {
-			std::cerr << PROGNAME ": Unable to create " << dstFile << ": " << e.what()
+			std::cerr << PROGNAME ": Error creating " << dstFile << ": " << e.what()
 				<< std::endl;
 			return 2;
 		}
 
 		camoto::SuppData dummy;
-		gg::ImagePtr palOut = palType->create(outStream, dummy);
+		auto palOut = palType->create(std::move(outStream), dummy);
 
-		gg::PaletteTablePtr pal(new gg::PaletteTable());
+		auto pal = std::make_unique<gg::Palette>();
 		png::palette pngPal = png.get_palette();
 		for (png::palette::iterator i = pngPal.begin(); i != pngPal.end(); i++) {
 			gg::PaletteEntry p;
@@ -160,7 +156,7 @@ int main(int iArgC, char *cArgV[])
 			p.blue = i->blue;
 			pal->push_back(p);
 		}
-		palOut->setPalette(pal);
+		palOut->palette(std::move(pal));
 
 	} catch (const po::unknown_option& e) {
 		std::cerr << PROGNAME ": " << e.what()

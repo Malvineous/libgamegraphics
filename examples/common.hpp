@@ -34,35 +34,33 @@ namespace gg = camoto::gamegraphics;
  * @param destFile
  *   Filename of destination (including ".png")
  */
-void imageToPng(gg::ImagePtr img, const std::string& destFile)
+void imageToPng(const gg::Image& img, const std::string& destFile)
 {
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
+	auto dims = img.dimensions();
+	auto data = img.convert();
+	auto mask = img.convert_mask();
 
-	gg::StdImageDataPtr data = img->toStandard();
-	gg::StdImageDataPtr mask = img->toStandardMask();
-
-	png::image<png::index_pixel> png(width, height);
+	png::image<png::index_pixel> png(dims.x, dims.y);
 
 	bool useMask;
 
-	gg::PaletteTablePtr srcPal;
+	std::shared_ptr<const gg::Palette> srcPal;
 
-	if (img->getCaps() & gg::Image::HasPalette) {
-		srcPal = img->getPalette();
+	if (img.caps() & gg::Image::Caps::HasPalette) {
+		srcPal = img.palette();
 	} else {
 		// Need to use the default palette
-		switch (img->getCaps() & gg::Image::ColourDepthMask) {
-			case gg::Image::ColourDepthVGA:
+		switch (img.colourDepth()) {
+			case gg::ColourDepth::VGA:
 				srcPal = gg::createPalette_DefaultVGA();
 				break;
-			case gg::Image::ColourDepthEGA:
+			case gg::ColourDepth::EGA:
 				srcPal = gg::createPalette_DefaultEGA();
 				break;
-			case gg::Image::ColourDepthCGA:
-				srcPal = gg::createPalette_CGA(gg::CGAPal_CyanMagenta);
+			case gg::ColourDepth::CGA:
+				srcPal = gg::createPalette_CGA(gg::CGAPaletteType::CyanMagenta);
 				break;
-			case gg::Image::ColourDepthMono:
+			case gg::ColourDepth::Mono:
 				srcPal = gg::createPalette_DefaultMono();
 				break;
 		}
@@ -90,26 +88,26 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
 	// display transparent pixels (we couldn't set this above.)
 	if (useMask) pal[0] = png::color(0xFF, 0x00, 0xFF);
 
-	for (gg::PaletteTable::iterator
-		i = srcPal->begin(); i != srcPal->end(); i++, j++
-	) {
-		pal[j] = png::color(i->red, i->green, i->blue);
-		if (i->alpha == 0x00) transparency.push_back(j);
+	for (auto& i : *srcPal) {
+		pal[j] = png::color(i.red, i.green, i.blue);
+		if (i.alpha == 0x00) transparency.push_back(j); // @todo < 0x80 perhaps?
+		j++;
 	}
 	png.set_palette(pal);
 	if (transparency.size()) png.set_tRNS(transparency);
 
 	// Put the pixel data into the .png structure
-	for (unsigned int y = 0; y < height; y++) {
-		for (unsigned int x = 0; x < width; x++) {
+	for (unsigned int y = 0; y < dims.y; y++) {
+		auto& row = png[y];
+		for (auto& x : row) {
 			if (useMask) {
-				if (mask[y*width+x] & 0x01) {
+				if (mask[y*dims.x+x] & 0x01) {
 					png[y][x] = png::index_pixel(0);
 				} else {
-					png[y][x] = png::index_pixel(data[y*width+x] + 1);
+					png[y][x] = png::index_pixel(data[y*dims.x+x] + 1);
 				}
 			} else {
-				png[y][x] = png::index_pixel(data[y*width+x]);
+				png[y][x] = png::index_pixel(data[y*dims.x+x]);
 			}
 		}
 	}
@@ -126,24 +124,23 @@ void imageToPng(gg::ImagePtr img, const std::string& destFile)
  *
  * @param  srcFile  Filename of source (including ".png")
  */
-void pngToImage(gg::ImagePtr img, const std::string& srcFile)
+void pngToImage(gg::Image* img, const std::string& srcFile)
 {
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
+	auto dims = img->dimensions();
 
 	png::image<png::index_pixel> png(srcFile);
 
 	unsigned int pngWidth = png.get_width();
 	unsigned int pngHeight = png.get_height();
-	if ((pngWidth != width) || (pngHeight != height)) {
-		if (img->getCaps() & gg::Image::CanSetDimensions) {
-			img->setDimensions(pngWidth, pngHeight);
-			width = pngWidth;
-			height = pngHeight;
+	if ((pngWidth != dims.x) || (pngHeight != dims.y)) {
+		if (img->caps() & gg::Image::Caps::SetDimensions) {
+			dims.x = pngWidth;
+			dims.y = pngHeight;
+			img->dimensions(dims);
 		} else {
 			throw stream::error(createString("png image is " << pngWidth << "x"
-				<< pngHeight << " but target image is fixed as " << width << "x"
-				<< height));
+				<< pngHeight << " but target image is fixed as " << dims.x << "x"
+				<< dims.y));
 		}
 	}
 
@@ -158,42 +155,41 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
 		pixelOffset = -1; // to account for palette #0 being inserted for use as transparency
 	}
 
-	int imgSizeBytes = width * height;
-	uint8_t *imgData = new uint8_t[imgSizeBytes];
-	uint8_t *maskData = new uint8_t[imgSizeBytes];
-	gg::StdImageDataPtr stdimg(imgData);
-	gg::StdImageDataPtr stdmask(maskData);
+	unsigned int imgSizeBytes = dims.x * dims.y;
+	gg::Pixels pix, mask;
+	pix.resize(imgSizeBytes, 0x00);
+	mask.resize(imgSizeBytes, 0x00);
 
-	for (unsigned int y = 0; y < height; y++) {
-		for (unsigned int x = 0; x < width; x++) {
+	for (unsigned int y = 0; y < dims.y; y++) {
+		for (unsigned int x = 0; x < dims.x; x++) {
 			uint8_t pixel = png[y][x];
 			if (hasTransparency && (pixel == 0)) { // Palette #0 must be transparent
-				maskData[y * width + x] = 0x01; // transparent
-				imgData[y * width + x] = 0;
+				mask[y * dims.x + x] = 0x01; // transparent
+				pix[y * dims.x + x] = 0;
 			} else {
-				maskData[y * width + x] = 0x00; // opaque
-				imgData[y * width + x] = pixel + pixelOffset;
+				mask[y * dims.x + x] = 0x00; // opaque
+				pix[y * dims.x + x] = pixel + pixelOffset;
 			}
 		}
 	}
 
-	if (img->getCaps() & gg::Image::CanSetPalette) {
+	if (img->caps() & gg::Image::Caps::SetPalette) {
 		// This format supports custom palettes, so update it from the
 		// PNG image.
 		const png::palette& pngPal = png.get_palette();
-		gg::PaletteTablePtr newPal(new gg::PaletteTable());
+		auto newPal = std::make_shared<gg::Palette>();
 		newPal->reserve(pngPal.size());
-		for (png::palette::const_iterator i = pngPal.begin(); i != pngPal.end(); i++) {
+		for (auto& i : pngPal) {
 			gg::PaletteEntry p;
-			p.red = i->red;
-			p.green = i->green;
-			p.blue = i->blue;
+			p.red = i.red;
+			p.green = i.green;
+			p.blue = i.blue;
 			p.alpha = 255;
 			newPal->push_back(p);
 		}
-		img->setPalette(newPal);
+		img->palette(newPal);
 	}
-	img->fromStandard(stdimg, stdmask);
+	img->convert(pix, mask);
 	return;
 }
 
@@ -203,20 +199,19 @@ void pngToImage(gg::ImagePtr img, const std::string& srcFile)
  *
  * @param  img  The image to display.
  */
-void imageToANSI(gg::ImagePtr img)
+void imageToANSI(const gg::Image& img)
 {
-	unsigned int width, height;
-	img->getDimensions(&width, &height);
+	auto dims = img.dimensions();
+	auto data = img.convert();
+	auto mask = img.convert_mask();
 
-	gg::StdImageDataPtr data = img->toStandard();
-	gg::StdImageDataPtr mask = img->toStandardMask();
 	int pos = 0;
 	bool bright = false, xp = false;
 	std::cout << "\x1B[0;7m";
 	bool bFirst = true;
-	for (unsigned int y = 0; y < height; y++) {
+	for (unsigned int y = 0; y < dims.y; y++) {
 		if (!bFirst) std::cout << "\n"; else bFirst = false;
-		for (unsigned int x = 0; x < width; x++, pos++) {
+		for (unsigned int x = 0; x < dims.x; x++, pos++) {
 			uint8_t pixel = data[pos], maskpixel = mask[pos];
 			std::cout << "\x1B[";
 			if (pixel & 0x08) {
