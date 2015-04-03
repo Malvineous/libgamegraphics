@@ -24,37 +24,36 @@
 namespace camoto {
 namespace gamegraphics {
 
-Palette::Palette()
+Image_Palette::Image_Palette()
 {
 }
 
-Palette::~Palette()
+Image_Palette::~Image_Palette()
 {
 }
 
-int Palette::getCaps()
+Image::Caps Image_Palette::caps() const
 {
-	return HasPalette;
+	return Caps::HasPalette;
 }
 
-void Palette::getDimensions(unsigned int *width, unsigned int *height)
+Point Image_Palette::dimensions() const
 {
-	*width = 0;
-	*height = 0;
+	return {0, 0};
 }
 
-StdImageDataPtr Palette::toStandard()
+Pixels Image_Palette::convert() const
 {
-	return StdImageDataPtr();
+	return {};
 }
 
-StdImageDataPtr Palette::toStandardMask()
+Pixels Image_Palette::convert_mask() const
 {
-	return StdImageDataPtr();
+	return {};
 }
 
-void Palette::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask)
+void Image_Palette::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
 	return;
 }

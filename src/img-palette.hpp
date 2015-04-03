@@ -22,26 +22,23 @@
 #ifndef _CAMOTO_IMG_PALETTE_HPP_
 #define _CAMOTO_IMG_PALETTE_HPP_
 
-#include "baseimage.hpp"
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Image specialisation for palette files.
-class Palette: virtual public Image_Base
+class Image_Palette: virtual public Image
 {
 	public:
-		Palette();
-		virtual ~Palette();
+		Image_Palette();
+		virtual ~Image_Palette();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual PaletteTablePtr getPalette() = 0;
-		virtual void setPalette(PaletteTablePtr newPalette) = 0;
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual Point dimensions() const;
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 };
 
 } // namespace gamearchive
