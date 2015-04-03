@@ -47,6 +47,19 @@ namespace gg = camoto::gamegraphics;
 // Some files failed, but not in a common way (cut off write, disk full, etc.)
 #define RET_UNCOMMON_FAILURE   5
 
+/// @see libgamearchive/examples/gamearch.cpp
+/// find_last_of() changed to find_first_of() here so equal signs can be put
+/// into instrument names, e.g. for URLs
+bool split(const std::string& in, char delim, std::string *out1, std::string *out2)
+{
+	std::string::size_type iEqualPos = in.find_first_of(delim);
+	*out1 = in.substr(0, iEqualPos);
+	// Does the destination have a different filename?
+	bool bAltDest = iEqualPos != std::string::npos;
+	*out2 = bAltDest ? in.substr(iEqualPos + 1) : *out1;
+	return bAltDest;
+}
+
 int main(int iArgC, char *cArgV[])
 {
 #ifdef __GLIBCXX__
@@ -69,6 +82,9 @@ int main(int iArgC, char *cArgV[])
 
 		("overwrite,o", po::value<std::string>(),
 			"replace the image with the given .png")
+
+		("palette,l", po::value<std::string>(),
+			"replace the image's palette with the one loaded from the given file")
 
 //		("set-size,z", po::value<std::string>(),
 //			"set the tileset to the given image size in pixels (e.g. 16x16)")
@@ -263,17 +279,122 @@ finishTesting:
 			return RET_SHOWSTOPPER;
 		}
 
+		auto lastPal = pImage->palette();
+
 		// Run through the actions on the command line
 		for (auto& i : pa.options) {
 
 			if (i.string_key.compare("extract") == 0) {
-				imageToPng(*pImage, i.value[0]);
+				imageToPng(*pImage, i.value[0], lastPal);
 
 			} else if (i.string_key.compare("print") == 0) {
 				imageToANSI(*pImage);
 
 			} else if (i.string_key.compare("overwrite") == 0) {
 				pngToImage(&*pImage, i.value[0]);
+
+			} else if (i.string_key.compare("palette") == 0) {
+				std::string palType;
+				std::string palFile;
+				if (!split(i.value[0], ':', &palType, &palFile)) {
+					palType.clear(); // no type given, autodetect
+				}
+
+				std::unique_ptr<stream::file> palContent;
+				try {
+					palContent = std::make_unique<stream::file>(palFile, false);
+				} catch (const stream::open_error& e) {
+					std::cerr << "Error opening " << palFile << ": " << e.what()
+						<< std::endl;
+					return RET_SHOWSTOPPER;
+				}
+
+				gg::ImageManager::handler_t pPalType;
+				if (palType.empty()) {
+					// Need to autodetect the file format.
+					for (const auto& i : gg::ImageManager::formats()) {
+						auto cert = i->isInstance(*palContent);
+						switch (cert) {
+							case gg::ImageType::DefinitelyNo:
+								// Don't print anything (TODO: Maybe unless verbose?)
+								break;
+							case gg::ImageType::Unsure:
+								std::cout << "File could be a " << i->friendlyName()
+									<< " [" << i->code() << "]" << std::endl;
+								// If we haven't found a match already, use this one
+								if (!pPalType) pPalType = i;
+								break;
+							case gg::ImageType::PossiblyYes:
+								std::cout << "File is likely to be a " << i->friendlyName()
+									<< " [" << i->code() << "]" << std::endl;
+								// Take this one as it's better than an uncertain match
+								pPalType = i;
+								break;
+							case gg::ImageType::DefinitelyYes:
+								std::cout << "File is definitely a " << i->friendlyName()
+									<< " [" << i->code() << "]" << std::endl;
+								pPalType = i;
+								// Don't bother checking any other formats if we got a 100% match
+								goto palFinishTesting;
+						}
+					}
+palFinishTesting:
+					if (!pPalType) {
+						std::cerr << "Unable to automatically determine the palette type.  "
+							"Use --palette <type>:<filename> to manually specify the file "
+							"format." << std::endl;
+						return RET_BE_MORE_SPECIFIC;
+					}
+				} else {
+					pPalType = gg::ImageManager::byCode(strType);
+					if (!pPalType) {
+						std::cerr << "Unknown file type given to -t/--type: " << strType
+							<< std::endl;
+						return RET_BADARGS;
+					}
+				}
+
+				assert(pPalType != NULL);
+
+				// Check to see if the file is actually in this format
+				if (!pPalType->isInstance(*palContent)) {
+					if (bForceOpen) {
+						std::cerr << "Warning: " << strFilename << " is not a "
+							<< pPalType->friendlyName() << ", open forced." << std::endl;
+					} else {
+						std::cerr << "Invalid format: " << strFilename << " is not a "
+							<< pPalType->friendlyName() << "\n"
+							<< "Use the -f option to try anyway." << std::endl;
+						return RET_SHOWSTOPPER;
+					}
+				}
+
+				// See if the format requires any supplemental files
+				camoto::SuppFilenames suppList = pPalType->getRequiredSupps(strFilename);
+				camoto::SuppData suppData;
+				for (auto& i : suppList) {
+					try {
+						std::cout << "Opening supplemental file " << i.second << std::endl;
+						suppData[i.first] = std::make_unique<stream::file>(i.second, false);
+					} catch (const stream::open_error& e) {
+						std::cerr << "Error opening supplemental file " << i.second
+							<< ": " << e.what() << std::endl;
+						return RET_SHOWSTOPPER;
+					}
+				}
+
+				// Open the image file
+				std::shared_ptr<gg::Image> pPal;
+				try {
+					pPal = pPalType->open(std::move(palContent), suppData);
+					assert(pPal);
+				} catch (const stream::error& e) {
+					std::cerr << "Error opening palette file: " << e.what() << std::endl;
+					return RET_SHOWSTOPPER;
+				}
+
+				// Remember the palette
+				lastPal = pPal->palette();
 
 			// Ignore --type/-t
 			} else if (i.string_key.compare("type") == 0) {

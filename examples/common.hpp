@@ -34,7 +34,8 @@ namespace gg = camoto::gamegraphics;
  * @param destFile
  *   Filename of destination (including ".png")
  */
-void imageToPng(const gg::Image& img, const std::string& destFile)
+void imageToPng(const gg::Image& img, const std::string& destFile,
+	std::shared_ptr<const gg::Palette> palImg)
 {
 	auto dims = img.dimensions();
 	auto data = img.convert();
@@ -47,7 +48,7 @@ void imageToPng(const gg::Image& img, const std::string& destFile)
 	std::shared_ptr<const gg::Palette> srcPal;
 
 	if (img.caps() & gg::Image::Caps::HasPalette) {
-		srcPal = img.palette();
+		srcPal = palImg;
 	} else {
 		// Need to use the default palette
 		switch (img.colourDepth()) {

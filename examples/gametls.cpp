@@ -502,7 +502,7 @@ void extractAllImages(std::string prefix, bool tilesetAsSingleImage,
 					std::cout << " extracting: " << filename << std::endl;
 				}
 				auto img = tileset->openImage(i);
-				imageToPng(*img, filename);
+				imageToPng(*img, filename, img->palette());
 				if (bScript) {
 					std::cout << "ok" << std::endl;
 				}
@@ -887,7 +887,7 @@ finishTesting:
 						else std::cout << " [failed; unable to open image]";
 						iRet = RET_NONCRITICAL_FAILURE;
 					} else {
-						imageToPng(*img, strLocalFile);
+						imageToPng(*img, strLocalFile, img->palette());
 						if (bScript) std::cout << "ok";
 					}
 				}
