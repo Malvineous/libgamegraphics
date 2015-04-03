@@ -18,42 +18,137 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <functional>
+#include <iomanip>
 #include "test-filter.hpp"
 
 using namespace camoto;
 
-filter_sample::filter_sample()
-	:	in(new stream::string()),
-		in_filt(new stream::input_filtered())
+test_filter::test_filter()
+	:	numProcessTests(0),
+		numFailTests(0)
 {
 }
 
-boost::test_tools::predicate_result filter_sample::is_equal(const std::string& strExpected)
+void test_filter::addTests()
 {
-	stream::string_sptr out(new stream::string());
-	this->in_filt->open(this->in, this->filter);
-	stream::copy(out, this->in_filt);
-
-	// See if the stringstream now matches what we expected
-	boost::shared_ptr<std::string> strCheck = out->str();
-	if (strExpected.compare(*strCheck)) {
-		boost::test_tools::predicate_result res(false);
-		this->print_wrong(res, strExpected, *strCheck, 16);
-		return res;
-	}
-
-	return true;
+	return;
 }
 
-boost::test_tools::predicate_result filter_sample::should_fail()
+void test_filter::addBoundTest(bool empty, std::function<void()> fnTest,
+	boost::unit_test::const_string name)
 {
-	stream::string_sptr out(new stream::string());
+	std::function<void()> fnTestWrapper = std::bind(&test_filter::runTest,
+		this, empty, fnTest);
+	this->ts->add(boost::unit_test::make_test_case(
+		boost::unit_test::callback0<>(fnTestWrapper),
+		createString(name << '[' << this->basename << ']')
+	));
+	return;
+}
+
+void test_filter::runTest(bool empty, std::function<void()> fnTest)
+{
+	this->prepareTest(empty);
+	fnTest();
+	return;
+}
+
+void test_filter::prepareTest(bool empty)
+{
+	return;
+}
+
+void test_filter::process(std::unique_ptr<filter> algo,
+	const std::string& input, const std::string& output)
+{
+	auto sh = std::make_shared<std::unique_ptr<filter>>(std::move(algo));
+	std::function<void()> fnTest = std::bind([this, sh, input, output]() {
+		auto algo = std::move(*sh.get());
+		assert(algo);
+		this->test_process(std::move(algo), input, output, this->numFailTests);
+	});
+	this->ts->add(boost::unit_test::make_test_case(
+		boost::unit_test::callback0<>(fnTest),
+		createString("test_filter[" << this->basename << "]::process["
+			<< std::setfill('0') << std::setw(2) << this->numProcessTests << "]")
+	));
+	this->numProcessTests++;
+	return;
+}
+
+void test_filter::fail(std::unique_ptr<filter> algo,
+	const std::string& input)
+{
+	auto sh = std::make_shared<std::unique_ptr<filter>>(std::move(algo));
+	std::function<void()> fnTest = std::bind([this, sh, input]() {
+		auto algo = std::move(*sh.get());
+		assert(algo);
+		this->test_fail(std::move(algo), input, this->numFailTests);
+	});
+	this->ts->add(boost::unit_test::make_test_case(
+		boost::unit_test::callback0<>(fnTest),
+		createString("test_filter[" << this->basename << "]::fail["
+			<< std::setfill('0') << std::setw(2) << this->numFailTests << "]")
+	));
+	this->numFailTests++;
+	return;
+}
+
+void test_filter::test_process(std::unique_ptr<filter> algo,
+	const std::string& input, const std::string& output, unsigned int testNumber)
+{
+	BOOST_TEST_CHECKPOINT("Init");
+	BOOST_TEST_MESSAGE("process check (" << this->basename
+		<< "; " << std::setfill('0') << std::setw(2) << testNumber << ")");
+	assert(algo);
+
+	auto in_ss = std::make_unique<stream::string>();
+	in_ss->write(input);
+	in_ss->seekg(0, stream::start);
+
+	BOOST_TEST_CHECKPOINT("Construct input_filtered");
+	auto in_filt = std::make_unique<stream::input_filtered>(
+		std::move(in_ss),
+		std::move(algo)
+	);
+
+	BOOST_TEST_CHECKPOINT("Copy to output stream");
+	stream::string out;
+	stream::copy(out, *in_filt);
+
+	BOOST_REQUIRE_MESSAGE(
+		this->is_equal(output, out.data),
+		"Conversion failed"
+	);
+
+	return;
+}
+
+void test_filter::test_fail(std::unique_ptr<filter> algo,
+	const std::string& input, unsigned int testNumber)
+{
+	BOOST_TEST_CHECKPOINT("Init");
+	BOOST_TEST_MESSAGE(createString("fail check (" << this->basename
+		<< "; " << std::setfill('0') << std::setw(2) << testNumber << ")"));
+	assert(algo);
+
+	auto in_ss = std::make_unique<stream::string>();
+	in_ss->write(input);
+	in_ss->seekg(0, stream::start);
+
+	BOOST_TEST_CHECKPOINT("Construct input_filtered");
+	auto in_filt = std::make_unique<stream::input_filtered>(
+		std::move(in_ss),
+		std::move(algo)
+	);
+
+	BOOST_TEST_CHECKPOINT("Copy to output stream");
+	stream::string out;
 	BOOST_REQUIRE_THROW(
-		this->in_filt->open(this->in, this->filter);
-		stream::copy(out, this->in_filt);
+		stream::copy(out, *in_filt);
 		, filter_error
 	);
 
-	// If we made it this far all is good
-	return boost::test_tools::predicate_result(true);
+	return;
 }

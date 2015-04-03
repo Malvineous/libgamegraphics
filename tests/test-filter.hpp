@@ -28,14 +28,69 @@
 using namespace camoto;
 using namespace camoto::gamegraphics;
 
-struct filter_sample: public default_sample {
+class test_filter: public test_main
+{
+	public:
+		/// Constructor sets some default values.
+		test_filter();
 
-	camoto::stream::string_sptr in;
-	camoto::stream::input_filtered_sptr in_filt;
-	camoto::filter_sptr filter;
+		/// Add all the standard tests.
+		/**
+		 * This can be overridden by descendent classes to add more tests for
+		 * particular file formats.  If this is done, remember to call this
+		 * function from the overridden one or the standard tests won't get run.
+		 */
+		virtual void addTests();
 
-	filter_sample();
-	boost::test_tools::predicate_result is_equal(const std::string& strExpected);
-	boost::test_tools::predicate_result should_fail();
+		/// Reset filter back to a known state.
+		/**
+		 * @param empty
+		 *   true resets to empty content while
+		 *   false resets to initialstate().
+		 */
+		virtual void prepareTest(bool empty);
 
+		/// Add a test to the suite.  Used by ADD_FILTER_TEST().
+		void addBoundTest(bool empty, std::function<void()> fnTest,
+			boost::unit_test::const_string name);
+
+		/// Reset the filter to the initial state and run the given test.
+		/**
+		 * @param empty
+		 *   true resets to empty content while
+		 *   false resets to initialstate().
+		 *
+		 * @param fnTest
+		 *   Function to call once filter is back to initial state.
+		 */
+		void runTest(bool empty, std::function<void()> fnTest);
+
+		/// Add a test encoding (filtering) the data
+		void process(std::unique_ptr<filter> algo, const std::string& input,
+			const std::string& output);
+
+		/// Add a test encoding (filtering) the data that should fail.
+		/**
+		 * Typically this is only when turning previously filtered data back into
+		 * its original format (e.g. decompressing) and invalid data is presented.
+		 * When filtering data for the first time (e.g. compressing) all possible
+		 * input data should be valid so there should be no failure states.
+		 */
+		void fail(std::unique_ptr<filter> algo, const std::string& input);
+
+	protected:
+		/// Perform an encode/decode check now, running the given filter.
+		void test_process(std::unique_ptr<filter> algo, const std::string& input,
+			const std::string& output, unsigned int testNumber);
+
+		/// Perform an encode/decode failure check now, running the given filter.
+		void test_fail(std::unique_ptr<filter> algo, const std::string& input,
+			unsigned int testNumber);
+
+	private:
+		/// Number of encode/decode tests, used to number them sequentially.
+		unsigned int numProcessTests;
+
+		/// Number of failure tests, used to number them sequentially.
+		unsigned int numFailTests;
 };
