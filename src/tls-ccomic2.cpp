@@ -23,21 +23,49 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/stream_filtered.hpp>
+#include <camoto/util.hpp> // make_unique
+#include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 #include "img-ega-planar.hpp"
-#include "filter-ccomic2.hpp"
 #include "tls-ccomic2.hpp"
+#include "filter-ccomic2.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Number of planes in each image
-#define NUMPLANES_TILES   4
-
-/// Offset of first tileset in a tileset collection.
-#define CC2_FIRST_TILE_OFFSET 6
-
 #define CC2_TILE_WIDTH 16
 #define CC2_TILE_HEIGHT 16
+
+#define FILETYPE_CCOMIC2 "tile/ccomic2"
+
+constexpr int CC2_firstTileOffset(PlaneCount numPlanes)
+{
+	return (numPlanes == PlaneCount::Solid) ? 6 : 0;
+}
+
+class Tileset_CComic2:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
+	public:
+		Tileset_CComic2(std::unique_ptr<stream::inout> content,
+			PlaneCount numPlanes);
+		virtual ~Tileset_CComic2();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+
+	protected:
+		PlaneCount numPlanes;
+};
 
 //
 // TilesetType_CComic2
@@ -51,69 +79,86 @@ TilesetType_CComic2::~TilesetType_CComic2()
 {
 }
 
-std::string TilesetType_CComic2::getCode() const
+std::string TilesetType_CComic2::code() const
 {
 	return "tls-ccomic2";
 }
 
-std::string TilesetType_CComic2::getFriendlyName() const
+std::string TilesetType_CComic2::friendlyName() const
 {
 	return "Captain Comic II Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> TilesetType_CComic2::getFileExtensions() const
+std::vector<std::string> TilesetType_CComic2::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("0");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_CComic2::getGameList() const
+std::vector<std::string> TilesetType_CComic2::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Captain Comic 2");
 	return vcGames;
 }
 
-TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 	if (len > 65535) return DefinitelyNo; // file too large (probably)
-	psGraphics->seekg(0, stream::start);
+	content.seekg(0, stream::start);
 	uint16_t num;
 	for (int i = 0; i < 3; i++) {
-		psGraphics >> u16le(num);
+		content >> u16le(num);
 		if (num > 512) return DefinitelyNo; // too many tiles (probably)
 	}
 	return Unsure;
 }
 
-TilesetPtr TilesetType_CComic2::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CComic2::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->seekp(0, stream::start);
-	psGraphics
+	constexpr auto numPlanes = PlaneCount::Solid;
+
+	auto content_filtered = std::make_unique<stream::filtered>(
+		std::move(content),
+		std::make_shared<filter_ccomic2_unrle>(CC2_firstTileOffset(numPlanes)),
+		std::make_shared<filter_ccomic2_rle>(CC2_firstTileOffset(numPlanes)),
+		nullptr
+	);
+
+	content_filtered->seekp(0, stream::start);
+	// Zero tiles, 0x0
+	*content_filtered
 		<< u16le(0)
 		<< u16le(0)
 		<< u16le(0)
 	;
-	// Zero tiles, 0x0
-	return TilesetPtr(new Tileset_CComic2(psGraphics, NUMPLANES_TILES));
+	return std::make_shared<Tileset_CComic2>(std::move(content_filtered),
+		numPlanes);
 }
 
-TilesetPtr TilesetType_CComic2::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CComic2::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	filter_sptr filtRead(new filter_ccomic2_unrle(CC2_FIRST_TILE_OFFSET));
-	filter_sptr filtWrite(new filter_ccomic2_rle(CC2_FIRST_TILE_OFFSET));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psGraphics, filtRead, filtWrite, NULL);
+	constexpr auto numPlanes = PlaneCount::Solid;
 
-	return TilesetPtr(new Tileset_CComic2(decoded, NUMPLANES_TILES));
+	auto content_filtered = std::make_unique<stream::filtered>(
+		std::move(content),
+		std::make_shared<filter_ccomic2_unrle>(CC2_firstTileOffset(numPlanes)),
+		std::make_shared<filter_ccomic2_rle>(CC2_firstTileOffset(numPlanes)),
+		nullptr
+	);
+
+	return std::make_shared<Tileset_CComic2>(std::move(content_filtered),
+		numPlanes);
 }
 
-SuppFilenames TilesetType_CComic2::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CComic2::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -124,29 +169,32 @@ SuppFilenames TilesetType_CComic2::getRequiredSupps(const std::string& filenameG
 // Tileset_CComic2
 //
 
-Tileset_CComic2::Tileset_CComic2(stream::inout_sptr data,
-	uint8_t numPlanes)
-	:	Tileset_FAT(data, CC2_FIRST_TILE_OFFSET),
+Tileset_CComic2::Tileset_CComic2(std::unique_ptr<stream::inout> content,
+	PlaneCount numPlanes)
+	:	Archive_FAT(std::move(content), CC2_firstTileOffset(numPlanes), ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize(CC2_TILE_WIDTH / 8 * CC2_TILE_HEIGHT * (int)numPlanes),
 		numPlanes(numPlanes)
 {
-	int tileSize = this->numPlanes << 5; // multiply by 32 (bytes per plane)
-	int lenHeader = CC2_FIRST_TILE_OFFSET;
+	int tileSize = (int)this->numPlanes << 5; // multiply by 32 (bytes per plane)
+	int lenHeader = CC2_firstTileOffset(numPlanes);
 
-	stream::pos len = this->data->size() - lenHeader;
-
+	stream::pos len = this->content->size() - lenHeader;
 	int numImages = len / tileSize;
 
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = lenHeader + i * tileSize;
-		fat->size = tileSize;
-		fat->lenHeader = 0;
-		this->items.push_back(ep);
+		auto f = std::make_unique<FATEntry>();
+
+		f->iIndex = i;
+		f->iOffset = lenHeader + i * tileSize;
+		f->storedSize = tileSize;
+		f->lenHeader = 0;
+		f->type = FILETYPE_CCOMIC2;
+		f->fAttr = File::Attribute::Default;
+		f->bValid = true;
+		f->realSize = f->storedSize;
+
+		this->vcFAT.push_back(std::move(f));
 	}
 
 }
@@ -155,50 +203,49 @@ Tileset_CComic2::~Tileset_CComic2()
 {
 }
 
-int Tileset_CComic2::getCaps()
+Tileset::Caps Tileset_CComic2::caps() const
 {
-	return Tileset::ColourDepthEGA;
+	return Caps::Default;
 }
 
-void Tileset_CComic2::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_CComic2::colourDepth() const
 {
-	if (newSize != CC2_TILE_WIDTH / 8 * CC2_TILE_HEIGHT * this->numPlanes) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return ColourDepth::EGA;
 }
 
-void Tileset_CComic2::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset_CComic2::dimensions() const
 {
-	*width = CC2_TILE_WIDTH;
-	*height = CC2_TILE_HEIGHT;
-	return;
+	return {CC2_TILE_WIDTH, CC2_TILE_HEIGHT};
 }
 
-unsigned int Tileset_CComic2::getLayoutWidth()
+unsigned int Tileset_CComic2::layoutWidth() const
 {
 	return 4;
 }
 
-ImagePtr Tileset_CComic2::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_CComic2::openImage(FileHandle& id)
 {
-	PLANE_LAYOUT planes;
+	EGAPlaneLayout planes = {
+		PlanePurpose::Blue1,
+		PlanePurpose::Green1,
+		PlanePurpose::Red1,
+		PlanePurpose::Intensity1,
+		(this->numPlanes == PlaneCount::Masked)
+			? PlanePurpose::Opaque1 : PlanePurpose::Unused,
+		PlanePurpose::Unused,
+	};
 
-	planes[PLANE_BLUE] = 1;
-	planes[PLANE_GREEN] = 2;
-	planes[PLANE_RED] = 3;
-	planes[PLANE_INTENSITY] = 4;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = (this->numPlanes == NUMPLANES_TILES) ? 0 : 5;
-
-	Image_EGAPlanar *ega = new Image_EGAPlanar();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, CC2_TILE_WIDTH, CC2_TILE_HEIGHT, planes
+	return std::make_unique<Image_EGAPlanar>(
+		this->open(id, true), 0, this->dimensions(), planes, this->palette()
 	);
+}
 
-	return conv;
+Tileset::FileHandle Tileset_CComic2::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	auto newHandle = this->insert(idBeforeThis, "", this->lenTile,
+		FILETYPE_CCOMIC2, attr);
+	return newHandle;
 }
 
 } // namespace gamegraphics

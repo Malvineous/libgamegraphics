@@ -22,7 +22,6 @@
 #define _CAMOTO_TLS_CCOMIC2_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -33,47 +32,29 @@ class TilesetType_CComic2: virtual public TilesetType
 		TilesetType_CComic2();
 		virtual ~TilesetType_CComic2();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
+			const;
 };
 
-class CComic2SpriteType: virtual public TilesetType_CComic2
+class TilesetType_CComic2_Sprite: virtual public TilesetType_CComic2
 {
 	public:
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-};
-
-class Tileset_CComic2: virtual public Tileset_FAT
-{
-	public:
-		Tileset_CComic2(stream::inout_sptr data, uint8_t numPlanes);
-		virtual ~Tileset_CComic2();
-
-		virtual int getCaps();
-		void resize(EntryPtr& id, stream::len newSize);
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-		virtual unsigned int getLayoutWidth();
-
-		// Tileset_FAT
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		unsigned int numPlanes;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 };
 
 } // namespace gamegraphics
