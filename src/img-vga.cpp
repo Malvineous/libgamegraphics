@@ -18,14 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include "img-vga.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-Image_VGA::Image_VGA(stream::inout_sptr data,
+Image_VGA::Image_VGA(std::unique_ptr<stream::inout> data,
 	stream::pos off)
-	:	data(data),
+	:	data(std::move(data)),
 		off(off)
 {
 }
@@ -34,49 +35,47 @@ Image_VGA::~Image_VGA()
 {
 }
 
-int Image_VGA::getCaps()
+Image::Caps Image_VGA::caps() const
 {
-	return Image::ColourDepthVGA;
+	return Caps::Default;
 }
 
-StdImageDataPtr Image_VGA::toStandard()
+ColourDepth Image_VGA::colourDepth() const
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	unsigned long dataSize = width * height;
+	return ColourDepth::VGA;
+}
 
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
+Pixels Image_VGA::convert() const
+{
+	auto dims = this->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
+	unsigned long dataSize = dims.x * dims.y;
+
+	Pixels pix;
+	pix.resize(dataSize);
 	this->data->seekg(this->off, stream::start);
-	this->data->read(imgData, dataSize);
-
-	return ret;
+	this->data->read(pix.data(), dataSize);
+	return pix;
 }
 
-StdImageDataPtr Image_VGA::toStandardMask()
+Pixels Image_VGA::convert_mask() const
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
+	auto dims = this->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
+	int dataSize = dims.x * dims.y;
 
 	// Return an entirely opaque mask
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-	memset(imgData, 0, dataSize);
-
-	return ret;
+	Pixels pix;
+	pix.resize(dataSize, 0);
+	return pix;
 }
 
-void Image_VGA::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+void Image_VGA::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	unsigned long dataSize = width * height;
+	auto dims = this->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
+	unsigned long dataSize = dims.x * dims.y;
 
 	stream::pos len = this->data->size();
 
@@ -86,9 +85,8 @@ void Image_VGA::fromStandard(StdImageDataPtr newContent,
 	} // else size didn't need to change, e.g. fixed-size VGA image
 
 	// No conversion needed, write out as-is
-	uint8_t *imgData = (uint8_t *)newContent.get();
 	this->data->seekp(this->off, stream::start);
-	this->data->write(imgData, dataSize);
+	this->data->write(newContent.data(), dataSize);
 
 	return;
 }

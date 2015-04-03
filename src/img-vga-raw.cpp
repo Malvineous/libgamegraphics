@@ -18,28 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "pal-vga-raw.hpp"
 #include "img-vga-raw.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-std::vector<std::string> ImageType_VGARawBase::getFileExtensions() const
+std::vector<std::string> ImageType_VGARawBase::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pal");
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_VGARawBase::getGameList() const
+std::vector<std::string> ImageType_VGARawBase::games() const
 {
 	std::vector<std::string> vcGames;
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_VGARawBase::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_VGARawBase::isInstance(stream::input& content)
+	const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
 	// TESTED BY: TODO
 	if (len == 64000) return PossiblyYes;
@@ -48,31 +50,29 @@ ImageType::Certainty ImageType_VGARawBase::isInstance(stream::input_sptr psImage
 	return DefinitelyNo;
 }
 
-ImagePtr ImageType_VGARawBase::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_VGARawBase::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psImage->truncate(64000);
+	content->truncate(64000);
 	char buf[64];
 	memset(buf, 0, 64);
-	for (int i = 0; i < 1000; i++) psImage->write(buf, 64);
+	for (int i = 0; i < 1000; i++) content->write(buf, 64);
 
-	PaletteTablePtr pal;
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], this->depth));
-		pal = palFile->getPalette();
-	}
-	return ImagePtr(new Image_VGARaw(psImage, 320, 200, pal));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_VGARawBase::open(stream::inout_sptr psImage,
+std::unique_ptr<Image> ImageType_VGARawBase::open(std::unique_ptr<stream::inout> content,
 	SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], this->depth));
-		pal = palFile->getPalette();
+		auto palFile = std::make_unique<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), this->depth);
+		pal = palFile->palette();
 	}
-	return ImagePtr(new Image_VGARaw(psImage, 320, 200, pal));
+	return std::make_unique<Image_VGARaw>(
+		std::move(content), 320, 200,
+		std::dynamic_pointer_cast<const Palette>(pal));
 }
 
 SuppFilenames ImageType_VGARawBase::getRequiredSupps(const std::string& filenameImage) const
@@ -90,12 +90,12 @@ ImageType_VGA6Raw::ImageType_VGA6Raw()
 	this->depth = 6;
 }
 
-std::string ImageType_VGA6Raw::getCode() const
+std::string ImageType_VGA6Raw::code() const
 {
 	return "img-vga-raw-fullscreen";
 }
 
-std::string ImageType_VGA6Raw::getFriendlyName() const
+std::string ImageType_VGA6Raw::friendlyName() const
 {
 	return "Raw VGA fullscreen image (6-bit palette)";
 }
@@ -106,20 +106,20 @@ ImageType_VGA8Raw::ImageType_VGA8Raw()
 	this->depth = 8;
 }
 
-std::string ImageType_VGA8Raw::getCode() const
+std::string ImageType_VGA8Raw::code() const
 {
 	return "img-vga-raw8-fullscreen";
 }
 
-std::string ImageType_VGA8Raw::getFriendlyName() const
+std::string ImageType_VGA8Raw::friendlyName() const
 {
 	return "Raw VGA fullscreen image (24-bit palette)";
 }
 
 
-Image_VGARaw::Image_VGARaw(stream::inout_sptr data, int width, int height,
-	PaletteTablePtr pal)
-	:	Image_VGA(data, 0),
+Image_VGARaw::Image_VGARaw(std::unique_ptr<stream::inout> data, int width, int height,
+	std::shared_ptr<const Palette> pal)
+	:	Image_VGA(std::move(data), 0),
 		width(width),
 		height(height),
 		pal(pal)
@@ -130,24 +130,22 @@ Image_VGARaw::~Image_VGARaw()
 {
 }
 
-int Image_VGARaw::getCaps()
+Image::Caps Image_VGARaw::caps() const
 {
-	return Image::ColourDepthVGA | Image::HasPalette;
+	return Image::Caps::HasPalette;
 }
 
-void Image_VGARaw::getDimensions(unsigned int *width, unsigned int *height)
+Point Image_VGARaw::dimensions() const
 {
-	*width = this->width;
-	*height = this->height;
-	return;
+	return {this->width, this->height};
 }
 
-void Image_VGARaw::setDimensions(unsigned int width, unsigned int height)
+void Image_VGARaw::dimensions(const Point& newDimensions)
 {
 	throw stream::error("this image is a fixed size");
 }
 
-PaletteTablePtr Image_VGARaw::getPalette()
+std::shared_ptr<const Palette> Image_VGARaw::palette() const
 {
 	return this->pal;
 }

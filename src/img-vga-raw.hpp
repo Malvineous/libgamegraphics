@@ -31,12 +31,12 @@ namespace gamegraphics {
 class ImageType_VGARawBase: virtual public ImageType
 {
 	public:
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& fsImage) const;
+		virtual std::unique_ptr<Image> create(std::unique_ptr<stream::inout> content,
 			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
+		virtual std::unique_ptr<Image> open(std::unique_ptr<stream::inout> fsImage,
 			SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
 
@@ -49,8 +49,8 @@ class ImageType_VGA6Raw: virtual public ImageType_VGARawBase
 	public:
 		ImageType_VGA6Raw();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 };
 
 class ImageType_VGA8Raw: virtual public ImageType_VGARawBase
@@ -58,16 +58,16 @@ class ImageType_VGA8Raw: virtual public ImageType_VGARawBase
 	public:
 		ImageType_VGA8Raw();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 };
 
 /// Raw VGA Image implementation.
 class Image_VGARaw: virtual public Image_VGA
 {
 	protected:
-		int width, height;
-		PaletteTablePtr pal;
+		unsigned int width, height;
+		std::shared_ptr<const Palette> pal;
 
 	public:
 		/// Constructor
@@ -87,13 +87,14 @@ class Image_VGARaw: virtual public Image_VGA
 		 * @param pal
 		 *   Image palette
 		 */
-		Image_VGARaw(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
+		Image_VGARaw(std::unique_ptr<stream::inout> data, int width, int height,
+			std::shared_ptr<const Palette> pal);
 		virtual ~Image_VGARaw();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual PaletteTablePtr getPalette();
+		virtual Image::Caps caps() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual std::shared_ptr<const Palette> palette() const;
 };
 
 } // namespace gamegraphics

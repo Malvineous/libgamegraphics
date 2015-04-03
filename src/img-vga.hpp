@@ -21,8 +21,7 @@
 #ifndef _CAMOTO_IMG_VGA_HPP_
 #define _CAMOTO_IMG_VGA_HPP_
 
-#include <boost/iostreams/stream.hpp>
-#include "baseimage.hpp"
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -33,7 +32,7 @@ namespace gamegraphics {
  * does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class Image_VGA: virtual public Image_Base
+class Image_VGA: virtual public Image
 {
 	public:
 		/// Constructor
@@ -44,19 +43,17 @@ class Image_VGA: virtual public Image_Base
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		Image_VGA(stream::inout_sptr data, stream::pos off);
+		Image_VGA(std::unique_ptr<stream::inout> data, stream::pos off);
 		virtual ~Image_VGA();
 
-		virtual int getCaps();
-		//virtual void getDimensions(unsigned int *width, unsigned int *height);
-		//virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		stream::inout_sptr data; ///< Image content
+		std::unique_ptr<stream::inout> data; ///< Image content
 		stream::pos off;         ///< Offset of image data in \ref data
 };
 
