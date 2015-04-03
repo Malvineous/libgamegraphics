@@ -36,7 +36,6 @@ using namespace camoto::gamegraphics;
 		); \
 	}
 
-/// Create a standard pattern in the given size.
 Pixels createPixelData(const Point& dims)
 {
 	Pixels content(dims.x * dims.y, '\x00');
@@ -64,7 +63,6 @@ Pixels createPixelData(const Point& dims)
 	return content;
 }
 
-/// Create a standard pattern in the given size.
 Pixels createMaskData(const Point& dims, bool hit)
 {
 	Pixels content(dims.x * dims.y, '\x01');

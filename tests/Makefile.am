@@ -1,6 +1,7 @@
 check_PROGRAMS = tests
 
 tests_SOURCES = tests.cpp
+tests_SOURCES += test-archive.cpp
 tests_SOURCES += test-filter.cpp
 tests_SOURCES += test-filter-ccomic.cpp
 tests_SOURCES += test-filter-ccomic2.cpp
@@ -18,6 +19,7 @@ tests_SOURCES += test-img-zone66_tile.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
 tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-subimage.cpp
+tests_SOURCES += test-tileset.cpp
 tests_SOURCES += test-tls-bash-sprite.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-tls-ddave.cpp
@@ -30,7 +32,6 @@ EXTRA_tests_SOURCES = tests.hpp
 EXTRA_tests_SOURCES += test-filter.hpp
 EXTRA_tests_SOURCES += test-image.hpp
 EXTRA_tests_SOURCES += test-tileset.hpp
-EXTRA_tests_SOURCES += test-tileset_new.hpp
 
 TESTS = tests
 

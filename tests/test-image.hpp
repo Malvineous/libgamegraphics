@@ -33,9 +33,11 @@
 using namespace camoto;
 using namespace camoto::gamegraphics;
 
-/// Exception thrown if test_image::metadata_*() is called for
-/// unsupported fields.
-class test_metadata_not_supported {};
+/// Create a standard pattern in the given size.
+Pixels createPixelData(const Point& dims);
+
+/// Create a standard pattern in the given size.
+Pixels createMaskData(const Point& dims, bool hit);
 
 class test_image: public test_main
 {
