@@ -1,5 +1,5 @@
 /**
- * @file  basetileset.cpp
+ * @file  tileset.cpp
  * @brief Base class for all Tileset subclasses.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -19,85 +19,73 @@
  */
 
 #include <cassert>
-#include "basetileset.hpp"
+#include <camoto/gamegraphics/tileset.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-std::string Tileset_Base::Tileset_BaseEntry::getName() const
-{
-	return this->name;
-}
-
-bool Tileset_Base::Tileset_BaseEntry::isValid() const
-{
-	return this->valid;
-}
-
-int Tileset_Base::Tileset_BaseEntry::getAttr() const
-{
-	return this->attr;
-}
-
-Tileset_Base::Tileset_Base()
+Tileset::Tileset()
 {
 }
 
-Tileset_Base::~Tileset_Base()
+Tileset::~Tileset()
 {
 }
 
-TilesetPtr Tileset_Base::openTileset(const EntryPtr& id)
+std::shared_ptr<Tileset> Tileset::openTileset(FileHandle& id)
 {
-	// Caller didn't check EntryPtr->attr
+	// Caller didn't check FileHandle->attr
 	assert(false);
-	throw stream::error("this tileset has no images"
-		" (this is a bug - the caller should have checked the EntryPtr's"
-		" attributes to detect this)");
+	throw stream::error("This tileset has no images"
+		" (this is a bug - the caller should have checked the FileHandle's"
+		" attributes to detect this).");
 }
 
-ImagePtr Tileset_Base::openImage(const EntryPtr& id)
+std::unique_ptr<Image> Tileset::openImage(FileHandle& id)
 {
-	// Caller didn't check EntryPtr->attr
+	// Caller didn't check FileHandle->attr
 	assert(false);
-	throw stream::error("this tileset has no images"
-		" (this is a bug - the caller should have checked the EntryPtr's"
-		" attributes to detect this)");
+	throw stream::error("This tileset has no images"
+		" (this is a bug - the caller should have checked the FileHandle's"
+		" attributes to detect this).");
 }
 
-void Tileset_Base::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset::dimensions() const
 {
-	*width = 0;
-	*height = 0;
-	return;
+	return {0, 0};
 }
 
-void Tileset_Base::setTilesetDimensions(unsigned int width, unsigned int height)
+void Tileset::dimensions(const Point& newDimensions)
 {
-	// Caller didn't check getCaps()
+	// Fail if this function is called when the caps say not to
+	assert(this->caps() & Caps::ChangeDimensions);
+
+	// If we get here the file format said the dimensions can be changed but
+	// forgot to override this function, so fail.
 	assert(false);
-	throw stream::error("this tileset cannot have its tile size changed"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
 }
 
-unsigned int Tileset_Base::getLayoutWidth()
+unsigned int Tileset::layoutWidth() const
 {
 	return 0;
 }
 
-PaletteTablePtr Tileset_Base::getPalette()
+Tileset::FileHandle Tileset::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
 {
-	// Caller didn't check getCaps()
-	assert(false);
-	return PaletteTablePtr();
+	throw stream::error("This tileset contains a fixed number of images and "
+		"cannot have more inserted.");
 }
 
-void Tileset_Base::setPalette(PaletteTablePtr newPalette)
+std::shared_ptr<const Palette> Tileset::palette() const
 {
-	// Caller didn't check getCaps()
-	assert(false);
-	throw stream::error("this format can't have its palette changed"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	return this->pal;
+}
+
+void Tileset::palette(std::shared_ptr<const Palette> newPalette)
+{
+	assert(this->caps() & Caps::SetPalette);
+	this->pal = newPalette;
 	return;
 }
 

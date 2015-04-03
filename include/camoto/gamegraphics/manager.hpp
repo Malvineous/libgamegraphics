@@ -21,7 +21,7 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_MANAGER_HPP_
 #define _CAMOTO_GAMEGRAPHICS_MANAGER_HPP_
 
-#include <boost/shared_ptr.hpp>
+#include <camoto/formatenum.hpp>
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 
@@ -30,84 +30,14 @@
 #endif
 
 namespace camoto {
+
+template class FormatEnumerator<gamegraphics::TilesetType>;
+template class FormatEnumerator<gamegraphics::ImageType>;
+
 namespace gamegraphics {
 
-/// Top-level class to manage graphics types.
-/**
- * This class provides access to the different graphics file formats supported
- * by the library.
- *
- * In order to open a file, this class must be used to access an instance of the
- * tileset or image type.  This TilesetType or ImageType instance is then used
- * to create a Tileset or Image instance around a particular file.  It is this
- * instance that is then used to manipulate the graphics file itself.
- *
- * @note Use the free function getManager() to obtain a pointer to an instance
- *   of an object implementing the Manager interface.
- */
-class Manager
-{
-	public:
-		/// Get an TilesetType instance for a supported file format.
-		/**
-		 * This can be used to enumerate all available file formats.
-		 *
-		 * @param iIndex
-		 *   Index of the format, starting from 0.
-		 *
-		 * @return A shared pointer to a TilesetType instance for the given index,
-		 *   or an pointer once iIndex goes out of range.
-		 */
-		virtual const TilesetTypePtr getTilesetType(unsigned int iIndex)
-			const = 0;
-
-		/// Get an TilesetType instance by its code.
-		/**
-		 * @param strCode
-		 *   %Tileset code (e.g. "grp-duke3d")
-		 *
-		 * @return A shared pointer to a TilesetType instance for the given code, or
-		 *   an empty pointer for an invalid code.
-		 */
-		virtual const TilesetTypePtr getTilesetTypeByCode(
-			const std::string& strCode) const = 0;
-
-		/// Get an ImageType instance for a supported file format.
-		/**
-		 * This can be used to enumerate all available file formats.
-		 *
-		 * @param iIndex
-		 *  Index of the format, starting from 0.
-		 *
-		 * @return A shared pointer to an ImageType instance for the given index, or
-		 *   an empty pointer once iIndex goes out of range.
-		 */
-		virtual const ImageTypePtr getImageType(unsigned int iIndex)
-			const = 0;
-
-		/// Get an ImageType instance by its code.
-		/**
-		 * @param strCode
-		 *   %Image code (e.g. "grp-duke3d")
-		 *
-		 * @return A shared pointer to an ImageType instance for the given code, or
-		 *   an empty pointer for an invalid code.
-		 */
-		virtual const ImageTypePtr getImageTypeByCode(const std::string& strCode)
-			const = 0;
-};
-
-/// Shared pointer to a Manager.
-typedef boost::shared_ptr<Manager> ManagerPtr;
-
-/// Library entry point.
-/**
- * All further functionality is provided by calling functions in the Manager
- * class.
- *
- * @return A shared pointer to a Manager instance.
- */
-const ManagerPtr DLL_EXPORT getManager(void);
+typedef FormatEnumerator<TilesetType> TilesetManager;
+typedef FormatEnumerator<ImageType> ImageManager;
 
 } // namespace gamegraphics
 } // namespace camoto

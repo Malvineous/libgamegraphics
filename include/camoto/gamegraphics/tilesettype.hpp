@@ -22,6 +22,7 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_TILESETTYPE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_TILESETTYPE_HPP_
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <camoto/stream.hpp>
@@ -51,13 +52,13 @@ class TilesetType
 		 *
 		 * @return The tileset short name/ID.
 		 */
-		virtual std::string getCode() const = 0;
+		virtual std::string code() const = 0;
 
 		/// Get the tileset name, e.g. "Xargon tileset file"
 		/**
 		 * @return The tileset name.
 		 */
-		virtual std::string getFriendlyName() const = 0;
+		virtual std::string friendlyName() const = 0;
 
 		/// Get a list of the known file extensions for this format.
 		/**
@@ -67,18 +68,18 @@ class TilesetType
 		 *   may also be generic, other data may be found in files with these
 		 *   extensions too!
 		 */
-		virtual std::vector<std::string> getFileExtensions() const = 0;
+		virtual std::vector<std::string> fileExtensions() const = 0;
 
 		/// Get a list of games using this format.
 		/**
 		 * @return A vector of game names, such as "Crystal Caves",
 		 *   "Secret Agent"
 		 */
-		virtual std::vector<std::string> getGameList() const = 0;
+		virtual std::vector<std::string> games() const = 0;
 
 		/// Check a stream to see if it's in this tileset format.
 		/**
-		 * @param psTileset
+		 * @param content
 		 *   A stream of the file to test.
 		 *
 		 * @return A single confidence value from \ref Certainty.
@@ -86,7 +87,7 @@ class TilesetType
 		 * @note Many tileset formats lack a file header, so Unsure will be a
 		 *   common return value, especially with small files.
 		 */
-		virtual Certainty isInstance(stream::input_sptr psTileset) const = 0;
+		virtual Certainty isInstance(stream::input& content) const = 0;
 
 		/// Create a blank tileset file in this format.
 		/**
@@ -97,7 +98,7 @@ class TilesetType
 		 * if there are headers to write, otherwise an empty stream is passed to
 		 * open() which is expected to succeed.
 		 *
-		 * @param psTileset
+		 * @param content
 		 *   A blank stream to store the new tileset in.
 		 *
 		 * @param suppData
@@ -106,14 +107,14 @@ class TilesetType
 		 * @return A pointer to an instance of the Tileset class, just as if a
 		 *   valid empty file had been opened by open().
 		 */
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const = 0;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const = 0;
 
 		/// Open a tileset file.
 		/**
 		 * @pre Recommended that isInstance() has returned > DefinitelyNo.
 		 *
-		 * @param psTileset
+		 * @param content
 		 *   The tileset file.
 		 *
 		 * @param suppData
@@ -125,8 +126,8 @@ class TilesetType
 		 *   make it possible to "force" a file to be opened by a particular format
 		 *   handler.
 		 */
-		virtual TilesetPtr open(stream::inout_sptr psTileset,
-			SuppData& suppData) const = 0;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const = 0;
 
 		/// Get a list of any required supplemental files.
 		/**
@@ -149,12 +150,6 @@ class TilesetType
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
 			const = 0;
 };
-
-/// Shared pointer to an TilesetType.
-typedef boost::shared_ptr<TilesetType> TilesetTypePtr;
-
-/// Vector of TilesetType shared pointers.
-typedef std::vector<TilesetTypePtr> TilesetTypeVector;
 
 } // namespace gamegraphics
 } // namespace camoto

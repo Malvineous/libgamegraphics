@@ -88,7 +88,7 @@ Additional information is available from the Camoto homepage
 }
 
 // These are all in the camoto::gamegraphics namespace
-#include <camoto/gamegraphics/palettetable.hpp>
+#include <camoto/gamegraphics/palette.hpp>
 #include <camoto/gamegraphics/image.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include <camoto/gamegraphics/tileset.hpp>

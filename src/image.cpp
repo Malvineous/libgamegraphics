@@ -1,5 +1,5 @@
 /**
- * @file  baseimage.cpp
+ * @file  image.cpp
  * @brief Base class for all Image subclasses.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -19,70 +19,73 @@
  */
 
 #include <cassert>
-#include "baseimage.hpp"
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-Image_Base::Image_Base()
+Image::Image()
 {
 }
 
-Image_Base::~Image_Base()
+Image::~Image()
 {
 }
 
-void Image_Base::setDimensions(unsigned int width, unsigned int height)
+void Image::dimensions(const Point& newDimensions)
 {
-	// Caller didn't check getCaps()
+	// Fail if this function is called when the caps say not to
+	assert(this->caps() & Caps::SetDimensions);
+
+	// If we get here the file format said the dimensions can be changed but
+	// forgot to override this function, so fail.
 	assert(false);
-	throw stream::error("this image format can't have its dimensions changed"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	throw stream::error("This image format can't have its dimensions changed"
+		" (this is a bug - the caller should have used caps() to detect this).");
 }
 
-PaletteTablePtr Image_Base::getPalette()
+Point Image::hotspot() const
 {
-	return PaletteTablePtr();
-}
-
-void Image_Base::getHotspot(signed int *x, signed int *y)
-{
-	// Caller didn't check getCaps()
+	// Caller didn't check caps()
 	assert(false);
-	throw stream::error("this image format can't have a hotspot set"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	throw stream::error("This image format can't have a hotspot set"
+		" (this is a bug - the caller should have used caps() to detect this).");
 }
 
-void Image_Base::setHotspot(signed int x, signed int y)
+void Image::hotspot(const Point& newHotspot)
 {
-	// Caller didn't check getCaps()
+	// Caller didn't check caps()
 	assert(false);
-	throw stream::error("this image format can't have a hotspot set"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	throw stream::error("This image format can't have a hotspot set"
+		" (this is a bug - the caller should have used caps() to detect this).");
 }
 
-void Image_Base::getHitRect(signed int *x, signed int *y)
+Point Image::hitrect() const
 {
-	// Caller didn't check getCaps()
+	// Caller didn't check caps()
 	assert(false);
-	throw stream::error("this image format can't have a hitmap rectangle"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	throw stream::error("This image format can't have a hitmap rectangle"
+		" (this is a bug - the caller should have used caps() to detect this).");
 }
 
-void Image_Base::setHitRect(signed int x, signed int y)
+void Image::hitrect(const Point& newHitrect)
 {
-	// Caller didn't check getCaps()
+	// Caller didn't check caps()
 	assert(false);
-	throw stream::error("this image format can't have a hitmap rectangle"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	throw stream::error("This image format can't have a hitmap rectangle"
+		" (this is a bug - the caller should have used caps() to detect this).");
 }
 
-void Image_Base::setPalette(PaletteTablePtr newPalette)
+std::shared_ptr<const Palette> Image::palette() const
 {
-	// Caller didn't check getCaps()
-	assert(false);
-	throw stream::error("this format doesn't support palettes"
-		" (this is a bug - the caller should have used getCaps() to detect this)");
+	return this->pal;
+}
+
+void Image::palette(std::shared_ptr<const Palette> newPalette)
+{
+	assert(this->caps() & Caps::SetPalette);
+	this->pal = newPalette;
+	return;
 }
 
 } // namespace gamegraphics

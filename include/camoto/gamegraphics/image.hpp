@@ -23,19 +23,32 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_IMAGE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_IMAGE_HPP_
 
-#include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
-#include <iostream>
+#include <array>
+#include <memory>
+#include <cstdint>
 
-#include <camoto/stream.hpp>
-#include <stdint.h>
-#include <camoto/gamegraphics/palettetable.hpp>
+#include <camoto/stream.hpp> // for stream::error
+#include <camoto/gamegraphics/palette.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Shared pointer to the raw image data
-typedef boost::shared_array<uint8_t> StdImageDataPtr;
+typedef std::vector<uint8_t> Pixels;
+
+struct Point
+{
+	unsigned int x;
+	unsigned int y;
+};
+
+enum class ColourDepth
+{
+	Mono, ///< Set if the image is 1bpp (black and white)
+	CGA,  ///< Set if the image is 2bpp (4 colour)
+	EGA,  ///< Set if the image is 4bpp (16 colour)
+	VGA,  ///< Set if the image is 8bpp (256 colour)
+};
 
 /// Primary interface to an image file.
 /**
@@ -54,127 +67,97 @@ class Image
 {
 	public:
 		/// Capabilities of this image format.
-		enum Caps {
+		enum class Caps {
+			/// No special capabilities.
+			Default       = 0x00,
+
 			/// Set if the image can be resized with setDimensions().
-			CanSetDimensions  = 0x01,
+			SetDimensions = 0x01,
 
-			/// Set if getPalette() returns valid data.
-			HasPalette        = 0x02,
+			/// Set if palette() returns valid data.
+			HasPalette    = 0x02,
 
-			/// Set if setPalette() can be used.  Must be used with HasPalette.
-			CanSetPalette     = 0x04,
+			/// Set if palette() can be used.  Must be used with HasPalette.
+			SetPalette    = 0x04,
 
 			/// Set if get/setHotspot() can be used.
-			HasHotspot        = 0x08,
-
-			/// Set if the image is 8bpp (256 colour)
-			ColourDepthVGA    = 0x00,
-
-			/// Set if the image is 4bpp (16 colour)
-			ColourDepthEGA    = 0x10,
-
-			/// Set if the image is 2bpp (4 colour)
-			ColourDepthCGA    = 0x20,
-
-			/// Set if the image is 1bpp (black and white)
-			ColourDepthMono   = 0x30,
-
-			/// Mask to isolate the ColourDepth value.  This must always be used when
-			/// checking the colour depth.
-			ColourDepthMask   = 0x30,
+			HasHotspot    = 0x08,
 
 			/// Set if get/setHitRect() can be used.
 			HasHitRect        = 0x40,
 		};
 
-		/// Extract the bit from the image mask that controls visibility.
-		const static unsigned int Mask_Visibility = 0x01;
+		/// Bit values for image mask data
+		enum class Mask : uint8_t {
+			Transparent = 0x01, ///< Mask: 0=opaque, 1=transparent
+			Touch       = 0x02, ///< Mask: 0=pass, 1=hit
+		};
 
-		/// Mask_Visibility bit for opaque pixels.
-		const static unsigned int Mask_Vis_Opaque = 0;
-
-		/// Mask_Visibility bit for transparent pixels.
-		const static unsigned int Mask_Vis_Transparent = 1;
-
-		/// This bit is set in a mask pixel if that pixel is part of the hitmap.
-		const static unsigned int Mask_Hitmap = 0x02;
-
-		/// Mask_Hit bit for passthrough pixels.
-		const static unsigned int Mask_Hit_Pass = 0;
-
-		/// Mask_Hit bit for touchable pixels.
-		const static unsigned int Mask_Hit_Touch = 1;
+		Image();
+		virtual ~Image();
 
 		/// Get the capabilities of this image format.
 		/**
 		 * @return One or more of the \ref Caps enum values (OR'd together.)
 		 */
-		virtual int getCaps() = 0;
+		virtual Caps caps() const = 0;
+
+		/// Get the number of colours that can be stored in this image format.
+		/**
+		 * @return One \ref ColourDepth value.
+		 */
+		virtual ColourDepth colourDepth() const = 0;
 
 		/// Get the size of this image in pixels.
 		/**
-		 * @param width
-		 *   Pointer to a variable that will receive the image's width.
-		 *
-		 * @param height
-		 *   Pointer to a variable that will receive the image's height.
+		 * @return Point structure with .x as image width and .y as image height.
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void getDimensions(unsigned int *width, unsigned int *height) = 0;
+		virtual Point dimensions() const = 0;
 
 		/// Set the size of this image in pixels.
 		/**
-		 * @pre getCaps() return value includes CanSetDimensions.
+		 * @pre caps() return value includes CanSetDimensions.
 		 *
-		 * @param width
-		 *   New width
-		 *
-		 * @param height
-		 *   New height
+		 * @param newDimensions
+		 *   New dimensions to set.
 		 *
 		 * @post Image content is undefined, fromStandard() must be called.
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void setDimensions(unsigned int width, unsigned int height) = 0;
+		virtual void dimensions(const Point& newDimensions);
 
 		/// Get the coordinates of the image hotspot, in pixels.
 		/**
 		 * The hotspot is the part of the image that appears at its origin.
 		 *
-		 * @pre getCaps() return value includes HasHotspot.
+		 * @pre caps() return value includes HasHotspot.
 		 *
-		 * @param x
-		 *   Pointer to a variable that will receive the hotspot's X coordinate.
-		 *
-		 * @param y
-		 *   Pointer to a variable that will receive the hotspot's Y coordinate.
+		 * @return Point containing hotspot coordinates, in pixels from the top-left.
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void getHotspot(signed int *x, signed int *y) = 0;
+		virtual Point hotspot() const;
 
 		/// Set the coordinates of the image hotspot, in pixels.
 		/**
-		 * @pre getCaps() return value includes HasHotspot.
+		 * @pre caps() return value includes HasHotspot.
 		 *
-		 * @param x
-		 *   X coordinate of new hotspot.
-		 *
-		 * @param y
-		 *   Y coordinate of new hotspot.
+		 * @param newHotspot
+		 *   Coordinates of the new hotspot to set.
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void setHotspot(signed int x, signed int y) = 0;
+		virtual void hotspot(const Point& newHotspot);
 
 		/// Get the coordinates of the lower-right corner of the hitmap rectangle.
 		/**
 		 * This function is used for image formats that have a rectangular hitmap
 		 * rectangle rather than a hitmap plane in the image data.
 		 *
-		 * @pre getCaps() return value includes HasHitRect.
+		 * @pre caps() return value includes HasHitRect.
 		 *
 		 * @param x
 		 *   Pointer to a variable that will receive the hitmap rectangle's right
@@ -186,14 +169,14 @@ class Image
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void getHitRect(signed int *x, signed int *y) = 0;
+		virtual Point hitrect() const;
 
 		/// Set the coordinates of the lower-right corner of the hitmap rectangle.
 		/**
 		 * This function is used for image formats that have a rectangular hitmap
 		 * rectangle rather than a hitmap plane in the image data.
 		 *
-		 * @pre getCaps() return value includes HasHitRect.
+		 * @pre caps() return value includes HasHitRect.
 		 *
 		 * @param x
 		 *   X coordinate of lower-right rectangle corner.
@@ -203,7 +186,7 @@ class Image
 		 *
 		 * @throw stream::error on I/O error.
 		 */
-		virtual void setHitRect(signed int x, signed int y) = 0;
+		virtual void hitrect(const Point& newHitRect);
 
 		/// Convert the image into a standard format.
 		/**
@@ -212,7 +195,7 @@ class Image
 		 *
 		 * @return A shared pointer to a byte array of image data.
 		 */
-		virtual StdImageDataPtr toStandard() = 0;
+		virtual Pixels convert() const = 0;
 
 		/// Convert the image mask into a standard format.
 		/**
@@ -227,7 +210,7 @@ class Image
 		 *
 		 * @return A shared pointer to a byte array of mask data.
 		 */
-		virtual StdImageDataPtr toStandardMask() = 0;
+		virtual Pixels convert_mask() const = 0;
 
 		/// Replace the image with new content.
 		/**
@@ -235,45 +218,57 @@ class Image
 		 * custom format and overwrite the old image.
 		 *
 		 * The mask layout is identical to the image data, only instead of the
-		 * values being colours, the least-significant bit of each byte
-		 * (Mask_Visibility) is used to denote opacity (Mask_Vis_Opaque or
-		 * Mask_Vis_Transparent) and the next bit (Mask_Hitmap)
-		 * is used to denote hitmapping (Mask_Hit_Touch or Mask_Hit_Pass)
+		 * values being colours, the values in \ref Mask are bitwise-OR'd and
+		 * stored as one-byte-per-pixel.
 		 *
-		 * @param newContent  Image data, in the standard 8bpp indexed format, to
-		 *   convert and replace the underlying image with.
+		 * @param newContent
+		 *   Image data, in the standard 8bpp indexed format, to convert and
+		 *   replace the underlying image with.
 		 *
-		 * @param newMask  Image data, in the standard 8bpp format, to
-		 *   convert and replace the underlying mask with.
+		 * @param newMask
+		 *   Image data, in the standard 8bpp format, to convert and replace the
+		 *   underlying mask with.
 		 *
-		 * @note If getCaps() reports CanSetDimensions the dimensions should be
+		 * @note If caps() reports CanSetDimensions the dimensions should be
 		 *   set *before* this function is called (if necessary) as some formats
 		 *   encode data differently depending on the image size (e.g. 'end of
 		 *   line' codes can't be used unless the line width is known.)
 		 */
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask) = 0;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask) = 0;
 
 		/// Get the indexed colour map from the file.
 		/**
-		 * @pre getCaps() return value includes HasPalette.
+		 * @pre caps() return value includes HasPalette.
 		 *
-		 * @return Shared pointer to a PaletteTable.
+		 * @return Shared pointer to a Palette.
 		 */
-		virtual PaletteTablePtr getPalette() = 0;
+		virtual std::shared_ptr<const Palette> palette() const;
 
 		/// Set the indexed colour map used by the file.
 		/**
-		 * @pre getCaps() return value includes CanSetPalette.
+		 * @pre caps() return value includes CanSetPalette.
 		 *
 		 * @param newPalette
 		 *   New palette data
 		 */
-		virtual void setPalette(PaletteTablePtr newPalette) = 0;
+		virtual void palette(std::shared_ptr<const Palette> newPalette);
+
+	private:
+		std::shared_ptr<const Palette> pal; ///< Palette storage, may be null
 };
 
-/// Shared pointer to an Image.
-typedef boost::shared_ptr<Image> ImagePtr;
+inline Image::Caps operator| (Image::Caps a, Image::Caps b) {
+	return static_cast<Image::Caps>(
+		static_cast<unsigned int>(a) | static_cast<unsigned int>(b)
+	);
+}
+
+inline bool operator& (Image::Caps a, Image::Caps b) {
+	return
+		static_cast<unsigned int>(a) & static_cast<unsigned int>(b)
+	;
+}
 
 } // namespace gamegraphics
 } // namespace camoto

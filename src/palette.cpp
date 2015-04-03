@@ -18,14 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/gamegraphics/palettetable.hpp>
+#include <memory>
+#include <camoto/util.hpp> // make_unique
+#include <camoto/gamegraphics/palette.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-PaletteTablePtr createPalette_DefaultMono()
+std::unique_ptr<Palette> createPalette_DefaultMono()
 {
-	PaletteTablePtr pal(new PaletteTable());
+	auto pal = std::make_unique<Palette>();
 	pal->reserve(2);
 
 	for (int i = 0; i < 2; i++) {
@@ -38,19 +40,19 @@ PaletteTablePtr createPalette_DefaultMono()
 	return pal;
 }
 
-PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
+std::unique_ptr<Palette> createPalette_CGA(CGAPaletteType cgaPal)
 {
-	PaletteTablePtr pal(new PaletteTable());
+	auto pal = std::make_unique<Palette>();
 	pal->reserve(4);
 
-	PaletteTablePtr fullPal = createPalette_FullCGA();
+	auto fullPal = createPalette_FullCGA();
 
 	// Use the lower four bits of cgaPal to select the first colour.
-	pal->push_back(fullPal->at(cgaPal & 0x0F));
+	pal->push_back(fullPal->at((int)cgaPal & 0x0F));
 
-#define CALC_PAL(t, f) case CGAPal_ ## t: pal->push_back(fullPal->at(f));
+#define CALC_PAL(t, f) case (int)CGAPaletteType::t: pal->push_back(fullPal->at(f));
 	for (int i = 1; i <= 3; i++) {
-		switch (cgaPal & 0xF0) {
+		switch ((int)cgaPal & 0xF0) {
 			CALC_PAL(GreenRed,               i << 1           ); break;
 			CALC_PAL(GreenRedBright,    8 | (i << 1)          ); break;
 			CALC_PAL(CyanMagenta,           (i << 1) | 1      ); break;
@@ -62,9 +64,9 @@ PaletteTablePtr createPalette_CGA(CGAPaletteType cgaPal)
 	return pal;
 }
 
-PaletteTablePtr createPalette_FullCGA()
+std::unique_ptr<Palette> createPalette_FullCGA()
 {
-	PaletteTablePtr pal(new PaletteTable());
+	auto pal = std::make_unique<Palette>();
 	pal->reserve(16);
 
 	for (int i = 0; i < 16; i++) {
@@ -82,9 +84,9 @@ PaletteTablePtr createPalette_FullCGA()
 	return pal;
 }
 
-PaletteTablePtr createPalette_FullEGA()
+std::unique_ptr<Palette> createPalette_FullEGA()
 {
-	PaletteTablePtr pal(new PaletteTable());
+	auto pal = std::make_unique<Palette>();
 	pal->reserve(64);
 
 	uint8_t low = 0x55;
@@ -101,13 +103,13 @@ PaletteTablePtr createPalette_FullEGA()
 	return pal;
 }
 
-PaletteTablePtr createPalette_DefaultVGA()
+std::unique_ptr<Palette> createPalette_DefaultVGA()
 {
-	PaletteTablePtr pal(new PaletteTable());
+	auto pal = std::make_unique<Palette>();
 	pal->reserve(256);
 
 	// First 16 colours are identical to CGA/EGA
-	PaletteTablePtr temp = createPalette_DefaultEGA();
+	auto temp = createPalette_DefaultEGA();
 	int i = 0;
 	for (; i < 16; i++) {
 		pal->push_back(temp->at(i));

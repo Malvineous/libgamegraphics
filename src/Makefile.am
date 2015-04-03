@@ -122,16 +122,17 @@ EXTRA_libgamegraphics_la_SOURCES += tls-zone66-map.hpp
 
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
 
-AM_CPPFLAGS  = $(BOOST_CPPFLAGS)
-AM_CPPFLAGS += -I $(top_srcdir)/include
+AM_CPPFLAGS  = -I $(top_srcdir)/include
 AM_CPPFLAGS += $(libgamecommon_CPPFLAGS)
+AM_CPPFLAGS += $(libgamearchive_CPPFLAGS)
 AM_CPPFLAGS += $(WARNINGS)
 
 AM_CXXFLAGS  = $(DEBUG_CXXFLAGS)
 AM_CXXFLAGS += $(libgamecommon_CFLAGS)
+AM_CXXFLAGS += $(libgamearchive_CFLAGS)
 
 libgamegraphics_la_LDFLAGS  = $(AM_LDFLAGS)
 libgamegraphics_la_LDFLAGS += -version-info 2:0:0
 
-libgamegraphics_la_LIBADD  = $(BOOST_SYSTEM_LIBS)
-libgamegraphics_la_LIBADD += $(libgamecommon_LIBS)
+libgamegraphics_la_LIBADD  = $(libgamecommon_LIBS)
+libgamegraphics_la_LIBADD += $(libgamearchive_LIBS)

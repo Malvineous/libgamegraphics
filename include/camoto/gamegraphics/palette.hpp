@@ -1,5 +1,5 @@
 /**
- * @file  camoto/gamegraphics/palettetable.hpp
+ * @file  camoto/gamegraphics/palette.hpp
  * @brief Palette functions, for accessing indexed colour maps used by images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_GAMEGRAPHICS_PALETTETABLE_HPP_
-#define _CAMOTO_GAMEGRAPHICS_PALETTETABLE_HPP_
+#ifndef _CAMOTO_GAMEGRAPHICS_PALETTE_HPP_
+#define _CAMOTO_GAMEGRAPHICS_PALETTE_HPP_
 
+#include <cstdint>
+#include <memory>
 #include <vector>
-#include <stdint.h>
-#include <boost/shared_ptr.hpp>
 
 #ifndef DLL_EXPORT
 #define DLL_EXPORT
@@ -32,32 +32,29 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Single entry in a PaletteTable
+/// Single entry in a Palette
 struct PaletteEntry {
-	uint8_t red;     ///< Red value (0-255)
-	uint8_t green;   ///< Green value (0-255)
-	uint8_t blue;    ///< Blue value (0-255)
-	uint8_t alpha;   ///< Alpha value (0-255)
+	std::uint8_t red;     ///< Red value (0-255)
+	std::uint8_t green;   ///< Green value (0-255)
+	std::uint8_t blue;    ///< Blue value (0-255)
+	std::uint8_t alpha;   ///< Alpha value (0-255)
 };
 
 /// Shared pointer to a Palette.
-typedef std::vector<PaletteEntry> PaletteTable;
-
-/// Shared pointer to a Palette.
-typedef boost::shared_ptr<PaletteTable> PaletteTablePtr;
+typedef std::vector<PaletteEntry> Palette;
 
 /// Base palette type.  Lower four bits are background colour.
-enum CGAPaletteType {
-	CGAPal_GreenRed          = 0x00,
-	CGAPal_GreenRedBright    = 0x80,
-	CGAPal_CyanMagenta       = 0x10,
-	CGAPal_CyanMagentaBright = 0x90,
-	CGAPal_CyanRed           = 0x20,
-	CGAPal_CyanRedBright     = 0xA0,
+enum class CGAPaletteType {
+	GreenRed          = 0x00,
+	GreenRedBright    = 0x80,
+	CyanMagenta       = 0x10,
+	CyanMagentaBright = 0x90,
+	CyanRed           = 0x20,
+	CyanRedBright     = 0xA0,
 };
 
 /// Generate a black and white palette.
-PaletteTablePtr DLL_EXPORT createPalette_DefaultMono();
+std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultMono();
 
 /// Generate a CGA palette.
 /**
@@ -68,13 +65,13 @@ PaletteTablePtr DLL_EXPORT createPalette_DefaultMono();
  *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
  *   only needs to be specified when the background colour is not black.
  */
-PaletteTablePtr DLL_EXPORT createPalette_CGA(CGAPaletteType cgaPal);
+std::unique_ptr<Palette> DLL_EXPORT createPalette_CGA(CGAPaletteType cgaPal);
 
 /// Allocate memory for a palette and fill it with CGA defaults.
 /**
  * @return Palette with 16 entries suitable for drawing CGA and EGA images.
  */
-PaletteTablePtr DLL_EXPORT createPalette_FullCGA();
+std::unique_ptr<Palette> DLL_EXPORT createPalette_FullCGA();
 
 /// The default EGA palette is the same as the full CGA one.
 #define createPalette_DefaultEGA createPalette_FullCGA
@@ -84,12 +81,12 @@ PaletteTablePtr DLL_EXPORT createPalette_FullCGA();
  * @return Palette with 64 entries suitable for drawing EGA images that
  *   make use of the EGA palette.
  */
-PaletteTablePtr DLL_EXPORT createPalette_FullEGA();
+std::unique_ptr<Palette> DLL_EXPORT createPalette_FullEGA();
 
 /// Generate the default VGA mode 13 palette.
-PaletteTablePtr DLL_EXPORT createPalette_DefaultVGA();
+std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultVGA();
 
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_GAMEGRAPHICS_PALETTETABLE_HPP_
+#endif // _CAMOTO_GAMEGRAPHICS_PALETTE_HPP_
