@@ -465,10 +465,15 @@ void test_image::test_isinstance_others()
 				this->skipInstDetect.begin(), this->skipInstDetect.end(), otherType
 			) != this->skipInstDetect.end()) continue;
 
-		BOOST_TEST_MESSAGE("Checking " << this->type
+		BOOST_CHECKPOINT("Checking " << this->type
 			<< " content against isInstance() for " << otherType);
 
-		BOOST_CHECK_MESSAGE(pTestType->isInstance(content) < ImageType::DefinitelyYes,
+		// Put this outside the BOOST_CHECK_MESSAGE macro so if an exception is
+		// thrown we can see the above BOOST_CHECKPOINT message telling us which
+		// handler is to blame.
+		auto isInstanceResult = pTestType->isInstance(content);
+
+		BOOST_CHECK_MESSAGE(isInstanceResult < ImageType::DefinitelyYes,
 			"isInstance() for " << otherType << " incorrectly recognises content for "
 			<< this->type);
 	}
