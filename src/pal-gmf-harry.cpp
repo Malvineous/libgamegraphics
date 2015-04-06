@@ -75,6 +75,10 @@ std::vector<std::string> ImageType_Palette_HarryGMF::games() const
 
 ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input& content) const
 {
+	auto len = content.size();
+	// Too short
+	if (len < 0x1D + 768) return DefinitelyNo;
+
 	content.seekg(0, stream::start);
 
 	char sig[0x12];
