@@ -251,6 +251,13 @@ class test_image: public test_main
 		 */
 		Point dimensions;
 
+		/// Image palette.
+		/**
+		 * If present, loaded images are compared to this palette, and newly created
+		 * images are prepopulated with this palette before conversion.
+		 */
+		std::shared_ptr<Palette> palette;
+
 		/// Does this format support metadata?
 		std::map<camoto::Metadata::MetadataType, bool> hasMetadata;
 

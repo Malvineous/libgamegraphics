@@ -332,6 +332,18 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 		"Converting to standard pixel data produced incorrect result"
 	);
 
+	// Check the palette
+	if (this->palette) {
+		BOOST_REQUIRE_MESSAGE(img->caps() & Image::Caps::HasPalette,
+			"Image has palette but doesn't supply HasPalette capability flag");
+		auto palImg = img->palette();
+		BOOST_REQUIRE_EQUAL(palImg->size(), this->palette->size());
+		for (unsigned int i = 0; i < this->palette->size(); i++) {
+			BOOST_REQUIRE_EQUAL(this->palette->at(i).red, palImg->at(i).red);
+			BOOST_REQUIRE_EQUAL(this->palette->at(i).green, palImg->at(i).green);
+			BOOST_REQUIRE_EQUAL(this->palette->at(i).blue, palImg->at(i).blue);
+		}
+	}
 	return;
 }
 
@@ -385,6 +397,11 @@ void test_image::test_sizedContent_create(const Point& dims,
 	auto dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(dims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(dims.y, dimsReported.y);
+
+	BOOST_TEST_CHECKPOINT("Set palette");
+	if (img->caps() & Image::Caps::SetPalette) {
+		img->palette(this->palette);
+	}
 
 	BOOST_TEST_CHECKPOINT("Create mask data");
 	Pixels maskData;
