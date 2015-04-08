@@ -235,7 +235,7 @@ std::unique_ptr<Image> Tileset_CComic2::openImage(FileHandle& id)
 		PlanePurpose::Unused,
 	};
 
-	return std::make_unique<Image_EGAPlanar>(
+	return std::make_unique<Image_EGA_Planar>(
 		this->open(id, true), 0, this->dimensions(), planes, this->palette()
 	);
 }

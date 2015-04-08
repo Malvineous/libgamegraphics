@@ -22,6 +22,7 @@
 #include <iostream>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp> // make_unique
+#include "img-ega-planar.hpp"
 #include "img-nukem2.hpp"
 
 /// Width of image, in pixels
@@ -37,20 +38,17 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Duke Nukem II full-screen Image implementation.
-class Image_Nukem2: virtual public Image_EGAPlanar
+class Image_Nukem2: public Image_EGA_Planar
 {
 	public:
 		Image_Nukem2(std::unique_ptr<stream::inout> content);
 		virtual ~Image_Nukem2();
 
-		virtual Image::Caps caps() const;
+		virtual Caps caps() const;
 		virtual void convert(const Pixels& newContent,
 			const Pixels& newMask);
 		virtual void palette(std::shared_ptr<const Palette> newPalette);
-		using Image_EGAPlanar::palette;
-
-	protected:
-		std::shared_ptr<Palette> vgaPal;       ///< Palette
+		using Image_EGA::palette;
 };
 
 ImageType_Nukem2::ImageType_Nukem2()
@@ -85,7 +83,8 @@ std::vector<std::string> ImageType_Nukem2::games() const
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_Nukem2::isInstance(stream::input& content) const
+ImageType::Certainty ImageType_Nukem2::isInstance(
+	stream::input& content) const
 {
 	// Files are a fixed size.
 	// TESTED BY: img_nukem2_isinstance_c01
@@ -132,7 +131,7 @@ SuppFilenames ImageType_Nukem2::getRequiredSupps(
 
 
 Image_Nukem2::Image_Nukem2(std::unique_ptr<stream::inout> content)
-	:	Image_EGAPlanar(
+	:	Image_EGA_Planar(
 			std::move(content),
 			0,
 			Point{N2IMG_WIDTH, N2IMG_HEIGHT},
@@ -191,7 +190,7 @@ Image::Caps Image_Nukem2::caps() const
 void Image_Nukem2::convert(const Pixels& newContent,
 	const Pixels& newMask)
 {
-	this->Image_EGAPlanar::convert(newContent, newMask);
+	this->Image_EGA_Planar::convert(newContent, newMask);
 
 	auto vgaPal = this->palette();
 	if (!vgaPal) vgaPal = createPalette_DefaultEGA();
@@ -215,7 +214,7 @@ void Image_Nukem2::convert(const Pixels& newContent,
 
 void Image_Nukem2::palette(std::shared_ptr<const Palette> newPalette)
 {
-	if (newPalette->size() > 16) {
+	if (newPalette && (newPalette->size() > 16)) {
 		throw stream::error("Duke Nukem II full-screen images can only support 16 "
 			"or fewer colours.");
 	}

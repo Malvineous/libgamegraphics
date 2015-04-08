@@ -143,7 +143,7 @@ std::unique_ptr<Image> ImageType_CComic::open(
 		PlanePurpose::Unused,
 	};
 
-	return std::make_unique<Image_EGAPlanar>(
+	return std::make_unique<Image_EGA_Planar>(
 		std::move(content_filtered), 0, Point{CCIMG_WIDTH, CCIMG_HEIGHT}, planes,
 		nullptr
 	);

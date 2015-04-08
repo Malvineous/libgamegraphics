@@ -22,7 +22,6 @@
 #define _CAMOTO_IMG_NUKEM2_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-ega-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -38,12 +37,13 @@ class ImageType_Nukem2: virtual public ImageType
 		virtual std::string friendlyName() const;
 		virtual std::vector<std::string> fileExtensions() const;
 		virtual std::vector<std::string> games() const;
-		virtual Certainty isInstance(stream::input& fsImage) const;
-		virtual std::unique_ptr<Image> create(std::unique_ptr<stream::inout> content,
-			SuppData& suppData) const;
-		virtual std::unique_ptr<Image> open(std::unique_ptr<stream::inout> fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics

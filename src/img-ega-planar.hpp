@@ -1,6 +1,6 @@
 /**
  * @file  img-ega-planar.hpp
- * @brief Image implementation adding support for the EGA byte-planar format.
+ * @brief Image implementation adding support for the EGA planar format.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -22,7 +22,7 @@
 #define _CAMOTO_IMG_EGA_PLANAR_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-ega-common.hpp"
+#include "img-ega.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -37,51 +37,39 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class Image_EGAPlanar: virtual public Image_Base
+class Image_EGA_Planar: public Image_EGA
 {
-	protected:
-		stream::inout_sptr data;
-		stream::pos offset;
-		int width, height;
-		PLANE_LAYOUT planes;
-
 	public:
-		Image_EGAPlanar();
-		virtual ~Image_EGAPlanar();
+		Image_EGA_Planar(std::unique_ptr<stream::inout> content,
+			stream::pos offset, Point dimensions, EGAPlaneLayout planes,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_EGA_Planar();
 
-		/// These could be set in the constructor, but often descendent classes
-		/// won't have these values until the end of their constructors.
-		virtual void setParams(stream::inout_sptr data,
-			stream::pos offset, int width, int height,
-			const PLANE_LAYOUT& planes);
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		StdImageDataPtr doConversion(bool mask);
+		/// Populate this->pixels and this->mask
+		virtual void doConversion();
+
+		stream::pos offset;
 };
 
 /// Filetype handler for full screen raw EGA images.
-class ImageType_EGARawPlanarBGRI: virtual public ImageType
+class ImageType_EGA_RawPlanarBGRI: virtual public ImageType
 {
 	public:
-		ImageType_EGARawPlanarBGRI();
-		virtual ~ImageType_EGARawPlanarBGRI();
+		ImageType_EGA_RawPlanarBGRI();
+		virtual ~ImageType_EGA_RawPlanarBGRI();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
 			const;
 };
