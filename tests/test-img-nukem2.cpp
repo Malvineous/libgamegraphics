@@ -28,6 +28,24 @@ class test_img_nukem2: public test_image
 			this->type = "img-nukem2";
 			this->hasMask = false;
 			this->hasHitmask = false;
+
+			this->palette = std::make_shared<Palette>();
+			this->palette->push_back({  0,   0,   0});
+			this->palette->push_back({ 32,  32,  32});
+			this->palette->push_back({ 65,  65,  65});
+			this->palette->push_back({ 97,  97,  97});
+			this->palette->push_back({130, 130, 130});
+			this->palette->push_back({162, 162, 162});
+			this->palette->push_back({195, 195, 195});
+			this->palette->push_back({227, 227, 227});
+			this->palette->push_back({255, 255, 255});
+			this->palette->push_back({  0,   0, 255});
+			this->palette->push_back({  0, 255,   0});
+			this->palette->push_back({  0, 255, 255});
+			this->palette->push_back({255,   0,   0});
+			this->palette->push_back({255,   0, 255});
+			this->palette->push_back({255, 255,   0});
+			this->palette->push_back({255, 255, 255});
 		}
 
 		void addTests()
@@ -97,23 +115,24 @@ class test_img_nukem2: public test_image
 			content += std::string(38, '\xFF');
 			content += '\xFF';
 
-			// Add palette
+			// Add palette, make it different to the default ones so we can detect
+			// if we end up with one of those by accident.
 			content += STRING_WITH_NULLS(
 				"\x00\x00\x00"
-				"\x00\x00\x2A"
-				"\x00\x2A\x00"
-				"\x00\x2A\x2A"
-				"\x2A\x00\x00"
-				"\x2A\x00\x2A"
-				"\x2A\x15\x00"
-				"\x2A\x2A\x2A"
-				"\x15\x15\x15"
-				"\x15\x15\x3F"
-				"\x15\x3F\x15"
-				"\x15\x3F\x3F"
-				"\x3F\x15\x15"
-				"\x3F\x15\x3F"
-				"\x3F\x3F\x15"
+				"\x08\x08\x08"
+				"\x10\x10\x10"
+				"\x18\x18\x18"
+				"\x20\x20\x20"
+				"\x28\x28\x28"
+				"\x30\x30\x30"
+				"\x38\x38\x38"
+				"\x3F\x3F\x3F"
+				"\x00\x00\x3F"
+				"\x00\x3F\x00"
+				"\x00\x3F\x3F"
+				"\x3F\x00\x00"
+				"\x3F\x00\x3F"
+				"\x3F\x3F\x00"
 				"\x3F\x3F\x3F"
 			);
 			return content;

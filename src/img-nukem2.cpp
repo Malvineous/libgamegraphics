@@ -23,6 +23,7 @@
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp> // make_unique
 #include "img-ega-planar.hpp"
+#include "pal-vga-raw.hpp"
 #include "img-nukem2.hpp"
 
 /// Width of image, in pixels
@@ -147,35 +148,29 @@ Image_Nukem2::Image_Nukem2(std::unique_ptr<stream::inout> content)
 		)
 {
 	// Load palette
+	auto vgaPal = createPalette_DefaultEGA();
 	try {
-		auto vgaPal = std::make_shared<Palette>();
-		vgaPal->reserve(16);
-		uint8_t buf[N2IMG_PALSIZE];
-		memset(buf, 0, sizeof(buf));
 		this->content->seekg(N2IMG_WIDTH * N2IMG_HEIGHT / 2, stream::start);
-		this->content->read(buf, sizeof(buf));
 		// If the palette data is cut off (short read) the rest of the entries will
-		// be black.
-		int i = 0;
-		while (i < N2IMG_PALSIZE) {
+		// be default EGA.
+		for (unsigned int i = 0; i < 16; i++) {
 			PaletteEntry p;
-			if (buf[i] >= 0x40) buf[i] = 0x3F;
-			p.red   = (buf[i] << 2) | (buf[i] >> 4);
-			i++;
-			if (buf[i] >= 0x40) buf[i] = 0x3F;
-			p.green = (buf[i] << 2) | (buf[i] >> 4);
-			i++;
-			if (buf[i] >= 0x40) buf[i] = 0x3F;
-			p.blue  = (buf[i] << 2) | (buf[i] >> 4);
-			i++;
+			*this->content
+				>> u8(p.red)
+				>> u8(p.green)
+				>> u8(p.blue)
+			;
+			p.red = pal_6to8(std::min<uint8_t>(p.red, 0x3F));
+			p.green = pal_6to8(std::min<uint8_t>(p.green, 0x3F));
+			p.blue = pal_6to8(std::min<uint8_t>(p.blue, 0x3F));
 			p.alpha = 255;
-			vgaPal->push_back(p);
+			(*vgaPal)[i] = p;
 		}
-		this->palette(vgaPal);
 	} catch (...) {
-		std::cerr << "[img-nukem2] I/O error reading palette, leaving as default\n";
-		this->palette(createPalette_DefaultEGA());
+		std::cerr << "[img-nukem2] I/O error reading palette, leaving as "
+			"partially overridden default\n";
 	}
+	this->palette(std::move(vgaPal));
 }
 
 Image_Nukem2::~Image_Nukem2()
@@ -201,9 +196,9 @@ void Image_Nukem2::convert(const Pixels& newContent,
 	memset(buf, 0, sizeof(buf));
 	int i = 0;
 	for (auto& p : *vgaPal) {
-		buf[i++] = p.red >> 2;
-		buf[i++] = p.green >> 2;
-		buf[i++] = p.blue >> 2;
+		buf[i++] = pal_8to6(p.red);
+		buf[i++] = pal_8to6(p.green);
+		buf[i++] = pal_8to6(p.blue);
 	}
 
 	this->content->truncate(N2IMG_WIDTH * N2IMG_HEIGHT / 2 + N2IMG_PALSIZE);
