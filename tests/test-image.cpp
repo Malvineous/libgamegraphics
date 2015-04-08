@@ -88,8 +88,10 @@ Pixels createMaskData(const Point& dims, bool hit)
 
 	// Write 0x02 across second row if hitmask is enabled, on both transparent
 	// and opaque pixels.
-	for (unsigned int x = 0; x < dims.x; x++) {
-		content[dims.x + x] |= '\x02';
+	if (hit) {
+		for (unsigned int x = 0; x < dims.x; x++) {
+			content[dims.x + x] |= '\x02';
+		}
 	}
 	return content;
 }
