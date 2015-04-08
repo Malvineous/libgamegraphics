@@ -26,249 +26,148 @@
 namespace camoto {
 namespace gamegraphics {
 
-Image_EGARowPlanar::Image_EGARowPlanar()
+Image_EGA_RowPlanar::Image_EGA_RowPlanar(std::unique_ptr<stream::inout> content,
+	stream::pos offset, Point dimensions, EGAPlaneLayout planes,
+	std::shared_ptr<const Palette> pal)
+	:	Image_EGA(std::move(content), dimensions, planes, pal),
+		offset(offset)
 {
 }
 
-Image_EGARowPlanar::~Image_EGARowPlanar()
+Image_EGA_RowPlanar::~Image_EGA_RowPlanar()
 {
 }
 
-void Image_EGARowPlanar::setParams(stream::inout_sptr data,
-	stream::pos offset, int width, int height, const PLANE_LAYOUT& planes
-)
+void Image_EGA_RowPlanar::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
-	this->data = data;
-	this->offset = offset;
-	this->width = width;
-	this->height = height;
-	memcpy(this->planes, planes, sizeof(PLANE_LAYOUT));
-	return;
-}
+	this->content->seekp(this->offset, stream::start);
+	auto dims = this->dimensions();
 
-int Image_EGARowPlanar::getCaps()
-{
-	return ColourDepthEGA;
-}
+	// For each pixel, set the appropriate bits in the cell
+	for (unsigned int y = 0; y < dims.y; y++) {
 
-void Image_EGARowPlanar::getDimensions(unsigned int *width, unsigned int *height)
-{
-	*width = this->width;
-	*height = this->height;
-	return;
-}
+		for (auto p : this->planes) {
+			if (p == EGAPlanePurpose::Unused) break;;
 
-void Image_EGARowPlanar::setDimensions(unsigned int width, unsigned int height)
-{
-	assert(this->getCaps() & Image::CanSetDimensions);
-
-	this->width = width;
-	this->height = height;
-
-	int numPlanes = 0;
-	for (int p = 0; p < PLANE_MAX; p++) {
-		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes++;
-	}
-
-	// TODO: Confirm this is correct
-	this->data->truncate((this->width + 7) / 8 * this->height * numPlanes);
-	return;
-}
-
-StdImageDataPtr Image_EGARowPlanar::toStandard()
-{
-	return this->doConversion(false);
-}
-
-StdImageDataPtr Image_EGARowPlanar::toStandardMask()
-{
-	return this->doConversion(true);
-}
-
-void Image_EGARowPlanar::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
-{
-	// Sort out all the values we need to output for each plane
-	int numPlanes = 0;
-	int planeValue[PLANE_MAX];
-	bool planeMask[PLANE_MAX]; // true == use newMask, false == use newContent
-	bool planeSwap[PLANE_MAX]; // true == invert bits, false == leave alone
-	memset(planeValue, 0, PLANE_MAX);
-	for (int p = 0; p < PLANE_MAX; p++) {
-		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes++; else continue;
-
-		// Handle negative values
-		int order;
-		bool swap;
-		if (this->planes[p] < 0) {
-			swap = true;
-			order = -this->planes[p];
-		} else {
-			swap = false;
-			order = this->planes[p];
-		}
-		order--;
-
-		// Sanity check
-		assert(order < PLANE_MAX);
-
-		// Figure out which bit this plane should set in the 8bpp output data
-		int value;
-		bool mask;
-		switch (p) {
-			case PLANE_BLUE:      mask = false; value = 0x01; break;
-			case PLANE_GREEN:     mask = false; value = 0x02; break;
-			case PLANE_RED:       mask = false; value = 0x04; break;
-			case PLANE_INTENSITY: mask = false; value = 0x08; break;
-
-			case PLANE_OPACITY:   mask = true;  value = 0x01; break;
-			case PLANE_HITMAP:    mask = true;  value = 0x02; break;
-
-			default:              value = 0x00; break;
-		}
-		planeMask[order] = mask;
-		planeSwap[order] = swap;
-		planeValue[order] = value;
-	}
-
-	this->data->seekp(this->offset, stream::start);
-	uint8_t *imgData = (uint8_t *)newContent.get();
-	uint8_t *maskData = (uint8_t *)newMask.get();
-	uint8_t *rowData;
-	for (int y = 0; y < this->height; y++) {
-
-		// For each pixel, set the appropriate bits in the cell
-		for (int p = 0; p < numPlanes; p++) {
+			auto imgData = &newContent[y * dims.x];
+			auto maskData = &newMask[y * dims.x];
 
 			// Run through each lot of eight pixels (a "cell")
-			for (int x = 0; x < (this->width + 7) / 8; x++) {
+			for (unsigned int x = 0; x < dims.x; x += 8) {
 
-				uint8_t c = 0;
+				bool doMask, swap;
+				uint8_t value;
+				switch (p) {
+					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
+					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
+					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
+					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
+					case EGAPlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
+					case EGAPlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
+					case EGAPlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
+					case EGAPlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
+					case EGAPlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
+					case EGAPlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
+					case EGAPlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
+					case EGAPlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
+					case EGAPlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
+				}
 
 				// Work out if this plane will read from the input image or mask data.
-				if (planeMask[p]) rowData = maskData;
-				else rowData = imgData;
+				auto rowData = doMask ? maskData : imgData;
 
 				// See how many bits we should run through.  This is only used
 				// when the image is not an even multiple of 8.
-				int bits = 8;
-				if (x * 8 + 8 > this->width) bits = this->width % 8;
+				unsigned int bits = 8;
+				if (x + 8 > dims.x) bits = dims.x % 8;
 
 				// Run through each pixel in the group
-				for (int b = 0; b < bits; b++) {
-					if (rowData[x * 8 + b] & planeValue[p]) {
+				uint8_t c = 0;
+				for (unsigned int b = 0; b < bits; b++) {
+					bool on = rowData[b] & value;
+					if ((on && !swap) || (!on && swap)) {
 						// The pixel is on in this plane
 						c |= 0x80 >> b;
 					} // else the pixel is off in this plane
 				}
-				// If the plane index was negative, the bits need to be inverted.  If
-				// we invert the whole number (c = ~c, or c ^= 0xff) then we could
-				// invert too many bits (e.g. all eight bits will be inverted when an
-				// image might only be four pixels wide.)  By XORing the value below,
-				// only the bits used by the image will be flipped, with the unused
-				// bits remaining as zero.
-				if (planeSwap[p]) c ^= ~((1 << (8-bits)) - 1);
 
-				this->data << u8(c);
+				*this->content << u8(c);
+
+				imgData += 8;
+				maskData += 8;
 			}
 		}
-		imgData += this->width;
-		maskData += this->width;
 	}
-
+	this->content->truncate_here();
+	this->content->flush();
 	return;
 }
 
-StdImageDataPtr Image_EGARowPlanar::doConversion(bool mask)
+void Image_EGA_RowPlanar::doConversion()
 {
-	// Sort out all the values we need to output for each plane
-	int numPlanes = 0;
-	int planeValue[PLANE_MAX], notPlaneValue[PLANE_MAX];
-	memset(planeValue, 0, PLANE_MAX);
-	memset(notPlaneValue, 0, PLANE_MAX);
-	for (int p = 0; p < PLANE_MAX; p++) {
-		// Count the plane if its order is nonzero, otherwise ignore it
-		if (this->planes[p]) numPlanes++; else continue;
+	this->content->seekg(this->offset, stream::start);
 
-		// Handle negative values
-		int order;
-		bool swap;
-		if (this->planes[p] < 0) {
-			swap = true;
-			order = -this->planes[p];
-		} else {
-			swap = false;
-			order = this->planes[p];
-		}
-		order--;
+	auto dims = this->dimensions();
+	this->pixels = Pixels(dims.x * dims.y, '\x00');
+	this->mask = Pixels(dims.x * dims.y, '\x00');
 
-		// Sanity check
-		assert(order < PLANE_MAX);
+	for (unsigned int y = 0; y < dims.y; y++) {
 
-		// Figure out which bit this plane should set in the 8bpp output data
-		int value;
-		if (mask) {
-			switch (p) {
-				case PLANE_OPACITY:   value = 0x01; break;
-				case PLANE_HITMAP:    value = 0x02; break;
-				default:              value = 0x00; break;
-			}
-		} else {
-			switch (p) {
-				case PLANE_BLUE:      value = 0x01; break;
-				case PLANE_GREEN:     value = 0x02; break;
-				case PLANE_RED:       value = 0x04; break;
-				case PLANE_INTENSITY: value = 0x08; break;
-				default:              value = 0x00; break;
-			}
-		}
-		if (swap) {
-			planeValue[order] = 0;
-			notPlaneValue[order] = value;
-		} else {
-			planeValue[order] = value;
-			notPlaneValue[order] = 0;
-		}
-	}
+		for (auto p : this->planes) {
+			if (p == EGAPlanePurpose::Unused) break;
 
-	int imgSizeBytes = (this->width * 8) * this->height;
-	uint8_t *rowData = new uint8_t[imgSizeBytes];
-	StdImageDataPtr ret(rowData);
-	memset(rowData, 0, imgSizeBytes);
-	this->data->seekg(this->offset, stream::start);
+			auto imgData = &this->pixels[y * dims.x];
+			auto maskData = &this->mask[y * dims.x];
 
-	for (int y = 0; y < this->height; y++) {
-		for (int p = 0; p < numPlanes; p++) {
-			// Run through each lot of eight pixels (a "cell")
-			// Adding 7 means a width that's not an even multiple of eight will
-			// effectively be rounded up to the next byte - so an eight pixel wide
-			// image will use one byte (8 + 7 = 15, 15 / 8 == 1) but a nine pixel
-			// wide image will use two bytes (9 + 7 = 16, 16 / 8 == 2).
-			for (int x = 0; x < (this->width + 7) / 8; x++) {
+			// Run through each lot of eight pixels (a "cell"), including a partial
+			// cell at the end if the width isn't a multiple of 8.
+			for (unsigned int x = 0; x < dims.x; x += 8) {
+				bool doMask, swap;
+				uint8_t value;
+				switch (p) {
+					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
+					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
+					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
+					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
+					case EGAPlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
+					case EGAPlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
+					case EGAPlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
+					case EGAPlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
+					case EGAPlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
+					case EGAPlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
+					case EGAPlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
+					case EGAPlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
+					case EGAPlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
+				}
+
 				uint8_t nextByte;
-				this->data >> u8(nextByte);
+				try {
+					*this->content >> u8(nextByte);
+				} catch (const stream::incomplete_read&) {
+					std::cerr << "ERROR: Incomplete read converting image to standard "
+						"format.  Returning partial conversion." << std::endl;
+					return;
+				}
 
-				// Don't waste time processing a plane we're ignoring
-				if (!(planeValue[p] || notPlaneValue[p])) continue;
-
-				// See how many bits we should run through.  This is only used
-				// when the image is not an even multiple of 8.
-				int bits = 8;
-				if (x * 8 + 8 > this->width) bits = this->width % 8;
+				// See which bit we should read down to (starting at 7.)  This is only
+				// used when the image is not an even multiple of 8.
+				int bits = 0;
+				if (x + 8 > dims.x) bits = 8 - (dims.x % 8);
 
 				// Run through all the (valid) bits in this byte
-				for (int b = 0; b < bits; b++) {
-					rowData[x * 8 + b] |=
-					(nextByte & (0x80 >> b)) ? planeValue[p] : notPlaneValue[p];
+				auto rowData = doMask ? maskData : imgData;
+				for (int b = 7; b >= bits; b--) {
+					*rowData++ |= (((nextByte >> b) & 1) ^ swap) ? value : 0x00;
 				}
+				imgData += 8;
+				maskData += 8;
 			}
 		}
-		rowData += this->width;
 	}
-	return ret;
+	return;
 }
 
 } // namespace gamegraphics

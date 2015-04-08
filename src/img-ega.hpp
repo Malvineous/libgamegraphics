@@ -38,7 +38,8 @@ namespace gamegraphics {
  * Usually the bits are 1 (so Red1, Green1, etc.) will be used.
  */
 enum class EGAPlanePurpose {
-	Unused,     ///< This plane is not present or is unused
+	Unused = 0,     ///< This entry in the vector is not present, pad the vector with this
+	Blank,      ///< This plane is empty - skip over on read, and write zeroes
 	Blue0,      ///< Bits: 0=blue on, 1=blue off
 	Blue1,      ///< Bits: 1=blue on, 0=blue off
 	Green0,     ///< Bits: 0=green on, 1=green off
@@ -53,7 +54,7 @@ enum class EGAPlanePurpose {
 	Opaque1,    ///< Bits: 1=opaque, 0=transparent
 };
 
-typedef std::array<EGAPlanePurpose, 6> EGAPlaneLayout;
+typedef std::array<EGAPlanePurpose, 8> EGAPlaneLayout;
 
 enum class PlaneCount
 {
@@ -89,14 +90,12 @@ class Image_EGA: public Image
 		/// Populate this->pixels and this->mask
 		virtual void doConversion() = 0;
 
-		std::unique_ptr<stream::inout> content;
+		std::shared_ptr<stream::inout> content;
+		Point dims;
 		EGAPlaneLayout planes;
 
 		Pixels pixels;
 		Pixels mask;
-
-	private:
-		Point dims;
 };
 
 } // namespace gamegraphics

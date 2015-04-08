@@ -49,7 +49,7 @@ class Image_EGA_BytePlanar: virtual public Image_EGA
 		/// Populate this->pixels and this->mask
 		virtual void doConversion();
 
-		stream::pos offset;
+		stream::pos offset;   ///< Offset of image data from start of stream
 };
 
 } // namespace gamegraphics

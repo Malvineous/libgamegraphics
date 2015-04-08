@@ -101,7 +101,7 @@ class test_img_ega_byteplanar: public test_image
 				EGAPlanePurpose::Green1,
 				EGAPlanePurpose::Red1,
 				EGAPlanePurpose::Intensity1,
-				EGAPlanePurpose::Hit1
+				EGAPlanePurpose::Hit1,
 			};
 
 			return std::make_unique<Image_EGA_BytePlanar>(

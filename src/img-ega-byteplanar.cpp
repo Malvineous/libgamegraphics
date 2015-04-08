@@ -41,7 +41,7 @@ Image_EGA_BytePlanar::~Image_EGA_BytePlanar()
 void Image_EGA_BytePlanar::convert(const Pixels& newContent,
 	const Pixels& newMask)
 {
-	this->content->seekp(0, stream::start);
+	this->content->seekp(this->offset, stream::start);
 	auto dims = this->dimensions();
 
 	auto imgData = &newContent[0];
@@ -54,16 +54,13 @@ void Image_EGA_BytePlanar::convert(const Pixels& newContent,
 		for (unsigned int x = 0; x < dims.x; x += 8) {
 
 			for (auto p : this->planes) {
-
-				// NOTE: This will keep going after the unused plane when technically
-				// we should be inserting some blank data or something.  Maybe will
-				// implement it if it ever becomes necessary.
-				if (p == EGAPlanePurpose::Unused) continue;
+				if (p == EGAPlanePurpose::Unused) break;
 
 				bool doMask, swap;
 				uint8_t value;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
 					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
 					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
 					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
@@ -111,14 +108,12 @@ void Image_EGA_BytePlanar::convert(const Pixels& newContent,
 
 void Image_EGA_BytePlanar::doConversion()
 {
-	this->content->seekg(0, stream::start);
+	this->content->seekg(this->offset, stream::start);
 
 	auto dims = this->dimensions();
 	this->pixels = Pixels(dims.x * dims.y, '\x00');
 	this->mask = Pixels(dims.x * dims.y, '\x00');
 
-	unsigned int planeSizeBytes = dims.y * ((dims.x + 7) / 8);
-	stream::len lenSkip = 0;
 	auto imgData = &this->pixels[0];
 	auto maskData = &this->mask[0];
 	for (unsigned int y = 0; y < dims.y; y++) {
@@ -127,23 +122,13 @@ void Image_EGA_BytePlanar::doConversion()
 		for (unsigned int x = 0; x < dims.x; x += 8) {
 
 			for (auto p : this->planes) {
-				if (p == EGAPlanePurpose::Unused) {
-					// Don't waste time processing a plane we're ignoring
-					lenSkip += planeSizeBytes;
-					// Don't do the skip here in case the unused planes are all at the end
-					// and we will end up seeking past EOF
-					continue;
-				}
-				if (lenSkip) {
-					// We're processing this plane and it's following one or more ignored
-					// planes, so now do the seek.
-					this->content->seekg(lenSkip, stream::cur);
-				}
+				if (p == EGAPlanePurpose::Unused) break;
 
 				bool doMask, swap;
 				uint8_t value;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
 					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
 					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
 					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;

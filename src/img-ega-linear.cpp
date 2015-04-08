@@ -43,7 +43,6 @@ void Image_EGA_Linear::convert(const Pixels& newContent,
 
 	auto dims = this->dimensions();
 
-	stream::len lenSkip = 0;
 	auto imgData = &newContent[0];
 	auto maskData = &newMask[0];
 	for (unsigned int y = 0; y < dims.y; y++) {
@@ -58,7 +57,7 @@ void Image_EGA_Linear::convert(const Pixels& newContent,
 				uint8_t value;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
-					case EGAPlanePurpose::Blank:  continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
 					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
 					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
 					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
@@ -114,7 +113,7 @@ void Image_EGA_Linear::doConversion()
 				uint8_t value;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
-					case EGAPlanePurpose::Blank:  continue;
+					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
 					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
 					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
 					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
