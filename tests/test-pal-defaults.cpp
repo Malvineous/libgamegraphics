@@ -21,7 +21,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 
-#include <camoto/gamegraphics/palettetable.hpp>
+#include <camoto/gamegraphics/palette.hpp>
 
 #include "tests.hpp"
 
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(pal_full_cga)
 {
 	BOOST_TEST_MESSAGE("Generate full CGA palette");
 
- PaletteTablePtr pal = createPalette_FullCGA();
+	auto pal = createPalette_FullCGA();
 
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0x00, 0xAA);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(pal_full_ega)
 {
 	BOOST_TEST_MESSAGE("Generate full EGA palette");
 
-	PaletteTablePtr pal = createPalette_FullEGA();
+	auto pal = createPalette_FullEGA();
 
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0x00, 0xAA);
@@ -67,52 +67,50 @@ BOOST_AUTO_TEST_CASE(pal_default_cga)
 {
 	BOOST_TEST_MESSAGE("Generate CGA palettes");
 
-	PaletteTablePtr pal;
-
-	pal = createPalette_CGA(CGAPal_GreenRed);
+	auto pal = createPalette_CGA(CGAPaletteType::GreenRed);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0xAA, 0x00);
 	REQUIRE_PAL( 2, 0xAA, 0x00, 0x00);
 	REQUIRE_PAL( 3, 0xAA, 0x55, 0x00);
 
-	pal = createPalette_CGA(CGAPal_GreenRedBright);
+	pal = createPalette_CGA(CGAPaletteType::GreenRedBright);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x55, 0xFF, 0x55);
 	REQUIRE_PAL( 2, 0xFF, 0x55, 0x55);
 	REQUIRE_PAL( 3, 0xFF, 0xFF, 0x55);
 
-	pal = createPalette_CGA(CGAPal_CyanMagenta);
+	pal = createPalette_CGA(CGAPaletteType::CyanMagenta);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0xAA, 0xAA);
 	REQUIRE_PAL( 2, 0xAA, 0x00, 0xAA);
 	REQUIRE_PAL( 3, 0xAA, 0xAA, 0xAA);
 
-	pal = createPalette_CGA(CGAPal_CyanMagentaBright);
+	pal = createPalette_CGA(CGAPaletteType::CyanMagentaBright);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x55, 0xFF, 0xFF);
 	REQUIRE_PAL( 2, 0xFF, 0x55, 0xFF);
 	REQUIRE_PAL( 3, 0xFF, 0xFF, 0xFF);
 
-	pal = createPalette_CGA(CGAPal_CyanRed);
+	pal = createPalette_CGA(CGAPaletteType::CyanRed);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0xAA, 0xAA);
 	REQUIRE_PAL( 2, 0xAA, 0x00, 0x00);
 	REQUIRE_PAL( 3, 0xAA, 0xAA, 0xAA);
 
-	pal = createPalette_CGA(CGAPal_CyanRedBright);
+	pal = createPalette_CGA(CGAPaletteType::CyanRedBright);
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x55, 0xFF, 0xFF);
 	REQUIRE_PAL( 2, 0xFF, 0x55, 0x55);
 	REQUIRE_PAL( 3, 0xFF, 0xFF, 0xFF);
 
 	// Try different background colours
-	pal = createPalette_CGA((CGAPaletteType)(CGAPal_GreenRed | 12));
+	pal = createPalette_CGA((CGAPaletteType)((int)CGAPaletteType::GreenRed | 12));
 	REQUIRE_PAL( 0, 0xFF, 0x55, 0x55);
 	REQUIRE_PAL( 1, 0x00, 0xAA, 0x00);
 	REQUIRE_PAL( 2, 0xAA, 0x00, 0x00);
 	REQUIRE_PAL( 3, 0xAA, 0x55, 0x00);
 
-	pal = createPalette_CGA((CGAPaletteType)(CGAPal_GreenRedBright | 9));
+	pal = createPalette_CGA((CGAPaletteType)((int)CGAPaletteType::GreenRedBright | 9));
 	REQUIRE_PAL( 0, 0x55, 0x55, 0xFF);
 	REQUIRE_PAL( 1, 0x55, 0xFF, 0x55);
 	REQUIRE_PAL( 2, 0xFF, 0x55, 0x55);
@@ -123,7 +121,7 @@ BOOST_AUTO_TEST_CASE(pal_default_ega)
 {
 	BOOST_TEST_MESSAGE("Generate default EGA palette");
 
-	PaletteTablePtr pal = createPalette_DefaultEGA();
+	auto pal = createPalette_DefaultEGA();
 
 	REQUIRE_PAL( 0, 0x00, 0x00, 0x00);
 	REQUIRE_PAL( 1, 0x00, 0x00, 0xAA);
@@ -147,12 +145,12 @@ BOOST_AUTO_TEST_CASE(pal_default_vga)
 {
 	BOOST_TEST_MESSAGE("Generate default VGA palette");
 
-	PaletteTablePtr pal = createPalette_DefaultVGA();
+	auto pal = createPalette_DefaultVGA();
 
 #define VGA_PAL(i, vr, vg, vb) REQUIRE_PAL(i, \
-	(vr << 2) | (vr >> 2), \
-	(vg << 2) | (vg >> 2), \
-	(vb << 2) | (vb >> 2))
+	pal_6to8(vr), \
+	pal_6to8(vg), \
+	pal_6to8(vb))
 
 	VGA_PAL(  0, 0x00, 0x00, 0x00);
 	VGA_PAL(  1, 0x00, 0x00, 0x2A);

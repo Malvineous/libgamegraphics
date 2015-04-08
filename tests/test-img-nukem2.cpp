@@ -28,32 +28,32 @@ class test_img_nukem2: public test_image
 			this->type = "img-nukem2";
 			this->hasMask = false;
 			this->hasHitmask = false;
-
-			this->palette = std::make_shared<Palette>();
-			this->palette->push_back({  0,   0,   0});
-			this->palette->push_back({ 32,  32,  32});
-			this->palette->push_back({ 65,  65,  65});
-			this->palette->push_back({ 97,  97,  97});
-			this->palette->push_back({130, 130, 130});
-			this->palette->push_back({162, 162, 162});
-			this->palette->push_back({195, 195, 195});
-			this->palette->push_back({227, 227, 227});
-			this->palette->push_back({255, 255, 255});
-			this->palette->push_back({  0,   0, 255});
-			this->palette->push_back({  0, 255,   0});
-			this->palette->push_back({  0, 255, 255});
-			this->palette->push_back({255,   0,   0});
-			this->palette->push_back({255,   0, 255});
-			this->palette->push_back({255, 255,   0});
-			this->palette->push_back({255, 255, 255});
 		}
 
 		void addTests()
 		{
 			this->test_image::addTests();
 
+			auto palette = std::make_shared<Palette>();
+			palette->push_back({  0,   0,   0});
+			palette->push_back({ 32,  32,  32});
+			palette->push_back({ 65,  65,  65});
+			palette->push_back({ 97,  97,  97});
+			palette->push_back({130, 130, 130});
+			palette->push_back({162, 162, 162});
+			palette->push_back({195, 195, 195});
+			palette->push_back({227, 227, 227});
+			palette->push_back({255, 255, 255});
+			palette->push_back({  0,   0, 255});
+			palette->push_back({  0, 255,   0});
+			palette->push_back({  0, 255, 255});
+			palette->push_back({255,   0,   0});
+			palette->push_back({255,   0, 255});
+			palette->push_back({255, 255,   0});
+			palette->push_back({255, 255, 255});
+
 			this->sizedContent({320, 200}, ImageType::DefinitelyYes,
-				this->initialstate());
+				this->initialstate(), palette);
 
 			// c00: Initial state
 			this->isInstance(ImageType::DefinitelyYes, this->initialstate());

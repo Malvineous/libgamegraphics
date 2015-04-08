@@ -1,6 +1,6 @@
 /**
  * @file   test-pal-vga-raw.cpp
- * @brief  Test code for reading raw VGA palette files.
+ * @brief  Test code for reading raw VGA 6-bit palette files.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,129 +18,321 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/test/unit_test.hpp>
-#include <boost/bind.hpp>
-#include <camoto/stream_string.hpp>
+#include "test-image.hpp"
 
-#include "../src/pal-vga-raw.hpp"
-
-#include "tests.hpp"
-
-using namespace camoto;
-using namespace camoto::gamegraphics;
-
-BOOST_AUTO_TEST_CASE(pal_vga_raw_read)
+class test_pal_vga_raw: public test_image
 {
-	BOOST_TEST_MESSAGE("Read from VGA palette");
+	public:
+		test_pal_vga_raw()
+		{
+			this->type = "pal-vga-raw";
+			this->hasMask = false;
+			this->hasHitmask = false;
+			this->dimensions = {0, 0};
 
-	uint8_t data[768];
-	memset(data, 0, 768);
-	data[3] = data[4] = data[5] = 0x3F;
-	data[6] = data[7] = data[8] = 0x40;
+			// 6-bit palettes are valid 8-bit ones
+			this->skipInstDetect.push_back("pal-vga-raw8");
+		}
 
-	stream::string_sptr ss(new stream::string());
-	ss->write(data, 768);
-	// Don't seek to 0 here to make sure Palette_VGA handles it correctly
+		void addTests()
+		{
+			this->test_image::addTests();
 
-	Palette_VGA img(ss, 6);
+			this->sizedContent({0, 0}, ImageType::DefinitelyYes,
+				this->initialstate(), createPalette_DefaultVGA());
 
-	PaletteTablePtr pal = img.getPalette();
+			// c00: Initial state
+			this->isInstance(ImageType::DefinitelyYes, this->initialstate());
 
-	BOOST_REQUIRE_EQUAL((*pal)[0].red,   0);
-	BOOST_REQUIRE_EQUAL((*pal)[0].green, 0);
-	BOOST_REQUIRE_EQUAL((*pal)[0].blue,  0);
+			// c01: Wrong size
+			this->isInstance(ImageType::DefinitelyNo, this->initialstate() + "test");
 
-	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
+			// c02: Palette entry out of range
+			auto c02 = this->initialstate();
+			c02[0] = 0x41;
+			this->isInstance(ImageType::DefinitelyNo, c02);
+		}
 
-	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
-}
+		virtual std::string initialstate() const
+		{
+			return STRING_WITH_NULLS(
+				// 0
+				"\x00\x00\x00"
+				"\x00\x00\x2A"
+				"\x00\x2A\x00"
+				"\x00\x2A\x2A"
+				"\x2A\x00\x00"
+				"\x2A\x00\x2A"
+				"\x2A\x15\x00"
+				"\x2A\x2A\x2A"
+				"\x15\x15\x15"
+				"\x15\x15\x3F"
+				"\x15\x3F\x15"
+				"\x15\x3F\x3F"
+				"\x3F\x15\x15"
+				"\x3F\x15\x3F"
+				"\x3F\x3F\x15"
+				"\x3F\x3F\x3F"
+				// 16
+				"\x00\x00\x00"
+				"\x05\x05\x05"
+				"\x08\x08\x08"
+				"\x0B\x0B\x0B"
+				"\x0E\x0E\x0E"
+				"\x11\x11\x11"
+				"\x14\x14\x14"
+				"\x18\x18\x18"
+				"\x1C\x1C\x1C"
+				"\x20\x20\x20"
+				"\x24\x24\x24"
+				"\x28\x28\x28"
+				"\x2D\x2D\x2D"
+				"\x32\x32\x32"
+				"\x38\x38\x38"
+				"\x3F\x3F\x3F"
+				// 32
+				"\x00\x00\x3F"
+				"\x10\x00\x3F"
+				"\x1F\x00\x3F"
+				"\x2F\x00\x3F"
+				"\x3F\x00\x3F"
+				"\x3F\x00\x2F"
+				"\x3F\x00\x1F"
+				"\x3F\x00\x10"
+				"\x3F\x00\x00"
+				"\x3F\x10\x00"
+				"\x3F\x1F\x00"
+				"\x3F\x2F\x00"
+				"\x3F\x3F\x00"
+				"\x2F\x3F\x00"
+				"\x1F\x3F\x00"
+				"\x10\x3F\x00"
+				// 48
+				"\x00\x3F\x00"
+				"\x00\x3F\x10"
+				"\x00\x3F\x1F"
+				"\x00\x3F\x2F"
+				"\x00\x3F\x3F"
+				"\x00\x2F\x3F"
+				"\x00\x1F\x3F"
+				"\x00\x10\x3F"
+				"\x1F\x1F\x3F"
+				"\x27\x1F\x3F"
+				"\x2F\x1F\x3F"
+				"\x37\x1F\x3F"
+				"\x3F\x1F\x3F"
+				"\x3F\x1F\x37"
+				"\x3F\x1F\x2F"
+				"\x3F\x1F\x27"
+				// 64
+				"\x3F\x1F\x1F"
+				"\x3F\x27\x1F"
+				"\x3F\x2F\x1F"
+				"\x3F\x37\x1F"
+				"\x3F\x3F\x1F"
+				"\x37\x3F\x1F"
+				"\x2F\x3F\x1F"
+				"\x27\x3F\x1F"
+				"\x1F\x3F\x1F"
+				"\x1F\x3F\x27"
+				"\x1F\x3F\x2F"
+				"\x1F\x3F\x37"
+				"\x1F\x3F\x3F"
+				"\x1F\x37\x3F"
+				"\x1F\x2F\x3F"
+				"\x1F\x27\x3F"
+				// 80
+				"\x2D\x2D\x3F"
+				"\x31\x2D\x3F"
+				"\x36\x2D\x3F"
+				"\x3A\x2D\x3F"
+				"\x3F\x2D\x3F"
+				"\x3F\x2D\x3A"
+				"\x3F\x2D\x36"
+				"\x3F\x2D\x31"
+				"\x3F\x2D\x2D"
+				"\x3F\x31\x2D"
+				"\x3F\x36\x2D"
+				"\x3F\x3A\x2D"
+				"\x3F\x3F\x2D"
+				"\x3A\x3F\x2D"
+				"\x36\x3F\x2D"
+				"\x31\x3F\x2D"
+				// 96
+				"\x2D\x3F\x2D"
+				"\x2D\x3F\x31"
+				"\x2D\x3F\x36"
+				"\x2D\x3F\x3A"
+				"\x2D\x3F\x3F"
+				"\x2D\x3A\x3F"
+				"\x2D\x36\x3F"
+				"\x2D\x31\x3F"
+				"\x00\x00\x1C"
+				"\x07\x00\x1C"
+				"\x0E\x00\x1C"
+				"\x15\x00\x1C"
+				"\x1C\x00\x1C"
+				"\x1C\x00\x15"
+				"\x1C\x00\x0E"
+				"\x1C\x00\x07"
+				// 112
+				"\x1C\x00\x00"
+				"\x1C\x07\x00"
+				"\x1C\x0E\x00"
+				"\x1C\x15\x00"
+				"\x1C\x1C\x00"
+				"\x15\x1C\x00"
+				"\x0E\x1C\x00"
+				"\x07\x1C\x00"
+				"\x00\x1C\x00"
+				"\x00\x1C\x07"
+				"\x00\x1C\x0E"
+				"\x00\x1C\x15"
+				"\x00\x1C\x1C"
+				"\x00\x15\x1C"
+				"\x00\x0E\x1C"
+				"\x00\x07\x1C"
+				// 128
+				"\x0E\x0E\x1C"
+				"\x11\x0E\x1C"
+				"\x15\x0E\x1C"
+				"\x18\x0E\x1C"
+				"\x1C\x0E\x1C"
+				"\x1C\x0E\x18"
+				"\x1C\x0E\x15"
+				"\x1C\x0E\x11"
+				"\x1C\x0E\x0E"
+				"\x1C\x11\x0E"
+				"\x1C\x15\x0E"
+				"\x1C\x18\x0E"
+				"\x1C\x1C\x0E"
+				"\x18\x1C\x0E"
+				"\x15\x1C\x0E"
+				"\x11\x1C\x0E"
+				// 144
+				"\x0E\x1C\x0E"
+				"\x0E\x1C\x11"
+				"\x0E\x1C\x15"
+				"\x0E\x1C\x18"
+				"\x0E\x1C\x1C"
+				"\x0E\x18\x1C"
+				"\x0E\x15\x1C"
+				"\x0E\x11\x1C"
+				"\x14\x14\x1C"
+				"\x16\x14\x1C"
+				"\x18\x14\x1C"
+				"\x1A\x14\x1C"
+				"\x1C\x14\x1C"
+				"\x1C\x14\x1A"
+				"\x1C\x14\x18"
+				"\x1C\x14\x16"
+				// 160
+				"\x1C\x14\x14"
+				"\x1C\x16\x14"
+				"\x1C\x18\x14"
+				"\x1C\x1A\x14"
+				"\x1C\x1C\x14"
+				"\x1A\x1C\x14"
+				"\x18\x1C\x14"
+				"\x16\x1C\x14"
+				"\x14\x1C\x14"
+				"\x14\x1C\x16"
+				"\x14\x1C\x18"
+				"\x14\x1C\x1A"
+				"\x14\x1C\x1C"
+				"\x14\x1A\x1C"
+				"\x14\x18\x1C"
+				"\x14\x16\x1C"
+				// 176
+				"\x00\x00\x10"
+				"\x04\x00\x10"
+				"\x08\x00\x10"
+				"\x0C\x00\x10"
+				"\x10\x00\x10"
+				"\x10\x00\x0C"
+				"\x10\x00\x08"
+				"\x10\x00\x04"
+				"\x10\x00\x00"
+				"\x10\x04\x00"
+				"\x10\x08\x00"
+				"\x10\x0C\x00"
+				"\x10\x10\x00"
+				"\x0C\x10\x00"
+				"\x08\x10\x00"
+				"\x04\x10\x00"
+				// 192
+				"\x00\x10\x00"
+				"\x00\x10\x04"
+				"\x00\x10\x08"
+				"\x00\x10\x0C"
+				"\x00\x10\x10"
+				"\x00\x0C\x10"
+				"\x00\x08\x10"
+				"\x00\x04\x10"
+				"\x08\x08\x10"
+				"\x0A\x08\x10"
+				"\x0C\x08\x10"
+				"\x0E\x08\x10"
+				"\x10\x08\x10"
+				"\x10\x08\x0E"
+				"\x10\x08\x0C"
+				"\x10\x08\x0A"
+				// 208
+				"\x10\x08\x08"
+				"\x10\x0A\x08"
+				"\x10\x0C\x08"
+				"\x10\x0E\x08"
+				"\x10\x10\x08"
+				"\x0E\x10\x08"
+				"\x0C\x10\x08"
+				"\x0A\x10\x08"
+				"\x08\x10\x08"
+				"\x08\x10\x0A"
+				"\x08\x10\x0C"
+				"\x08\x10\x0E"
+				"\x08\x10\x10"
+				"\x08\x0E\x10"
+				"\x08\x0C\x10"
+				"\x08\x0A\x10"
+				// 224
+				"\x0B\x0B\x10"
+				"\x0C\x0B\x10"
+				"\x0D\x0B\x10"
+				"\x0F\x0B\x10"
+				"\x10\x0B\x10"
+				"\x10\x0B\x0F"
+				"\x10\x0B\x0D"
+				"\x10\x0B\x0C"
+				"\x10\x0B\x0B"
+				"\x10\x0C\x0B"
+				"\x10\x0D\x0B"
+				"\x10\x0F\x0B"
+				"\x10\x10\x0B"
+				"\x0F\x10\x0B"
+				"\x0D\x10\x0B"
+				"\x0C\x10\x0B"
+				// 240
+				"\x0B\x10\x0B"
+				"\x0B\x10\x0C"
+				"\x0B\x10\x0D"
+				"\x0B\x10\x0F"
+				"\x0B\x10\x10"
+				"\x0B\x0F\x10"
+				"\x0B\x0D\x10"
+				"\x0B\x0C\x10"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				"\x00\x00\x00"
+				// 256
+			);
+		}
 
-BOOST_AUTO_TEST_CASE(pal_vga_raw_write)
-{
-	BOOST_TEST_MESSAGE("Write to VGA palette");
+		/// Test that palette values larger than 0x3F get written as 0x3F
+};
 
-	PaletteTablePtr pal(new PaletteTable());
-	PaletteEntry p;
-	p.red = p.green = p.blue = 0;
-	pal->push_back(p);
-	p.red = p.green = p.blue = 255;
-	pal->push_back(p);
-
-	stream::string_sptr ss(new stream::string());
-	Palette_VGA img(ss, 6);
-	img.setPalette(pal);
-	ss->flush();
-
-	boost::shared_ptr<std::string> s = ss->str();
-	uint8_t *buf = (uint8_t *)s->c_str();
-
-	BOOST_REQUIRE_EQUAL(buf[0], 0);
-	BOOST_REQUIRE_EQUAL(buf[1], 0);
-	BOOST_REQUIRE_EQUAL(buf[2], 0);
-
-	BOOST_REQUIRE_EQUAL(buf[3], 63);
-	BOOST_REQUIRE_EQUAL(buf[4], 63);
-	BOOST_REQUIRE_EQUAL(buf[5], 63);
-}
-
-BOOST_AUTO_TEST_CASE(pal_vga8_raw_read)
-{
-	BOOST_TEST_MESSAGE("Read from VGA8 palette");
-
-	uint8_t data[768];
-	memset(data, 0, 768);
-	data[3] = data[4] = data[5] = 0xFF;
-	data[6] = data[7] = data[8] = 0xFF;
-
-	stream::string_sptr ss(new stream::string());
-	ss->write(data, 768);
-	// Don't seek to 0 here to make sure Palette_VGA handles it correctly
-
-	Palette_VGA img(ss, 8);
-
-	PaletteTablePtr pal = img.getPalette();
-
-	BOOST_REQUIRE_EQUAL((*pal)[0].red,   0);
-	BOOST_REQUIRE_EQUAL((*pal)[0].green, 0);
-	BOOST_REQUIRE_EQUAL((*pal)[0].blue,  0);
-
-	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
-
-	BOOST_REQUIRE_EQUAL((*pal)[1].red,   255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].green, 255);
-	BOOST_REQUIRE_EQUAL((*pal)[1].blue,  255);
-}
-
-BOOST_AUTO_TEST_CASE(pal_vga8_raw_write)
-{
-	BOOST_TEST_MESSAGE("Write to VGA8 palette");
-
-	PaletteTablePtr pal(new PaletteTable());
-	PaletteEntry p;
-	p.red = p.green = p.blue = 0;
-	pal->push_back(p);
-	p.red = p.green = p.blue = 255;
-	pal->push_back(p);
-
-	stream::string_sptr ss(new stream::string());
-	Palette_VGA img(ss, 8);
-	img.setPalette(pal);
-	ss->flush();
-
-	boost::shared_ptr<std::string> s = ss->str();
-	uint8_t *buf = (uint8_t *)s->c_str();
-
-	BOOST_REQUIRE_EQUAL(buf[0], 0);
-	BOOST_REQUIRE_EQUAL(buf[1], 0);
-	BOOST_REQUIRE_EQUAL(buf[2], 0);
-
-	BOOST_REQUIRE_EQUAL(buf[3], 255);
-	BOOST_REQUIRE_EQUAL(buf[4], 255);
-	BOOST_REQUIRE_EQUAL(buf[5], 255);
-}
+IMPLEMENT_TESTS(pal_vga_raw);

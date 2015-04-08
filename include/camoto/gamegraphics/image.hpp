@@ -254,7 +254,7 @@ class Image
 		 */
 		virtual void palette(std::shared_ptr<const Palette> newPalette);
 
-	private:
+	protected:
 		std::shared_ptr<const Palette> pal; ///< Palette storage, may be null
 };
 

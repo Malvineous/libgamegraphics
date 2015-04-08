@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp> // make_unique
 #include "pal-vga-raw.hpp"
 
@@ -182,7 +183,7 @@ Palette_VGA::~Palette_VGA()
 
 Image::Caps Palette_VGA::caps() const
 {
-	return Caps::Default;
+	return Caps::HasPalette | Caps::SetPalette;
 }
 
 ColourDepth Palette_VGA::colourDepth() const
@@ -192,44 +193,32 @@ ColourDepth Palette_VGA::colourDepth() const
 
 std::shared_ptr<const Palette> Palette_VGA::palette() const
 {
+	this->content->seekg(0, stream::start);
+
 	std::shared_ptr<Palette> pal(new Palette());
 	pal->reserve(256);
 
-	uint8_t buf[768];
-	memset(buf, 0, 768);
-	this->content->seekg(0, stream::start);
-	this->content->try_read(buf, 768);
-	// If the palette data is cut off (short read) the rest of the entries will
-	// be black.
-	int i = 0;
-	switch (this->depth) {
-		case 6:
-			while (i < 768) {
-				PaletteEntry p;
-				if (buf[i] >= 0x40) buf[i] = 0x3F;
-				p.red   = (buf[i] << 2) | (buf[i] >> 4);
-				i++;
-				if (buf[i] >= 0x40) buf[i] = 0x3F;
-				p.green = (buf[i] << 2) | (buf[i] >> 4);
-				i++;
-				if (buf[i] >= 0x40) buf[i] = 0x3F;
-				p.blue  = (buf[i] << 2) | (buf[i] >> 4);
-				i++;
-				p.alpha = 255;
-				pal->push_back(p);
-			}
+	for (unsigned int i = 0; i < 256; i++) {
+		PaletteEntry p;
+		try {
+			*this->content
+				>> u8(p.red)
+				>> u8(p.green)
+				>> u8(p.blue)
+			;
+		} catch (const stream::incomplete_read& e) {
 			break;
-		case 8:
-			while (i < 768) {
-				PaletteEntry p;
-				p.red   = buf[i++];
-				p.green = buf[i++];
-				p.blue  = buf[i++];
-				p.alpha = 255;
-				pal->push_back(p);
-			}
-			break;
+		}
+		if (this->depth == 6) {
+			p.red = pal_6to8(p.red);
+			p.green = pal_6to8(p.green);
+			p.blue = pal_6to8(p.blue);
+		}
+		p.alpha = 255;
+		pal->push_back(p);
 	}
+	// If the palette data is cut off (short read) the rest of the entries will
+	// be missing.
 
 	return pal;
 }

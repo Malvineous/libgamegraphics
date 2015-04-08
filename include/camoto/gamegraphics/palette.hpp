@@ -86,6 +86,19 @@ std::unique_ptr<Palette> DLL_EXPORT createPalette_FullEGA();
 /// Generate the default VGA mode 13 palette.
 std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultVGA();
 
+/// Convert a 6-bit VGA palette value (0-63) to 8-bit (0-255)
+constexpr std::uint8_t pal_6to8(std::uint8_t six)
+{
+	return (six > 63) ? 255 : (six << 2) | (six >> 4);
+}
+
+/// Convert an 8-bit (0-255) palette value to 6-bit VGA (0-63)
+constexpr std::uint8_t pal_8to6(std::uint8_t eight)
+{
+	return eight >> 2;
+}
+
+
 } // namespace gamegraphics
 } // namespace camoto
 

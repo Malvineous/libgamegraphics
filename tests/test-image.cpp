@@ -58,7 +58,9 @@ Pixels createPixelData(const Point& dims)
 	}
 
 	// Bottom-right-most pixel is 0x0E
-	content[dims.x * dims.y - 1] = 0x0E;
+	if ((dims.y > 0) && (dims.y > 0)) {
+		content[dims.x * dims.y - 1] = 0x0E;
+	}
 
 	return content;
 }
@@ -277,11 +279,11 @@ void test_image::test_changeMetadata(camoto::Metadata::MetadataType item,
 }
 
 void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
-	const std::string& content)
+	const std::string& content, std::shared_ptr<Palette> palette)
 {
 	// Read pixels
 	std::function<void()> fnTest = std::bind(&test_image::test_sizedContent_read_pix,
-		this, dims, result, content);
+		this, dims, result, content, palette);
 	this->ts->add(boost::unit_test::make_test_case(
 		boost::unit_test::callback0<>(fnTest),
 		createString("test_image[" << this->basename << "]::sizedContent_read_pix["
@@ -301,7 +303,7 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 
 	// Write pixels and mask
 	fnTest = std::bind(&test_image::test_sizedContent_create,
-		this, dims, result, content);
+		this, dims, result, content, palette);
 	this->ts->add(boost::unit_test::make_test_case(
 		boost::unit_test::callback0<>(fnTest),
 		createString("test_image[" << this->basename << "]::sizedContent_create["
@@ -311,7 +313,8 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 }
 
 void test_image::test_sizedContent_read_pix(const Point& dims,
-	ImageType::Certainty result, const std::string& content)
+	ImageType::Certainty result, const std::string& content,
+	std::shared_ptr<Palette> palette)
 {
 	BOOST_TEST_MESSAGE(createString("sizedContent_read check (" << this->basename
 		<< dims.x << "x" << dims.y << ")"));
@@ -319,29 +322,57 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 	auto ss = std::make_unique<stream::string>(content);
 	auto img = this->openImage(dims, std::move(ss), result, false);
 
+	BOOST_TEST_CHECKPOINT("Get dimensions");
 	auto dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(dims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(dims.y, dimsReported.y);
 
+	BOOST_TEST_CHECKPOINT("Convert to standard pixel data");
 	auto pixels = img->convert();
-	auto pixelsExpected = createPixelData(dimsReported);
-	auto strPixels = std::string(pixels.begin(), pixels.end());
-	auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
-	BOOST_REQUIRE_MESSAGE(
-		this->is_equal(strPixelsExpected, strPixels),
-		"Converting to standard pixel data produced incorrect result"
-	);
+	if ((dims.x > 0) && (dims.y > 0)) {
+		auto pixelsExpected = createPixelData(dimsReported);
+		auto strPixels = std::string(pixels.begin(), pixels.end());
+		auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
+		BOOST_REQUIRE_MESSAGE(
+			this->is_equal(strPixelsExpected, strPixels),
+			"Converting to standard pixel data produced incorrect result"
+		);
+	}
 
 	// Check the palette
-	if (this->palette) {
+	if (palette) {
 		BOOST_REQUIRE_MESSAGE(img->caps() & Image::Caps::HasPalette,
 			"Image has palette but doesn't supply HasPalette capability flag");
 		auto palImg = img->palette();
-		BOOST_REQUIRE_EQUAL(palImg->size(), this->palette->size());
-		for (unsigned int i = 0; i < this->palette->size(); i++) {
-			BOOST_REQUIRE_EQUAL(this->palette->at(i).red, palImg->at(i).red);
-			BOOST_REQUIRE_EQUAL(this->palette->at(i).green, palImg->at(i).green);
-			BOOST_REQUIRE_EQUAL(this->palette->at(i).blue, palImg->at(i).blue);
+		BOOST_REQUIRE_EQUAL(palImg->size(), palette->size());
+		for (unsigned int i = 0; i < palette->size(); i++) {
+
+			BOOST_REQUIRE_MESSAGE(palette->at(i).red == palImg->at(i).red,
+				"Red component of palette entry " << std::dec << i << std::hex
+				<< " is incorrect (got 8:0x" << std::setfill('0')
+				<< std::setw(2) << (unsigned int)palImg->at(i).red << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palImg->at(i).red)
+				<< ", expected 8:0x"
+				<< std::setw(2) << (unsigned int)palette->at(i).red << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palette->at(i).red) << ")");
+
+			BOOST_REQUIRE_MESSAGE(palette->at(i).green == palImg->at(i).green,
+				"Green component of palette entry " << std::dec << i << std::hex
+				<< " is incorrect (got 8:0x" << std::setfill('0')
+				<< std::setw(2) << (unsigned int)palImg->at(i).green << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palImg->at(i).green)
+				<< ", expected 8:0x"
+				<< std::setw(2) << (unsigned int)palette->at(i).green << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palette->at(i).green) << ")");
+
+			BOOST_REQUIRE_MESSAGE(palette->at(i).blue == palImg->at(i).blue,
+				"Blue component of palette entry " << std::dec << i << std::hex
+				<< " is incorrect (got 8:0x" << std::setfill('0')
+				<< std::setw(2) << (unsigned int)palImg->at(i).blue << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palImg->at(i).blue)
+				<< ", expected 8:0x"
+				<< std::setw(2) << (unsigned int)palette->at(i).blue << "/6:0x"
+				<< std::setw(2) << (unsigned int)pal_8to6(palette->at(i).blue) << ")");
 		}
 	}
 	return;
@@ -356,12 +387,14 @@ void test_image::test_sizedContent_read_mask(const Point& dims,
 	auto ss = std::make_unique<stream::string>(content);
 	auto img = this->openImage(dims, std::move(ss), result, false);
 
+	BOOST_TEST_CHECKPOINT("Get dimensions");
 	auto dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(dims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(dims.y, dimsReported.y);
 
 	assert(this->hasMask || this->hasHitmask);
 
+	BOOST_TEST_CHECKPOINT("Convert to standard mask data");
 	auto mask = img->convert_mask();
 	auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
 	auto strMask = std::string(mask.begin(), mask.end());
@@ -375,7 +408,8 @@ void test_image::test_sizedContent_read_mask(const Point& dims,
 }
 
 void test_image::test_sizedContent_create(const Point& dims,
-	ImageType::Certainty result, const std::string& content)
+	ImageType::Certainty result, const std::string& content,
+	std::shared_ptr<Palette> palette)
 {
 	BOOST_TEST_CHECKPOINT("Init");
 	BOOST_TEST_MESSAGE(createString("sizedContent_create check (" << this->basename
@@ -400,7 +434,7 @@ void test_image::test_sizedContent_create(const Point& dims,
 
 	BOOST_TEST_CHECKPOINT("Set palette");
 	if (img->caps() & Image::Caps::SetPalette) {
-		img->palette(this->palette);
+		img->palette(palette);
 	}
 
 	BOOST_TEST_CHECKPOINT("Create mask data");

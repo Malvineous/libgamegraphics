@@ -148,7 +148,7 @@ class test_image: public test_main
 
 		/// Add another image size and matching content to run conversion tests.
 		void sizedContent(const Point& dims, ImageType::Certainty result,
-			const std::string& content);
+			const std::string& content, std::shared_ptr<Palette> palette = nullptr);
 
 	protected:
 		/// Perform an invalidContent check now.
@@ -162,7 +162,8 @@ class test_image: public test_main
 
 		/// Perform a sizedContent check now, reading the image (pixels).
 		void test_sizedContent_read_pix(const Point& dims,
-			ImageType::Certainty result, const std::string& content);
+			ImageType::Certainty result, const std::string& content,
+			std::shared_ptr<Palette> palette);
 
 		/// Perform a sizedContent check now, reading the image (mask).
 		void test_sizedContent_read_mask(const Point& dims,
@@ -170,7 +171,8 @@ class test_image: public test_main
 
 		/// Perform a sizedContent check now, creating a new image.
 		void test_sizedContent_create(const Point& dims,
-			ImageType::Certainty result, const std::string& content);
+			ImageType::Certainty result, const std::string& content,
+			std::shared_ptr<Palette> palette);
 
 		/// Does the archive content match the parameter?
 		boost::test_tools::predicate_result is_content_equal(const std::string& exp);
@@ -250,13 +252,6 @@ class test_image: public test_main
 		 * Formats with no image (palettes) should be 0x0 here.
 		 */
 		Point dimensions;
-
-		/// Image palette.
-		/**
-		 * If present, loaded images are compared to this palette, and newly created
-		 * images are prepopulated with this palette before conversion.
-		 */
-		std::shared_ptr<Palette> palette;
 
 		/// Does this format support metadata?
 		std::map<camoto::Metadata::MetadataType, bool> hasMetadata;

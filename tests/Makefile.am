@@ -19,6 +19,7 @@ tests_SOURCES += test-img-pic-raptor.cpp
 tests_SOURCES += test-img-vga.cpp
 tests_SOURCES += test-img-zone66_tile.cpp
 tests_SOURCES += test-pal-vga-raw.cpp
+tests_SOURCES += test-pal-vga-raw8.cpp
 tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-subimage.cpp
 tests_SOURCES += test-tileset.cpp

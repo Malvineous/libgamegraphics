@@ -160,9 +160,9 @@ Image_Nukem2::Image_Nukem2(std::unique_ptr<stream::inout> content)
 				>> u8(p.green)
 				>> u8(p.blue)
 			;
-			p.red = pal_6to8(std::min<uint8_t>(p.red, 0x3F));
-			p.green = pal_6to8(std::min<uint8_t>(p.green, 0x3F));
-			p.blue = pal_6to8(std::min<uint8_t>(p.blue, 0x3F));
+			p.red = pal_6to8(p.red);
+			p.green = pal_6to8(p.green);
+			p.blue = pal_6to8(p.blue);
 			p.alpha = 255;
 			(*vgaPal)[i] = p;
 		}

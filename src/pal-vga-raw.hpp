@@ -27,18 +27,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Convert a 6-bit VGA palette value (0-63) to 8-bit (0-255)
-constexpr unsigned int pal_6to8(unsigned int six)
-{
-	return (six << 2) | (six >> 4);
-}
-
-/// Convert an 8-bit (0-255) palette value to 6-bit VGA (0-63)
-constexpr unsigned int pal_8to6(unsigned int eight)
-{
-	return eight >> 2;
-}
-
 /// Filetype handler for VGA 6-bit palette files.
 class ImageType_Palette_VGA: virtual public ImageType
 {
