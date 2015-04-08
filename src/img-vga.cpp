@@ -24,9 +24,9 @@
 namespace camoto {
 namespace gamegraphics {
 
-Image_VGA::Image_VGA(std::unique_ptr<stream::inout> data,
+Image_VGA::Image_VGA(std::unique_ptr<stream::inout> content,
 	stream::pos off)
-	:	data(std::move(data)),
+	:	content(std::move(content)),
 		off(off)
 {
 }
@@ -48,20 +48,18 @@ ColourDepth Image_VGA::colourDepth() const
 Pixels Image_VGA::convert() const
 {
 	auto dims = this->dimensions();
-	assert((dims.x != 0) && (dims.y != 0));
 	unsigned long dataSize = dims.x * dims.y;
 
 	Pixels pix;
 	pix.resize(dataSize);
-	this->data->seekg(this->off, stream::start);
-	this->data->read(pix.data(), dataSize);
+	this->content->seekg(this->off, stream::start);
+	this->content->read(pix.data(), dataSize);
 	return pix;
 }
 
 Pixels Image_VGA::convert_mask() const
 {
 	auto dims = this->dimensions();
-	assert((dims.x != 0) && (dims.y != 0));
 	int dataSize = dims.x * dims.y;
 
 	// Return an entirely opaque mask
@@ -74,20 +72,19 @@ void Image_VGA::convert(const Pixels& newContent,
 	const Pixels& newMask)
 {
 	auto dims = this->dimensions();
-	assert((dims.x != 0) && (dims.y != 0));
 	unsigned long dataSize = dims.x * dims.y;
 
-	stream::pos len = this->data->size();
+	stream::pos len = this->content->size();
 
 	// Cut off any leftover data or resize so there's enough space
 	if (dataSize + this->off != len) {
-		this->data->truncate(dataSize + this->off);
+		this->content->truncate(dataSize + this->off);
 	} // else size didn't need to change, e.g. fixed-size VGA image
 
 	// No conversion needed, write out as-is
-	this->data->seekp(this->off, stream::start);
-	this->data->write(newContent.data(), dataSize);
-
+	this->content->seekp(this->off, stream::start);
+	this->content->write(newContent.data(), dataSize);
+	this->content->flush();
 	return;
 }
 

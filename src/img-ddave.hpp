@@ -22,82 +22,71 @@
 #define _CAMOTO_IMG_DDAVE_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-cga.hpp"
+#include "img-ega-linear.hpp"
 #include "img-ega-rowplanar.hpp"
 #include "img-vga.hpp"
 
-#include "img-ega-byteplanar.hpp" //temp
 namespace camoto {
 namespace gamegraphics {
 
 /// Dangerous Dave CGA Image implementation.
-class Image_DDaveCGA: virtual public Image_CGA {
-
+class Image_DDaveCGA: virtual public Image_EGA_Linear
+{
 	public:
 		/// Constructor
 		/**
 		 * Create an image from the supplied stream.
 		 *
-		 * @param data
+		 * @param content
 		 *   CGA image data.
 		 *
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		Image_DDaveCGA(stream::inout_sptr data, bool fixedSize);
-
+		Image_DDaveCGA(std::unique_ptr<stream::inout> content, bool fixedSize);
 		virtual ~Image_DDaveCGA();
 
-		virtual int getCaps();
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		stream::inout_sptr stream_data; // stream::inout_sptr copy, as inherited one is a bitstream
 		bool fixedSize;
-
 };
 
 /// Dangerous Dave EGA Image implementation.
-class Image_DDaveEGA: virtual public Image_EGARowPlanar {
-
+class Image_DDaveEGA: virtual public Image_EGA_RowPlanar
+{
 	public:
 		/// Constructor
 		/**
 		 * Create an image from the supplied stream.
 		 *
-		 * @param data
+		 * @param content
 		 *   EGA image data.
 		 *
 		 * @param fixedSize
 		 *   True if this image is fixed at 16x16 (no width/height header)
 		 */
-		Image_DDaveEGA(stream::inout_sptr data, bool fixedSize);
-
+		Image_DDaveEGA(std::unique_ptr<stream::inout> content, bool fixedSize);
 		virtual ~Image_DDaveEGA();
 
-		virtual int getCaps();
-
-		// getDimension and setDimensions inherited from parent class
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
 		bool fixedSize;
-
 };
 
 /// Dangerous Dave VGA Image implementation.
-class Image_DDaveVGA: virtual public Image_VGA {
-
+class Image_DDaveVGA: virtual public Image_VGA
+{
 	public:
 		/// Constructor
 		/**
 		 * Create an image from the supplied stream.
 		 *
-		 * @param data
+		 * @param content
 		 *   VGA image data.
 		 *
 		 * @param fixedSize
@@ -106,28 +95,18 @@ class Image_DDaveVGA: virtual public Image_VGA {
 		 * @param pal
 		 *   Image palette.
 		 */
-		Image_DDaveVGA(stream::inout_sptr data, bool fixedSize,
-			PaletteTablePtr pal);
-
+		Image_DDaveVGA(std::unique_ptr<stream::inout> content, bool fixedSize,
+			std::shared_ptr<Palette> pal);
 		virtual ~Image_DDaveVGA();
 
-		virtual int getCaps();
-
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
-		virtual void setDimensions(unsigned int width, unsigned int height);
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-
-		virtual PaletteTablePtr getPalette();
+		virtual Caps caps() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		uint16_t width;
-		uint16_t height;
+		Point dims;
 		bool fixedSize;
-		PaletteTablePtr pal;
-
 };
 
 } // namespace gamegraphics

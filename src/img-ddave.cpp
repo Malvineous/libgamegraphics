@@ -18,20 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
 #include "img-ddave.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-Image_DDaveCGA::Image_DDaveCGA(stream::inout_sptr data,
+Image_DDaveCGA::Image_DDaveCGA(std::unique_ptr<stream::inout> content,
 	bool fixedSize)
-	:	Image_CGA(data, fixedSize ? 0 : 4, 16, 16, CGAPal_CyanMagentaBright),
-		stream_data(data),
+	:	Image_EGA_Linear(
+			std::move(content),
+			fixedSize ? 0 : 4,
+			Point{16, 16},
+			EGAPlaneLayout{
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Blue1,
+			},
+			bitstream::endian::bigEndian,
+			createPalette_CGA(CGAPaletteType::CyanMagentaBright)
+		),
 		fixedSize(fixedSize)
 {
 	if (!fixedSize) {
-		data >> u16le(this->width) >> u16le(this->height);
+		this->content->seekg(0, stream::start);
+		*this->content
+			>> u16le(this->dims.x)
+			>> u16le(this->dims.y)
+		;
 	}
 }
 
@@ -39,88 +53,103 @@ Image_DDaveCGA::~Image_DDaveCGA()
 {
 }
 
-int Image_DDaveCGA::getCaps()
+Image::Caps Image_DDaveCGA::caps() const
 {
-	return this->Image_CGA::getCaps()
-		| (this->fixedSize ? 0 : Image::CanSetDimensions);
+	return this->Image_EGA_Linear::caps() // handles palette caps
+		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
 }
 
-void Image_DDaveCGA::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+ColourDepth Image_DDaveCGA::colourDepth() const
 {
-	this->Image_CGA::fromStandard(newContent, newMask);
+	return ColourDepth::CGA;
+}
 
+void Image_DDaveCGA::convert(const Pixels& newContent, const Pixels& newMask)
+{
 	if (!this->fixedSize) {
+		auto dims = this->dimensions();
 		// Update offset
-		this->stream_data->seekp(0, stream::start);
-		this->stream_data << u16le(this->width) << u16le(this->height);
+		this->content->seekp(0, stream::start);
+		*this->content
+			<< u16le(dims.x)
+			<< u16le(dims.y)
+		;
 	}
+	this->Image_EGA_Linear::convert(newContent, newMask);
 	return;
 }
 
 
-Image_DDaveEGA::Image_DDaveEGA(stream::inout_sptr data,
+Image_DDaveEGA::Image_DDaveEGA(std::unique_ptr<stream::inout> content,
 	bool fixedSize)
-	:	fixedSize(fixedSize)
+	:	Image_EGA_RowPlanar(
+			std::move(content),
+			fixedSize ? 0 : 4,
+			Point{16, 16},
+			EGAPlaneLayout{
+				EGAPlanePurpose::Intensity1,
+				EGAPlanePurpose::Red1,
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Blue1,
+			},
+			nullptr // default EGA palette
+		),
+		fixedSize(fixedSize)
 {
-	if (fixedSize) this->width = this->height = 16;
-	else {
-		data >> u16le(this->width) >> u16le(this->height);
+	if (!fixedSize) {
+		this->content->seekg(0, stream::start);
+		*this->content
+			>> u16le(this->dims.x)
+			>> u16le(this->dims.y)
+		;
 	}
-
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 4;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 2;
-	planes[PLANE_INTENSITY] = 1;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 0;
-	this->setParams(data, fixedSize ? 0 : 4,
-		this->width, this->height, planes);
 }
 
 Image_DDaveEGA::~Image_DDaveEGA()
 {
 }
 
-int Image_DDaveEGA::getCaps()
+Image::Caps Image_DDaveEGA::caps() const
 {
-	return this->Image_EGARowPlanar::getCaps()
-		| (this->fixedSize ? 0 : Image::CanSetDimensions);
+	return this->Image_EGA_RowPlanar::caps()
+		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
 }
 
-void Image_DDaveEGA::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+void Image_DDaveEGA::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
-	this->Image_EGARowPlanar::fromStandard(newContent, newMask);
-
 	if (!this->fixedSize) {
+		auto dims = this->dimensions();
 		// Update offset
-		this->data->seekp(0, stream::start);
-		this->data << u16le(this->width) << u16le(this->height);
+		this->content->seekp(0, stream::start);
+		*this->content
+			<< u16le(dims.x)
+			<< u16le(dims.y)
+		;
 	}
+	this->Image_EGA_RowPlanar::convert(newContent, newMask);
 	return;
 }
 
 
 
-Image_DDaveVGA::Image_DDaveVGA(stream::inout_sptr data,
-	bool fixedSize, PaletteTablePtr pal)
-	:	Image_VGA(data, fixedSize ? 0 : 4),
-		fixedSize(fixedSize),
-		pal(pal)
+Image_DDaveVGA::Image_DDaveVGA(std::unique_ptr<stream::inout> content,
+	bool fixedSize, std::shared_ptr<Palette> pal)
+	:	Image_VGA(std::move(content), fixedSize ? 0 : 4),
+		fixedSize(fixedSize)
 {
-	assert(data->tellg() == 0);
-
-	if (fixedSize) this->width = this->height = 16;
+	this->pal = pal;
+	if (fixedSize) this->dims.x = this->dims.y = 16;
 	else {
-		if (data->size() == 0) {
+		if (this->content->size() == 0) {
 			// New tile
-			this->width = this->height = 0;
+			this->dims.x = this->dims.y = 0;
 		} else {
-			data >> u16le(this->width) >> u16le(this->height);
+			this->content->seekg(0, stream::start);
+			*this->content
+				>> u16le(this->dims.x)
+				>> u16le(this->dims.y)
+			;
 		}
 	}
 }
@@ -129,44 +158,39 @@ Image_DDaveVGA::~Image_DDaveVGA()
 {
 }
 
-int Image_DDaveVGA::getCaps()
+Image::Caps Image_DDaveVGA::caps() const
 {
-	return this->Image_VGA::getCaps()
-		| Image::HasPalette
-		| (this->fixedSize ? 0 : Image::CanSetDimensions);
+	return this->Image_VGA::caps()
+		| Image::Caps::HasPalette
+		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
 }
 
-void Image_DDaveVGA::getDimensions(unsigned int *width, unsigned int *height)
+Point Image_DDaveVGA::dimensions() const
 {
-	*width = this->width;
-	*height = this->height;
+	return this->dims;
+}
+
+void Image_DDaveVGA::dimensions(const Point& newDimensions)
+{
+	assert(this->caps() & Image::Caps::SetDimensions);
+	this->dims = newDimensions;
 	return;
 }
 
-void Image_DDaveVGA::setDimensions(unsigned int width, unsigned int height)
+void Image_DDaveVGA::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
-	assert(this->getCaps() & Image::CanSetDimensions);
-	this->width = width;
-	this->height = height;
-	return;
-}
-
-void Image_DDaveVGA::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask)
-{
-	this->Image_VGA::fromStandard(newContent, newMask);
-
 	if (!this->fixedSize) {
-		// Update dimensions
-		this->data->seekp(0, stream::start);
-		this->data << u16le(this->width) << u16le(this->height);
+		auto dims = this->dimensions();
+		// Update offset
+		this->content->seekp(0, stream::start);
+		*this->content
+			<< u16le(dims.x)
+			<< u16le(dims.y)
+		;
 	}
+	this->Image_VGA::convert(newContent, newMask);
 	return;
-}
-
-PaletteTablePtr Image_DDaveVGA::getPalette()
-{
-	return this->pal;
 }
 
 } // namespace gamegraphics

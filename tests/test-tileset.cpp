@@ -41,6 +41,7 @@ using namespace camoto::gamearchive;
 test_tileset::test_tileset()
 {
 	this->firstTileDims = {9999, 9999};
+	this->cga = false;
 }
 
 void test_tileset::addTests()
@@ -193,7 +194,7 @@ void test_tileset::test_open_image()
 	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 
 	auto pixels = img->convert();
-	auto pixelsExpected = createPixelData(dimsReported);
+	auto pixelsExpected = createPixelData(dimsReported, this->cga);
 	auto strPixels = std::string(pixels.begin(), pixels.end());
 	auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
 	BOOST_REQUIRE_MESSAGE(

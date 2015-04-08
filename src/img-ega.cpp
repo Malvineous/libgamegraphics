@@ -65,7 +65,7 @@ void Image_EGA::dimensions(const Point& newDimensions)
 
 	// TODO: Confirm this is correct
 	this->content->truncate(this->offset +
-		(newDimensions.x + 7) / 8 * newDimensions.y * numPlanes);
+		(newDimensions.x * numPlanes + 7) / 8 * newDimensions.y);
 	this->dims = newDimensions;
 	return;
 }

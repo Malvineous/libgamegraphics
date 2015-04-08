@@ -34,7 +34,7 @@ using namespace camoto;
 using namespace camoto::gamegraphics;
 
 /// Create a standard pattern in the given size.
-Pixels createPixelData(const Point& dims);
+Pixels createPixelData(const Point& dims, bool cga);
 
 /// Create a standard pattern in the given size.
 Pixels createMaskData(const Point& dims, bool hit);
@@ -243,6 +243,9 @@ class test_image: public test_main
 
 		/// Does the format support hitmask pixels?
 		bool hasHitmask;
+
+		/// Set to true if the colour indices can only be 0..3 (false == 0..15)
+		bool cga;
 
 		/// Does the image have a fixed size?
 		bool fixedDimensions;

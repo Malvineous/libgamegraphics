@@ -36,7 +36,7 @@ using namespace camoto::gamegraphics;
 		); \
 	}
 
-Pixels createPixelData(const Point& dims)
+Pixels createPixelData(const Point& dims, bool cga)
 {
 	Pixels content(dims.x * dims.y, '\x00');
 
@@ -45,21 +45,21 @@ Pixels createPixelData(const Point& dims)
 		auto lastRow = dims.x * (dims.y - 1);
 		// This is not the most efficient way to write this, but we want to make
 		// use of the container's bounds checking as an additional test.
-		content[x] = '\x0F';
-		content[lastRow + x] = '\x09';
+		content[x] = cga ? '\x03' : '\x0F';
+		content[lastRow + x] = cga ? '\x02' : '\x09';
 	}
 
 	// Write 0x0C across first and 0x0A across last column, except first row
 	for (unsigned int y = 1; y < dims.y; y++) {
 		// This is not the most efficient way to write this, but we want to make
 		// use of the container's bounds checking as an additional test.
-		content[y * dims.x] = '\x0C';
-		content[y * dims.x + (dims.x - 1)] = '\x0A';
+		content[y * dims.x] = cga ? '\x01' : '\x0C';
+		content[y * dims.x + (dims.x - 1)] = cga ? '\x02' : '\x0A';
 	}
 
 	// Bottom-right-most pixel is 0x0E
 	if ((dims.y > 0) && (dims.y > 0)) {
-		content[dims.x * dims.y - 1] = 0x0E;
+		content[dims.x * dims.y - 1] = cga ? '\x01' : '\x0E';
 	}
 
 	return content;
@@ -106,6 +106,7 @@ test_image::test_image()
 
 	this->hasMask = true;
 	this->hasHitmask = true;
+	this->cga = false;
 
 	this->fixedDimensions = false;
 	this->dimensions = {0, 0};
@@ -332,7 +333,7 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 	BOOST_TEST_CHECKPOINT("Convert to standard pixel data");
 	auto pixels = img->convert();
 	if ((dims.x > 0) && (dims.y > 0)) {
-		auto pixelsExpected = createPixelData(dimsReported);
+		auto pixelsExpected = createPixelData(dimsReported, this->cga);
 		auto strPixels = std::string(pixels.begin(), pixels.end());
 		auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
 		BOOST_REQUIRE_MESSAGE(
@@ -448,7 +449,7 @@ void test_image::test_sizedContent_create(const Point& dims,
 		maskData = Pixels(dimsReported.x * dimsReported.y, '\x00');
 	}
 	BOOST_TEST_CHECKPOINT("Perform conversion");
-	img->convert(createPixelData(dimsReported), maskData);
+	img->convert(createPixelData(dimsReported, this->cga), maskData);
 
 	BOOST_TEST_CHECKPOINT("Compare result of conversion");
 	BOOST_REQUIRE_MESSAGE(

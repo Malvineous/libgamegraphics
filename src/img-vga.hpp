@@ -37,13 +37,13 @@ class Image_VGA: virtual public Image
 	public:
 		/// Constructor
 		/**
-		 * @param data
-		 *   VGA data
+		 * @param content
+		 *   VGA data.
 		 *
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		Image_VGA(std::unique_ptr<stream::inout> data, stream::pos off);
+		Image_VGA(std::unique_ptr<stream::inout> content, stream::pos off);
 		virtual ~Image_VGA();
 
 		virtual Caps caps() const;
@@ -53,8 +53,8 @@ class Image_VGA: virtual public Image
 		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		std::unique_ptr<stream::inout> data; ///< Image content
-		stream::pos off;         ///< Offset of image data in \ref data
+		std::unique_ptr<stream::inout> content; ///< Image content
+		stream::pos off;         ///< Offset of image data in \ref content
 };
 
 } // namespace gamegraphics
