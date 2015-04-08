@@ -43,6 +43,7 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 	const Pixels& newMask)
 {
 	this->content->seekp(0, stream::start);
+	auto dims = this->dimensions();
 
 	for (auto p : this->planes) {
 
@@ -69,31 +70,28 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 			case PlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
 		}
 
-		// For each pixel, set the appropriate bits in the cell
-		const uint8_t *imgData = &newContent[0];
-		const uint8_t *maskData = &newMask[0];
+		auto imgData = &newContent[0];
+		auto maskData = &newMask[0];
 
-		for (unsigned int y = 0; y < this->dims.y; y++) {
+		// For each pixel, set the appropriate bits in the cell
+		for (unsigned int y = 0; y < dims.y; y++) {
 
 			// Run through each lot of eight pixels (a "cell")
-			for (unsigned int x = 0; x < (this->dims.x + 7) / 8; x++) {
-
-				uint8_t c = 0;
+			for (unsigned int x = 0; x < dims.x; x += 8) {
 
 				// Work out if this plane will read from the input image or mask data.
-				const uint8_t *rowData;
-				if (doMask) rowData = maskData;
-				else rowData = imgData;
+				auto rowData = doMask ? maskData : imgData;
 
 				// See how many bits we should run through.  This is only used
 				// when the image is not an even multiple of 8.
 				unsigned int bits = 8;
-				if (x * 8 + 8 > this->dims.x) bits = this->dims.x % 8;
+				if (x + 8 > dims.x) bits = dims.x % 8;
 
 				// Run through each pixel in the group
+				uint8_t c = 0;
 				for (unsigned int b = 0; b < bits; b++) {
-					bool on = rowData[x * 8 + b] & value;
-					if ((on && !swap) || (!on && swap)) {//(rowData[x * 8 + b] & value) {
+					bool on = rowData[x + b] & value;
+					if ((on && !swap) || (!on && swap)) {
 						// The pixel is on in this plane
 						c |= 0x80 >> b;
 					} // else the pixel is off in this plane
@@ -101,8 +99,8 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 
 				*this->content << u8(c);
 			}
-			imgData += this->dims.x;
-			maskData += this->dims.x;
+			imgData += dims.x;
+			maskData += dims.x;
 		}
 	}
 	this->content->truncate_here();

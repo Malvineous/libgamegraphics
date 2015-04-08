@@ -90,13 +90,13 @@ class Image_EGA: public Image
 		virtual void doConversion() = 0;
 
 		std::unique_ptr<stream::inout> content;
-		stream::pos offset;
-		Point dims;
 		EGAPlaneLayout planes;
-		std::shared_ptr<const Palette> pal;
 
 		Pixels pixels;
 		Pixels mask;
+
+	private:
+		Point dims;
 };
 
 } // namespace gamegraphics

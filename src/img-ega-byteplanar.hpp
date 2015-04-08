@@ -21,8 +21,8 @@
 #ifndef _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 #define _CAMOTO_IMG_EGA_BYTEPLANAR_HPP_
 
-#include <camoto/gamegraphics/palettetable.hpp>
-#include "img-ega-common.hpp"
+#include <camoto/gamegraphics/palette.hpp>
+#include "img-ega.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -35,36 +35,21 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class Image_EGABytePlanar: virtual public Image_Base {
-	protected:
-		stream::inout_sptr data;
-		stream::pos offset;
-		int width, height;
-		PLANE_LAYOUT planes;
-		PaletteTablePtr pal;
-
+class Image_EGA_BytePlanar: virtual public Image_EGA
+{
 	public:
-		Image_EGABytePlanar();
-		virtual ~Image_EGABytePlanar();
+		Image_EGA_BytePlanar(std::unique_ptr<stream::inout> content,
+			stream::pos offset, Point dimensions, EGAPlaneLayout planes,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_EGA_BytePlanar();
 
-		/// These could be set in the constructor, but often descendent classes
-		/// won't have these values until the end of their constructors.
-		virtual void setParams(stream::inout_sptr data,
-			stream::pos offset, int width, int height,
-			const PLANE_LAYOUT& planes, PaletteTablePtr pal);
-
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-		virtual PaletteTablePtr getPalette();
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		StdImageDataPtr doConversion(bool mask);
+		/// Populate this->pixels and this->mask
+		virtual void doConversion();
 
+		stream::pos offset;
 };
 
 } // namespace gamegraphics

@@ -27,8 +27,8 @@ namespace gamegraphics {
 Image_EGA::Image_EGA(std::unique_ptr<stream::inout> content, Point dimensions,
 	EGAPlaneLayout planes, std::shared_ptr<const Palette> pal)
 	:	content(std::move(content)),
-		dims(dimensions),
-		planes(planes)
+		planes(planes),
+		dims(dimensions)
 {
 	this->pal = pal;
 }
