@@ -29,8 +29,7 @@ namespace gamegraphics {
 Image_EGA_RowPlanar::Image_EGA_RowPlanar(std::unique_ptr<stream::inout> content,
 	stream::pos offset, Point dimensions, EGAPlaneLayout planes,
 	std::shared_ptr<const Palette> pal)
-	:	Image_EGA(std::move(content), dimensions, planes, pal),
-		offset(offset)
+	:	Image_EGA(std::move(content), offset, dimensions, planes, pal)
 {
 }
 

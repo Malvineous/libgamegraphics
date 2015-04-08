@@ -26,8 +26,7 @@ namespace gamegraphics {
 Image_EGA_Linear::Image_EGA_Linear(std::unique_ptr<stream::inout> content,
 	stream::pos offset, Point dimensions, EGAPlaneLayout planes,
 	bitstream::endian endian, std::shared_ptr<const Palette> pal)
-	:	Image_EGA(std::move(content), dimensions, planes, pal),
-		offset(offset),
+	:	Image_EGA(std::move(content), offset, dimensions, planes, pal),
 		bits(this->content, endian)
 {
 }

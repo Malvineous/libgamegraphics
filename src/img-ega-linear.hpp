@@ -48,7 +48,6 @@ class Image_EGA_Linear: public Image_EGA
 		/// Populate this->pixels and this->mask
 		virtual void doConversion();
 
-		stream::pos offset;   ///< Offset of image data from start of stream
 		bitstream bits;
 };
 

@@ -50,8 +50,6 @@ class Image_EGA_Planar: public Image_EGA
 	protected:
 		/// Populate this->pixels and this->mask
 		virtual void doConversion();
-
-		stream::pos offset;   ///< Offset of image data from start of stream
 };
 
 /// Filetype handler for full screen raw EGA images.

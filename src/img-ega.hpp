@@ -75,8 +75,9 @@ enum class PlaneCount
 class Image_EGA: public Image
 {
 	public:
-		Image_EGA(std::unique_ptr<stream::inout> content, Point dimensions,
-			EGAPlaneLayout planes, std::shared_ptr<const Palette> pal);
+		Image_EGA(std::unique_ptr<stream::inout> content, stream::pos offset,
+			Point dimensions, EGAPlaneLayout planes,
+			std::shared_ptr<const Palette> pal);
 		virtual ~Image_EGA();
 
 		virtual Caps caps() const;
@@ -91,6 +92,7 @@ class Image_EGA: public Image
 		virtual void doConversion() = 0;
 
 		std::shared_ptr<stream::inout> content;
+		stream::pos offset;
 		Point dims;
 		EGAPlaneLayout planes;
 

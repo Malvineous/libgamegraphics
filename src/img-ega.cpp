@@ -24,11 +24,12 @@
 namespace camoto {
 namespace gamegraphics {
 
-Image_EGA::Image_EGA(std::unique_ptr<stream::inout> content, Point dimensions,
-	EGAPlaneLayout planes, std::shared_ptr<const Palette> pal)
+Image_EGA::Image_EGA(std::unique_ptr<stream::inout> content, stream::pos offset,
+	Point dimensions, EGAPlaneLayout planes, std::shared_ptr<const Palette> pal)
 	:	content(std::move(content)),
-		planes(planes),
-		dims(dimensions)
+		offset(offset),
+		dims(dimensions),
+		planes(planes)
 {
 	this->pal = pal;
 }
@@ -63,7 +64,8 @@ void Image_EGA::dimensions(const Point& newDimensions)
 	}
 
 	// TODO: Confirm this is correct
-	this->content->truncate((newDimensions.x + 7) / 8 * newDimensions.y * numPlanes);
+	this->content->truncate(this->offset +
+		(newDimensions.x + 7) / 8 * newDimensions.y * numPlanes);
 	this->dims = newDimensions;
 	return;
 }
