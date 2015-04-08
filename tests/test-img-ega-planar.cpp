@@ -83,12 +83,12 @@ class test_img_ega_planar: public test_image
 			bool create)
 		{
 			EGAPlaneLayout planes = {
-				PlanePurpose::Opaque1, // swaps
-				PlanePurpose::Blue1,
-				PlanePurpose::Green1,
-				PlanePurpose::Red1,
-				PlanePurpose::Intensity1,
-				PlanePurpose::Hit1
+				EGAPlanePurpose::Opaque1, // swaps
+				EGAPlanePurpose::Blue1,
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Red1,
+				EGAPlanePurpose::Intensity1,
+				EGAPlanePurpose::Hit1
 			};
 
 			return std::make_unique<Image_EGA_Planar>(

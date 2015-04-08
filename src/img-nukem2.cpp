@@ -137,12 +137,12 @@ Image_Nukem2::Image_Nukem2(std::unique_ptr<stream::inout> content)
 			0,
 			Point{N2IMG_WIDTH, N2IMG_HEIGHT},
 			EGAPlaneLayout{
-				PlanePurpose::Blue1,
-				PlanePurpose::Green1,
-				PlanePurpose::Red1,
-				PlanePurpose::Intensity1,
-				PlanePurpose::Unused,
-				PlanePurpose::Unused,
+				EGAPlanePurpose::Blue1,
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Red1,
+				EGAPlanePurpose::Intensity1,
+				EGAPlanePurpose::Unused,
+				EGAPlanePurpose::Unused,
 			},
 			nullptr
 		)

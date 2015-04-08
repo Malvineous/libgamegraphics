@@ -32,12 +32,12 @@ namespace gamegraphics {
  * being converted.
  *
  * Each plane is set to a number representing the content in that plane.
- * Setting EGAPlaneLayout[0] to PlanePurpose::Blue1 means that the first plane
+ * Setting EGAPlaneLayout[0] to EGAPlanePurpose::Blue1 means that the first plane
  * will be treated as blue pixels for those bits that are set to 1.  (Blue0 is
  * the opposite, and will set blue pixels where the bits in the plane are 0).
  * Usually the bits are 1 (so Red1, Green1, etc.) will be used.
  */
-enum class PlanePurpose {
+enum class EGAPlanePurpose {
 	Unused,     ///< This plane is not present or is unused
 	Blue0,      ///< Bits: 0=blue on, 1=blue off
 	Blue1,      ///< Bits: 1=blue on, 0=blue off
@@ -53,7 +53,7 @@ enum class PlanePurpose {
 	Opaque1,    ///< Bits: 1=opaque, 0=transparent
 };
 
-typedef std::array<PlanePurpose, 6> EGAPlaneLayout;
+typedef std::array<EGAPlanePurpose, 6> EGAPlaneLayout;
 
 enum class PlaneCount
 {

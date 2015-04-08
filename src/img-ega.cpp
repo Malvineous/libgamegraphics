@@ -59,7 +59,7 @@ void Image_EGA::dimensions(const Point& newDimensions)
 	int numPlanes = 0;
 	for (auto& p : this->planes) {
 		// Count the plane if its order is nonzero, otherwise ignore it
-		if (p != PlanePurpose::Unused) numPlanes++;
+		if (p != EGAPlanePurpose::Unused) numPlanes++;
 	}
 
 	// TODO: Confirm this is correct
@@ -84,10 +84,10 @@ Pixels Image_EGA::convert_mask() const
 		bool hasMask = false;
 		for (auto& p : this->planes) {
 			if (
-				(p == PlanePurpose::Opaque0) ||
-				(p == PlanePurpose::Opaque1) ||
-				(p == PlanePurpose::Hit0) ||
-				(p == PlanePurpose::Hit1)
+				(p == EGAPlanePurpose::Opaque0) ||
+				(p == EGAPlanePurpose::Opaque1) ||
+				(p == EGAPlanePurpose::Hit0) ||
+				(p == EGAPlanePurpose::Hit1)
 			) {
 				hasMask = true;
 				break;

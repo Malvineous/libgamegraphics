@@ -135,12 +135,12 @@ std::unique_ptr<Image> ImageType_CComic::open(
 	);
 
 	EGAPlaneLayout planes = {
-		PlanePurpose::Blue1,
-		PlanePurpose::Green1,
-		PlanePurpose::Red1,
-		PlanePurpose::Intensity1,
-		PlanePurpose::Unused,
-		PlanePurpose::Unused,
+		EGAPlanePurpose::Blue1,
+		EGAPlanePurpose::Green1,
+		EGAPlanePurpose::Red1,
+		EGAPlanePurpose::Intensity1,
+		EGAPlanePurpose::Unused,
+		EGAPlanePurpose::Unused,
 	};
 
 	return std::make_unique<Image_EGA_Planar>(

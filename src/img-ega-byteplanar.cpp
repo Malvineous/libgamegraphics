@@ -58,24 +58,24 @@ void Image_EGA_BytePlanar::convert(const Pixels& newContent,
 				// NOTE: This will keep going after the unused plane when technically
 				// we should be inserting some blank data or something.  Maybe will
 				// implement it if it ever becomes necessary.
-				if (p == PlanePurpose::Unused) continue;
+				if (p == EGAPlanePurpose::Unused) continue;
 
 				bool doMask, swap;
 				uint8_t value;
 				switch (p) {
-					case PlanePurpose::Unused: continue;
-					case PlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
-					case PlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
-					case PlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
-					case PlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
-					case PlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
-					case PlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
-					case PlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
-					case PlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
-					case PlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
-					case PlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
-					case PlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
-					case PlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
+					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
+					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
+					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
+					case EGAPlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
+					case EGAPlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
+					case EGAPlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
+					case EGAPlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
+					case EGAPlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
+					case EGAPlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
+					case EGAPlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
+					case EGAPlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
+					case EGAPlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
 				}
 
 				// Work out if this plane will read from the input image or mask data.
@@ -127,7 +127,7 @@ void Image_EGA_BytePlanar::doConversion()
 		for (unsigned int x = 0; x < dims.x; x += 8) {
 
 			for (auto p : this->planes) {
-				if (p == PlanePurpose::Unused) {
+				if (p == EGAPlanePurpose::Unused) {
 					// Don't waste time processing a plane we're ignoring
 					lenSkip += planeSizeBytes;
 					// Don't do the skip here in case the unused planes are all at the end
@@ -143,19 +143,19 @@ void Image_EGA_BytePlanar::doConversion()
 				bool doMask, swap;
 				uint8_t value;
 				switch (p) {
-					case PlanePurpose::Unused: continue;
-					case PlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
-					case PlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
-					case PlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
-					case PlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
-					case PlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
-					case PlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
-					case PlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
-					case PlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
-					case PlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
-					case PlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
-					case PlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
-					case PlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
+					case EGAPlanePurpose::Unused: continue;
+					case EGAPlanePurpose::Blue0:      doMask = false; value = 0x01; swap = true;  break;
+					case EGAPlanePurpose::Blue1:      doMask = false; value = 0x01; swap = false; break;
+					case EGAPlanePurpose::Green0:     doMask = false; value = 0x02; swap = true;  break;
+					case EGAPlanePurpose::Green1:     doMask = false; value = 0x02; swap = false; break;
+					case EGAPlanePurpose::Red0:       doMask = false; value = 0x04; swap = true;  break;
+					case EGAPlanePurpose::Red1:       doMask = false; value = 0x04; swap = false; break;
+					case EGAPlanePurpose::Intensity0: doMask = false; value = 0x08; swap = true;  break;
+					case EGAPlanePurpose::Intensity1: doMask = false; value = 0x08; swap = false; break;
+					case EGAPlanePurpose::Hit0:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = true;  break;
+					case EGAPlanePurpose::Hit1:       doMask = true;  value = (uint8_t)Mask::Touch;       swap = false; break;
+					case EGAPlanePurpose::Opaque0:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = false;  break;
+					case EGAPlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
 				}
 
 				uint8_t nextByte;

@@ -232,13 +232,13 @@ unsigned int Tileset_CComic::layoutWidth() const
 std::unique_ptr<Image> Tileset_CComic::openImage(FileHandle& id)
 {
 	EGAPlaneLayout planes = {
-		PlanePurpose::Blue1,
-		PlanePurpose::Green1,
-		PlanePurpose::Red1,
-		PlanePurpose::Intensity1,
+		EGAPlanePurpose::Blue1,
+		EGAPlanePurpose::Green1,
+		EGAPlanePurpose::Red1,
+		EGAPlanePurpose::Intensity1,
 		(this->numPlanes == PlaneCount::Masked)
-			? PlanePurpose::Opaque1 : PlanePurpose::Unused,
-		PlanePurpose::Unused,
+			? EGAPlanePurpose::Opaque1 : EGAPlanePurpose::Unused,
+		EGAPlanePurpose::Unused,
 	};
 
 	return std::make_unique<Image_EGA_Planar>(
