@@ -96,7 +96,7 @@ class Image_DDaveVGA: virtual public Image_VGA
 		 *   Image palette.
 		 */
 		Image_DDaveVGA(std::unique_ptr<stream::inout> content, bool fixedSize,
-			std::shared_ptr<Palette> pal);
+			std::shared_ptr<const Palette> pal);
 		virtual ~Image_DDaveVGA();
 
 		virtual Caps caps() const;

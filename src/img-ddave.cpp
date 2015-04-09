@@ -134,7 +134,7 @@ void Image_DDaveEGA::convert(const Pixels& newContent,
 
 
 Image_DDaveVGA::Image_DDaveVGA(std::unique_ptr<stream::inout> content,
-	bool fixedSize, std::shared_ptr<Palette> pal)
+	bool fixedSize, std::shared_ptr<const Palette> pal)
 	:	Image_VGA(std::move(content), fixedSize ? 0 : 4),
 		fixedSize(fixedSize)
 {

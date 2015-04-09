@@ -23,11 +23,12 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/stream_filtered.hpp>
-#include "filter-block-pad.hpp"
-#include "img-ega-rowplanar.hpp"
+#include <camoto/util.hpp> // make_unique
 #include "tls-ddave.hpp"
+#include "filter-block-pad.hpp"
 #include "img-ddave.hpp"
 #include "pal-vga-raw.hpp"
+#include "tileset-fat.hpp"
 
 /// Offset of the number of tilesets
 #define DD_TILECOUNT_OFFSET    0
@@ -53,6 +54,31 @@
 namespace camoto {
 namespace gamegraphics {
 
+class Tileset_DDave: public Tileset_FAT
+{
+	public:
+		Tileset_DDave(std::unique_ptr<stream::inout> content, ColourDepth depth,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_DDave();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual void updateFileOffset(const FATEntry *pid, stream::delta offDelta);
+		virtual void preInsertFile(const FATEntry *idBeforeThis,
+			FATEntry *pNewEntry);
+		virtual void postInsertFile(FATEntry *pNewEntry);
+		virtual void postRemoveFile(const FATEntry *pid);
+
+	private:
+		ColourDepth depth;
+
+		/// Update the number of tiles in the tileset
+		void updateFileCount(uint32_t newCount);
+};
+
 TilesetType_DDave::TilesetType_DDave()
 {
 }
@@ -61,30 +87,30 @@ TilesetType_DDave::~TilesetType_DDave()
 {
 }
 
-std::vector<std::string> TilesetType_DDave::getFileExtensions() const
+std::vector<std::string> TilesetType_DDave::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("dav");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_DDave::getGameList() const
+std::vector<std::string> TilesetType_DDave::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Dangerous Dave");
 	return vcGames;
 }
 
-TilesetType_DDave::Certainty TilesetType_DDave::isInstance(
-	stream::input_sptr psTileset) const
+TilesetType::Certainty TilesetType_DDave::isInstance(stream::input& content)
+	const
 {
-	stream::pos len = psTileset->size();
+	stream::pos len = content.size();
 	// TESTED BY: TODO
 	if (len < DD_FIRST_TILE_OFFSET) return DefinitelyNo; // too short
 
-	psTileset->seekg(0, stream::start);
+	content.seekg(0, stream::start);
 	uint32_t numFiles;
-	psTileset >> u32le(numFiles);
+	content >> u32le(numFiles);
 
 	if ((numFiles == 0) && (len > DD_FIRST_TILE_OFFSET)) return DefinitelyNo; // invalid empty file
 
@@ -92,7 +118,7 @@ TilesetType_DDave::Certainty TilesetType_DDave::isInstance(
 	uint32_t firstOffset;
 	uint32_t secondOffset = len; // default to EOF as second file's offset
 	for (unsigned int i = 0; i < numFiles; i++) {
-		psTileset >> u32le(offset);
+		content >> u32le(offset);
 		if (i == 0) firstOffset = offset;
 		else if (i == 1) secondOffset = offset;
 
@@ -119,52 +145,56 @@ TilesetType_DDave::Certainty TilesetType_DDave::isInstance(
 	return DefinitelyYes;
 }
 
+std::shared_ptr<Tileset> TilesetType_DDave::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
+{
+	content->truncate(4);
+	content->seekp(0, stream::start);
+	*content << u32le(0);
+
+	return this->open(std::move(content), suppData);
+}
+
+std::shared_ptr<Tileset> TilesetType_DDave::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
+{
+	auto content_filtered = std::make_unique<stream::filtered>(
+		std::move(content),
+		std::make_shared<filter_block_unpad>(1, DD_PAD_BLOCK),
+		std::make_shared<filter_block_pad>(std::string(1, '\x00'), DD_PAD_BLOCK),
+		nullptr
+	);
+
+	std::shared_ptr<const Palette> pal;
+	// Only load the palette if one was given
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		auto imgPal = std::make_unique<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), 6);
+		pal = imgPal->palette();
+	}
+
+	return std::make_shared<Tileset_DDave>(
+		std::move(content_filtered),
+		this->colourDepth(),
+		pal
+	);
+}
+
 SuppFilenames TilesetType_DDave::getRequiredSupps(
 	const std::string& filenameTileset) const
 {
-	SuppFilenames supps;
-	return supps;
+	return {};
 }
 
 
-std::string TilesetType_DDaveCGA::getCode() const
+std::string TilesetType_DDaveCGA::code() const
 {
 	return "tls-ddave-cga";
 }
 
-std::string TilesetType_DDaveCGA::getFriendlyName() const
+std::string TilesetType_DDaveCGA::friendlyName() const
 {
 	return "Dangerous Dave CGA tileset";
-}
-
-TilesetPtr TilesetType_DDaveCGA::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	psTileset->truncate(4);
-	psTileset->seekp(0, stream::start);
-	psTileset << u32le(0);
-
-	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
-
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::CGA, pal));
-}
-
-TilesetPtr TilesetType_DDaveCGA::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
-
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::CGA, pal));
 }
 
 bool TilesetType_DDaveCGA::isInstance(int firstTileSize) const
@@ -172,41 +202,20 @@ bool TilesetType_DDaveCGA::isInstance(int firstTileSize) const
 	return (firstTileSize == 64);
 }
 
+ColourDepth TilesetType_DDaveCGA::colourDepth() const
+{
+	return ColourDepth::CGA;
+}
 
-std::string TilesetType_DDaveEGA::getCode() const
+
+std::string TilesetType_DDaveEGA::code() const
 {
 	return "tls-ddave-ega";
 }
 
-std::string TilesetType_DDaveEGA::getFriendlyName() const
+std::string TilesetType_DDaveEGA::friendlyName() const
 {
 	return "Dangerous Dave EGA tileset";
-}
-
-TilesetPtr TilesetType_DDaveEGA::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	psTileset->truncate(4);
-	psTileset->seekp(0, stream::start);
-	psTileset << u32le(0);
-
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::EGA, PaletteTablePtr()));
-}
-
-TilesetPtr TilesetType_DDaveEGA::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::EGA, PaletteTablePtr()));
 }
 
 bool TilesetType_DDaveEGA::isInstance(int firstTileSize) const
@@ -214,55 +223,20 @@ bool TilesetType_DDaveEGA::isInstance(int firstTileSize) const
 	return (firstTileSize == 128);
 }
 
+ColourDepth TilesetType_DDaveEGA::colourDepth() const
+{
+	return ColourDepth::EGA;
+}
 
-std::string TilesetType_DDaveVGA::getCode() const
+
+std::string TilesetType_DDaveVGA::code() const
 {
 	return "tls-ddave-vga";
 }
 
-std::string TilesetType_DDaveVGA::getFriendlyName() const
+std::string TilesetType_DDaveVGA::friendlyName() const
 {
 	return "Dangerous Dave VGA tileset";
-}
-
-TilesetPtr TilesetType_DDaveVGA::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	psTileset->truncate(4);
-	psTileset->seekp(0, stream::start);
-	psTileset << u32le(0);
-
-	PaletteTablePtr pal;
-	// Only load the palette if one was given
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-	}
-
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::VGA, pal));
-}
-
-TilesetPtr TilesetType_DDaveVGA::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
-{
-	PaletteTablePtr pal;
-	// Only load the palette if one was given
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-	}
-
-	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
-	stream::filtered_sptr decoded(new stream::filtered());
-	decoded->open(psTileset, filtRead, filtWrite, NULL);
-
-	return TilesetPtr(new Tileset_DDave(decoded, Tileset_DDave::VGA, pal));
 }
 
 SuppFilenames TilesetType_DDaveVGA::getRequiredSupps(
@@ -278,46 +252,61 @@ bool TilesetType_DDaveVGA::isInstance(int firstTileSize) const
 	return (firstTileSize == 256);
 }
 
-
-Tileset_DDave::Tileset_DDave(stream::inout_sptr data,
-	ImageType imgType, PaletteTablePtr pal)
-	:	Tileset_FAT(data, DD_FIRST_TILE_OFFSET),
-		imgType(imgType),
-		pal(pal)
+ColourDepth TilesetType_DDaveVGA::colourDepth() const
 {
-	stream::pos len = this->data->size();
+	return ColourDepth::VGA;
+}
+
+
+Tileset_DDave::Tileset_DDave(std::unique_ptr<stream::inout> content,
+	ColourDepth depth, std::shared_ptr<const Palette> pal)
+	:	Archive_FAT(std::move(content), DD_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		//Tileset_FAT(content, DD_FIRST_TILE_OFFSET),
+		depth(depth)
+{
+	this->pal = pal;
+	stream::pos len = this->content->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
 	// TESTED BY: tls_ddave_vga_isinstance_c01
 	if (len < DD_FIRST_TILE_OFFSET) throw stream::error("file too short");
 
-	this->data->seekg(0, stream::start);
+	this->content->seekg(0, stream::start);
 	uint32_t numTiles;
-	this->data >> u32le(numTiles);
-	this->items.reserve(numTiles);
+	*this->content >> u32le(numTiles);
+	this->vcFAT.reserve(numTiles);
 	// TESTED BY: tls_ddave_vga_isinstance_c02
 	if (numTiles > DD_SAFETY_MAX_TILES) throw stream::error("too many tiles");
 
 	if (numTiles > 0) {
 		uint32_t nextOffset;
-		this->data >> u32le(nextOffset);
+		*this->content >> u32le(nextOffset);
 		for (unsigned int i = 0; i < numTiles; i++) {
 			FATEntry *fat = new FATEntry();
-			EntryPtr ep(fat);
-			fat->valid = true;
-			fat->attr = 0;
-			fat->index = i;
-			fat->offset = nextOffset;
+			FileHandle ep(fat);
+			fat->bValid = true;
+			fat->fAttr = File::Attribute::Default;
+			fat->iIndex = i;
+			fat->iOffset = nextOffset;
+			fat->type = "tile/ddave";
+			switch (depth) {
+				case ColourDepth::CGA: fat->type += "-cga"; break;
+				case ColourDepth::EGA: fat->type += "-ega"; break;
+				case ColourDepth::VGA: fat->type += "-vga"; break;
+				default: break;
+			}
 			fat->lenHeader = 0;
 			if (i + 1 == numTiles) {
 				// Last entry ends at EOF
 				nextOffset = len;
 			} else {
-				this->data >> u32le(nextOffset);
+				*this->content >> u32le(nextOffset);
 			}
-			fat->size = nextOffset - fat->offset;
-			this->items.push_back(ep);
+			fat->storedSize = nextOffset - fat->iOffset;
+			fat->realSize = fat->storedSize;
+#warning Real size should be smaller than storedSize because of the removed padding byte
+			this->vcFAT.push_back(ep);
 		}
 	}
 }
@@ -326,80 +315,89 @@ Tileset_DDave::~Tileset_DDave()
 {
 }
 
-int Tileset_DDave::getCaps()
+Tileset::Caps Tileset_DDave::caps() const
 {
-	return 0
-		| (this->pal ? Tileset::HasPalette : 0)
-		| ((this->imgType == CGA) ? Tileset::ColourDepthCGA : 0)
-		| ((this->imgType == EGA) ? Tileset::ColourDepthEGA : 0)
-		| ((this->imgType == VGA) ? Tileset::ColourDepthVGA : 0)
-	;
+	return (this->pal ? Tileset::Caps::HasPalette : Tileset::Caps::Default);
 }
 
-ImagePtr Tileset_DDave::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+ColourDepth Tileset_DDave::colourDepth() const
 {
-	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
-	assert(fat);
+	return this->depth;
+}
 
-	ImagePtr conv;
-	bool fixedSize = fat->index < DD_FIRST_TILE_WITH_DIMS;
-	switch (this->imgType) {
-		case CGA:
-			conv.reset(new Image_DDaveCGA(content, fixedSize));
+Point Tileset_DDave::dimensions() const
+{
+	return {0, 0};
+}
+
+unsigned int Tileset_DDave::layoutWidth() const
+{
+	return 4;
+}
+
+std::unique_ptr<Image> Tileset_DDave::openImage(FileHandle& id)
+{
+	auto fat = FATEntry::cast(id);
+	bool fixedSize = fat->iIndex < DD_FIRST_TILE_WITH_DIMS;
+	switch (this->depth) {
+
+		case ColourDepth::CGA:
+			return std::make_unique<Image_DDaveCGA>(
+				this->open(id, true), fixedSize
+			);
+
+		case ColourDepth::EGA:
+			return std::make_unique<Image_DDaveEGA>(
+				this->open(id, true), fixedSize
+			);
+
+		case ColourDepth::VGA:
+			return std::make_unique<Image_DDaveVGA>(
+				this->open(id, true), fixedSize, this->pal
+			);
+
+		default:
 			break;
-		case EGA:
-			conv.reset(new Image_DDaveEGA(content, fixedSize));
-			break;
-		case VGA: {
-			conv.reset(new Image_DDaveVGA(content, fixedSize, this->pal));
-			break;
-		}
 	}
-	return conv;
+	throw stream::error("Unknown colour depth for DDave tileset (this "
+		"shouldn't happen!)");
 }
 
-PaletteTablePtr Tileset_DDave::getPalette()
+void Tileset_DDave::updateFileOffset(const FATEntry *pid, stream::delta offDelta)
 {
-	return this->pal;
-}
-
-void Tileset_DDave::updateFileOffset(const FATEntry *pid,
-	stream::len offDelta)
-{
-	this->data->seekg(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
-	this->data << u32le(pid->offset);
+	this->content->seekg(DD_FAT_OFFSET + pid->iIndex * DD_FAT_ENTRY_LEN, stream::start);
+	*this->content << u32le(pid->iOffset);
 	return;
 }
 
-Tileset_DDave::FATEntry *Tileset_DDave::preInsertFile(
-	const Tileset_DDave::FATEntry *idBeforeThis, Tileset_DDave::FATEntry *pNewEntry)
+void Tileset_DDave::preInsertFile(const FATEntry *idBeforeThis,
+	FATEntry *pNewEntry)
 {
 	pNewEntry->lenHeader = 0;
 
-	this->data->seekp(DD_FAT_OFFSET + pNewEntry->index * DD_FAT_ENTRY_LEN, stream::start);
-	this->data->insert(DD_FAT_ENTRY_LEN);
+	this->content->seekp(DD_FAT_OFFSET + pNewEntry->iIndex * DD_FAT_ENTRY_LEN, stream::start);
+	this->content->insert(DD_FAT_ENTRY_LEN);
 
 	// Because the new entry isn't in the vector yet we need to shift it manually
-	pNewEntry->offset += DD_FAT_ENTRY_LEN;
+	pNewEntry->iOffset += DD_FAT_ENTRY_LEN;
 
 	// Write the new offset
-	this->data << u32le(pNewEntry->offset);
+	*this->content << u32le(pNewEntry->iOffset);
 
 	// Update the offsets now there's a new FAT entry taking up space.
 	this->shiftFiles(
 		NULL,
-		DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN,
+		DD_FAT_OFFSET + this->vcFAT.size() * DD_FAT_ENTRY_LEN,
 		DD_FAT_ENTRY_LEN,
 		0
 	);
 
-	return pNewEntry;
+	return;
 }
 
 void Tileset_DDave::postInsertFile(FATEntry *pNewEntry)
 {
-	this->updateFileCount(this->items.size());
+	this->updateFileCount(this->vcFAT.size());
 	return;
 }
 
@@ -411,25 +409,25 @@ void Tileset_DDave::postRemoveFile(const FATEntry *pid)
 	// it'll overwrite something else.)
 	this->shiftFiles(
 		NULL,
-		DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN,
+		DD_FAT_OFFSET + this->vcFAT.size() * DD_FAT_ENTRY_LEN,
 		-DD_FAT_ENTRY_LEN,
 		0
 	);
 
 	// Remove the last FAT entry now it is no longer in use
-	//this->data->seekp(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
-	this->data->seekp(DD_FAT_OFFSET + this->items.size() * DD_FAT_ENTRY_LEN,
+	//this->content->seekp(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
+	this->content->seekp(DD_FAT_OFFSET + this->vcFAT.size() * DD_FAT_ENTRY_LEN,
 		stream::start);
-	this->data->remove(DD_FAT_ENTRY_LEN);
+	this->content->remove(DD_FAT_ENTRY_LEN);
 
-	this->updateFileCount(this->items.size());
+	this->updateFileCount(this->vcFAT.size());
 	return;
 }
 
 void Tileset_DDave::updateFileCount(uint32_t newCount)
 {
-	this->data->seekp(DD_TILECOUNT_OFFSET, stream::start);
-	this->data << u32le(newCount);
+	this->content->seekp(DD_TILECOUNT_OFFSET, stream::start);
+	*this->content << u32le(newCount);
 	return;
 }
 

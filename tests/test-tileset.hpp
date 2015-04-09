@@ -47,6 +47,9 @@ class test_tileset: public test_archive
 
 		/// Dimensions of the first tile in the tileset.
 		Point firstTileDims;
+
+		/// Set to true if the colour indices can only be 0..3 (false == 0..15)
+		bool cga;
 };
 
 /// Add a test_tileset member function to the test suite

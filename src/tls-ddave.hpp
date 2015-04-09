@@ -22,127 +22,69 @@
 #define _CAMOTO_TLS_DDAVE_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include <camoto/gamegraphics/palettetable.hpp>
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetType_DDave: virtual public TilesetType {
-
+class TilesetType_DDave: virtual public TilesetType
+{
 	public:
 		TilesetType_DDave();
-
 		virtual ~TilesetType_DDave();
 
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 
 	protected:
+		/// Figure out what colour depth we'll be creating the Tileset in
+		virtual ColourDepth colourDepth() const = 0;
+
 		/// Given the size of the first tile (in bytes), is this a valid instance?
 		virtual bool isInstance(int firstTileSize) const = 0;
-
 };
 
-class TilesetType_DDaveCGA: virtual public TilesetType_DDave {
-
+class TilesetType_DDaveCGA: virtual public TilesetType_DDave
+{
 	public:
-
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 
 	protected:
+		virtual ColourDepth colourDepth() const;
 		virtual bool isInstance(int firstTileSize) const;
-
 };
 
-class TilesetType_DDaveEGA: virtual public TilesetType_DDave {
-
+class TilesetType_DDaveEGA: virtual public TilesetType_DDave
+{
 	public:
-
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 
 	protected:
+		virtual ColourDepth colourDepth() const;
 		virtual bool isInstance(int firstTileSize) const;
-
 };
 
-class TilesetType_DDaveVGA: virtual public TilesetType_DDave {
-
+class TilesetType_DDaveVGA: virtual public TilesetType_DDave
+{
 	public:
-
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 
 		// Extra one to add palette as supp
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 
 	protected:
+		virtual ColourDepth colourDepth() const;
 		virtual bool isInstance(int firstTileSize) const;
-
-};
-
-
-class Tileset_DDave: virtual public Tileset_FAT {
-
-	public:
-		enum ImageType {CGA, EGA, VGA};
-
-		Tileset_DDave(stream::inout_sptr data, ImageType imgType,
-			PaletteTablePtr pal);
-
-		virtual ~Tileset_DDave();
-
-		virtual int getCaps();
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-		virtual PaletteTablePtr getPalette();
-
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
-
-		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry);
-
-		virtual void postInsertFile(FATEntry *pNewEntry);
-
-		virtual void postRemoveFile(const FATEntry *pid);
-
-	private:
-		ImageType imgType;
-		PaletteTablePtr pal;
-
-		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount);
-
 };
 
 } // namespace gamearchive

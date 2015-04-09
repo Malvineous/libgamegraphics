@@ -38,6 +38,18 @@ using namespace camoto::gamearchive;
 		); \
 	}
 
+/// Create a standard pattern in the given size.
+Pixels createTileData(const Point& dims, bool cga, unsigned int index)
+{
+	auto pix = createPixelData(dims, cga);
+	if ((dims.x > 0) && (dims.y > 0)) {
+		// Write index at second and second-last pixel, over the top of the standard data
+		pix[1] = index;
+		pix[dims.x * dims.y - 2] = index;
+	}
+	return pix;
+}
+
 test_tileset::test_tileset()
 {
 	this->firstTileDims = {9999, 9999};
@@ -181,10 +193,10 @@ void test_tileset::test_open_image()
 {
 	BOOST_TEST_MESSAGE("Opening image in tileset");
 
-	auto ep = this->findFile(0);
-
 	auto tileset = std::dynamic_pointer_cast<Tileset>(this->pArchive);
 	BOOST_REQUIRE(tileset);
+
+	auto ep = this->findFile(0);
 
 	auto img = tileset->openImage(ep);
 	BOOST_REQUIRE(img);
@@ -194,11 +206,29 @@ void test_tileset::test_open_image()
 	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 
 	auto pixels = img->convert();
-	auto pixelsExpected = createPixelData(dimsReported, this->cga);
+	auto pixelsExpected = createTileData(dimsReported, this->cga, 0);
 	auto strPixels = std::string(pixels.begin(), pixels.end());
 	auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
 	BOOST_REQUIRE_MESSAGE(
 		this->is_equal(strPixelsExpected, strPixels),
 		"First tile in tileset was not standard test image"
+	);
+
+	ep = this->findFile(1);
+
+	img = tileset->openImage(ep);
+	BOOST_REQUIRE(img);
+
+	dimsReported = img->dimensions();
+	BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
+	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
+
+	pixels = img->convert();
+	pixelsExpected = createTileData(dimsReported, this->cga, 1);
+	strPixels = std::string(pixels.begin(), pixels.end());
+	strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
+	BOOST_REQUIRE_MESSAGE(
+		this->is_equal(strPixelsExpected, strPixels),
+		"Second tile in tileset was not standard test image"
 	);
 }
