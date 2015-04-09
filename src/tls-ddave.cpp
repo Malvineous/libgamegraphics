@@ -23,7 +23,7 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/stream_filtered.hpp>
-#include "filter-pad.hpp"
+#include "filter-block-pad.hpp"
 #include "img-ega-rowplanar.hpp"
 #include "tls-ddave.hpp"
 #include "img-ddave.hpp"
@@ -146,8 +146,8 @@ TilesetPtr TilesetType_DDaveCGA::create(stream::inout_sptr psTileset,
 
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
 
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
@@ -159,8 +159,8 @@ TilesetPtr TilesetType_DDaveCGA::open(stream::inout_sptr psTileset,
 {
 	PaletteTablePtr pal = createPalette_CGA(CGAPal_CyanMagentaBright);
 
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
@@ -190,8 +190,8 @@ TilesetPtr TilesetType_DDaveEGA::create(stream::inout_sptr psTileset,
 	psTileset->seekp(0, stream::start);
 	psTileset << u32le(0);
 
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
@@ -201,8 +201,8 @@ TilesetPtr TilesetType_DDaveEGA::create(stream::inout_sptr psTileset,
 TilesetPtr TilesetType_DDaveEGA::open(stream::inout_sptr psTileset,
 	SuppData& suppData) const
 {
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
@@ -239,8 +239,8 @@ TilesetPtr TilesetType_DDaveVGA::create(stream::inout_sptr psTileset,
 		pal = palFile->getPalette();
 	}
 
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 
@@ -257,8 +257,8 @@ TilesetPtr TilesetType_DDaveVGA::open(stream::inout_sptr psTileset,
 		pal = palFile->getPalette();
 	}
 
-	filter_sptr filtRead(new filter_unpad(1, DD_PAD_BLOCK));
-	filter_sptr filtWrite(new filter_pad(std::string("\x00", 1), DD_PAD_BLOCK));
+	filter_sptr filtRead(new filter_block_unpad(1, DD_PAD_BLOCK));
+	filter_sptr filtWrite(new filter_block_pad(std::string("\x00", 1), DD_PAD_BLOCK));
 	stream::filtered_sptr decoded(new stream::filtered());
 	decoded->open(psTileset, filtRead, filtWrite, NULL);
 

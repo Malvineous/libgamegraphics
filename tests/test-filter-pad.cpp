@@ -1,5 +1,5 @@
 /**
- * @file   test-filter-pad.cpp
+ * @file   test-filter-block-pad.cpp
  * @brief  Test code for padding filter.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -18,13 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../src/filter-pad.hpp"
+#include "../src/filter-block-pad.hpp"
 #include "test-filter.hpp"
 
-class test_filter_pad: public test_filter
+class test_filter_block_pad: public test_filter
 {
 	public:
-		test_filter_pad()
+		test_filter_block_pad()
 		{
 		}
 
@@ -32,28 +32,28 @@ class test_filter_pad: public test_filter
 		{
 			this->test_filter::addTests();
 
-			this->process(std::make_unique<filter_pad>("pad", 10),
+			this->process(std::make_unique<filter_block_pad>("pad", 10),
 				STRING_WITH_NULLS(
 				"0123456789ABCDEFGHI"
 			), STRING_WITH_NULLS(
 				"0123456789padABCDEFGHI"
 			));
 
-			this->process(std::make_unique<filter_pad>("pad", 10),
+			this->process(std::make_unique<filter_block_pad>("pad", 10),
 				STRING_WITH_NULLS(
 				"0123456789ABCDEFGHIJ"
 			), STRING_WITH_NULLS(
 				"0123456789padABCDEFGHIJpad"
 			));
 
-			this->process(std::make_unique<filter_unpad>(3, 10),
+			this->process(std::make_unique<filter_block_unpad>(3, 10),
 				STRING_WITH_NULLS(
 				"0123456789padABCDEFGHI"
 			), STRING_WITH_NULLS(
 				"0123456789ABCDEFGHI"
 			));
 
-			this->process(std::make_unique<filter_unpad>(3, 10),
+			this->process(std::make_unique<filter_block_unpad>(3, 10),
 				STRING_WITH_NULLS(
 				"0123456789padABCDEFGHIJpad"
 			), STRING_WITH_NULLS(
@@ -62,4 +62,4 @@ class test_filter_pad: public test_filter
 		}
 };
 
-IMPLEMENT_TESTS(filter_pad);
+IMPLEMENT_TESTS(filter_block_pad);

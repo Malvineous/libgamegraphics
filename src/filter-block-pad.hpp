@@ -1,5 +1,5 @@
 /**
- * @file  filter-pad.hpp
+ * @file  filter-block-pad.hpp
  * @brief Filter algorithm for inserting and removing padding data.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -28,7 +28,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filter that adds extra padding data every fixed number of bytes.
-class filter_pad: virtual public filter
+class filter_block_pad: virtual public filter
 {
 	public:
 		/// Constructor.
@@ -41,7 +41,7 @@ class filter_pad: virtual public filter
 		 *   How many bytes between padding.  The pad data is inserted after this
 		 *   number of bytes have been read.
 		 */
-		filter_pad(std::string padData, stream::len lenPadPos);
+		filter_block_pad(std::string padData, stream::len lenPadPos);
 
 		virtual void reset(stream::len lenInput);
 		virtual void transform(uint8_t *out, stream::len *lenOut,
@@ -54,7 +54,7 @@ class filter_pad: virtual public filter
 };
 
 /// Filter that removes extra padding data every fixed number of bytes.
-class filter_unpad: virtual public filter
+class filter_block_unpad: virtual public filter
 {
 	public:
 		/// Constructor.
@@ -67,7 +67,7 @@ class filter_unpad: virtual public filter
 		 *   How many bytes between padding.  The pad data is removed after every
 		 *   lot of this number of bytes have been read.
 		 */
-		filter_unpad(stream::len lenPadData, stream::len lenPadPos);
+		filter_block_unpad(stream::len lenPadData, stream::len lenPadPos);
 
 		virtual void reset(stream::len lenInput);
 		virtual void transform(uint8_t *out, stream::len *lenOut,

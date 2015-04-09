@@ -1,5 +1,5 @@
 /**
- * @file  filter-pad.cpp
+ * @file  filter-block-pad.cpp
  * @brief Filter algorithm for inserting and removing padding data.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -18,24 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "filter-pad.hpp"
+#include "filter-block-pad.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-filter_pad::filter_pad(std::string padData, stream::len lenPadPos)
+filter_block_pad::filter_block_pad(std::string padData, stream::len lenPadPos)
 	:	padData(padData),
 		lenPadPos(lenPadPos)
 {
 }
 
-void filter_pad::reset(stream::len lenInput)
+void filter_block_pad::reset(stream::len lenInput)
 {
 	this->lenProcessed = 0;
 	return;
 }
 
-void filter_pad::transform(uint8_t *out, stream::len *lenOut,
+void filter_block_pad::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
 {
 	stream::len r = 0, w = 0;
@@ -44,7 +44,7 @@ void filter_pad::transform(uint8_t *out, stream::len *lenOut,
 		// Do padding now
 		unsigned long lenPadData = this->padData.size();
 		if (lenPadData > *lenOut) {
-			throw stream::error("filter_pad: Buffer too small for padding data");
+			throw stream::error("filter_block_pad: Buffer too small for padding data");
 		}
 		memcpy(out, this->padData.data(), lenPadData);
 		w += lenPadData;
@@ -71,19 +71,19 @@ void filter_pad::transform(uint8_t *out, stream::len *lenOut,
 }
 
 
-filter_unpad::filter_unpad(stream::len lenPadData, stream::len lenPadPos)
+filter_block_unpad::filter_block_unpad(stream::len lenPadData, stream::len lenPadPos)
 	:	lenPadData(lenPadData),
 		lenPadPos(lenPadPos)
 {
 }
 
-void filter_unpad::reset(stream::len lenInput)
+void filter_block_unpad::reset(stream::len lenInput)
 {
 	this->lenProcessed = 0;
 	return;
 }
 
-void filter_unpad::transform(uint8_t *out, stream::len *lenOut,
+void filter_block_unpad::transform(uint8_t *out, stream::len *lenOut,
 	const uint8_t *in, stream::len *lenIn)
 {
 	stream::len r = 0, w = 0;
@@ -91,7 +91,7 @@ void filter_unpad::transform(uint8_t *out, stream::len *lenOut,
 	if (this->lenProcessed >= this->lenPadPos) {
 		// Remove padding now
 		if (this->lenPadData > *lenIn) {
-			throw stream::error("filter_unpad: Input buffer smaller than data to remove");
+			throw stream::error("filter_block_unpad: Input buffer smaller than data to remove");
 		}
 		// Discard this data
 		r += this->lenPadData;
