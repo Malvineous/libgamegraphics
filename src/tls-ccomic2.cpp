@@ -160,8 +160,7 @@ std::shared_ptr<Tileset> TilesetType_CComic2::open(
 SuppFilenames TilesetType_CComic2::getRequiredSupps(
 	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -175,19 +174,18 @@ Tileset_CComic2::Tileset_CComic2(std::unique_ptr<stream::inout> content,
 		Tileset_FAT_FixedTileSize(CC2_TILE_WIDTH / 8 * CC2_TILE_HEIGHT * (int)numPlanes),
 		numPlanes(numPlanes)
 {
-	int tileSize = (int)this->numPlanes << 5; // multiply by 32 (bytes per plane)
 	int lenHeader = CC2_firstTileOffset(numPlanes);
 
 	stream::pos len = this->content->size() - lenHeader;
-	int numImages = len / tileSize;
+	int numImages = len / this->lenTile;
 
 	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
 		auto f = std::make_unique<FATEntry>();
 
 		f->iIndex = i;
-		f->iOffset = lenHeader + i * tileSize;
-		f->storedSize = tileSize;
+		f->iOffset = lenHeader + i * this->lenTile;
+		f->storedSize = this->lenTile;
 		f->lenHeader = 0;
 		f->type = FILETYPE_CCOMIC2;
 		f->fAttr = File::Attribute::Default;

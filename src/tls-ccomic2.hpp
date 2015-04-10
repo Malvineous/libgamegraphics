@@ -45,18 +45,6 @@ class TilesetType_CComic2: virtual public TilesetType
 			const;
 };
 
-class TilesetType_CComic2_Sprite: virtual public TilesetType_CComic2
-{
-	public:
-		virtual std::string code() const;
-		virtual std::string friendlyName() const;
-		virtual Certainty isInstance(stream::input& content) const;
-		virtual std::shared_ptr<Tileset> create(
-			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual std::shared_ptr<Tileset> open(
-			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-};
-
 } // namespace gamegraphics
 } // namespace camoto
 
