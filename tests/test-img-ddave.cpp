@@ -1,6 +1,6 @@
 /**
- * @file  test-img-ega-rowplanar.cpp
- * @brief Test code for conversion to and from row-planar EGA data.
+ * @file  test-img-ddave.cpp
+ * @brief Test code for conversion to and from Dangerous Dave images.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *

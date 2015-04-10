@@ -198,13 +198,16 @@ void test_tileset::test_open_image()
 
 	auto ep = this->findFile(0);
 
+	BOOST_TEST_CHECKPOINT("Opening first tile as image");
 	auto img = tileset->openImage(ep);
 	BOOST_REQUIRE(img);
 
+	BOOST_TEST_CHECKPOINT("Retrieving dimensions of first tile");
 	auto dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 
+	BOOST_TEST_CHECKPOINT("Converting first image to standard format");
 	auto pixels = img->convert();
 	auto pixelsExpected = createTileData(dimsReported, this->cga, 0);
 	auto strPixels = std::string(pixels.begin(), pixels.end());
@@ -216,13 +219,16 @@ void test_tileset::test_open_image()
 
 	ep = this->findFile(1);
 
+	BOOST_TEST_CHECKPOINT("Opening second tile as image");
 	img = tileset->openImage(ep);
 	BOOST_REQUIRE(img);
 
+	BOOST_TEST_CHECKPOINT("Retrieving dimensions of second tile");
 	dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 
+	BOOST_TEST_CHECKPOINT("Converting second image to standard format");
 	pixels = img->convert();
 	pixelsExpected = createTileData(dimsReported, this->cga, 1);
 	strPixels = std::string(pixels.begin(), pixels.end());

@@ -1,6 +1,6 @@
 /**
- * @file   test-tls-ddave.cpp
- * @brief  Test code for Tileset_HarryICO class.
+ * @file  test-tls-ddave.cpp
+ * @brief Test code for Dangerous Dave tilesets.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
