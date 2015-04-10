@@ -28,7 +28,6 @@ int main(void)
 	uint8_t t, a;  // text, attribute
 	int col = 0;
 	int fg = -1, bg = -1, newfg, newbg;
-	bool changeAttr = false;
 	while (!cin.eof()) {
 		cin.read((char *)&t, 1);
 		cin.read((char *)&a, 1);
