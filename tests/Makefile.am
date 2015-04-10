@@ -31,6 +31,7 @@ tests_SOURCES += test-tls-cosmo.cpp
 tests_SOURCES += test-tls-ddave.cpp
 tests_SOURCES += test-tls-harry-hsb.cpp
 tests_SOURCES += test-tls-harry-ico.cpp
+tests_SOURCES += test-tls-stryker.cpp
 tests_SOURCES += test-tls-vinyl.cpp
 tests_SOURCES += test-tls-zone66.cpp
 
