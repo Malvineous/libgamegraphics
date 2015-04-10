@@ -21,43 +21,39 @@
 #ifndef _CAMOTO_TLS_EGA_APOGEE_HPP_
 #define _CAMOTO_TLS_EGA_APOGEE_HPP_
 
-#include <camoto/gamegraphics/tilesettype.hpp>
-#include <camoto/gamegraphics/palettetable.hpp>
+#include "img-ega.hpp"
 #include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Number of planes in each sprite (masked) image
-#define EGA_NUMPLANES_MASKED  5
-
-/// Number of planes in each tile (nonmasked) image
-#define EGA_NUMPLANES_SOLID   4
-
-class Tileset_EGAApogee: virtual public Tileset_FAT
+class Tileset_EGAApogee:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
 {
 	public:
-		Tileset_EGAApogee(stream::inout_sptr data, unsigned int tileWidth,
-			unsigned int tileHeight, unsigned int numPlanes, unsigned int idealWidth,
-			PaletteTablePtr pal);
+		Tileset_EGAApogee(std::unique_ptr<stream::inout> content,
+			Point tileDimensions, PlaneCount numPlanes, unsigned int idealWidth,
+			std::shared_ptr<const Palette> pal);
 		virtual ~Tileset_EGAApogee();
 
-		virtual int getCaps();
-		void resize(EntryPtr& id, stream::len newSize);
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-		virtual unsigned int getLayoutWidth();
-		virtual PaletteTablePtr getPalette();
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		using Tileset_FAT::dimensions;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
 
 	protected:
-		unsigned int tileWidth;
-		unsigned int tileHeight;
-		unsigned int numPlanes;
+		Point tileDimensions;
+		PlaneCount numPlanes;
 		unsigned int idealWidth;
-		PaletteTablePtr pal;
 };
 
 } // namespace gamegraphics

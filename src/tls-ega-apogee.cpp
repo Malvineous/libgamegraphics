@@ -23,8 +23,11 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "img-ega-byteplanar.hpp"
 #include "tls-ega-apogee.hpp"
+
+#define FILETYPE_APOGEE "tile/apogee-ega"
 
 namespace camoto {
 namespace gamegraphics {
@@ -32,34 +35,35 @@ namespace gamegraphics {
 /// Offset of first tileset in a tileset collection.
 #define EGA_APOGEE_FIRST_TILE_OFFSET 0
 
-Tileset_EGAApogee::Tileset_EGAApogee(stream::inout_sptr data,
-	unsigned int tileWidth, unsigned int tileHeight, unsigned int numPlanes,
-	unsigned int idealWidth, PaletteTablePtr pal)
-	:	Tileset_FAT(data, EGA_APOGEE_FIRST_TILE_OFFSET),
-		tileWidth(tileWidth),
-		tileHeight(tileHeight),
+Tileset_EGAApogee::Tileset_EGAApogee(std::unique_ptr<stream::inout> content,
+	Point tileDimensions, PlaneCount numPlanes, unsigned int idealWidth,
+	std::shared_ptr<const Palette> pal)
+	:	Archive_FAT(std::move(content), EGA_APOGEE_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize(tileDimensions.x / 8 * tileDimensions.y * (unsigned int)numPlanes),
+		tileDimensions(tileDimensions),
 		numPlanes(numPlanes),
-		idealWidth(idealWidth),
-		pal(pal)
+		idealWidth(idealWidth)
 {
-	int tileSize = tileWidth / 8 * tileHeight * this->numPlanes;
+	this->pal = pal;
 
-	stream::pos len = this->data->size();
+	int tileSize = this->tileDimensions.x / 8 * this->tileDimensions.y * (unsigned int)this->numPlanes;
 
-	this->data->seekg(0, stream::start);
+	stream::pos len = this->content->size();
+
+	this->content->seekg(0, stream::start);
 	int numImages = len / tileSize;
 
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = i * tileSize;
-		fat->size = tileSize;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = i * tileSize;
+		fat->storedSize = fat->realSize = tileSize;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
+		fat->type = FILETYPE_APOGEE;
+		this->vcFAT.push_back(std::move(fat));
 	}
 
 }
@@ -68,56 +72,60 @@ Tileset_EGAApogee::~Tileset_EGAApogee()
 {
 }
 
-int Tileset_EGAApogee::getCaps()
+Tileset::Caps Tileset_EGAApogee::caps() const
 {
-	return Tileset::ColourDepthEGA
-		| (this->pal ? Tileset::HasPalette : 0);
+	return Tileset::Caps::Default
+		| (this->pal ? Tileset::Caps::HasPalette : Tileset::Caps::Default);
 }
 
-void Tileset_EGAApogee::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_EGAApogee::colourDepth() const
 {
-	if (newSize != this->tileWidth / 8 * this->tileHeight * this->numPlanes) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return ColourDepth::EGA;
 }
 
-void Tileset_EGAApogee::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset_EGAApogee::dimensions() const
 {
-	*width = this->tileWidth;
-	*height = this->tileHeight;
-	return;
+	return this->tileDimensions;
 }
 
-unsigned int Tileset_EGAApogee::getLayoutWidth()
+unsigned int Tileset_EGAApogee::layoutWidth() const
 {
 	return this->idealWidth;
 }
 
-PaletteTablePtr Tileset_EGAApogee::getPalette()
+std::unique_ptr<Image> Tileset_EGAApogee::openImage(FileHandle& id)
 {
-	return this->pal;
+	EGAPlaneLayout planes;
+	switch (this->numPlanes) {
+		case PlaneCount::Solid:
+			planes = {
+				EGAPlanePurpose::Blue1,
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Red1,
+				EGAPlanePurpose::Intensity1,
+			};
+			break;
+		case PlaneCount::Masked:
+			planes = {
+				EGAPlanePurpose::Opaque1,
+				EGAPlanePurpose::Blue1,
+				EGAPlanePurpose::Green1,
+				EGAPlanePurpose::Red1,
+				EGAPlanePurpose::Intensity1,
+			};
+			break;
+	}
+	return std::make_unique<Image_EGA_BytePlanar>(
+		this->open(id, true), 0, this->dimensions(), planes, this->palette()
+	);
 }
 
-ImagePtr Tileset_EGAApogee::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+Tileset::FileHandle Tileset_EGAApogee::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
 {
-	PLANE_LAYOUT planes;
-	int offset = (this->numPlanes == EGA_NUMPLANES_SOLID) ? 1 : 0;
-	planes[PLANE_BLUE] = 2 - offset;
-	planes[PLANE_GREEN] = 3 - offset;
-	planes[PLANE_RED] = 4 - offset;
-	planes[PLANE_INTENSITY] = 5 - offset;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1 - offset;
-
-	Image_EGABytePlanar *ega = new Image_EGABytePlanar();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, this->tileWidth, this->tileHeight, planes, this->pal
-	);
-
-	return conv;
+	auto newHandle = this->insert(idBeforeThis, "", this->lenTile,
+		FILETYPE_APOGEE, attr);
+	return newHandle;
 }
 
 } // namespace gamegraphics
