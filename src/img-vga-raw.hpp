@@ -33,12 +33,13 @@ class ImageType_VGARawBase: virtual public ImageType
 	public:
 		virtual std::vector<std::string> fileExtensions() const;
 		virtual std::vector<std::string> games() const;
-		virtual Certainty isInstance(stream::input& fsImage) const;
-		virtual std::unique_ptr<Image> create(std::unique_ptr<stream::inout> content,
-			SuppData& suppData) const;
-		virtual std::unique_ptr<Image> open(std::unique_ptr<stream::inout> fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 
 	protected:
 		unsigned int depth; // palette depth (6 or 8)
@@ -91,7 +92,7 @@ class Image_VGARaw: virtual public Image_VGA
 			std::shared_ptr<const Palette> pal);
 		virtual ~Image_VGARaw();
 
-		virtual Image::Caps caps() const;
+		virtual Caps caps() const;
 		virtual Point dimensions() const;
 		virtual void dimensions(const Point& newDimensions);
 		virtual std::shared_ptr<const Palette> palette() const;

@@ -415,7 +415,7 @@ void Tileset_DDave::postRemoveFile(const FATEntry *pid)
 	);
 
 	// Remove the last FAT entry now it is no longer in use
-	//this->content->seekp(DD_FAT_OFFSET + pid->index * DD_FAT_ENTRY_LEN, stream::start);
+	//this->content->seekp(DD_FAT_OFFSET + pid->iIndex * DD_FAT_ENTRY_LEN, stream::start);
 	this->content->seekp(DD_FAT_OFFSET + this->vcFAT.size() * DD_FAT_ENTRY_LEN,
 		stream::start);
 	this->content->remove(DD_FAT_ENTRY_LEN);

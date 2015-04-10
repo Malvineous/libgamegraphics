@@ -27,7 +27,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Partial Tileset implementation where all tiles are the same size.
+/// Partial Archive/Tileset implementation where all tiles are the same size (in bytes.)
 class Tileset_FAT_FixedTileSize: virtual public Tileset_FAT
 {
 	public:

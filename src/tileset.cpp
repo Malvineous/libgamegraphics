@@ -34,7 +34,7 @@ Tileset::~Tileset()
 
 std::shared_ptr<Tileset> Tileset::openTileset(FileHandle& id)
 {
-	// Caller didn't check FileHandle->attr
+	// Caller didn't check FileHandle->fAttr
 	assert(false);
 	throw stream::error("This tileset has no images"
 		" (this is a bug - the caller should have checked the FileHandle's"
@@ -43,7 +43,7 @@ std::shared_ptr<Tileset> Tileset::openTileset(FileHandle& id)
 
 std::unique_ptr<Image> Tileset::openImage(FileHandle& id)
 {
-	// Caller didn't check FileHandle->attr
+	// Caller didn't check FileHandle->fAttr
 	assert(false);
 	throw stream::error("This tileset has no images"
 		" (this is a bug - the caller should have checked the FileHandle's"

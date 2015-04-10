@@ -38,7 +38,8 @@ std::vector<std::string> ImageType_VGARawBase::games() const
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_VGARawBase::isInstance(stream::input& content)
+ImageType::Certainty ImageType_VGARawBase::isInstance(
+	stream::input& content)
 	const
 {
 	stream::pos len = content.size();
@@ -61,8 +62,8 @@ std::unique_ptr<Image> ImageType_VGARawBase::create(
 	return this->open(std::move(content), suppData);
 }
 
-std::unique_ptr<Image> ImageType_VGARawBase::open(std::unique_ptr<stream::inout> content,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_VGARawBase::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	std::shared_ptr<const Palette> pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
@@ -75,7 +76,8 @@ std::unique_ptr<Image> ImageType_VGARawBase::open(std::unique_ptr<stream::inout>
 		std::dynamic_pointer_cast<const Palette>(pal));
 }
 
-SuppFilenames ImageType_VGARawBase::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_VGARawBase::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =
