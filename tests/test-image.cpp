@@ -282,11 +282,12 @@ void test_image::test_changeMetadata(camoto::Metadata::MetadataType item,
 }
 
 void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
-	const std::string& content, std::shared_ptr<const Palette> palette)
+	const std::string& content, std::shared_ptr<const Palette> palette,
+	std::string strPixelsExpected)
 {
 	// Read pixels
 	std::function<void()> fnTest = std::bind(&test_image::test_sizedContent_read_pix,
-		this, dims, result, content, palette);
+		this, dims, result, content, palette, strPixelsExpected);
 	this->ts->add(boost::unit_test::make_test_case(
 		boost::unit_test::callback0<>(fnTest),
 		createString("test_image[" << this->basename << "]::sizedContent_read_pix["
@@ -306,7 +307,7 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 
 	// Write pixels and mask
 	fnTest = std::bind(&test_image::test_sizedContent_create,
-		this, dims, result, content, palette);
+		this, dims, result, content, palette, strPixelsExpected);
 	this->ts->add(boost::unit_test::make_test_case(
 		boost::unit_test::callback0<>(fnTest),
 		createString("test_image[" << this->basename << "]::sizedContent_create["
@@ -317,7 +318,7 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 
 void test_image::test_sizedContent_read_pix(const Point& dims,
 	ImageType::Certainty result, const std::string& content,
-	std::shared_ptr<const Palette> palette)
+	std::shared_ptr<const Palette> palette, std::string strPixelsExpected)
 {
 	BOOST_TEST_MESSAGE(createString("sizedContent_read check (" << this->basename
 		<< dims.x << "x" << dims.y << ")"));
@@ -333,9 +334,12 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 	BOOST_TEST_CHECKPOINT("Convert to standard pixel data");
 	auto pixels = img->convert();
 	if ((dims.x > 0) && (dims.y > 0)) {
-		auto pixelsExpected = createPixelData(dimsReported, this->cga);
+		if (strPixelsExpected.empty()) {
+			// No target image was specified, load the standard one
+			auto pixelsExpected = createPixelData(dimsReported, this->cga);
+			strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
+		}
 		auto strPixels = std::string(pixels.begin(), pixels.end());
-		auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
 		BOOST_REQUIRE_MESSAGE(
 			this->is_equal(strPixelsExpected, strPixels),
 			"Converting to standard pixel data produced incorrect result"
@@ -412,7 +416,7 @@ void test_image::test_sizedContent_read_mask(const Point& dims,
 
 void test_image::test_sizedContent_create(const Point& dims,
 	ImageType::Certainty result, const std::string& content,
-	std::shared_ptr<const Palette> palette)
+	std::shared_ptr<const Palette> palette, std::string strPixelsExpected)
 {
 	BOOST_TEST_CHECKPOINT("Init");
 	BOOST_TEST_MESSAGE(createString("sizedContent_create check (" << this->basename
@@ -449,7 +453,13 @@ void test_image::test_sizedContent_create(const Point& dims,
 		maskData = Pixels(dimsReported.x * dimsReported.y, '\x00');
 	}
 	BOOST_TEST_CHECKPOINT("Perform conversion");
-	img->convert(createPixelData(dimsReported, this->cga), maskData);
+	Pixels pix;
+	if (strPixelsExpected.empty()) {
+		pix = createPixelData(dimsReported, this->cga);
+	} else {
+		pix = Pixels(strPixelsExpected.begin(), strPixelsExpected.end());
+	}
+	img->convert(pix, maskData);
 
 	BOOST_TEST_CHECKPOINT("Compare result of conversion");
 	BOOST_REQUIRE_MESSAGE(
