@@ -40,14 +40,20 @@ class ImageType_PCXBase: virtual public ImageType
 		 * @param numPlanes
 		 *   Number of colour planes.  This must match the file being opened or a
 		 *   stream::error will be thrown.
+		 *
+		 * @param useRLE
+		 *   true to RLE encode the pixel data, false not to.  Almost all PCX files
+		 *   are RLE-encoded.  This value is only used when writing.  When reading,
+		 *   the file can have RLE on or not, it doesn't matter.  When set to false,
+		 *   a file will always be written without RLE.  When set to true, a file
+		 *   can be written with RLE on or off, depending on what the original
+		 *   file's setting was.
 		 */
-		ImageType_PCXBase(int bitsPerPlane, int numPlanes);
+		ImageType_PCXBase(int bitsPerPlane, int numPlanes, bool useRLE);
 		virtual ~ImageType_PCXBase();
 
 		virtual std::string code() const;
-		//virtual std::string friendlyName() const;
 		virtual std::vector<std::string> fileExtensions() const;
-		//virtual std::vector<std::string> games() const;
 		virtual Certainty isInstance(stream::input& content) const;
 		virtual std::unique_ptr<Image> create(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
@@ -59,6 +65,7 @@ class ImageType_PCXBase: virtual public ImageType
 	protected:
 		uint8_t bitsPerPlane; ///< Number of bits per pixel in each plane
 		uint8_t numPlanes;    ///< Number of planes in this file
+		bool useRLE;          ///< true to RLE-encode pixel data, false not to
 };
 
 /// Filetype handler for planar EGA (1b4p) .PCX images.
@@ -78,6 +85,17 @@ class ImageType_PCX_LinearVGA: virtual public ImageType_PCXBase
 	public:
 		ImageType_PCX_LinearVGA();
 		virtual ~ImageType_PCX_LinearVGA();
+
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> games() const;
+};
+
+/// Filetype handler for linear VGA (8b1p) .PCX images, with RLE off.
+class ImageType_PCX_LinearVGA_NoRLE: virtual public ImageType_PCXBase
+{
+	public:
+		ImageType_PCX_LinearVGA_NoRLE();
+		virtual ~ImageType_PCX_LinearVGA_NoRLE();
 
 		virtual std::string friendlyName() const;
 		virtual std::vector<std::string> games() const;

@@ -199,11 +199,19 @@ class Image_PCX: virtual public Image
 		 *   Number of colour planes.  This must match the file being opened or a
 		 *   stream::error will be thrown.
 		 *
+		 * @param useRLE
+		 *   true to RLE encode the pixel data, false not to.  Almost all PCX files
+		 *   are RLE-encoded.  This value is only used when writing.  When reading,
+		 *   the file can have RLE on or not, it doesn't matter.  When set to false,
+		 *   a file will always be written without RLE.  When set to true, a file
+		 *   can be written with RLE on or off, depending on what the original
+		 *   file's setting was.
+		 *
 		 * @throw stream::error
 		 *   Read error or invalid file format.
 		 */
 		Image_PCX(std::shared_ptr<stream::inout> content, uint8_t bitsPerPlane,
-			uint8_t numPlanes);
+			uint8_t numPlanes, bool useRLE);
 		virtual ~Image_PCX();
 
 		virtual Caps caps() const;
@@ -221,13 +229,16 @@ class Image_PCX: virtual public Image
 		uint8_t encoding;
 		uint8_t bitsPerPlane;
 		uint8_t numPlanes;
+		bool useRLE;
 		Point dims;
 };
 
 
-ImageType_PCXBase::ImageType_PCXBase(int bitsPerPlane, int numPlanes)
+ImageType_PCXBase::ImageType_PCXBase(int bitsPerPlane, int numPlanes,
+	bool useRLE)
 	:	bitsPerPlane(bitsPerPlane),
-		numPlanes(numPlanes)
+		numPlanes(numPlanes),
+		useRLE(useRLE)
 {
 }
 
@@ -237,10 +248,10 @@ ImageType_PCXBase::~ImageType_PCXBase()
 
 std::string ImageType_PCXBase::code() const
 {
-	std::stringstream code;
-	code << "img-pcx-" << (int)this->bitsPerPlane << "b"
-		<< (int)this->numPlanes << "p";
-	return code.str();
+	auto code = createString("img-pcx-" << (int)this->bitsPerPlane << "b"
+		<< (int)this->numPlanes << "p");
+	if (!this->useRLE) code.append("-norle");
+	return code;
 }
 
 std::vector<std::string> ImageType_PCXBase::fileExtensions() const
@@ -284,6 +295,8 @@ ImageType::Certainty ImageType_PCXBase::isInstance(
 	// TESTED BY: img_pcx_*_isinstance_c03
 	if (bpp != this->bitsPerPlane) return DefinitelyNo;
 
+	// The RLE flag is for writing only, we will accept files either way.
+
 	uint8_t pln;
 	content.seekg(65, stream::start);
 	content >> u8(pln);
@@ -301,13 +314,12 @@ std::unique_ptr<Image> ImageType_PCXBase::create(
 {
 	content->seekp(0, stream::start);
 
-	// Create a 16-colour 1-bit-per-plane image
-	content->write(
-		"\x0A" // sig
-		"\x05" // ver
-		"\x01" // encoding
-		, 3);
-	*content << u8(this->bitsPerPlane);
+	*content
+		<< u8(0x0A) // sig
+		<< u8(0x05) // ver
+		<< u8(this->useRLE ? 0x01 : 0x00) // encoding
+		<< u8(this->bitsPerPlane);
+
 	content->write(
 		"\x00\x00" // xmin
 		"\x00\x00" // ymin
@@ -352,7 +364,7 @@ std::unique_ptr<Image> ImageType_PCXBase::open(
 	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	return std::make_unique<Image_PCX>(
-		std::move(content), this->bitsPerPlane, this->numPlanes
+		std::move(content), this->bitsPerPlane, this->numPlanes, this->useRLE
 	);
 }
 
@@ -364,7 +376,7 @@ SuppFilenames ImageType_PCXBase::getRequiredSupps(
 
 
 ImageType_PCX_PlanarEGA::ImageType_PCX_PlanarEGA()
-	:	ImageType_PCXBase(1, 4)
+	:	ImageType_PCXBase(1, 4, true)
 {
 }
 
@@ -386,7 +398,7 @@ std::vector<std::string> ImageType_PCX_PlanarEGA::games() const
 
 
 ImageType_PCX_LinearVGA::ImageType_PCX_LinearVGA()
-	:	ImageType_PCXBase(8, 1)
+	:	ImageType_PCXBase(8, 1, true)
 {
 }
 
@@ -407,10 +419,33 @@ std::vector<std::string> ImageType_PCX_LinearVGA::games() const
 }
 
 
-Image_PCX::Image_PCX(std::shared_ptr<stream::inout> content, uint8_t bitsPerPlane, uint8_t numPlanes)
+ImageType_PCX_LinearVGA_NoRLE::ImageType_PCX_LinearVGA_NoRLE()
+	:	ImageType_PCXBase(8, 1, false)
+{
+}
+
+ImageType_PCX_LinearVGA_NoRLE::~ImageType_PCX_LinearVGA_NoRLE()
+{
+}
+
+std::string ImageType_PCX_LinearVGA_NoRLE::friendlyName() const
+{
+	return "PCX image (256-colour linear VGA; no RLE)";
+}
+
+std::vector<std::string> ImageType_PCX_LinearVGA_NoRLE::games() const
+{
+	std::vector<std::string> vcGames;
+	return vcGames;
+}
+
+
+Image_PCX::Image_PCX(std::shared_ptr<stream::inout> content,
+	uint8_t bitsPerPlane, uint8_t numPlanes, bool useRLE)
 	:	content(content),
 		bitsPerPlane(bitsPerPlane),
-		numPlanes(numPlanes)
+		numPlanes(numPlanes),
+		useRLE(useRLE)
 {
 	this->content->seekg(1, stream::start);
 	uint8_t bpp, pln;
@@ -622,7 +657,7 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	*this->content
 		<< u8(0x0A)
 		<< u8(this->ver)
-		<< u8(this->encoding)
+		<< u8(this->useRLE ? this->encoding : 0x00)
 		<< u8(this->bitsPerPlane)
 		<< u16le(0) // xmin
 		<< u16le(0) // ymin
@@ -668,7 +703,7 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	);
 
 	// Encode the RLE image data if necessary
-	if (this->encoding == 1) {
+	if (this->useRLE && (this->encoding == 1)) {
 		content_pixels = std::make_shared<stream::output_filtered>(
 			content_pixels,
 			std::make_shared<filter_pcx_rle>(),
