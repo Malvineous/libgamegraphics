@@ -389,7 +389,7 @@ void test_image::test_sizedContent_read_mask(const Point& dims,
 	ImageType::Certainty result, const std::string& content)
 {
 	BOOST_TEST_MESSAGE(createString("sizedContent_read check (" << this->basename
-		<< dims.x << "x" << dims.y << ")"));
+		<< "[" << dims.x << "x" << dims.y << "])"));
 
 	auto ss = std::make_unique<stream::string>(content);
 	auto img = this->openImage(dims, std::move(ss), result, false);
@@ -458,6 +458,10 @@ void test_image::test_sizedContent_create(const Point& dims,
 		pix = createPixelData(dimsReported, this->cga);
 	} else {
 		pix = Pixels(strPixelsExpected.begin(), strPixelsExpected.end());
+		auto imageSize = dimsReported.x * dimsReported.y;
+		BOOST_REQUIRE_MESSAGE(pix.size() == imageSize,
+			"Image data supplied to this test is the wrong length (got "
+			<< pix.size() << " bytes, need " << imageSize << " bytes)");
 	}
 	img->convert(pix, maskData);
 
