@@ -148,7 +148,7 @@ class test_image: public test_main
 
 		/// Add another image size and matching content to run conversion tests.
 		void sizedContent(const Point& dims, ImageType::Certainty result,
-			const std::string& content, std::shared_ptr<Palette> palette = nullptr);
+			const std::string& content, std::shared_ptr<const Palette> palette = nullptr);
 
 	protected:
 		/// Perform an invalidContent check now.
@@ -163,7 +163,7 @@ class test_image: public test_main
 		/// Perform a sizedContent check now, reading the image (pixels).
 		void test_sizedContent_read_pix(const Point& dims,
 			ImageType::Certainty result, const std::string& content,
-			std::shared_ptr<Palette> palette);
+			std::shared_ptr<const Palette> palette);
 
 		/// Perform a sizedContent check now, reading the image (mask).
 		void test_sizedContent_read_mask(const Point& dims,
@@ -172,7 +172,7 @@ class test_image: public test_main
 		/// Perform a sizedContent check now, creating a new image.
 		void test_sizedContent_create(const Point& dims,
 			ImageType::Certainty result, const std::string& content,
-			std::shared_ptr<Palette> palette);
+			std::shared_ptr<const Palette> palette);
 
 		/// Does the archive content match the parameter?
 		boost::test_tools::predicate_result is_content_equal(const std::string& exp);

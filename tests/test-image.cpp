@@ -282,7 +282,7 @@ void test_image::test_changeMetadata(camoto::Metadata::MetadataType item,
 }
 
 void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
-	const std::string& content, std::shared_ptr<Palette> palette)
+	const std::string& content, std::shared_ptr<const Palette> palette)
 {
 	// Read pixels
 	std::function<void()> fnTest = std::bind(&test_image::test_sizedContent_read_pix,
@@ -317,7 +317,7 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 
 void test_image::test_sizedContent_read_pix(const Point& dims,
 	ImageType::Certainty result, const std::string& content,
-	std::shared_ptr<Palette> palette)
+	std::shared_ptr<const Palette> palette)
 {
 	BOOST_TEST_MESSAGE(createString("sizedContent_read check (" << this->basename
 		<< dims.x << "x" << dims.y << ")"));
@@ -412,7 +412,7 @@ void test_image::test_sizedContent_read_mask(const Point& dims,
 
 void test_image::test_sizedContent_create(const Point& dims,
 	ImageType::Certainty result, const std::string& content,
-	std::shared_ptr<Palette> palette)
+	std::shared_ptr<const Palette> palette)
 {
 	BOOST_TEST_CHECKPOINT("Init");
 	BOOST_TEST_MESSAGE(createString("sizedContent_create check (" << this->basename
