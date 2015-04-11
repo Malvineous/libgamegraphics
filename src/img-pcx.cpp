@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/bind.hpp>
+#include <cassert>
 #include <camoto/bitstream.hpp>
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp>
@@ -34,8 +34,8 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Resize a stream when the end part of it has been turned into a substream
-void truncateParent(stream::output_sptr parent, stream::output_sub_sptr sub,
-	stream::pos off, stream::len len)
+void truncateParent(std::shared_ptr<stream::output> parent, stream::pos off,
+	stream::output_sub* sub, stream::len len)
 {
 	parent->truncate(off + len);
 	sub->resize(len);
@@ -173,11 +173,56 @@ class filter_pcx_rle: virtual public filter
 		}
 };
 
-stream::len putNextChar(stream::output_sptr src, uint8_t *lastChar, uint8_t out)
+stream::len putNextChar(std::shared_ptr<stream::output> src, uint8_t *lastChar, uint8_t out)
 {
 	*lastChar = out;
 	return src->try_write(&out, 1);
 }
+
+
+/// Standard PCX Image implementation.
+class Image_PCX: virtual public Image
+{
+	public:
+		/// Constructor
+		/**
+		 * Create an image from the supplied stream.
+		 *
+		 * @param content
+		 *   VGA image data.
+		 *
+		 * @param bitsPerPlane
+		 *   Number of bits per pixel in each plane.  This must match the file being
+		 *   opened or a stream::error will be thrown.
+		 *
+		 * @param numPlanes
+		 *   Number of colour planes.  This must match the file being opened or a
+		 *   stream::error will be thrown.
+		 *
+		 * @throw stream::error
+		 *   Read error or invalid file format.
+		 */
+		Image_PCX(std::shared_ptr<stream::inout> content, uint8_t bitsPerPlane,
+			uint8_t numPlanes);
+		virtual ~Image_PCX();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
+
+	protected:
+		std::shared_ptr<stream::inout> content;
+		uint8_t ver;
+		uint8_t encoding;
+		uint8_t bitsPerPlane;
+		uint8_t numPlanes;
+		Point dims;
+};
 
 
 ImageType_PCXBase::ImageType_PCXBase(int bitsPerPlane, int numPlanes)
@@ -190,7 +235,7 @@ ImageType_PCXBase::~ImageType_PCXBase()
 {
 }
 
-std::string ImageType_PCXBase::getCode() const
+std::string ImageType_PCXBase::code() const
 {
 	std::stringstream code;
 	code << "img-pcx-" << (int)this->bitsPerPlane << "b"
@@ -198,43 +243,52 @@ std::string ImageType_PCXBase::getCode() const
 	return code.str();
 }
 
-std::vector<std::string> ImageType_PCXBase::getFileExtensions() const
+std::vector<std::string> ImageType_PCXBase::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("pcx");
 	return vcExtensions;
 }
 
-ImageType::Certainty ImageType_PCXBase::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_PCXBase::isInstance(
+	stream::input& content) const
 {
-	psImage->seekg(0, stream::start);
+	// Header too short
+	// TESTED BY: img_pcx_*_isinstance_c05
+	if (content.size() < 128) return DefinitelyNo;
+
+	content.seekg(0, stream::start);
 
 	uint8_t sig, ver, enc, bpp;
-	psImage
+	content
 		>> u8(sig)
 		>> u8(ver)
 		>> u8(enc)
 		>> u8(bpp)
 	;
 
+	// Bad signature
 	// TESTED BY: img_pcx_*_isinstance_c01
 	if (sig != 0x0A) return DefinitelyNo;
 
+	// Unsupported version
 	// TESTED BY: img_pcx_*_isinstance_c02
 	if (
 		(ver != 0x00) &&
 		(ver != 0x02) &&
 		(ver != 0x03) &&
 		(ver != 0x05)
-	) return DefinitelyNo; // unsupported version
+	) return DefinitelyNo;
 
-	uint8_t pln;
-	psImage->seekg(65, stream::start);
-	psImage >> u8(pln);
-
+	// Wrong number of bits per plane
 	// TESTED BY: img_pcx_*_isinstance_c03
 	if (bpp != this->bitsPerPlane) return DefinitelyNo;
 
+	uint8_t pln;
+	content.seekg(65, stream::start);
+	content >> u8(pln);
+
+	// Wrong number of planes
 	// TESTED BY: img_pcx_*_isinstance_c04
 	if (pln != this->numPlanes) return DefinitelyNo;
 
@@ -242,17 +296,19 @@ ImageType::Certainty ImageType_PCXBase::isInstance(stream::input_sptr psImage) c
 	return DefinitelyYes;
 }
 
-ImagePtr ImageType_PCXBase::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_PCXBase::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
+	content->seekp(0, stream::start);
+
 	// Create a 16-colour 1-bit-per-plane image
-	psImage->write(
+	content->write(
 		"\x0A" // sig
 		"\x05" // ver
 		"\x01" // encoding
 		, 3);
-	psImage << u8(this->bitsPerPlane);
-	psImage->write(
+	*content << u8(this->bitsPerPlane);
+	content->write(
 		"\x00\x00" // xmin
 		"\x00\x00" // ymin
 		"\x00\x00" // xmax
@@ -262,21 +318,21 @@ ImagePtr ImageType_PCXBase::create(stream::inout_sptr psImage,
 		, 12
 	);
 
-	PaletteTablePtr pal = createPalette_DefaultEGA();
+	std::shared_ptr<Palette> pal = createPalette_DefaultEGA();
 	assert(pal->size() == 16);
 	for (int i = 0; i < 16; i++) {
-		psImage
+		*content
 			<< u8(pal->at(i).red)
 			<< u8(pal->at(i).green)
 			<< u8(pal->at(i).blue)
 		;
 	}
 
-	psImage
+	*content
 		<< u8(0) // reserved
 		<< u8(this->numPlanes)
 	;
-	psImage->write(
+	content->write(
 		"\x00\x00" // bytes per scanline
 		"\x01\x00" // palette flag
 		"\x00\x00" // x scroll
@@ -286,21 +342,24 @@ ImagePtr ImageType_PCXBase::create(stream::inout_sptr psImage,
 
 	// Padding
 	for (int i = 0; i < 54; i++) {
-		psImage->write("\0", 1);
+		content->write("\0", 1);
 	}
 
-	return ImagePtr(new Image_PCX(psImage, this->bitsPerPlane, this->numPlanes));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_PCXBase::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_PCXBase::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return ImagePtr(new Image_PCX(psImage, this->bitsPerPlane, this->numPlanes));
+	return std::make_unique<Image_PCX>(
+		std::move(content), this->bitsPerPlane, this->numPlanes
+	);
 }
 
-SuppFilenames ImageType_PCXBase::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_PCXBase::getRequiredSupps(
+	const std::string& filenameImage) const
 {
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -313,12 +372,12 @@ ImageType_PCX_PlanarEGA::~ImageType_PCX_PlanarEGA()
 {
 }
 
-std::string ImageType_PCX_PlanarEGA::getFriendlyName() const
+std::string ImageType_PCX_PlanarEGA::friendlyName() const
 {
 	return "PCX image (16-colour planar EGA)";
 }
 
-std::vector<std::string> ImageType_PCX_PlanarEGA::getGameList() const
+std::vector<std::string> ImageType_PCX_PlanarEGA::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Word Rescue");
@@ -335,12 +394,12 @@ ImageType_PCX_LinearVGA::~ImageType_PCX_LinearVGA()
 {
 }
 
-std::string ImageType_PCX_LinearVGA::getFriendlyName() const
+std::string ImageType_PCX_LinearVGA::friendlyName() const
 {
 	return "PCX image (256-colour linear VGA)";
 }
 
-std::vector<std::string> ImageType_PCX_LinearVGA::getGameList() const
+std::vector<std::string> ImageType_PCX_LinearVGA::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Halloween Harry");
@@ -348,15 +407,15 @@ std::vector<std::string> ImageType_PCX_LinearVGA::getGameList() const
 }
 
 
-Image_PCX::Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes)
-	:	data(data),
+Image_PCX::Image_PCX(std::shared_ptr<stream::inout> content, uint8_t bitsPerPlane, uint8_t numPlanes)
+	:	content(content),
 		bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes)
 {
-	this->data->seekg(1, stream::start);
+	this->content->seekg(1, stream::start);
 	uint8_t bpp, pln;
 	uint16_t xmin, ymin, xmax, ymax;
-	this->data
+	*this->content
 		>> u8(this->ver)
 		>> u8(this->encoding)
 		>> u8(bpp)
@@ -365,11 +424,11 @@ Image_PCX::Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numP
 		>> u16le(xmax)
 		>> u16le(ymax)
 	;
-	this->width = xmax - xmin + 1;
-	this->height = ymax - ymin + 1;
+	this->dims.x = xmax - xmin + 1;
+	this->dims.y = ymax - ymin + 1;
 
-	this->data->seekg(65, stream::start);
-	this->data
+	this->content->seekg(65, stream::start);
+	*this->content
 		>> u8(pln)
 	;
 
@@ -378,99 +437,138 @@ Image_PCX::Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numP
 			<< (int)pln << "p format, cannot open as PCX " << (int)this->bitsPerPlane
 			<< "b" << (int)this->numPlanes << "p."));
 	}
+
+	// Load the palette
+	if (this->ver == 3) { // 2.8 w/out palette
+		this->pal = createPalette_DefaultEGA();
+	} else {
+
+		/// @todo Handle CGA graphics-mode palette
+
+		uint8_t palSig = 0;
+		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
+			try {
+				this->content->seekg(-769, stream::end);
+				*this->content >> u8(palSig);
+			} catch (const stream::error&) {
+				palSig = 0;
+			}
+		}
+
+		int palSize;
+		if (palSig == 0x0C) {
+			// 256-colour palette
+			palSize = 256;
+		} else {
+			// Default to EGA palette in file header
+			palSize = 16;
+			this->content->seekg(16, stream::start);
+		}
+
+		auto newPal = std::make_shared<Palette>();
+		newPal->reserve(palSize);
+		for (int c = 0; c < palSize; c++) {
+			PaletteEntry p;
+			*this->content
+				>> u8(p.red)
+				>> u8(p.green)
+				>> u8(p.blue)
+			;
+			p.alpha = 255;
+			newPal->push_back(p);
+		}
+		this->pal = newPal;
+	}
+	assert(this->pal);
 }
 
 Image_PCX::~Image_PCX()
 {
 }
 
-int Image_PCX::getCaps()
+Image::Caps Image_PCX::caps() const
 {
-	int depth;
+	return
+		  Image::Caps::SetDimensions
+		| Image::Caps::HasPalette
+		| Image::Caps::SetPalette
+	;
+}
+
+ColourDepth Image_PCX::colourDepth() const
+{
 	int numColours = 1 << (this->numPlanes * this->bitsPerPlane);
-	if (numColours > 16) depth = Image::ColourDepthVGA;
-	else if (numColours > 4) depth = Image::ColourDepthEGA;
-	else if (numColours > 1) depth = Image::ColourDepthCGA;
-	else depth = Image::ColourDepthMono;
-
-	return Image::CanSetDimensions | Image::HasPalette | Image::CanSetPalette
-		| depth;
+	if (numColours > 16) return ColourDepth::VGA;
+	else if (numColours > 4) return ColourDepth::EGA;
+	else if (numColours > 1) return ColourDepth::CGA;
+	return ColourDepth::Mono;
 }
 
-void Image_PCX::getDimensions(unsigned int *width, unsigned int *height)
+Point Image_PCX::dimensions() const
 {
-	*width = this->width;
-	*height = this->height;
+	return this->dims;
+}
+
+void Image_PCX::dimensions(const Point& newDimensions)
+{
+	assert(this->caps() & Image::Caps::SetDimensions);
+	this->dims = newDimensions;
 	return;
 }
 
-void Image_PCX::setDimensions(unsigned int width, unsigned int height)
+Pixels Image_PCX::convert() const
 {
-	assert(this->getCaps() & Image::CanSetDimensions);
-	this->width = width;
-	this->height = height;
-	return;
-}
+	auto dims = this->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
 
-StdImageDataPtr Image_PCX::toStandard()
-{
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
+	Pixels imgData(dims.x * dims.y, '\x00');
 
-	unsigned long dataSize = width * height;
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-
-	this->data->seekg(66, stream::start);
+	this->content->seekg(66, stream::start);
 	int16_t bytesPerPlaneScanline;
-	this->data
+	*this->content
 		>> u16le(bytesPerPlaneScanline)
 	;
 	if (bytesPerPlaneScanline % 2) throw stream::error("Invalid PCX file (bytes "
 		"per scanline is not an even number)");
 
-	// Decode the RLE image data if necessary
-	stream::input_sptr filtered;
-	if (this->encoding == 1) {
-		// Find the end of the RLE data
-		stream::len lenRLE = this->data->size() - 128; // 128 == header
-		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
-			try {
-				uint8_t palSig = 0;
-				this->data->seekg(-769, stream::end);
-				this->data >> u8(palSig);
-				if (palSig == 0x0C) {
-					// There is a VGA palette
-					lenRLE -= 769;
-				}
-			} catch (const stream::error&) {
-				// no palette
+	// Find the end of the pixel data
+	stream::len lenRLE = this->content->size() - 128; // 128 == header
+	if (this->ver >= 5) { // 3.0 or better, look for VGA pal
+		try {
+			uint8_t palSig = 0;
+			this->content->seekg(-769, stream::end);
+			*this->content >> u8(palSig);
+			if (palSig == 0x0C) {
+				// There is a VGA palette
+				lenRLE -= 769;
 			}
+		} catch (const stream::error&) {
+			// no palette
 		}
+	}
+	std::shared_ptr<stream::input> content_pixels =
+		std::make_shared<stream::input_sub>(this->content, 128, lenRLE);
 
-		stream::input_sub_sptr sub(new stream::input_sub());
-		sub->open(this->data, 128, lenRLE);
-		filter_sptr filt(new filter_pcx_unrle());
-		stream::input_filtered_sptr fs(new stream::input_filtered());
-		fs->open(sub, filt);
-		filtered = fs;
-	} else {
-		filtered = this->data;
+	// Decode the RLE pixel data if necessary
+	if (this->encoding == 1) {
+		content_pixels = std::make_shared<stream::input_filtered>(
+			content_pixels,
+			std::make_shared<filter_pcx_unrle>()
+		);
 	}
 
-	uint8_t *line = imgData;
-	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
+	auto line = &imgData[0];
+	auto bits = std::make_unique<bitstream>(bitstream::bigEndian);
 	/// @todo write bitstream version that takes input- and output-only streams (rather than r/w ones only)
-	//bitstream_sptr bits(new bitstream(filtered, bitstream::bigEndian));
+	//std::shared_ptr<bitstream> bits(new bitstream(filtered, bitstream::bigEndian));
 
-	fn_getnextchar cbNext = boost::bind(&stream::input::try_read, filtered, _1, 1);
+	fn_getnextchar cbNext = std::bind(&stream::input::try_read, content_pixels, std::placeholders::_1, 1);
 	unsigned int val;
 	bool eof = false;
-	for (unsigned int y = 0; y < height; y++) {
-		memset(line, 0, width); // blank out line
+	for (unsigned int y = 0; y < dims.y; y++) {
+		memset(line, 0, dims.x); // blank out line
 		for (unsigned int p = 0; p < this->numPlanes; p++) {
-			for (unsigned int x = 0; x < width; x++) {
+			for (unsigned int x = 0; x < dims.x; x++) {
 				if (!eof) {
 					if (bits->read(cbNext, this->bitsPerPlane, &val) != this->bitsPerPlane) {
 						std::cerr << "[img-pcx] PCX data ended early!  Returning "
@@ -484,82 +582,72 @@ StdImageDataPtr Image_PCX::toStandard()
 			}
 			// Skip over any EOL padding.
 			bits->flushByte();
-			int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * width + 7) / 8);
+			int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * dims.x + 7) / 8);
 			if (pad < 0) throw stream::error("Corrupted PCX file - bad value for "
 				"'bytes per scanline'");
 			uint8_t dummy;
 			while (pad--) cbNext(&dummy);
 		}
-		line += width;
+		line += dims.x;
 	}
-	return ret;
+	return imgData;
 }
 
-StdImageDataPtr Image_PCX::toStandardMask()
+Pixels Image_PCX::convert_mask() const
 {
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
-	int dataSize = width * height;
-
 	// Return an entirely opaque mask
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-	memset(imgData, 0, dataSize);
-
-	return ret;
+	auto dims = this->dimensions();
+	return Pixels(dims.x * dims.y, '\x00');
 }
 
-void Image_PCX::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 {
 	// Remember the current palette before we start overwriting things, in case
 	// it hasn't been set
-	if (!this->pal) this->getPalette();
+	auto pal = this->palette();
+	assert(pal);
 
-	unsigned int width, height;
-	this->getDimensions(&width, &height);
-	assert((width != 0) && (height != 0));
+	auto dims = this->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
 
-	int16_t bytesPerPlaneScanline = width * this->bitsPerPlane / 8;
+	int16_t bytesPerPlaneScanline = dims.x * this->bitsPerPlane / 8;
 	// Pad out to a multiple of PLANE_PAD bytes
 	bytesPerPlaneScanline += bytesPerPlaneScanline % PLANE_PAD;
 
 	// Assume worst case and enlarge file enough to fit complete data
-	stream::len maxSize = 128+bytesPerPlaneScanline*2 * this->numPlanes * height + 768+1;
-	this->data->truncate(maxSize);
+	stream::len maxSize = 128+bytesPerPlaneScanline*2 * this->numPlanes * dims.y + 768+1;
+	this->content->truncate(maxSize);
 
-	this->data->seekg(0, stream::start);
-	this->data
+	this->content->seekg(0, stream::start);
+	*this->content
 		<< u8(0x0A)
 		<< u8(this->ver)
 		<< u8(this->encoding)
 		<< u8(this->bitsPerPlane)
 		<< u16le(0) // xmin
 		<< u16le(0) // ymin
-		<< u16le(width - 1)
-		<< u16le(height - 1)
+		<< u16le(dims.x - 1)
+		<< u16le(dims.y - 1)
 		<< u16le(75) // dpi
 		<< u16le(75)
 	;
 
 	/// @todo Handle CGA graphics-mode palette
 
-	int palSize = this->pal->size();
+	int palSize = pal->size();
 	for (int i = 0; i < std::min(palSize, 16); i++) {
-		this->data
-			<< u8(this->pal->at(i).red)
-			<< u8(this->pal->at(i).green)
-			<< u8(this->pal->at(i).blue)
+		*this->content
+			<< u8(pal->at(i).red)
+			<< u8(pal->at(i).green)
+			<< u8(pal->at(i).blue)
 		;
 	}
 	// Pad out to 16 colours if needed
 	for (int i = palSize; i < 16; i++) {
-		this->data->write("\0\0\0", 3);
+		this->content->write("\0\0\0", 3);
 	}
 
-	this->data
+	*this->content
 		<< u8(0) // reserved
 		<< u8(this->numPlanes)
 		<< u16le(bytesPerPlaneScanline)
@@ -569,35 +657,37 @@ void Image_PCX::fromStandard(StdImageDataPtr newContent,
 	;
 	// Padding
 	for (int i = 0; i < 54; i++) {
-		this->data->write("\0", 1);
+		this->content->write("\0", 1);
 	}
 
-	assert(this->data->tellp() == 128);
+	assert(this->content->tellp() == 128);
+	std::shared_ptr<stream::output> content_pixels = std::make_shared<stream::output_sub>(
+		this->content,
+		128, maxSize - 128,
+		std::bind(&truncateParent, this->content, 128, std::placeholders::_1, std::placeholders::_2)
+	);
+
 	// Encode the RLE image data if necessary
-	stream::output_sptr filtered;
 	if (this->encoding == 1) {
-		stream::output_sub_sptr sub(new stream::output_sub());
-		sub->open(this->data, 128, maxSize - 128, boost::bind(&truncateParent, this->data, sub, 128, _1));
-		filter_sptr filt(new filter_pcx_rle());
-		stream::output_filtered_sptr fs(new stream::output_filtered());
-		fs->open(sub, filt, NULL);
-		filtered = fs;
-	} else {
-		filtered = this->data;
+		content_pixels = std::make_shared<stream::output_filtered>(
+			content_pixels,
+			std::make_shared<filter_pcx_rle>(),
+			nullptr
+		);
 	}
 
-	uint8_t *line = newContent.get();
-	bitstream_sptr bits(new bitstream(bitstream::bigEndian));
+	auto line = &newContent[0];
+	auto bits = std::make_unique<bitstream>(bitstream::bigEndian);
 	uint8_t lastChar;
-	fn_putnextchar cbNext = boost::bind(putNextChar, filtered, &lastChar, _1);
+	fn_putnextchar cbNext = std::bind(putNextChar, content_pixels, &lastChar, std::placeholders::_1);
 	int planeMask = (1 << this->bitsPerPlane) - 1;
-	int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * width + 7) / 8);
+	int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * dims.x + 7) / 8);
 	int val;
 
-	for (unsigned int y = 0; y < height; y++) {
+	for (unsigned int y = 0; y < dims.y; y++) {
 		for (unsigned int p = 0; p < this->numPlanes; p++) {
 			int bitsInPlane = (p * this->bitsPerPlane);
-			for (unsigned int x = 0; x < width; x++) {
+			for (unsigned int x = 0; x < dims.x; x++) {
 				val = (line[x] >> bitsInPlane) & planeMask;
 				bits->write(cbNext, this->bitsPerPlane, val);
 			}
@@ -608,7 +698,7 @@ void Image_PCX::fromStandard(StdImageDataPtr newContent,
 				// efficient way to do so.
 				int prevBits = lastChar & ~mask;
 				if ((next | prevBits) == lastChar) {
-					int bitpad = 8 - ((this->bitsPerPlane * width) % 8);
+					int bitpad = 8 - ((this->bitsPerPlane * dims.x) % 8);
 					assert(bitpad != 0);
 					bits->write(cbNext, bitpad, prevBits);
 				}
@@ -619,83 +709,28 @@ void Image_PCX::fromStandard(StdImageDataPtr newContent,
 			// Pad scanline to multiple of PLANE_PAD bytes
 			for (int z = 0; z < pad; z++) cbNext(lastChar);
 		}
-		line += width;
+		line += dims.x;
 	}
-	filtered->flush();
-	filtered.reset();
+	content_pixels->flush();
+	content_pixels.reset();
 
 	// Write the VGA palette if ver 5 and 256 colour pal
 	if ((this->ver >= 5) && (palSize > 16)) {
-		this->data << u8(0x0C); // palette presence flag
+		*this->content << u8(0x0C); // palette presence flag
 		for (int i = 0; i < std::min(palSize, 256); i++) {
-			this->data
-				<< u8(this->pal->at(i).red)
-				<< u8(this->pal->at(i).green)
-				<< u8(this->pal->at(i).blue)
+			*this->content
+				<< u8(pal->at(i).red)
+				<< u8(pal->at(i).green)
+				<< u8(pal->at(i).blue)
 			;
 		}
 		// Pad out to 256 colours if needed
 		for (int i = palSize; i < 256; i++) {
-			this->data->write("\0\0\0", 3);
+			this->content->write("\0\0\0", 3);
 		}
 	}
 
-	this->data->truncate_here();
-	return;
-}
-
-PaletteTablePtr Image_PCX::getPalette()
-{
-	if (!this->pal) {
-
-		if (this->ver == 3) { // 2.8 w/out palette
-			this->pal = createPalette_DefaultEGA();
-			return this->pal;
-		}
-
-		/// @todo Handle CGA graphics-mode palette
-
-		uint8_t palSig = 0;
-		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
-			try {
-				this->data->seekg(-769, stream::end);
-				this->data >> u8(palSig);
-			} catch (const stream::error&) {
-				palSig = 0;
-			}
-		}
-
-		int palSize;
-		if (palSig == 0x0C) {
-			// 256-colour palette
-			palSize = 256;
-		} else {
-			// Default to EGA palette in file header
-			palSize = 16;
-			this->data->seekg(16, stream::start);
-		}
-
-		uint8_t *rawPal = new uint8_t[palSize * 3];
-		this->data->read((char *)rawPal, palSize*3);
-		this->pal.reset(new PaletteTable());
-		this->pal->reserve(palSize);
-		uint8_t *r = rawPal;
-		for (int c = 0; c < palSize; c++) {
-			PaletteEntry p;
-			p.red = *r++;
-			p.green = *r++;
-			p.blue = *r++;
-			p.alpha = 255;
-			this->pal->push_back(p);
-		}
-		delete[] rawPal;
-	}
-	return this->pal;
-}
-
-void Image_PCX::setPalette(PaletteTablePtr newPalette)
-{
-	this->pal = newPalette;
+	this->content->truncate_here();
 	return;
 }
 

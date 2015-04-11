@@ -22,7 +22,6 @@
 #define _CAMOTO_IMG_PCX_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -45,15 +44,15 @@ class ImageType_PCXBase: virtual public ImageType
 		ImageType_PCXBase(int bitsPerPlane, int numPlanes);
 		virtual ~ImageType_PCXBase();
 
-		virtual std::string getCode() const;
-		//virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		//virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		//virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		//virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
 			const;
 
@@ -69,8 +68,8 @@ class ImageType_PCX_PlanarEGA: virtual public ImageType_PCXBase
 		ImageType_PCX_PlanarEGA();
 		virtual ~ImageType_PCX_PlanarEGA();
 
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getGameList() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> games() const;
 };
 
 /// Filetype handler for linear VGA (8b1p) .PCX images.
@@ -80,54 +79,8 @@ class ImageType_PCX_LinearVGA: virtual public ImageType_PCXBase
 		ImageType_PCX_LinearVGA();
 		virtual ~ImageType_PCX_LinearVGA();
 
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getGameList() const;
-};
-
-/// Standard PCX Image implementation.
-class Image_PCX: virtual public Image_Base
-{
-	public:
-		/// Constructor
-		/**
-		 * Create an image from the supplied stream.
-		 *
-		 * @param data
-		 *   VGA image data.
-		 *
-		 * @param bitsPerPlane
-		 *   Number of bits per pixel in each plane.  This must match the file being
-		 *   opened or a stream::error will be thrown.
-		 *
-		 * @param numPlanes
-		 *   Number of colour planes.  This must match the file being opened or a
-		 *   stream::error will be thrown.
-		 *
-		 * @throw stream::error
-		 *   Read error or invalid file format.
-		 */
-		Image_PCX(stream::inout_sptr data, uint8_t bitsPerPlane, uint8_t numPlanes);
-		virtual ~Image_PCX();
-
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-		virtual PaletteTablePtr getPalette();
-		virtual void setPalette(PaletteTablePtr newPalette);
-
-	protected:
-		stream::inout_sptr data;
-		PaletteTablePtr pal;
-		uint8_t ver;
-		uint8_t encoding;
-		uint8_t bitsPerPlane;
-		uint8_t numPlanes;
-		unsigned int width;
-		unsigned int height;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> games() const;
 };
 
 } // namespace gamegraphics

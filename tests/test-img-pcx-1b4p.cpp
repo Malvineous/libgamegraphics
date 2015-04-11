@@ -18,322 +18,282 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/gamegraphics/image.hpp>
-#include "../src/img-pcx.hpp"
+#include "test-image.hpp"
 
-using namespace camoto::gamegraphics;
-using namespace camoto;
-
-#define PCX_PAL \
-	"\x00\x00\x00" \
-	"\x00\x00\xAA" \
-	"\x00\xAA\x00" \
-	"\x00\xAA\xAA" \
-	"\xAA\x00\x00" \
-	"\xAA\x00\xAA" \
-	"\xAA\x55\x00" \
-	"\xAA\xAA\xAA" \
-	"\x55\x55\x55" \
-	"\x55\x55\xFF" \
-	"\x55\xFF\x55" \
-	"\x55\xFF\xFF" \
-	"\xFF\x55\x55" \
-	"\xFF\x55\xFF" \
-	"\xFF\xFF\x55" \
-	"\xFF\xFF\xFF"
-
-#define PCX_PAD \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00" \
-	"\x00\x00\x00\x00\x00\x00"
-
-#define TESTDATA_INITIAL_8x8 \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF"
-
-#define TESTDATA_INITIAL_16x16 \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x0F\x00" "\x0F\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01" \
-	"\x7F\xC1\xFE" "\x00\x01" "\x80\x00" "\xC2\xFF"
-
-#define TESTDATA_INITIAL_9x9 \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x08\x00" "\x08\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80" \
-	"\x7F\x7F" "\x00\x80" "\x80\x00" "\xC2\xFF"
-
-#define TESTDATA_INITIAL_8x4 \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x03\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" /* use same byte for padding (instead of 0x00) to help RLE */ \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF"
-
-#define IMG_TYPE "img-pcx-1b4p"
-#define IMG_CLASS img_pcx_1b4p
-#include "test-img.hpp"
-
-#define TESTDATA_INITIAL_8x8_BADRLE \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF\xC0"
-
-// Some special tests
-
-BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
-
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_bad_rle))
+class test_img_pcx_1b4p: public test_image
 {
-	BOOST_TEST_MESSAGE("Converting img-pcx-1b4p to stdformat with bad RLE code");
+	public:
+		test_img_pcx_1b4p()
+		{
+			this->type = "img-pcx-1b4p";
+			this->hasMask = false;
+			this->hasHitmask = false;
 
-	boost::shared_ptr<std::string> d(new std::string(makeString(TESTDATA_INITIAL_8x8_BADRLE)));
-	this->base->open(d);
-	this->openImage(8, 8);
+			this->pcxPal = STRING_WITH_NULLS(
+				"\x00\x00\x00"
+				"\x00\x00\xAA"
+				"\x00\xAA\x00"
+				"\x00\xAA\xAA"
+				"\xAA\x00\x00"
+				"\xAA\x00\xAA"
+				"\xAA\x55\x00"
+				"\xAA\xAA\xAA"
+				"\x55\x55\x55"
+				"\x55\x55\xFF"
+				"\x55\xFF\x55"
+				"\x55\xFF\xFF"
+				"\xFF\x55\x55"
+				"\xFF\x55\xFF"
+				"\xFF\xFF\x55"
+				"\xFF\xFF\xFF"
+			);
+		}
 
-	StdImageDataPtr output = this->img->toStandard();
+		void addTests()
+		{
+			this->test_image::addTests();
 
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(stdformat_test_image_8x8),
-			std::string((const char *)output.get(), 8 * 8),
-			8
-		),
-		"Error converting image with bad RLE code to standard format"
-	);
-}
+			ADD_IMAGE_TEST(false, &test_img_pcx_1b4p::test_truncated_image);
+			ADD_IMAGE_TEST(false, &test_img_pcx_1b4p::test_truncated_rle);
 
-#define TESTDATA_INITIAL_8x8_TRUNCATED \
-	"\x0A\x05\x01" \
-	"\x01" \
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00" \
-	"\x4B\x00" "\x4B\x00" \
-	PCX_PAL \
-	"\x00" \
-	"\x04" \
-	"\x02\x00" "\x01\x00" \
-	"\x00\x00" "\x00\x00" \
-	PCX_PAD \
-	"\xC8\xFF" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x00\x00\x01\x01\x80\x80\x81\x81" \
-	"\x7E\x7E\x01\x01\x80\x80"
+			this->sizedContent({8, 8}, ImageType::DefinitelyYes, this->initialstate(),
+				createPalette_DefaultEGA());
 
-const uint8_t stdformat_test_image_8x8_truncated[] = {
-	0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-	0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02,
-	0x00 // terminating null for std::string conversion
+			this->sizedContent({16, 16}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x0F\x00" "\x0F\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				"\xC8\xFF"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\xC3\x00"     "\x01" "\x80\x00" "\x80\x01"
+				"\x7F\xC1\xFE" "\x00\x01" "\x80\x01" "\xC2\xFF"
+			), createPalette_DefaultEGA());
+
+			this->sizedContent({9, 9}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x08\x00" "\x08\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				"\xC8\xFF"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\xC3\x00"     "\x80" "\x80\x00" "\x80\x80"
+				"\x7F\x7F" "\x00\xC3\x80"        "\xC2\xFF"
+			), createPalette_DefaultEGA());
+
+			this->sizedContent({8, 4}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x07\x00" "\x03\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				"\xC8\xFF" /* use same byte for padding (instead of 0x00) to help RLE */
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x7E\x7E\x01\x01\x81\x81\xC2\xFF"
+			), createPalette_DefaultEGA());
+
+			// RLE check.  Ensure RLE codes run across scanlines.
+			this->sizedContent({16, 4}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x0F\x00" "\x03\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				"\xE0\xFF"
+			), createPalette_DefaultEGA(), std::string(16 * 4, '\x0F'));
+
+			// Check RLE-across-scanlines when padding is involved due to the image
+			// width not being a multiple of 8.
+			this->sizedContent({12, 4}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x0B\x00" "\x03\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				"\xE0\xF0"
+			), createPalette_DefaultEGA(), STRING_WITH_NULLS(
+				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F" // following 00 00 00 00 is in padding
+				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F"
+				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F"
+				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F"
+			));
+
+			// c00: Initial state
+			this->isInstance(ImageType::DefinitelyYes, this->initialstate());
+
+			// c01: Bad signature
+			auto c01 = this->initialstate();
+			c01[0] = 0xFF;
+			this->isInstance(ImageType::DefinitelyNo, c01);
+
+			// c02: Unsupported version
+			auto c02 = this->initialstate();
+			c02[1] = 0xFF;
+			this->isInstance(ImageType::DefinitelyNo, c02);
+
+			// c03: Wrong number of bits per plane
+			auto c03 = this->initialstate();
+			c03[3] = 0x08;
+			this->isInstance(ImageType::DefinitelyNo, c03);
+
+			// c04: Wrong number of planes
+			auto c04 = this->initialstate();
+			c04[65] = 0x01;
+			this->isInstance(ImageType::DefinitelyNo, c04);
+
+			// c05: Too short
+			this->isInstance(ImageType::DefinitelyNo, this->initialstate().substr(0, 127));
+		}
+
+		virtual std::string initialstate() const
+		{
+			return STRING_WITH_NULLS(
+				"\x0A\x05\x01"
+				"\x01"
+				"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
+				"\x4B\x00" "\x4B\x00"
+			) + this->pcxPal + STRING_WITH_NULLS(
+				"\x00"
+				"\x04"
+				"\x02\x00" "\x01\x00"
+				"\x00\x00" "\x00\x00"
+			) + std::string(54, '\x00') + STRING_WITH_NULLS(
+				// Every second byte is padding to bring each plane's scanline up to
+				// two bytes.  The same byte is used again in case this helps RLE.
+				"\xC8\xFF"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x00\x00\x01\x01\x80\x80\x81\x81"
+				"\x7E\x7E\x01\x01\x81\x81\xC2\xFF"
+			);
+		}
+
+		void test_truncated_image()
+		{
+			this->test_sizedContent_read_pix(Point{8, 8},
+				ImageType::DefinitelyYes,
+				STRING_WITH_NULLS(
+					"\x0A\x05\x01"
+					"\x01"
+					"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
+					"\x4B\x00" "\x4B\x00"
+				) + this->pcxPal + STRING_WITH_NULLS(
+					"\x00"
+					"\x04"
+					"\x02\x00" "\x01\x00"
+					"\x00\x00" "\x00\x00"
+				) + std::string(54, '\x00') + STRING_WITH_NULLS(
+					// Every second byte is padding to bring each plane's scanline up to
+					// two bytes.  The same byte is used again in case this helps RLE.
+					"\xC8\xFF"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x7E\x7E\x01\x01\x81\x81"
+				), createPalette_DefaultEGA(), STRING_WITH_NULLS(
+				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x04\x01\x01\x01\x01\x01\x01\x06" // intensity plane now missing from this row
+			));
+			return;
+		}
+
+		void test_truncated_rle()
+		{
+			this->test_sizedContent_read_pix(Point{8, 8},
+				ImageType::DefinitelyYes,
+				STRING_WITH_NULLS(
+					"\x0A\x05\x01"
+					"\x01"
+					"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
+					"\x4B\x00" "\x4B\x00"
+				) + this->pcxPal + STRING_WITH_NULLS(
+					"\x00"
+					"\x04"
+					"\x02\x00" "\x01\x00"
+					"\x00\x00" "\x00\x00"
+				) + std::string(54, '\x00') + STRING_WITH_NULLS(
+					// Every second byte is padding to bring each plane's scanline up to
+					// two bytes.  The same byte is used again in case this helps RLE.
+					"\xC8\xFF"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x00\x00\x01\x01\x80\x80\x81\x81"
+					"\x7E\x7E\x01\x01\x81\x81\xC2"
+				), createPalette_DefaultEGA(), STRING_WITH_NULLS(
+				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x04\x01\x01\x01\x01\x01\x01\x06" // intensity plane now missing from this row
+			));
+			return;
+		}
+
+	private:
+		std::string pcxPal;
 };
 
-BOOST_AUTO_TEST_CASE(TEST_NAME(to_standard_truncated))
-{
-	BOOST_TEST_MESSAGE("Converting truncated img-pcx-1b4p to stdformat");
-
-	boost::shared_ptr<std::string> d(new std::string(makeString(TESTDATA_INITIAL_8x8_TRUNCATED)));
-	this->base->open(d);
-	this->openImage(8, 8);
-
-	StdImageDataPtr output = this->img->toStandard();
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(stdformat_test_image_8x8_truncated),
-			std::string((const char *)output.get(), 8 * 8),
-			8
-		),
-		"Error converting image with bad RLE code to standard format"
-	);
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// Test some invalid formats to make sure they're not identified as valid
-// files.  Note that they can still be opened though (by 'force'), this
-// only checks whether they look like valid files or not.
-
-ISINSTANCE_TEST(c00, TESTDATA_INITIAL_8x8, DefinitelyYes);
-
-// Bad signature
-ISINSTANCE_TEST(c01,
-	"\x0B\x05\x01"
-	"\x01"
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
-	"\x4B\x00" "\x4B\x00"
-	PCX_PAL
-	"\x00"
-	"\x04"
-	"\x02\x00" "\x01\x00"
-	"\x00\x00" "\x00\x00"
-	PCX_PAD
-	"\xC8\xFF"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF",
-	DefinitelyNo
-);
-
-// Unsupported version
-ISINSTANCE_TEST(c02,
-	"\x0A\x06\x01"
-	"\x01"
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
-	"\x4B\x00" "\x4B\x00"
-	PCX_PAL
-	"\x00"
-	"\x04"
-	"\x02\x00" "\x01\x00"
-	"\x00\x00" "\x00\x00"
-	PCX_PAD
-	"\xC8\xFF"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF",
-	DefinitelyNo
-);
-
-// Wrong bits-per-plane
-ISINSTANCE_TEST(c03,
-	"\x0A\x05\x01"
-	"\x09"
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
-	"\x4B\x00" "\x4B\x00"
-	PCX_PAL
-	"\x00"
-	"\x04"
-	"\x02\x00" "\x01\x00"
-	"\x00\x00" "\x00\x00"
-	PCX_PAD
-	"\xC8\xFF"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF",
-	DefinitelyNo
-);
-
-// Wrong plane count
-ISINSTANCE_TEST(c04,
-	"\x0A\x05\x01"
-	"\x01"
-	"\x00\x00" "\x00\x00" "\x07\x00" "\x07\x00"
-	"\x4B\x00" "\x4B\x00"
-	PCX_PAL
-	"\x00"
-	"\x09"
-	"\x02\x00" "\x01\x00"
-	"\x00\x00" "\x00\x00"
-	PCX_PAD
-	"\xC8\xFF"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x00\x00\x01\x01\x80\x80\x81\x81"
-	"\x7E\x7E\x01\x01\x80\x80\xC2\xFF",
-	DefinitelyNo
-);
+IMPLEMENT_TESTS(img_pcx_1b4p);
