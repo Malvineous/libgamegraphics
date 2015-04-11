@@ -22,70 +22,28 @@
 #define _CAMOTO_IMG_ZONE66_TILE_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "baseimage.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for Zone 66 tiles.
-class ImageType_Zone66Tile: virtual public ImageType {
-
+class ImageType_Zone66Tile: virtual public ImageType
+{
 	public:
-
 		ImageType_Zone66Tile();
-
 		virtual ~ImageType_Zone66Tile();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-
-};
-
-/// Zone66 Image implementation for a tile within a tileset.
-class Image_Zone66Tile: virtual public Image_Base {
-	protected:
-		stream::inout_sptr data;
-		PaletteTablePtr pal;
-		int width, height;
-
-	public:
-		Image_Zone66Tile(stream::inout_sptr data,
-			PaletteTablePtr pal);
-
-		virtual ~Image_Zone66Tile();
-
-		virtual int getCaps();
-
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
-		virtual void setDimensions(unsigned int width, unsigned int height);
-
-		virtual StdImageDataPtr toStandard();
-
-		virtual StdImageDataPtr toStandardMask();
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-
-		virtual PaletteTablePtr getPalette();
-
-		virtual void setPalette(PaletteTablePtr newPalette);
-
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics

@@ -18,178 +18,226 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "tests.hpp"
+#include "test-image.hpp"
 
-#define TESTDATA_INITIAL_8x8 \
-	"\x08\x00\x08\x00" \
-	"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A" \
-	"\xFF"
+class test_img_zone66_tile: public test_image
+{
+	public:
+		test_img_zone66_tile()
+		{
+			this->type = "img-zone66_tile";
+			this->hasMask = false;
+			this->hasHitmask = false;
+		}
 
-#define TESTDATA_INITIAL_16x16 \
-	"\x10\x00\x10\x00" \
-	"\x10\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE" \
-	"\x10\x0C\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x0A" \
-	"\xFF"
+		void addTests()
+		{
+			this->test_image::addTests();
 
-#define TESTDATA_INITIAL_9x9 \
-	"\x09\x00\x09\x00" \
-	"\x09\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE" \
-	"\x09\x0C\x09\x09\x09\x09\x09\x09\x09\x0A" \
-	"\xFF"
+			this->sizedContent({8, 8}, ImageType::DefinitelyYes, this->initialstate());
 
-#define TESTDATA_INITIAL_8x4 \
-	"\x08\x00\x04\x00" \
-	"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE" \
-	"\x08\x0C\x09\x09\x09\x09\x09\x09\x0A" \
-	"\xFF"
+			this->sizedContent({16, 16}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x10\x00\x10\x00"
+				"\x10\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x0e"                                       "\x01\x0A\xFE"
+				"\x10\x0C\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF"
+			));
 
-// This format doesn't support masks
-#undef IMG_HAS_MASK
+			this->sizedContent({9, 9}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x09\x00\x09\x00"
+				"\x09\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x07"           "\x01\x0A\xFE"
+				"\x09\x0C\x09\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF"
+			));
 
-#define IMG_TYPE "img-zone66_tile"
-#define IMG_CLASS img_zone66_tile
-#include "test-img.hpp"
+			this->sizedContent({8, 4}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x08\x00\x04\x00" \
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x08\x0C\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF"
+			));
 
-// Some custom tests for this particular format
+			// Compression check
+			this->sizedContent({8, 3}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x08\x00\x03\x00"
+				"\x04\x00\x01\x01\x01" "\xFE" /* initial black pixel */
+				"\xFE" /* empty line */
+				"\x04\x02\x00\x00\x03" "\xFD\x03" "\x01\x04" /* two and three black pixels */
+				"\xFF"
+			), {}, STRING_WITH_NULLS(
+				"\x00\x01\x01\x01\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+				"\x02\x00\x00\x03\x00\x00\x00\x04"
+			));
 
-// Exercise the various encoding types
-#define TESTDATA_INITIAL_8x3 \
-	"\x08\x00\x03\x00" \
-	"\x04\x00\x01\x01\x01" "\xFE" /* initial black pixel */ \
-	"\xFE" /* empty line */ \
-	"\x04\x02\x00\x00\x03" "\xFD\x03" "\x01\x04" /* two and three black pixels */ \
-	"\xFF"
+			// Make sure it works with a max-size format (no 'compression' at all)
+			this->sizedContent({4, 3}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x04\x00\x03\x00"
+				"\x04\x00\x01\x00\x01" "\xFE"
+				"\x04\x01\x00\x00\x01" "\xFE"
+				"\x04\x00\x01\x00\x01"
+				"\xFF"
+			), {}, STRING_WITH_NULLS(
+				"\x00\x01\x00\x01"
+				"\x01\x00\x00\x01"
+				"\x00\x01\x00\x01"
+			));
 
-const uint8_t stdformat_test_image_8x3[] = {
-	0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04,
-	0x00 // terminating null for std::string conversion
+			// Make sure it works with a trailing blank image
+			this->sizedContent({4, 5}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x04\x00\x05\x00"
+				"\x04\x01\x01\x01\x01" "\xFE"
+				"\x04\x01\x01\x01\x01"
+				"\xFF"
+			), {}, STRING_WITH_NULLS(
+				"\x01\x01\x01\x01"
+				"\x01\x01\x01\x01"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+			));
+
+			// Make sure it works with an entirely blank image
+			this->sizedContent({4, 7}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x04\x00\x07\x00"
+				"\xFF"
+			), {}, STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+				"\x00\x00\x00\x00"
+			));
+
+			// c00: Initial state
+			this->isInstance(ImageType::DefinitelyYes, this->initialstate());
+
+			// c01: Too short
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\x00\x08"
+			));
+
+			// c02: Image too large
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\xF0\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x08\x0C\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF"
+			));
+
+			// c03: Cut off in middle of 0xFD code
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x07\x0C\x09\x09\x09\x09\x09\x09\xFD"
+			));
+
+			// c04: Invalid code
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x07\x0C\x09\x09\x09\x09\x09\x09\x00"
+				"\xFF"
+			));
+
+			// c05: EOF marker with trailing data
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x08\x0C\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF" "test"
+			));
+
+			// c06: Read all data but didn't have 0xFF at EOF
+			this->isInstance(ImageType::DefinitelyYes, STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x08\x0C\x09\x09\x09\x09\x09\x09\x0E"
+			));
+
+			// c07: Ended mid-data
+			this->isInstance(ImageType::DefinitelyNo, STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+			));
+		}
+
+		virtual std::string initialstate() const
+		{
+			return STRING_WITH_NULLS(
+				"\x08\x00\x08\x00"
+				"\x08\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x01\x0C" "\xFD\x06"       "\x01\x0A\xFE"
+				"\x08\x0C\x09\x09\x09\x09\x09\x09\x0E"
+				"\xFF"
+			);
+		}
 };
-const uint8_t stdformat_test_mask_8x3[] = {
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-	0x00 // terminating null for std::string conversion
-};
 
-BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
-TO_STANDARD_TEST(8, 3);
-FROM_STANDARD_TEST(8, 3)
-BOOST_AUTO_TEST_SUITE_END()
-
-// Make sure it works with a max-size format (no 'compression' at all)
-#define TESTDATA_INITIAL_4x3 \
-	"\x04\x00\x03\x00" \
-	"\x04\x00\x01\x00\x01" "\xFE" \
-	"\x04\x01\x00\x00\x01" "\xFE" \
-	"\x04\x00\x01\x00\x01" \
-	"\xFF"
-
-const uint8_t stdformat_test_image_4x3[] = {
-	0x00, 0x01, 0x00, 0x01,
-	0x01, 0x00, 0x00, 0x01,
-	0x00, 0x01, 0x00, 0x01,
-	0x00 // terminating null for std::string conversion
-};
-const uint8_t stdformat_test_mask_4x3[] = {
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x00 // terminating null for std::string conversion
-};
-
-BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
-TO_STANDARD_TEST(4, 3);
-FROM_STANDARD_TEST(4, 3)
-BOOST_AUTO_TEST_SUITE_END()
-
-// Make sure it works with a trailing blank image
-#define TESTDATA_INITIAL_4x5 \
-	"\x04\x00\x05\x00" \
-	"\x04\x01\x01\x01\x01" "\xFE" \
-	"\x04\x01\x01\x01\x01" \
-	"\xFF"
-
-const uint8_t stdformat_test_image_4x5[] = {
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00 // terminating null for std::string conversion
-};
-const uint8_t stdformat_test_mask_4x5[] = {
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x00 // terminating null for std::string conversion
-};
-
-BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
-TO_STANDARD_TEST(4, 5);
-FROM_STANDARD_TEST(4, 5)
-BOOST_AUTO_TEST_SUITE_END()
-
-// Make sure it works with an entirely blank image
-#define TESTDATA_INITIAL_4x7 \
-	"\x04\x00\x07\x00" \
-	"\xFF"
-
-const uint8_t stdformat_test_image_4x7[] = {
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,
-	0x00 // terminating null for std::string conversion
-};
-const uint8_t stdformat_test_mask_4x7[] = {
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x01, 0x01, 0x01, 0x01,
-	0x00 // terminating null for std::string conversion
-};
-
-BOOST_FIXTURE_TEST_SUITE(SUITE_NAME, FIXTURE_NAME)
-TO_STANDARD_TEST(4, 7);
-FROM_STANDARD_TEST(4, 7)
-BOOST_AUTO_TEST_SUITE_END()
+IMPLEMENT_TESTS(img_zone66_tile);

@@ -21,7 +21,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "pal-vga-raw.hpp"
 #include "img-zone66_tile.hpp"
 
@@ -31,8 +33,34 @@
 /// Palette index to make transparent
 #define Z66_TRANSPARENT_COLOUR 0
 
+/// Width or height larger than this is considered invalid file
+#define Z66_MAX_DIMS 2048
+
 namespace camoto {
 namespace gamegraphics {
+
+/// Zone66 Image implementation for a tile within a tileset.
+class Image_Zone66Tile: virtual public Image
+{
+	public:
+		Image_Zone66Tile(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_Zone66Tile();
+
+		virtual Caps caps() const;
+		ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
+
+	protected:
+		std::unique_ptr<stream::inout> content;
+		Point dims;
+};
+
 
 ImageType_Zone66Tile::ImageType_Zone66Tile()
 {
@@ -42,126 +70,150 @@ ImageType_Zone66Tile::~ImageType_Zone66Tile()
 {
 }
 
-std::string ImageType_Zone66Tile::getCode() const
+std::string ImageType_Zone66Tile::code() const
 {
 	return "img-zone66_tile";
 }
 
-std::string ImageType_Zone66Tile::getFriendlyName() const
+std::string ImageType_Zone66Tile::friendlyName() const
 {
 	return "Zone 66 tile";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> ImageType_Zone66Tile::getFileExtensions() const
+std::vector<std::string> ImageType_Zone66Tile::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	return vcExtensions;
 }
 
-std::vector<std::string> ImageType_Zone66Tile::getGameList() const
+std::vector<std::string> ImageType_Zone66Tile::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Zone 66");
 	return vcGames;
 }
 
-ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)
+	const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
-	psImage->seekg(0, stream::start);
-	uint16_t width, height;
-	psImage >> u16le(width) >> u16le(height);
-	int imgSize = width * height;
-	int pos = 0;
-	while (pos < imgSize) {
+	// Too short
+	// TESTED BY: img_zone66_tile_isinstance_c01
+	if (len < 4) return DefinitelyNo;
+
+	content.seekg(0, stream::start);
+	Point dims;
+	content >> u16le(dims.x) >> u16le(dims.y);
+	len -= 4;
+
+	// Image too large
+	// TESTED BY: img_zone66_tile_isinstance_c02
+	if ((dims.x > Z66_MAX_DIMS) || (dims.y > Z66_MAX_DIMS)) return DefinitelyNo;
+
+	int imgSize = dims.x * dims.y;
+	int imgPos = 0;
+	while (len && (imgPos <= imgSize)) {
 		uint8_t code;
-		psImage >> u8(code);
+		content >> u8(code);
 		len--;
 		switch (code) {
-			case 0x00: return DefinitelyNo; // doesn't make sense
+			case 0x00:
+				// Invalid code
+				// TESTED BY: img_zone66_tile_isinstance_c04
+				return DefinitelyNo;
 			case 0xFF: // end of image
-				if (len == 0) return DefinitelyYes; // EOF marker at EOF
-				return DefinitelyNo; // EOF marker with trailing data
+				// EOF marker at EOF
+				// TESTED BY: img_zone66_tile_isinstance_c00
+				if (len == 0) return DefinitelyYes;
+
+				// EOF marker with trailing data
+				// TESTED BY: img_zone66_tile_isinstance_c05
+				return DefinitelyNo;
 			case 0xFE: // skip to EOL
-				pos += width - (pos % width);
+				imgPos += (dims.x - (imgPos % dims.x)) % dims.x;
 				break;
 			case 0xFD:
-				psImage >> u8(code);
-				pos += code;
-				len -= code+1;
+				// Cut off in middle of 0xFD code
+				// TESTED BY: img_zone66_tile_isinstance_c03
+				if (!len) return DefinitelyNo;
+				content >> u8(code);
+				len--;
+				imgPos += code;
+				// Subtract code+1 from len, but make len=0 instead of going negative and wrapping
+				//len -= std::min<stream::pos>(code+1, len);
 				break;
 			default:
-				pos += code;
-				len -= code;
+				imgPos += code;
+				// Subtract code from len, but make len=0 instead of going negative and wrapping
+				len -= std::min<stream::pos>(code, len);
+				if (len) content.seekg(code, stream::cur);
 				break;
 		}
 	}
 
 	// Read all data but didn't have 0xFF at EOF
-	if ((len == 0) && (pos == imgSize)) return DefinitelyYes;
+	// TESTED BY: img_zone66_tile_isinstance_c06
+	if ((len == 0) && (imgPos == imgSize)) return DefinitelyYes;
 
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c01
+	// Ended mid-data
+	// TESTED BY: img_zone66_tile_isinstance_c07
 	return DefinitelyNo;
 }
 
-ImagePtr ImageType_Zone66Tile::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Zone66Tile::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psImage
+	*content
 		<< u16le(0)  // width
 		<< u16le(0)  // height
 		<< u8(0xFF)  // end-of-image code
 	;
-	PaletteTablePtr pal;
-	// Only load the palette if one was given
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
-	}
-	return ImagePtr(new Image_Zone66Tile(psImage, pal));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_Zone66Tile::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Zone66Tile::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-		pal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
+		auto palFile = std::make_shared<Palette_VGA>(std::move(suppData[SuppItem::Palette]), 6);
+		//auto newPal = std::make_shared<Palette>();
+		//*newPal = *(palFile->palette());
+		auto copyPal = std::make_shared<Palette>(*(palFile->palette()));
+		copyPal->at(Z66_TRANSPARENT_COLOUR).alpha = 0;
+		pal = copyPal;
 	}
-	return ImagePtr(new Image_Zone66Tile(psImage, pal));
+	return std::make_unique<Image_Zone66Tile>(std::move(content), pal);
 }
 
-SuppFilenames ImageType_Zone66Tile::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Zone66Tile::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	SuppFilenames supps;
-	supps[SuppItem::Palette] = "tpal.z66"; // TODO: case sensitivity?
+	supps[SuppItem::Palette] = "tpal.z66";
 	return supps;
 }
 
 
-Image_Zone66Tile::Image_Zone66Tile(stream::inout_sptr data,
-	PaletteTablePtr pal)
-	:	data(data),
-		pal(pal)
+Image_Zone66Tile::Image_Zone66Tile(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	content(std::move(content))
 {
-	stream::len lenData = data->size();
+	this->pal = pal;
+
+	stream::len lenData = this->content->size();
 	if (lenData == 64000) {
 		// Headerless fullscreen image
-		this->width = 320;
-		this->height = 200;
+		this->dims = {320, 200};
 	} else {
-		try {
-			this->data >> u16le(this->width) >> u16le(this->height);
-		} catch (const stream::incomplete_read&) {
-			this->width = 0;
-			this->height = 0;
-		}
+		this->content->seekg(0, stream::start);
+		*this->content
+			>> u16le(this->dims.x)
+			>> u16le(this->dims.y)
+		;
 	}
 }
 
@@ -170,81 +222,80 @@ Image_Zone66Tile::~Image_Zone66Tile()
 {
 }
 
-int Image_Zone66Tile::getCaps()
+Image::Caps Image_Zone66Tile::caps() const
 {
-	return ColourDepthVGA | CanSetDimensions | HasPalette;
+	return Image::Caps::SetDimensions | Image::Caps::HasPalette;
 }
 
-void Image_Zone66Tile::getDimensions(unsigned int *width, unsigned int *height)
+ColourDepth Image_Zone66Tile::colourDepth() const
 {
-	*width = this->width;
-	*height = this->height;
-	return;
+	return ColourDepth::VGA;
 }
 
-void Image_Zone66Tile::setDimensions(unsigned int width, unsigned int height)
+Point Image_Zone66Tile::dimensions() const
 {
-	this->data->seekg(0, stream::end);
-	if ((width == 320) && (height == 200)) {
-		this->data->truncate(64000);
+	return this->dims;
+}
+
+void Image_Zone66Tile::dimensions(const Point& newDimensions)
+{
+	this->content->seekg(0, stream::end);
+	if ((newDimensions.x == 320) && (newDimensions.y == 200)) {
+		this->content->truncate(64000);
 	} else {
-		if (this->data->tellg() < 4) {
+		if (this->content->tellg() < 4) {
 			// Need to enlarge stream to write image size
-			this->data->truncate(4);
+			this->content->truncate(4);
 		}
 
-		this->data->seekp(0, stream::start);
-		this->data << u16le(width) << u16le(height);
+		this->content->seekp(0, stream::start);
+		*this->content
+			<< u16le(newDimensions.x)
+			<< u16le(newDimensions.y)
+		;
 	}
-	this->width = width;
-	this->height = height;
+	this->dims = newDimensions;
 	return;
 }
 
-StdImageDataPtr Image_Zone66Tile::toStandard()
+Pixels Image_Zone66Tile::convert() const
 {
-	assert((this->width != 0) && (this->height != 0));
+	auto dims = this->dimensions();
+	Pixels imgData(dims.x * dims.y, 0x00);
 
-	int dataSize = this->width * this->height;
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-
-	if ((this->width == 320) && (this->height == 200)) {
+	if ((dims.x == 320) && (dims.x == 200)) {
 		// Special case for headerless fullscreen images
-		this->data->seekg(0, stream::start);
-		this->data->read(imgData, 64000);
-		return ret;
+		this->content->seekg(0, stream::start);
+		this->content->read(imgData.data(), 64000);
+		return imgData;
 	}
 
-	// Make any skipped pixels black
-	memset(imgData, 0, dataSize);
-
-	this->data->seekg(Z66_IMG_OFFSET, stream::start);
+	this->content->seekg(Z66_IMG_OFFSET, stream::start);
 	unsigned int y = 0;
-	for (int i = 0; i < dataSize; ) {
+	for (unsigned int i = 0; i < imgData.size(); ) {
 		uint8_t code;
-		this->data >> u8(code);
+		*this->content >> u8(code);
 		switch (code) {
 			case 0xFD: // Skip the given number of pixels
-				this->data >> u8(code);
+				*this->content >> u8(code);
 				i += code;
 				// Note: i may now be >= dataSize
 				break;
 
 			case 0xFE: // Go to the next line
-				i = ++y * this->width;
+				i = ++y * dims.x;
 				break;
 
 			case 0xFF: // End of image
-				i = dataSize;
+				i = imgData.size();
 				break;
 
 			case 0x00: // shouldn't happen
 				throw stream::error("corrupted data");
 
 			default:
-				if (i + code <= dataSize) {
-					this->data->read(&imgData[i], code);
+				if (i + code <= imgData.size()) {
+					this->content->read(&imgData[i], code);
 					i += code;
 				} else {
 					throw stream::error("bad data, tried to write past end of image");
@@ -252,50 +303,44 @@ StdImageDataPtr Image_Zone66Tile::toStandard()
 				break;
 		}
 	}
-
-	return ret;
+	return imgData;
 }
 
-StdImageDataPtr Image_Zone66Tile::toStandardMask()
+Pixels Image_Zone66Tile::convert_mask() const
 {
-	assert((this->width != 0) && (this->height != 0));
-	int dataSize = this->width * this->height;
-
 	// Return an entirely opaque mask
-	uint8_t *imgData = new uint8_t[dataSize];
-	StdImageDataPtr ret(imgData);
-	memset(imgData, Image::Mask_Vis_Opaque, dataSize);
-
-	return ret;
+	auto dims = this->dimensions();
+	return Pixels(dims.x * dims.y, 0x00);
 }
 
-void Image_Zone66Tile::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask)
+void Image_Zone66Tile::convert(const Pixels& newContent, const Pixels& newMask)
 {
-	assert((this->width != 0) && (this->height != 0));
-	this->data->seekp(0, stream::start);
+//	assert((this->width != 0) && (this->height != 0));
+	this->content->seekp(0, stream::start);
 
-	if ((this->width == 320) && (this->height == 200)) {
+	auto dims = this->dimensions();
+
+	if ((dims.x == 320) && (dims.y == 200)) {
 		// Special case for headerless fullscreen images
-		this->data->truncate(64000);
-		this->data->write(newContent.get(), 64000);
+		this->content->truncate(64000);
+		this->content->write(newContent.data(), 64000);
 		return;
 	}
 
 	// Start off with enough space for the worst-case size
-	this->data->truncate(4 + (this->width + 2) * this->height + 1);
+	this->content->truncate(4 + (dims.x + 2) * dims.y + 1);
 	int finalSize = 4; // for header
 
-	this->data->seekp(Z66_IMG_OFFSET, stream::start);
-	uint8_t *imgData = (uint8_t *)newContent.get();
+	this->content->seekp(Z66_IMG_OFFSET, stream::start);
+	auto imgData = newContent.data();
 
 	// Find the last non-black pixel in the image
-	uint8_t *imgEnd = imgData + this->width * this->height - 1;
+	auto imgEnd = imgData + dims.x * dims.y - 1;
 	while ((*imgEnd == 0) && (imgEnd > imgData)) imgEnd--;
 	imgEnd++; // still want current (non-black) pixel
 
-	for (int y = 0; y < this->height; y++) {
-		int dw = this->width;
+	for (unsigned int y = 0; y < dims.y; y++) {
+		int dw = dims.x;
 		while (dw > 0) {
 			// Count how many black pixels are in a row starting at the current pos
 			int amt = 0;
@@ -315,7 +360,7 @@ void Image_Zone66Tile::fromStandard(StdImageDataPtr newContent,
 					if (amt > 1) {
 						// More efficient to write as RLE
 						// TESTED BY: img_zone66_tile_from_standard_8x4
-						this->data << u8(0xFD) << u8(amt);
+						*this->content << u8(0xFD) << u8(amt);
 						finalSize += 2;
 						// If there were enough blanks, keep looking for more.
 						// TESTED BY: TODO
@@ -357,8 +402,8 @@ void Image_Zone66Tile::fromStandard(StdImageDataPtr newContent,
 					}
 				}
 			}
-			this->data << u8(amt);
-			this->data->write(imgData, amt);
+			*this->content << u8(amt);
+			this->content->write(imgData, amt);
 			imgData += amt;
 			dw -= amt;
 			finalSize += amt + 1;
@@ -369,29 +414,17 @@ void Image_Zone66Tile::fromStandard(StdImageDataPtr newContent,
 		if (imgData >= imgEnd) break; // just write EOF
 
 		assert(dw == 0); // make sure we read everything
-		this->data << u8(0xFE); // end of line
+		*this->content << u8(0xFE); // end of line
 		finalSize++;
 	}
-	this->data << u8(0xFF); // end of file
+	*this->content << u8(0xFF); // end of file
 	finalSize++;
 
-	this->data->flush();
+	this->content->flush();
 
 	// Then shrink back to actual size
-	this->data->truncate(finalSize);
+	this->content->truncate(finalSize);
 
-	return;
-}
-
-PaletteTablePtr Image_Zone66Tile::getPalette()
-{
-	return this->pal;
-}
-
-void Image_Zone66Tile::setPalette(PaletteTablePtr newPalette)
-{
-	// This doesn't save anything to the file as the palette is stored externally.
-	this->pal = newPalette;
 	return;
 }
 
