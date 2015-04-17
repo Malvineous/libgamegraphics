@@ -67,7 +67,7 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x08\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
 				"\xC8\xFF"
@@ -96,7 +96,7 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x08\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
 				"\xC8\xFF"
@@ -118,16 +118,16 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x04\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
-				"\xC8\xFF" /* use same byte for padding (instead of 0x00) to help RLE */
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x7E\x7E\x01\x01\x81\x81\xC2\xFF"
+				"\xC4\xFF" /* use same byte for padding (instead of 0x00) to help RLE */
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x7E\x01\x81\xC1\xFF"
 			), createPalette_DefaultEGA());
 
-			// RLE check.  Ensure RLE codes run across scanlines.
+			// RLE check.  Ensure RLE codes do not run across scanlines.
 			this->sizedContent({16, 4}, ImageType::DefinitelyYes, STRING_WITH_NULLS(
 				"\x0A\x05\x01"
 				"\x01"
@@ -136,10 +136,13 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x08\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
-				"\xE0\xFF"
+				"\xC8\xFF"
+				"\xC8\xFF"
+				"\xC8\xFF"
+				"\xC8\xFF"
 			), createPalette_DefaultEGA(), std::string(16 * 4, '\x0F'));
 
 			// Check RLE-across-scanlines when padding is involved due to the image
@@ -152,10 +155,13 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x08\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
-				"\xE0\xF0"
+				"\xC8\xF0"
+				"\xC8\xF0"
+				"\xC8\xF0"
+				"\xC8\xF0"
 			), createPalette_DefaultEGA(), STRING_WITH_NULLS(
 				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F" // following 00 00 00 00 is in padding
 				"\x0F\x0F\x0F\x0F\x00\x00\x00\x00\x0F\x0F\x0F\x0F"
@@ -200,19 +206,19 @@ class test_img_pcx_1b4p: public test_image
 			) + this->pcxPal + STRING_WITH_NULLS(
 				"\x00"
 				"\x04"
-				"\x02\x00" "\x01\x00"
+				"\x04\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
 				// Every second byte is padding to bring each plane's scanline up to
 				// two bytes.  The same byte is used again in case this helps RLE.
-				"\xC8\xFF"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x00\x00\x01\x01\x80\x80\x81\x81"
-				"\x7E\x7E\x01\x01\x81\x81\xC2\xFF"
+				"\xC4\xFF"
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x00\x01\x80\x81"
+				"\x7E\x01\x81\xC1\xFF"
 			);
 		}
 
@@ -228,19 +234,17 @@ class test_img_pcx_1b4p: public test_image
 				) + this->pcxPal + STRING_WITH_NULLS(
 					"\x00"
 					"\x04"
-					"\x02\x00" "\x01\x00"
+					"\x04\x00" "\x01\x00"
 					"\x00\x00" "\x00\x00"
 				) + std::string(54, '\x00') + STRING_WITH_NULLS(
-					// Every second byte is padding to bring each plane's scanline up to
-					// two bytes.  The same byte is used again in case this helps RLE.
-					"\xC8\xFF"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x7E\x7E\x01\x01\x81\x81"
+					"\xC4\xFF"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x7E\x01\x81"
 				), createPalette_DefaultEGA(), STRING_WITH_NULLS(
 				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F"
 				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
@@ -266,19 +270,17 @@ class test_img_pcx_1b4p: public test_image
 				) + this->pcxPal + STRING_WITH_NULLS(
 					"\x00"
 					"\x04"
-					"\x02\x00" "\x01\x00"
+					"\x04\x00" "\x01\x00"
 					"\x00\x00" "\x00\x00"
 				) + std::string(54, '\x00') + STRING_WITH_NULLS(
-					// Every second byte is padding to bring each plane's scanline up to
-					// two bytes.  The same byte is used again in case this helps RLE.
-					"\xC8\xFF"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x00\x00\x01\x01\x80\x80\x81\x81"
-					"\x7E\x7E\x01\x01\x81\x81\xC2"
+					"\xC4\xFF"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x00\x01\x80\x81"
+					"\x7E\x01\x81\xC2"
 				), createPalette_DefaultEGA(), STRING_WITH_NULLS(
 				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F"
 				"\x0C\x00\x00\x00\x00\x00\x00\x0A"

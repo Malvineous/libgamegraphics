@@ -122,12 +122,21 @@ class filter_pcx_rle: virtual public filter
 	protected:
 		uint8_t val;        ///< Previous byte read
 		unsigned int count; ///< How many times to repeat prev
+		stream::len lenScanline; ///< Bytes per scanline (RLE boundary)
+		stream::pos posScanline; ///< How far into current scanline
 
 	public:
+		filter_pcx_rle(stream::len lenScanline)
+			:	lenScanline(lenScanline),
+				posScanline(0)
+		{
+		}
+
 		virtual void reset(stream::len lenInput)
 		{
 			this->val = 0;
 			this->count = 0;
+			this->posScanline = 0;
 			return;
 		}
 
@@ -139,10 +148,19 @@ class filter_pcx_rle: virtual public filter
 			bool eof = false;
 			while ((w + 2 < *lenOut) && ((r < *lenIn) || (this->count))) {
 				eof = (r >= *lenIn);
-				if ((!eof) && (this->count < 63) && (*in == this->val)) {
+				if (
+					(!eof)
+					&& (this->count < 63)
+					&& (*in == this->val)
+					&& (
+						(this->posScanline == 0)
+						|| ((this->posScanline % this->lenScanline) != 0)
+					)
+				) {
 					in++;
 					r++;
 					this->count++;
+					this->posScanline++;
 				} else {
 					// Byte changed or max count reached, write out old byte
 					if ((this->count > 2) || (this->val >= 0xC0)) {
@@ -163,6 +181,7 @@ class filter_pcx_rle: virtual public filter
 					if (!eof) {
 						this->val = *in++;
 						r++;
+						this->posScanline++;
 						this->count = 1;
 					} else this->count = 0;
 				}
@@ -559,12 +578,12 @@ Pixels Image_PCX::convert() const
 	Pixels imgData(dims.x * dims.y, '\x00');
 
 	this->content->seekg(66, stream::start);
-	int16_t bytesPerPlaneScanline;
+	int16_t bytesPerScanline;
 	*this->content
-		>> u16le(bytesPerPlaneScanline)
+		>> u16le(bytesPerScanline)
 	;
-	if (bytesPerPlaneScanline % 2) throw stream::error("Invalid PCX file (bytes "
-		"per scanline is not an even number)");
+//	if (bytesPerScanline % 2) throw stream::error("Invalid PCX file (bytes "
+//		"per scanline is not an even number)");
 
 	// Find the end of the pixel data
 	stream::len lenRLE = this->content->size() - 128; // 128 == header
@@ -593,15 +612,15 @@ Pixels Image_PCX::convert() const
 	}
 
 	auto line = &imgData[0];
-	auto bits = std::make_unique<bitstream>(bitstream::bigEndian);
 	/// @todo write bitstream version that takes input- and output-only streams (rather than r/w ones only)
-	//std::shared_ptr<bitstream> bits(new bitstream(filtered, bitstream::bigEndian));
+	auto bits = std::make_unique<bitstream>(bitstream::bigEndian);
 
 	fn_getnextchar cbNext = std::bind(&stream::input::try_read, content_pixels, std::placeholders::_1, 1);
 	unsigned int val;
 	bool eof = false;
 	for (unsigned int y = 0; y < dims.y; y++) {
 		memset(line, 0, dims.x); // blank out line
+		auto posScanlineStart = content_pixels->tellg();
 		for (unsigned int p = 0; p < this->numPlanes; p++) {
 			for (unsigned int x = 0; x < dims.x; x++) {
 				if (!eof) {
@@ -617,12 +636,15 @@ Pixels Image_PCX::convert() const
 			}
 			// Skip over any EOL padding.
 			bits->flushByte();
-			int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * dims.x + 7) / 8);
-			if (pad < 0) throw stream::error("Corrupted PCX file - bad value for "
-				"'bytes per scanline'");
-			uint8_t dummy;
-			while (pad--) cbNext(&dummy);
 		}
+
+		// If we didn't read bytesPerScanline bytes, now we have to skip data until
+		// we reach that point.
+		auto lenScanlineRead = content_pixels->tellg() - posScanlineStart;
+		uint8_t dummy;
+		auto pad = bytesPerScanline - std::min<stream::pos>(bytesPerScanline, lenScanlineRead);
+		while (pad--) cbNext(&dummy);
+
 		line += dims.x;
 	}
 	return imgData;
@@ -645,15 +667,16 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	auto dims = this->dimensions();
 	assert((dims.x != 0) && (dims.y != 0));
 
-	int16_t bytesPerPlaneScanline = dims.x * this->bitsPerPlane / 8;
+	const unsigned int bytesPerPlaneScanline = toNearestMultiple(dims.x * this->bitsPerPlane, 8) / 8;
+	unsigned int bytesPerScanline = bytesPerPlaneScanline * this->numPlanes;
 	// Pad out to a multiple of PLANE_PAD bytes
-	bytesPerPlaneScanline += bytesPerPlaneScanline % PLANE_PAD;
+	bytesPerScanline = toNearestMultiple(bytesPerScanline, PLANE_PAD);
 
 	// Assume worst case and enlarge file enough to fit complete data
-	stream::len maxSize = 128+bytesPerPlaneScanline*2 * this->numPlanes * dims.y + 768+1;
+	stream::len maxSize = 128+bytesPerScanline * dims.y + 768+1;
 	this->content->truncate(maxSize);
 
-	this->content->seekg(0, stream::start);
+	this->content->seekp(0, stream::start);
 	*this->content
 		<< u8(0x0A)
 		<< u8(this->ver)
@@ -685,7 +708,7 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	*this->content
 		<< u8(0) // reserved
 		<< u8(this->numPlanes)
-		<< u16le(bytesPerPlaneScanline)
+		<< u16le(bytesPerScanline)
 		<< u16le(1) // colour palette
 		<< u16le(0)
 		<< u16le(0)
@@ -706,7 +729,7 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	if (this->useRLE && (this->encoding == 1)) {
 		content_pixels = std::make_shared<stream::output_filtered>(
 			content_pixels,
-			std::make_shared<filter_pcx_rle>(),
+			std::make_shared<filter_pcx_rle>(bytesPerScanline),
 			nullptr
 		);
 	}
@@ -716,10 +739,10 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 	uint8_t lastChar;
 	fn_putnextchar cbNext = std::bind(putNextChar, content_pixels, &lastChar, std::placeholders::_1);
 	int planeMask = (1 << this->bitsPerPlane) - 1;
-	int pad = bytesPerPlaneScanline - ((this->bitsPerPlane * dims.x + 7) / 8);
 	int val;
 
 	for (unsigned int y = 0; y < dims.y; y++) {
+		auto posScanlineStart = content_pixels->tellp();
 		for (unsigned int p = 0; p < this->numPlanes; p++) {
 			int bitsInPlane = (p * this->bitsPerPlane);
 			for (unsigned int x = 0; x < dims.x; x++) {
@@ -738,12 +761,15 @@ void Image_PCX::convert(const Pixels& newContent, const Pixels& newMask)
 					bits->write(cbNext, bitpad, prevBits);
 				}
 			}
-			// Pad up to next byte boundary
+			// Pad single-plane-scanline up to next byte boundary
 			bits->flushByte(cbNext);
-
-			// Pad scanline to multiple of PLANE_PAD bytes
-			for (int z = 0; z < pad; z++) cbNext(lastChar);
 		}
+
+		// Pad scanline to bytesPerScanline bytes
+		auto lenScanlineWritten = content_pixels->tellp() - posScanlineStart;
+		auto pad = bytesPerScanline - std::min<stream::pos>(bytesPerScanline, lenScanlineWritten);
+		while (pad--) cbNext(lastChar);
+
 		line += dims.x;
 	}
 	content_pixels->flush();

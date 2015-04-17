@@ -143,7 +143,9 @@ class test_img_pcx_8b1p: public test_image
 				"\x10\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
-				"\xF0\x0F" // note same content as following test, but different dimensions
+				"\xD0\x0F"
+				"\xD0\x0F"
+				"\xD0\x0F"
 			), createPalette_DefaultEGA(), std::string(16 * 3, '\x0F'));
 
 			// Check RLE-across-scanlines when padding is involved due to the image
@@ -159,7 +161,10 @@ class test_img_pcx_8b1p: public test_image
 				"\x0C\x00" "\x01\x00"
 				"\x00\x00" "\x00\x00"
 			) + std::string(54, '\x00') + STRING_WITH_NULLS(
-				"\xF0\x0F" // note same content as previous test, but different dimensions
+				"\xCC\x0F"
+				"\xCC\x0F"
+				"\xCC\x0F"
+				"\xCC\x0F"
 			), createPalette_DefaultEGA(), STRING_WITH_NULLS(
 				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F" // 0x0F follows (in source data) as padding
 				"\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F" // 0x0F follows (in source data) as padding
