@@ -22,8 +22,6 @@
 #define _CAMOTO_TLS_ZONE66_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -35,43 +33,17 @@ class TilesetType_Zone66: virtual public TilesetType
 		TilesetType_Zone66();
 		virtual ~TilesetType_Zone66();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
-};
-
-/// Tileset handler for Zone 66 tilesets.
-class Tileset_Zone66: virtual public Tileset_FAT
-{
-	public:
-		Tileset_Zone66(stream::inout_sptr data,
-			PaletteTablePtr pal);
-		virtual ~Tileset_Zone66();
-
-		virtual int getCaps();
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-		virtual PaletteTablePtr getPalette();
-		virtual void setPalette(PaletteTablePtr newPalette);
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
-		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry);
-		virtual void postInsertFile(FATEntry *pNewEntry);
-		virtual void postRemoveFile(const FATEntry *pid);
-
-	protected:
-		PaletteTablePtr pal;
-
-	private:
-		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount);
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 };
 
 } // namespace gamearchive
