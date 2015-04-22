@@ -22,15 +22,12 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "img-ega-byteplanar.hpp"
 #include "tls-ccaves-sub.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-/// Number of planes in each image
-#define NUMPLANES_SPRITE  5
-#define NUMPLANES_TILE    4
 
 /// Maximum number of tilesets to load from a tileset collection.
 #define CC_SAFETY_MAX_TILESETCOUNT  1024
@@ -40,6 +37,8 @@ namespace gamegraphics {
 
 /// Offset of the first tile within a single tileset.
 #define CC_FIRST_TILE_OFFSET    3
+
+#define FILETYPE_CCAVES_SUB "tile/ccaves"
 
 //
 // TilesetType_CCavesSub
@@ -53,74 +52,80 @@ TilesetType_CCavesSub::~TilesetType_CCavesSub()
 {
 }
 
-std::string TilesetType_CCavesSub::getCode() const
+std::string TilesetType_CCavesSub::code() const
 {
 	return "tls-ccaves-sub";
 }
 
-std::string TilesetType_CCavesSub::getFriendlyName() const
+std::string TilesetType_CCavesSub::friendlyName() const
 {
 	return "Crystal Caves Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> TilesetType_CCavesSub::getFileExtensions() const
+std::vector<std::string> TilesetType_CCavesSub::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_CCavesSub::getGameList() const
+std::vector<std::string> TilesetType_CCavesSub::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
-	//vcGames.push_back("Secret Agent");
 	return vcGames;
 }
 
-TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 
+	// Too short
 	// TESTED BY: tls_ccaves_sub_isinstance_c02
-	if (len < 3) return DefinitelyNo; // too short
+	if (len < 3) return DefinitelyNo;
 
-	psGraphics->seekg(0, stream::start);
-	uint8_t numTiles, width, height;
-	psGraphics
+	content.seekg(0, stream::start);
+	uint8_t numTiles, widthBytes, height;
+	content
 		>> u8(numTiles)
-		>> u8(width)
+		>> u8(widthBytes)
 		>> u8(height)
 	;
 
+	unsigned int lenTile = widthBytes * height * (unsigned int)PlaneCount::Masked;
+
+	// Length doesn't match value calculated from header
 	// TESTED BY: tls_ccaves_sub_isinstance_c01
-	if ((unsigned)(3 + width * height * NUMPLANES_SPRITE * numTiles) != len)
+	if ((unsigned)(3 + lenTile * numTiles) != len)
 		return DefinitelyNo;
 
 	// TESTED BY: tls_ccaves_sub_isinstance_c00
 	return PossiblyYes;
 }
 
-TilesetPtr TilesetType_CCavesSub::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CCavesSub::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->seekp(0, stream::start);
+	content->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	psGraphics->write("\x00\x00\x00", 3);
-	return TilesetPtr(new Tileset_CCavesSub(psGraphics, NUMPLANES_SPRITE));
+	content->write("\x00\x00\x00", 3);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_CCavesSub::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CCavesSub::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_CCavesSub(psGraphics, NUMPLANES_SPRITE));
+	return std::make_shared<Tileset_CCavesSub>(
+		std::move(content), PlaneCount::Masked
+	);
 }
 
-SuppFilenames TilesetType_CCavesSub::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesSub::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -128,37 +133,40 @@ SuppFilenames TilesetType_CCavesSub::getRequiredSupps(const std::string& filenam
 // Tileset_CCavesSub
 //
 
-Tileset_CCavesSub::Tileset_CCavesSub(stream::inout_sptr data,
-	uint8_t numPlanes)
-	:	Tileset_FAT(data, CC_FIRST_TILE_OFFSET),
+Tileset_CCavesSub::Tileset_CCavesSub(std::unique_ptr<stream::inout> content,
+	PlaneCount numPlanes)
+	:	Tileset_FAT(std::move(content), CC_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize(0),
 		numPlanes(numPlanes)
 {
-	stream::pos len = this->data->size();
+	stream::pos len = this->content->size();
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
 	if (len < 3) throw stream::error("file too short");
 
-	this->data->seekg(0, stream::start);
-	uint8_t numImages;
-	this->data
+	this->content->seekg(0, stream::start);
+	uint8_t numImages, widthBytes, height;
+	*this->content
 		>> u8(numImages)
-		>> u8(this->width)
-		>> u8(this->height)
+		>> u8(widthBytes)
+		>> u8(height)
 	;
+	this->dims.x = widthBytes * 8;
+	this->dims.y = height;
+	this->lenTile = widthBytes * height * (unsigned int)this->numPlanes;
 
-	int tileSize = this->width * this->height * this->numPlanes;
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = 3 + i * tileSize;
-		fat->size = tileSize;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = 3 + i * this->lenTile;
+		fat->storedSize = this->lenTile;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
+		fat->type = FILETYPE_CCAVES_SUB;
+		this->vcFAT.push_back(std::move(fat));
 	}
 
 }
@@ -167,94 +175,90 @@ Tileset_CCavesSub::~Tileset_CCavesSub()
 {
 }
 
-int Tileset_CCavesSub::getCaps()
+Tileset::Caps Tileset_CCavesSub::caps() const
 {
-	return Tileset::ChangeDimensions | Tileset::ColourDepthEGA;
+	return Tileset::Caps::ChangeDimensions;
 }
 
-void Tileset_CCavesSub::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_CCavesSub::colourDepth() const
 {
-	if (newSize != (unsigned)(this->width * this->height * this->numPlanes)) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return ColourDepth::EGA;
 }
 
-void Tileset_CCavesSub::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset_CCavesSub::dimensions() const
 {
-	*width = this->width * 8;
-	*height = this->height;
-	return;
+	return this->dims;
 }
 
-void Tileset_CCavesSub::setTilesetDimensions(unsigned int width, unsigned int height)
+void Tileset_CCavesSub::dimensions(const Point& newDimensions)
 {
 	// TODO: confirm this, it could just leave the unused bits blank
-	if (width % 8) throw stream::error("width must be a multiple of 8");
-	this->width = width / 8;
-	this->height = height;
+	if (newDimensions.x % 8) throw stream::error("width must be a multiple of 8");
+	this->dims = newDimensions;
 
 	// Update the header
-	this->data->seekp(1, stream::start);
-	this->data
-		<< u8(this->width)
-		<< u8(this->height)
+	this->content->seekp(1, stream::start);
+	auto widthBytes = (this->dims.x + 7) / 8;
+	*this->content
+		<< u8(widthBytes)
+		<< u8(this->dims.y)
 	;
 
-	// Resize our containing stream to fit the new dimensions
-	this->data->truncate(3 + this->items.size() * this->numPlanes *
-		this->width * this->height);
+	this->changeTileSize(widthBytes * this->dims.y * (unsigned int)this->numPlanes);
 
+#warning TODO: Add tests for resizing tilesets
+#warning TODO: Update offsets as this is a fixed-size tileset
+	// Resize our containing stream to fit the new dimensions
+	this->content->truncate(3 + this->vcFAT.size() * this->lenTile);
 	return;
 }
 
-unsigned int Tileset_CCavesSub::getLayoutWidth()
+unsigned int Tileset_CCavesSub::layoutWidth() const
 {
 	return 10;
 }
 
-ImagePtr Tileset_CCavesSub::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_CCavesSub::openImage(FileHandle& id)
 {
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 2;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 4;
-	planes[PLANE_INTENSITY] = 5;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = -1;
+	EGAPlaneLayout planes = {
+		(this->numPlanes == PlaneCount::Masked)
+			? EGAPlanePurpose::Opaque1 : EGAPlanePurpose::Unused,
+		EGAPlanePurpose::Blue1,
+		EGAPlanePurpose::Green1,
+		EGAPlanePurpose::Red1,
+		EGAPlanePurpose::Intensity1,
+	};
 
-	Image_EGABytePlanar *ega = new Image_EGABytePlanar();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, this->width * 8, this->height, planes, PaletteTablePtr()
+	return std::make_unique<Image_EGA_BytePlanar>(
+		this->open(id, true), 0, this->dimensions(), planes, this->palette()
 	);
-
-	return conv;
 }
 
-Tileset_CCavesSub::FATEntry *Tileset_CCavesSub::preInsertFile(
-	const Tileset_CCavesSub::FATEntry *idBeforeThis, Tileset_CCavesSub::FATEntry *pNewEntry)
+Tileset::FileHandle Tileset_CCavesSub::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
 {
-	if (this->items.size() >= 255) {
+	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_CCAVES_SUB, attr);
+}
+
+void Tileset_CCavesSub::preInsertFile(
+	const Tileset_CCavesSub::FATEntry *idBeforeThis,
+	Tileset_CCavesSub::FATEntry *pNewEntry)
+{
+	if (this->vcFAT.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
 	}
 
-	// All tiles are a fixed size in this format.
-	pNewEntry->size = this->width * this->height * this->numPlanes;
-
 	// Update the header
-	this->data->seekp(0, stream::start);
-	this->data << u8(this->items.size() + 1);
-
-	return pNewEntry;
+	this->content->seekp(0, stream::start);
+	*this->content << u8(this->vcFAT.size() + 1);
+	return;
 }
 
 void Tileset_CCavesSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
-	this->data->seekp(0, stream::start);
-	this->data << u8(this->items.size());
+	this->content->seekp(0, stream::start);
+	*this->content << u8(this->vcFAT.size());
 	return;
 }
 

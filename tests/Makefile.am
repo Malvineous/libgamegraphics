@@ -26,6 +26,7 @@ tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-subimage.cpp
 tests_SOURCES += test-tileset.cpp
 tests_SOURCES += test-tls-bash-sprite.cpp
+tests_SOURCES += test-tls-ccaves-main.cpp
 tests_SOURCES += test-tls-ccaves-sub.cpp
 tests_SOURCES += test-tls-ccomic.cpp
 tests_SOURCES += test-tls-ccomic2.cpp

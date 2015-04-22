@@ -1,6 +1,6 @@
 /**
- * @file   test-tls-ccaves-sub.cpp
- * @brief  Test code for Tileset_CCavesSub class.
+ * @file   test-tls-ccaves-main.cpp
+ * @brief  Test code for Tileset_CCavesMain class.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -20,19 +20,22 @@
 
 #include "test-tileset.hpp"
 
-class test_tls_ccaves_sub: public test_tileset
+class test_tls_ccaves_main: public test_tileset
 {
 	public:
-		test_tls_ccaves_sub()
+		test_tls_ccaves_main()
 		{
-			this->type = "tls-ccaves-sub";
+			this->type = "tls-ccaves-main";
 			this->lenMaxFilename = -1;
-			this->lenFilesizeFixed = 1 * 8 * 5;
 
-			this->content[0] = this->tile1();
-			this->content[1] = this->tile2();
-			this->content[2] = this->tile3();
-			this->content[3] = this->tile4();
+			this->content[0] = this->tileset1();
+			this->content[1] = this->tileset2();
+			this->content[2] = this->tileset3();
+			this->content[3] = this->tileset4();
+
+			this->content0_overwritten = this->tileset1_larger_replaced();
+			this->content0_largeSize = 3 + 8 * 5 * 2;
+			this->content0_smallSize = 3;
 
 			this->firstTileDims = {8, 8};
 		}
@@ -54,14 +57,15 @@ class test_tls_ccaves_sub: public test_tileset
 				STRING_WITH_NULLS(
 					"\x03" "\x01" "\x08"
 				) +
-				this->tile1() +
-				this->tile2()
+				this->tileset1() +
+				this->tileset2()
 			);
 		}
 
-		virtual std::string tile1() const
+		virtual std::string tileset1() const
 		{
 			return STRING_WITH_NULLS(
+				"\x01\x01\x08"
 				"\xFF\xBF\xBF\xBF\xBF"
 				"\x81\x00\x01\x80\x81"
 				"\x81\x00\x01\x80\x81"
@@ -73,9 +77,10 @@ class test_tls_ccaves_sub: public test_tileset
 			);
 		}
 
-		virtual std::string tile2() const
+		virtual std::string tileset2() const
 		{
 			return STRING_WITH_NULLS(
+				"\x01\x01\x08"
 				"\xFF\xFF\xBF\xBF\xBF"
 				"\x81\x00\x01\x80\x81"
 				"\x81\x00\x01\x80\x81"
@@ -87,9 +92,10 @@ class test_tls_ccaves_sub: public test_tileset
 			);
 		}
 
-		virtual std::string tile3() const
+		virtual std::string tileset3() const
 		{
 			return STRING_WITH_NULLS(
+				"\x01\x01\x08"
 				"\xFF\xBF\xFF\xBF\xBF"
 				"\x81\x00\x01\x80\x81"
 				"\x81\x00\x01\x80\x81"
@@ -101,9 +107,10 @@ class test_tls_ccaves_sub: public test_tileset
 			);
 		}
 
-		virtual std::string tile4() const
+		virtual std::string tileset4() const
 		{
 			return STRING_WITH_NULLS(
+				"\x01\x01\x08"
 				"\xFF\xFF\xFF\xBF\xBF"
 				"\x81\x00\x01\x80\x81"
 				"\x81\x00\x01\x80\x81"
@@ -115,14 +122,66 @@ class test_tls_ccaves_sub: public test_tileset
 			);
 		}
 
+		virtual std::string tileset1_larger_empty() const
+		{
+			return STRING_WITH_NULLS(
+				"\x02\x01\x08"
+				"\xFF\xBF\xBF\xBF\xBF"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\xFF\x7C\x01\x81\xFD"
+
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00"
+			);
+		}
+
+		virtual std::string tileset1_smaller() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x01\x08"
+			);
+		}
+
+		virtual std::string tileset1_larger_replaced() const
+		{
+			return STRING_WITH_NULLS(
+				"\x02\x01\x08"
+				"\xFF\xBF\xBF\xBF\xBF"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\xFF\x7C\x01\x81\xFD"
+
+				"\xFF\xBF\xBF\xBF\xBF"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\x81\x00\x01\x80\x81"
+				"\xFF\x7C\x01\x81\xFD"
+			);
+		}
+
 		virtual std::string initialstate()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x02" "\x01" "\x08"
-				) +
-				this->tile1() +
-				this->tile2()
+				this->tileset1() +
+				this->tileset2()
 			;
 		}
 
@@ -134,94 +193,83 @@ class test_tls_ccaves_sub: public test_tileset
 		virtual std::string insert_end()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x03" "\x01" "\x08"
-				) +
-				this->tile1() +
-				this->tile2() +
-				this->tile3()
+				this->tileset1() +
+				this->tileset2() +
+				this->tileset3()
 			;
 		}
 
 		virtual std::string insert_mid()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x03" "\x01" "\x08"
-				) +
-				this->tile1() +
-				this->tile3() +
-				this->tile2()
+				this->tileset1() +
+				this->tileset3() +
+				this->tileset2()
 			;
 		}
 
 		virtual std::string insert2()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x04" "\x01" "\x08"
-				) +
-				this->tile1() +
-				this->tile3() +
-				this->tile4() +
-				this->tile2()
+				this->tileset1() +
+				this->tileset3() +
+				this->tileset4() +
+				this->tileset2()
 			;
 		}
 
 		virtual std::string remove()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x01" "\x01" "\x08"
-				) +
-				this->tile2()
+				this->tileset2()
 			;
 		}
 
 		virtual std::string remove2()
 		{
-			return STRING_WITH_NULLS(
-				"\x00" "\x01" "\x08"
-			);
+			return {};
 		}
 
 		virtual std::string insert_remove()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x02" "\x01" "\x08"
-				) +
-				this->tile3() +
-				this->tile2()
+				this->tileset3() +
+				this->tileset2()
 			;
 		}
 
 		virtual std::string move()
 		{
 			return
-				STRING_WITH_NULLS(
-					"\x02" "\x01" "\x08"
-				) +
-				this->tile2() +
-				this->tile1()
+				this->tileset2() +
+				this->tileset1()
 			;
 		}
 
 		virtual std::string resize_larger()
 		{
-			throw stream::error("Tiles in this format are a fixed size.");
+			return
+				this->tileset1_larger_empty() +
+				this->tileset2()
+			;
 		}
 
 		virtual std::string resize_smaller()
 		{
-			throw stream::error("Tiles in this format are a fixed size.");
+			return
+				this->tileset1_smaller() +
+				this->tileset2()
+			;
 		}
 
 		virtual std::string resize_write()
 		{
-			throw stream::error("Tiles in this format are a fixed size.");
+			return
+				this->tileset1_larger_replaced() +
+				this->tileset2()
+			;
 		}
 
 };
 
-IMPLEMENT_TESTS(tls_ccaves_sub);
+IMPLEMENT_TESTS(tls_ccaves_main);

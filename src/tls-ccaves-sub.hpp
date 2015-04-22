@@ -23,67 +23,58 @@
 
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
+#include "img-ega.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetType_CCavesSub: virtual public TilesetType {
-
+class TilesetType_CCavesSub: virtual public TilesetType
+{
 	public:
-
 		TilesetType_CCavesSub();
-
 		virtual ~TilesetType_CCavesSub();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
-
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
+			const;
 };
 
-class Tileset_CCavesSub: virtual public Tileset_FAT {
-	protected:
-		uint8_t width, height, numPlanes;
-
+class Tileset_CCavesSub:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
 	public:
-		Tileset_CCavesSub(stream::inout_sptr data, uint8_t numPlanes);
-
+		Tileset_CCavesSub(std::unique_ptr<stream::inout> content,
+			PlaneCount numPlanes);
 		virtual ~Tileset_CCavesSub();
 
-		virtual int getCaps();
-
-		void resize(EntryPtr& id, stream::len newSize);
-
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-
-		virtual void setTilesetDimensions(unsigned int width, unsigned int height);
-
-		virtual unsigned int getLayoutWidth();
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-		virtual FATEntry *preInsertFile(const FATEntry *idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+		virtual void preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry);
-
 		virtual void postRemoveFile(const FATEntry *pid);
 
+	protected:
+		Point dims;
+		PlaneCount numPlanes;
 };
 
 } // namespace gamegraphics

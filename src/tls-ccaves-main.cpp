@@ -21,18 +21,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "tls-ccaves-main.hpp"
 #include "tls-ccaves-sub.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-/// Number of planes in a sprite image
-#define CC_NUMPLANES_SPRITE  5
-
-/// Number of planes in a tileset image
-#define CC_NUMPLANES_TILE    4
 
 /// How much padding to apply after each tileset (in bytes)
 #define CC_PAD  0
@@ -45,6 +41,8 @@ namespace gamegraphics {
 
 /// Offset of the first tile within a single tileset.
 #define CC_FIRST_TILE_OFFSET    3
+
+#define FILETYPE_CCAVES_MAIN "tileset/ccaves-sub"
 
 //
 // TilesetType_CCavesMain
@@ -59,49 +57,56 @@ TilesetType_CCavesMain::~TilesetType_CCavesMain()
 {
 }
 
-std::string TilesetType_CCavesMain::getCode() const
+std::string TilesetType_CCavesMain::code() const
 {
 	return "tls-ccaves-main";
 }
 
-std::string TilesetType_CCavesMain::getFriendlyName() const
+std::string TilesetType_CCavesMain::friendlyName() const
 {
 	return "Crystal Caves Concatenated Tileset";
 }
 
-std::vector<std::string> TilesetType_CCavesMain::getFileExtensions() const
+std::vector<std::string> TilesetType_CCavesMain::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("gfx");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_CCavesMain::getGameList() const
+std::vector<std::string> TilesetType_CCavesMain::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Crystal Caves");
 	return vcGames;
 }
 
-TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c02
+	// Empty file
+	// TESTED BY: tls_ccaves_main_isinstance_c01
+	if (len == 0) return PossiblyYes;
+
+	// Too short
+	// TESTED BY: tls_ccaves_main_isinstance_c01
 	if (len < 3) return DefinitelyNo; // too short
 
-	psGraphics->seekg(0, stream::start);
+	content.seekg(0, stream::start);
 	stream::pos pos = 0;
 	while (pos < len) {
 		uint8_t numTiles, width, height;
-		psGraphics
+		content
 			>> u8(numTiles)
 			>> u8(width)
 			>> u8(height)
 		;
 		pos += 3;
 
-		int delta = width*height*CC_NUMPLANES_SPRITE*numTiles + this->pad;
+		int delta = width * height * (int)PlaneCount::Masked
+			* numTiles + this->pad;
 /*
 		// Make sure we don't get stuck
 		if (delta == 0) {
@@ -116,34 +121,36 @@ TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(stream::inp
 		pos += delta;
 		if (pos > len) return DefinitelyNo;
 
-		psGraphics->seekg(delta, stream::cur);
+		content.seekg(delta, stream::cur);
 	}
 
-	// TESTED BY: TODO //fmt_grp_duke3d_isinstance_c01
+	// TESTED BY: tls_ccaves_main_isinstance_c00
 	return PossiblyYes;
 }
 
-TilesetPtr TilesetType_CCavesMain::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CCavesMain::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	throw stream::error("not implemented yet");
-	psGraphics->seekp(0, stream::start);
+	content->truncate(0);
+	//content->seekp(0, stream::start);
 	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
-	psGraphics->write("\x00\x01\x08", 3);
-	return TilesetPtr(new Tileset_CCavesMain(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
+	//content->write("\x00\x01\x08", 3);
+	return this->open(std::move(content), suppData);
 }
 
 // Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr TilesetType_CCavesMain::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CCavesMain::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_CCavesMain(psGraphics, CC_NUMPLANES_SPRITE, this->pad));
+	return std::make_shared<Tileset_CCavesMain>(
+		std::move(content), PlaneCount::Masked, this->pad
+	);
 }
 
-SuppFilenames TilesetType_CCavesMain::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesMain::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -151,42 +158,49 @@ SuppFilenames TilesetType_CCavesMain::getRequiredSupps(const std::string& filena
 // Tileset_CCavesMain
 //
 
-Tileset_CCavesMain::Tileset_CCavesMain(stream::inout_sptr data,
-	unsigned int numPlanes, stream::len pad)
-	:	Tileset_FAT(data, CC_FIRST_TILESET_OFFSET),
-		numPlanes(numPlanes)
+Tileset_CCavesMain::Tileset_CCavesMain(std::unique_ptr<stream::inout> content,
+	PlaneCount numPlanes, stream::len pad)
+	:	Tileset_FAT(std::move(content), CC_FIRST_TILESET_OFFSET, ARCH_NO_FILENAMES),
+		numPlanes(numPlanes),
+		pad(pad)
 {
-	stream::pos len = this->data->size();
+	stream::pos len = this->content->size();
+
+	// Empty tileset
+	if (len == 0) return;
 
 	// We still have to perform sanity checks in case the user forced an
 	// open even though it failed the signature check.
 	if (len < 3) throw stream::error("file too short");
 
-	this->data->seekg(0, stream::start);
+	this->content->seekg(0, stream::start);
 
+	// Peek at all the "files" in the container to work out how large each one is
 	stream::pos pos = 0;
 	for (int i = 0; pos < len; i++) {
-		uint8_t numTiles, width, height;
-		this->data
+		uint8_t numTiles, widthBytes, height;
+		*this->content
 			>> u8(numTiles)
-			>> u8(width)
+			>> u8(widthBytes)
 			>> u8(height)
 		;
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = Tileset::SubTileset;
-		fat->index = i;
-		fat->offset = pos;
-		fat->size = width*height*this->numPlanes*numTiles+3 + pad;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Folder;
+		fat->iIndex = i;
+		fat->iOffset = pos;
+		fat->storedSize = widthBytes * height * (unsigned int)this->numPlanes
+			* numTiles + 3 + pad;
 		fat->lenHeader = 0;
 
-		// Make sure this tileset won't go past EOF or is zero data
-		if (pos + fat->size > len) break;
-		this->items.push_back(ep);
+		auto fat2 = fat.get();
+		this->vcFAT.push_back(std::move(fat));
 
-		this->data->seekg(fat->size-3, stream::cur);
-		pos += fat->size;
+		// Make sure this tileset won't go past EOF or is zero data
+		if (pos + fat2->storedSize > len) break;
+
+		this->content->seekg(fat2->storedSize-3, stream::cur);
+		pos += fat2->storedSize;
 
 		if (i >= CC_SAFETY_MAX_TILESETCOUNT) {
 			throw stream::error("too many tilesets or corrupted graphics file");
@@ -198,19 +212,98 @@ Tileset_CCavesMain::~Tileset_CCavesMain()
 {
 }
 
-int Tileset_CCavesMain::getCaps()
+Tileset::Caps Tileset_CCavesMain::caps() const
 {
-	return Tileset::ColourDepthEGA;
+	return Tileset::Caps::Default;
 }
 
-TilesetPtr Tileset_CCavesMain::createTilesetInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+ColourDepth Tileset_CCavesMain::colourDepth() const
 {
-	return TilesetPtr(
-		new Tileset_CCavesSub(content, this->numPlanes)
+	return ColourDepth::EGA;
+}
+
+Point Tileset_CCavesMain::dimensions() const
+{
+	return {0, 0};
+}
+
+unsigned int Tileset_CCavesMain::layoutWidth() const
+{
+	return 1;
+}
+
+void Tileset_CCavesMain::resize(FileHandle& id, stream::len newStoredSize,
+	stream::len newRealSize)
+{
+	auto fat = FATEntry::cast(id);
+	assert(fat);
+
+	// Make sure the new size is permitted
+	uint8_t numTiles, widthBytes, height;
+	if (this->content->size() >= fat->iOffset + 3) {
+		this->content->seekg(fat->iOffset, stream::start);
+		*this->content
+			>> u8(numTiles)
+			>> u8(widthBytes)
+			>> u8(height)
+		;
+	} else {
+		// Temporarily assign one tile the exact size needed
+		auto space = (newStoredSize - 3) / (unsigned int)this->numPlanes;
+		numTiles = 1;
+		widthBytes = space / 8;
+		height = space / widthBytes;
+	}
+	unsigned int tileSize = widthBytes * height * (unsigned int)this->numPlanes;
+	if (((newStoredSize - 3) % tileSize) != 0) {
+		throw stream::error("tls-ccaves-main sub-tilesets can only be resized in "
+			"units of whole tiles only.");
+	}
+
+	this->Tileset_FAT::resize(id, newStoredSize, newRealSize);
+
+	// Write the new tile count, so the file won't be corrupted in case nothing
+	// further gets done.
+	unsigned int newNumTiles = (newStoredSize - 3) / tileSize;
+	this->content->seekp(fat->iOffset, stream::start);
+	*this->content
+		<< u8(newNumTiles)
+		<< u8(widthBytes)
+		<< u8(height)
+	;
+	return;
+}
+
+std::shared_ptr<Tileset> Tileset_CCavesMain::openTileset(FileHandle& id)
+{
+	return std::make_unique<Tileset_CCavesSub>(
+		this->open(id, true), this->numPlanes
 	);
 }
 
+Tileset::FileHandle Tileset_CCavesMain::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", 3, FILETYPE_CCAVES_MAIN, attr);
+}
+
+void Tileset_CCavesMain::preInsertFile(
+	const Tileset_CCavesMain::FATEntry *idBeforeThis,
+	Tileset_CCavesMain::FATEntry *pNewEntry)
+{
+
+
+return;
+
+
+
+	if (pNewEntry->type.compare(FILETYPE_CCAVES_MAIN) != 0) {
+		throw stream::error("only files of type " FILETYPE_CCAVES_MAIN
+			" can be added to this tileset.");
+	}
+	// Write 3x 0x00 to the new stream?
+	return;
+}
 
 } // namespace gamegraphics
 } // namespace camoto
