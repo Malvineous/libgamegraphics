@@ -24,15 +24,17 @@
 namespace camoto {
 namespace gamegraphics {
 
-Tileset_FAT::Tileset_FAT(std::unique_ptr<stream::inout> data,
+Tileset_FAT::Tileset_FAT(std::unique_ptr<stream::inout> content,
 	stream::pos offFirstTile, int lenMaxName)
-	: Archive_FAT(std::move(data), offFirstTile, lenMaxName)
+	: Archive_FAT(std::move(content), offFirstTile, lenMaxName)
 {
 }
 
 Tileset_FAT::Tileset_FAT()
-	: Archive_FAT(nullptr, 0, 0) // should never be called
+	: Archive_FAT(nullptr, 0, 0)
 {
+	throw stream::error("Tileset_FAT() default constructor called - should "
+		"never happen!");
 }
 
 Tileset_FAT::~Tileset_FAT()

@@ -29,11 +29,11 @@ namespace gamegraphics {
 
 /// Tileset implementation for tilesets with an associated size/offset table.
 class Tileset_FAT:
-	virtual public gamearchive::Archive_FAT,
-	virtual public Tileset
+	public gamearchive::Archive_FAT,
+	public Tileset
 {
 	public:
-		Tileset_FAT(std::unique_ptr<stream::inout> data, stream::pos offFirstTile,
+		Tileset_FAT(std::unique_ptr<stream::inout> content, stream::pos offFirstTile,
 			int lenMaxName);
 		virtual ~Tileset_FAT();
 
@@ -42,7 +42,7 @@ class Tileset_FAT:
 		virtual std::shared_ptr<Tileset> openTileset(FileHandle& id);
 
 	protected:
-		Tileset_FAT();
+		Tileset_FAT(); // for Tileset_FAT_FixedTileSize
 };
 
 } // namespace gamegraphics
