@@ -39,29 +39,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-/// Zone66 Image implementation for a tile within a tileset.
-class Image_Zone66Tile: virtual public Image
-{
-	public:
-		Image_Zone66Tile(std::unique_ptr<stream::inout> content,
-			std::shared_ptr<const Palette> pal);
-		virtual ~Image_Zone66Tile();
-
-		virtual Caps caps() const;
-		ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
-		virtual void dimensions(const Point& newDimensions);
-		virtual Pixels convert() const;
-		virtual Pixels convert_mask() const;
-		virtual void convert(const Pixels& newContent,
-			const Pixels& newMask);
-
-	protected:
-		std::unique_ptr<stream::inout> content;
-		Point dims;
-};
-
-
 ImageType_Zone66Tile::ImageType_Zone66Tile()
 {
 }
