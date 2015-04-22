@@ -22,8 +22,6 @@
 #define _CAMOTO_TLS_ZONE66_MAP_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include <camoto/gamegraphics/palettetable.hpp>
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -35,38 +33,17 @@ class TilesetType_Zone66Map: virtual public TilesetType
 		TilesetType_Zone66Map();
 		virtual ~TilesetType_Zone66Map();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
-};
-
-/// Handler for Zone 66 map tilesets.
-class Tileset_Zone66Map: virtual public Tileset_FAT
-{
-	public:
-		Tileset_Zone66Map(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~Tileset_Zone66Map();
-
-		virtual int getCaps();
-		void resize(EntryPtr& id, stream::len newSize);
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-		virtual unsigned int getLayoutWidth();
-		virtual PaletteTablePtr getPalette();
-
-		// Tileset_FAT
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		unsigned int numPlanes;
-		PaletteTablePtr pal;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
+			const;
 };
 
 } // namespace gamegraphics

@@ -44,6 +44,9 @@
 /// Maximum tiles to load in case of a corrupted file
 #define Z66_SAFETY_MAX_TILES   4096
 
+/// Colour depth of VGA palette
+#define Z66_PAL_DEPTH 6
+
 /// Palette index to make transparent
 #define Z66_TRANSPARENT_COLOUR 0
 
@@ -171,7 +174,7 @@ std::shared_ptr<Tileset> TilesetType_Zone66::open(
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
 		auto palFile = std::make_unique<Palette_VGA>(
-			std::move(suppData[SuppItem::Palette]), 6
+			std::move(suppData[SuppItem::Palette]), Z66_PAL_DEPTH
 		);
 		pal = std::make_shared<Palette>();
 		*pal = *palFile->palette(); // deep copy palette
@@ -212,8 +215,7 @@ Tileset_Zone66::Tileset_Zone66(std::unique_ptr<stream::inout> content,
 		*this->content >> u32le(nextOffset);
 		nextOffset += firstOffset;
 		for (unsigned int i = 0; i < numTiles; i++) {
-			FATEntry *fat = new FATEntry();
-			FileHandle ep(fat);
+			auto fat = std::make_unique<FATEntry>();
 			fat->bValid = true;
 			fat->fAttr = File::Attribute::Default;
 			fat->iIndex = i;
@@ -228,7 +230,7 @@ Tileset_Zone66::Tileset_Zone66(std::unique_ptr<stream::inout> content,
 			}
 			fat->storedSize = nextOffset - fat->iOffset;
 			fat->type = fat->storedSize == 64000 ? FILETYPE_ZONE66_FS : FILETYPE_ZONE66_T;
-			this->vcFAT.push_back(ep);
+			this->vcFAT.push_back(std::move(fat));
 		}
 	}
 }
@@ -263,7 +265,7 @@ std::unique_ptr<Image> Tileset_Zone66::openImage(FileHandle& id)
 	if (contentImage->size() == 64000) {
 		// This tile is raw-vga
 		return std::make_unique<Image_VGARaw>(
-			std::move(contentImage), 320, 200, this->palette()
+			std::move(contentImage), Point{320, 200}, this->palette()
 		);
 	} else {
 		// This tile is normal
