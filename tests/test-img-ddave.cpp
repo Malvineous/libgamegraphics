@@ -279,6 +279,7 @@ class test_img_img_ddave_vga: public test_image
 			if (create) {
 				// Create an empty image, 0x0 pixels in size
 				content->truncate(4);
+				content->seekp(0, stream::start);
 				*content << u16le(0) << u16le(0);
 			}
 			return std::make_unique<Image_DDaveVGA>(std::move(content), false, createPalette_DefaultVGA());
