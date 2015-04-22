@@ -66,17 +66,13 @@ class ImageType_VGA8Raw: virtual public ImageType_VGARawBase
 /// Raw VGA Image implementation.
 class Image_VGARaw: virtual public Image_VGA
 {
-	protected:
-		unsigned int width, height;
-		std::shared_ptr<const Palette> pal;
-
 	public:
 		/// Constructor
 		/**
 		 * No truncate function is required as the image dimensions are fixed, so
 		 * the file size will always remain constant.
 		 *
-		 * @param data
+		 * @param content
 		 *   VGA data
 		 *
 		 * @param width
@@ -88,14 +84,16 @@ class Image_VGARaw: virtual public Image_VGA
 		 * @param pal
 		 *   Image palette
 		 */
-		Image_VGARaw(std::unique_ptr<stream::inout> data, int width, int height,
+		Image_VGARaw(std::unique_ptr<stream::inout> content, Point dims,
 			std::shared_ptr<const Palette> pal);
 		virtual ~Image_VGARaw();
 
 		virtual Caps caps() const;
 		virtual Point dimensions() const;
 		virtual void dimensions(const Point& newDimensions);
-		virtual std::shared_ptr<const Palette> palette() const;
+
+	protected:
+		Point dims;
 };
 
 } // namespace gamegraphics

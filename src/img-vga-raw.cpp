@@ -39,8 +39,7 @@ std::vector<std::string> ImageType_VGARawBase::games() const
 }
 
 ImageType::Certainty ImageType_VGARawBase::isInstance(
-	stream::input& content)
-	const
+	stream::input& content) const
 {
 	stream::pos len = content.size();
 
@@ -72,7 +71,7 @@ std::unique_ptr<Image> ImageType_VGARawBase::open(
 		pal = palFile->palette();
 	}
 	return std::make_unique<Image_VGARaw>(
-		std::move(content), 320, 200,
+		std::move(content), Point{320, 200},
 		std::dynamic_pointer_cast<const Palette>(pal));
 }
 
@@ -119,13 +118,12 @@ std::string ImageType_VGA8Raw::friendlyName() const
 }
 
 
-Image_VGARaw::Image_VGARaw(std::unique_ptr<stream::inout> data, int width, int height,
+Image_VGARaw::Image_VGARaw(std::unique_ptr<stream::inout> content, Point dims,
 	std::shared_ptr<const Palette> pal)
-	:	Image_VGA(std::move(data), 0),
-		width(width),
-		height(height),
-		pal(pal)
+	:	Image_VGA(std::move(content), 0),
+		dims(dims)
 {
+	this->pal = pal;
 }
 
 Image_VGARaw::~Image_VGARaw()
@@ -139,17 +137,12 @@ Image::Caps Image_VGARaw::caps() const
 
 Point Image_VGARaw::dimensions() const
 {
-	return {this->width, this->height};
+	return this->dims;
 }
 
 void Image_VGARaw::dimensions(const Point& newDimensions)
 {
 	throw stream::error("this image is a fixed size");
-}
-
-std::shared_ptr<const Palette> Image_VGARaw::palette() const
-{
-	return this->pal;
 }
 
 } // namespace gamegraphics

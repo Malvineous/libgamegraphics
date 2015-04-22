@@ -28,54 +28,51 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Filetype handler for full screen raw VGA images.
-class ImageType_VGARawPlanarBase: virtual public ImageType
+class ImageType_VGA_Planar_RawBase: virtual public ImageType
 {
 	public:
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 
 	protected:
 		unsigned int depth; // palette depth (6 or 8)
 };
 
-class ImageType_VGA6RawPlanar: virtual public ImageType_VGARawPlanarBase
+class ImageType_VGA_Planar_Raw6: virtual public ImageType_VGA_Planar_RawBase
 {
 	public:
-		ImageType_VGA6RawPlanar();
+		ImageType_VGA_Planar_Raw6();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 };
 
-class ImageType_VGA8RawPlanar: virtual public ImageType_VGARawPlanarBase
+class ImageType_VGA_Planar_Raw8: virtual public ImageType_VGA_Planar_RawBase
 {
 	public:
-		ImageType_VGA8RawPlanar();
+		ImageType_VGA_Planar_Raw8();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
 };
 
 /// Raw planar VGA Image implementation.
-class Image_VGARawPlanar: virtual public Image_VGAPlanar
+class Image_VGA_Planar_Raw: virtual public Image_VGA_Planar
 {
-	protected:
-		int width, height;
-		PaletteTablePtr pal;
-
 	public:
 		/// Constructor
 		/**
 		 * No truncate function is required as the image dimensions are fixed, so
 		 * the file size will always remain constant.
 		 *
-		 * @param data
+		 * @param content
 		 *   VGA data
 		 *
 		 * @param width
@@ -87,13 +84,17 @@ class Image_VGARawPlanar: virtual public Image_VGAPlanar
 		 * @param pal
 		 *   Image palette
 		 */
-		Image_VGARawPlanar(stream::inout_sptr data, int width, int height, PaletteTablePtr pal);
-		virtual ~Image_VGARawPlanar();
+		Image_VGA_Planar_Raw(std::unique_ptr<stream::inout> content, Point dims,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_VGA_Planar_Raw();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual PaletteTablePtr getPalette();
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+
+	protected:
+		Point dims;
 };
 
 } // namespace gamegraphics

@@ -21,19 +21,18 @@
 #ifndef _CAMOTO_IMG_VGA_PLANAR_HPP_
 #define _CAMOTO_IMG_VGA_PLANAR_HPP_
 
-#include <boost/iostreams/stream.hpp>
-#include "baseimage.hpp"
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-/// VGA Image implementation.
+/// Planar VGA Image implementation.
 /**
- * This class adds support for converting to and from VGA mode 13 format.  It
- * does not handle image size (dimensions) so it should be inherited by more
+ * This class adds support for converting to and from planar VGA mode formats.
+ * It does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class Image_VGAPlanar: virtual public Image_Base
+class Image_VGA_Planar: virtual public Image
 {
 	public:
 		/// Constructor
@@ -44,19 +43,17 @@ class Image_VGAPlanar: virtual public Image_Base
 		 * @param off
 		 *   Offset from start of stream where VGA data begins.
 		 */
-		Image_VGAPlanar(stream::inout_sptr data, stream::pos off);
-		virtual ~Image_VGAPlanar();
+		Image_VGA_Planar(std::unique_ptr<stream::inout> content, stream::pos off);
+		virtual ~Image_VGA_Planar();
 
-		virtual int getCaps();
-		//virtual void getDimensions(unsigned int *width, unsigned int *height);
-		//virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:
-		stream::inout_sptr data; ///< Image content
+		std::unique_ptr<stream::inout> content; ///< Image content
 		stream::pos off;         ///< Offset of image data in \ref data
 };
 
