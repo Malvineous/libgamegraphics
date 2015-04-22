@@ -42,6 +42,7 @@ class test_tileset: public test_archive
 
 		virtual void test_isinstance_others();
 		virtual void test_new_isinstance();
+		virtual void test_new_to_initialstate();
 
 		void test_open_image();
 

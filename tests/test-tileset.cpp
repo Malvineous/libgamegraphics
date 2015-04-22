@@ -189,6 +189,20 @@ void test_tileset::test_new_isinstance()
 	BOOST_REQUIRE_EQUAL(files.size(), 0);
 }
 
+void test_tileset::test_new_to_initialstate()
+{
+	// May to prepare the tileset
+	auto tileset = std::dynamic_pointer_cast<Tileset>(this->pArchive);
+	BOOST_REQUIRE(tileset);
+	if (tileset->caps() & Tileset::Caps::ChangeDimensions) {
+		// This tileset can have its dimensions changed, so we'll need to
+		// set them to values the tests expect.
+		tileset->dimensions(this->firstTileDims);
+	}
+
+	this->test_archive::test_new_to_initialstate();
+}
+
 void test_tileset::test_open_image()
 {
 	BOOST_TEST_MESSAGE("Opening image in tileset");

@@ -85,7 +85,7 @@ class test_archive: public test_main
 		void test_shortext();
 
 		virtual void test_new_isinstance();
-		void test_new_to_initialstate();
+		virtual void test_new_to_initialstate();
 		void test_new_manipulate_zero_length_files();
 
 		void test_metadata_get_desc();
