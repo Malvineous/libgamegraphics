@@ -48,6 +48,7 @@
 #include "img-ccomic.hpp"
 #include "img-cga.hpp"
 #include "img-ega-backdrop.hpp"
+#include "img-ega-linear.hpp"
 #include "img-ega-planar.hpp"
 #include "img-mono.hpp"
 #include "img-nukem2.hpp"
@@ -61,128 +62,80 @@
 #include "pal-vga-raw.hpp"
 #include "pal-gmf-harry.hpp"
 
+using namespace camoto::gamegraphics;
+
 namespace camoto {
-namespace gamegraphics {
 
-class ActualManager: virtual public Manager
+template <>
+const std::vector<std::shared_ptr<const TilesetType> > FormatEnumerator<TilesetType>::formats()
 {
-	private:
-		/// List of available graphics types.
-		TilesetTypeVector vcTilesetTypes;
-		ImageTypeVector vcImageTypes;
-
-	public:
-		ActualManager();
-		~ActualManager();
-
-		virtual const TilesetTypePtr getTilesetType(unsigned int iIndex) const;
-		virtual const TilesetTypePtr getTilesetTypeByCode(const std::string& strCode) const;
-		virtual const ImageTypePtr getImageType(unsigned int iIndex) const;
-		virtual const ImageTypePtr getImageTypeByCode(const std::string& strCode) const;
-};
-
-const ManagerPtr getManager()
-{
-	return ManagerPtr(new ActualManager());
+	std::vector<std::shared_ptr<const TilesetType> > list;
+	FormatEnumerator<TilesetType>::addFormat<
+		TilesetType_Actrinfo,
+		TilesetType_MonsterBashBackground,
+		TilesetType_MonsterBashForeground,
+		TilesetType_MonsterBashSprite,
+		TilesetType_CatacombCGA,
+		TilesetType_CatacombEGA,
+		TilesetType_CCavesMain,
+		TilesetType_CCavesSub,
+		TilesetType_CComic,
+		TilesetType_CComic_Sprite,
+		TilesetType_CComic2,
+		TilesetType_Cosmo,
+		TilesetType_CosmoMasked,
+		TilesetType_CZone,
+		TilesetType_DDaveCGA,
+		TilesetType_DDaveEGA,
+		TilesetType_DDaveVGA,
+		TilesetType_GOT,
+		TilesetType_HarryCHR,
+		TilesetType_HarryHSB,
+		TilesetType_HarryICO,
+		TilesetType_Hocus,
+		TilesetType_Jill,
+		TilesetType_SAgent2k,
+		TilesetType_SAgent8k,
+		TilesetType_Stryker,
+		TilesetType_StrykerMasked,
+		TilesetType_Vinyl,
+		TilesetType_Wacky,
+		TilesetType_Wordresc,
+		TilesetType_Zone66,
+		TilesetType_Zone66Map
+	>(list);
+	return list;
 }
 
-ActualManager::ActualManager()
+template <>
+const std::vector<std::shared_ptr<const ImageType> > FormatEnumerator<ImageType>::formats()
 {
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Actrinfo()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_MonsterBashBackground()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_MonsterBashForeground()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_MonsterBashSprite()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CatacombCGA()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CatacombEGA()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CCavesMain()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CCavesSub()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new CComicSpriteType()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CComic()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CComic2()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Cosmo()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CosmoMasked()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_CZone()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_DDaveCGA()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_DDaveEGA()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_DDaveVGA()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_GOT()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_HarryCHR()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_HarryHSB()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_HarryICO()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Hocus()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Jill()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_SAgent2k()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_SAgent8k()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Stryker()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_StrykerMasked()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Vinyl()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Wacky()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Wordresc()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Zone66()));
-	this->vcTilesetTypes.push_back(TilesetTypePtr(new TilesetType_Zone66Map()));
-
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_CComic()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_CosmoBackdrop()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_CGARawLinear()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_EGARawPlanarBGRI()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Mono()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Nukem2Backdrop()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Nukem2()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_PCX_LinearVGA()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_PCX_PlanarEGA()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_RaptorPIC()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_TVFog()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VGA6Raw()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VGA8Raw()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VGA6RawPlanar()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VGA8RawPlanar()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VinylSCR()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Zone66Tile()));
-
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Palette_HarryGMF()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_Palette_VGA()));
-	this->vcImageTypes.push_back(ImageTypePtr(new ImageType_VGA8Palette()));
+	std::vector<std::shared_ptr<const ImageType> > list;
+	FormatEnumerator<ImageType>::addFormat<
+		ImageType_CComic,
+		ImageType_CosmoBackdrop,
+		ImageType_CGARawLinear,
+		ImageType_EGARawLinearIRGB,
+		ImageType_EGA_RawPlanarBGRI,
+		ImageType_Mono,
+		ImageType_Nukem2Backdrop,
+		ImageType_Nukem2,
+		ImageType_PCX_LinearVGA,
+		ImageType_PCX_LinearVGA_NoRLE,
+		ImageType_PCX_PlanarEGA,
+		ImageType_RaptorPIC,
+		ImageType_TVFog,
+		ImageType_VGA6Raw,
+		ImageType_VGA8Raw,
+		ImageType_VGA_Planar_Raw6,
+		ImageType_VGA_Planar_Raw8,
+		ImageType_VinylSCR,
+		ImageType_Zone66Tile,
+		ImageType_Palette_HarryGMF,
+		ImageType_Palette_VGA,
+		ImageType_VGA8Palette
+	>(list);
+	return list;
 }
 
-ActualManager::~ActualManager()
-{
-}
-
-const TilesetTypePtr ActualManager::getTilesetType(unsigned int iIndex) const
-{
-	if (iIndex >= this->vcTilesetTypes.size()) return TilesetTypePtr();
-	return this->vcTilesetTypes[iIndex];
-}
-
-const TilesetTypePtr ActualManager::getTilesetTypeByCode(
-	const std::string& strCode) const
-{
-	for (TilesetTypeVector::const_iterator i = this->vcTilesetTypes.begin();
-		i != this->vcTilesetTypes.end();
-		i++
-	) {
-		if ((*i)->getCode().compare(strCode) == 0) return *i;
-	}
-	return TilesetTypePtr();
-}
-
-const ImageTypePtr ActualManager::getImageType(unsigned int iIndex) const
-{
-	if (iIndex >= this->vcImageTypes.size()) return ImageTypePtr();
-	return this->vcImageTypes[iIndex];
-}
-
-const ImageTypePtr ActualManager::getImageTypeByCode(const std::string& strCode)
-	const
-{
-	for (ImageTypeVector::const_iterator i = this->vcImageTypes.begin();
-		i != this->vcImageTypes.end();
-		i++
-	) {
-		if ((*i)->getCode().compare(strCode) == 0) return *i;
-	}
-	return ImageTypePtr();
-}
-
-} // namespace gamegraphics
 } // namespace camoto
