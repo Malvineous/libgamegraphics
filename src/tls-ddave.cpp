@@ -260,8 +260,7 @@ ColourDepth TilesetType_DDaveVGA::colourDepth() const
 
 Tileset_DDave::Tileset_DDave(std::unique_ptr<stream::inout> content,
 	ColourDepth depth, std::shared_ptr<const Palette> pal)
-	:	Archive_FAT(std::move(content), DD_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
-		//Tileset_FAT(content, DD_FIRST_TILE_OFFSET),
+	:	Tileset_FAT(std::move(content), DD_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
 		depth(depth)
 {
 	this->pal = pal;

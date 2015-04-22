@@ -321,7 +321,7 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 	std::shared_ptr<const Palette> palette, std::string strPixelsExpected)
 {
 	BOOST_TEST_MESSAGE(createString("sizedContent_read check (" << this->basename
-		<< dims.x << "x" << dims.y << ")"));
+		<< "[" << dims.x << "x" << dims.y << "])"));
 
 	auto ss = std::make_unique<stream::string>(content);
 	auto img = this->openImage(dims, std::move(ss), result, false);
@@ -420,7 +420,7 @@ void test_image::test_sizedContent_create(const Point& dims,
 {
 	BOOST_TEST_CHECKPOINT("Init");
 	BOOST_TEST_MESSAGE(createString("sizedContent_create check (" << this->basename
-		<< dims.x << "x" << dims.y << ")"));
+		<< "[" << dims.x << "x" << dims.y << "])"));
 
 	this->resetSuppData(true); // true == empty
 	this->populateSuppData();

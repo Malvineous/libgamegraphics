@@ -177,7 +177,7 @@ constexpr int firstTileOffset(PlaneCount numPlanes)
 
 Tileset_CComic::Tileset_CComic(std::unique_ptr<stream::inout> content,
 	PlaneCount numPlanes)
-	:	Archive_FAT(std::move(content), firstTileOffset(numPlanes), ARCH_NO_FILENAMES),
+	:	Tileset_FAT(std::move(content), firstTileOffset(numPlanes), ARCH_NO_FILENAMES),
 		Tileset_FAT_FixedTileSize(CCA_TILE_WIDTH / 8 * CCA_TILE_HEIGHT * (int)numPlanes),
 		numPlanes(numPlanes)
 {
@@ -249,9 +249,7 @@ std::unique_ptr<Image> Tileset_CComic::openImage(FileHandle& id)
 Tileset::FileHandle Tileset_CComic::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
-	auto newHandle = this->insert(idBeforeThis, "", this->lenTile,
-		FILETYPE_CCOMIC, attr);
-	return newHandle;
+	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_CCOMIC, attr);
 }
 
 } // namespace gamegraphics

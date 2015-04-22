@@ -38,7 +38,7 @@ namespace gamegraphics {
 Tileset_EGAApogee::Tileset_EGAApogee(std::unique_ptr<stream::inout> content,
 	Point tileDimensions, PlaneCount numPlanes, unsigned int idealWidth,
 	std::shared_ptr<const Palette> pal)
-	:	Archive_FAT(std::move(content), EGA_APOGEE_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+	:	Tileset_FAT(std::move(content), EGA_APOGEE_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
 		Tileset_FAT_FixedTileSize(tileDimensions.x / 8 * tileDimensions.y * (unsigned int)numPlanes),
 		tileDimensions(tileDimensions),
 		numPlanes(numPlanes),

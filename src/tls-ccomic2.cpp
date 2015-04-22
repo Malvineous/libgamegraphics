@@ -170,7 +170,7 @@ SuppFilenames TilesetType_CComic2::getRequiredSupps(
 
 Tileset_CComic2::Tileset_CComic2(std::unique_ptr<stream::inout> content,
 	PlaneCount numPlanes)
-	:	Archive_FAT(std::move(content), CC2_firstTileOffset(numPlanes), ARCH_NO_FILENAMES),
+	:	Tileset_FAT(std::move(content), CC2_firstTileOffset(numPlanes), ARCH_NO_FILENAMES),
 		Tileset_FAT_FixedTileSize(CC2_TILE_WIDTH / 8 * CC2_TILE_HEIGHT * (int)numPlanes),
 		numPlanes(numPlanes)
 {
