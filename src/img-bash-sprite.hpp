@@ -21,40 +21,40 @@
 #ifndef _CAMOTO_IMG_BASH_SPRITE_HPP_
 #define _CAMOTO_IMG_BASH_SPRITE_HPP_
 
-#include "baseimage.hpp"
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Image implementation for frames within a Monster Bash sprite.
-class Image_BashSprite: virtual public Image_Base
+class Image_BashSprite: virtual public Image
 {
 	public:
-		Image_BashSprite(stream::inout_sptr data);
+		Image_BashSprite(std::unique_ptr<stream::inout> content);
 		virtual ~Image_BashSprite();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual void getHotspot(signed int *x, signed int *y);
-		virtual void setHotspot(signed int x, signed int y);
-		virtual void getHitRect(signed int *x, signed int *y);
-		virtual void setHitRect(signed int x, signed int y);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual Point hotspot() const;
+		virtual void hotspot(const Point& newHotspot);
+		virtual Point hitrect() const;
+		virtual void hitrect(const Point& newHitRect);
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
 
 	protected:
-		stream::inout_sptr data;
-		PaletteTablePtr pal;
+		std::unique_ptr<stream::inout> content;
 		uint8_t flags;
-		uint8_t width, height;
-		int16_t hotspotX, hotspotY;
-		uint16_t rectX, rectY;
+		Point dims;
+		Point ptHotspot;
+		Point ptHitRect;
 
 		/// Convert the image data to a more standard EGA format.
-		ImagePtr toEGA();
+		std::unique_ptr<Image> toEGA() const;
 };
 
 } // namespace gamegraphics
