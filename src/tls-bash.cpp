@@ -22,24 +22,23 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
+#include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 #include "img-ega-planar.hpp"
 #include "tls-bash.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Number of planes in each image
-#define MB_NUMPLANES_SPRITE  5
-#define MB_NUMPLANES_TILE    4
-
 /// Maximum number of tilesets to load from a tileset collection.
 #define MB_SAFETY_MAX_TILESETCOUNT  1024
 
 /// Offset of first tileset in a tileset collection.
-#define MB_FIRST_TILESET_OFFSET 0
+//#define MB_FIRST_TILESET_OFFSET 0
 
 /// Offset of the first tile within a single tileset.
-#define MB_FIRST_TILE_OFFSET    3
+#define MB_FIRST_TILE_OFFSET    0
 
 /// Width of each image in pixels
 #define MB_TILE_WIDTH 16
@@ -54,10 +53,37 @@ namespace gamegraphics {
 #define MB_NUM_TILES_FG 128
 
 /// Length of each tile in the background file, in bytes
-#define MB_TILE_LEN_BG  32 * MB_NUMPLANES_TILE
+#define MB_TILE_LEN_BG  (32 * (unsigned int)PlaneCount::Solid)
 
 /// Length of each tile in the foreground file, in bytes
-#define MB_TILE_LEN_FG  32 * MB_NUMPLANES_SPRITE
+#define MB_TILE_LEN_FG  (32 * (unsigned int)PlaneCount::Masked)
+
+#define FILETYPE_BASH_TILE_SOLID   "tile/bash-solid"
+#define FILETYPE_BASH_TILE_MASKED  "tile/bash-masked"
+
+class Tileset_MonsterBash:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
+	public:
+		Tileset_MonsterBash(std::unique_ptr<stream::inout> content,
+			PlaneCount numPlanes);
+		virtual ~Tileset_MonsterBash();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+
+	protected:
+		PlaneCount numPlanes; ///< Number of colour planes in each image
+};
 
 //
 // TilesetType_MonsterBashBackground
@@ -71,60 +97,60 @@ TilesetType_MonsterBashBackground::~TilesetType_MonsterBashBackground()
 {
 }
 
-std::string TilesetType_MonsterBashBackground::getCode() const
+std::string TilesetType_MonsterBashBackground::code() const
 {
 	return "tls-bash-bg";
 }
 
-std::string TilesetType_MonsterBashBackground::getFriendlyName() const
+std::string TilesetType_MonsterBashBackground::friendlyName() const
 {
 	return "Monster Bash Background Tileset";
 }
 
-std::vector<std::string> TilesetType_MonsterBashBackground::getFileExtensions() const
+std::vector<std::string> TilesetType_MonsterBashBackground::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tbg");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_MonsterBashBackground::getGameList() const
+std::vector<std::string> TilesetType_MonsterBashBackground::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
 	return vcGames;
 }
 
-TilesetType_MonsterBashBackground::Certainty TilesetType_MonsterBashBackground::isInstance(stream::input_sptr psGraphics) const
+TilesetType::Certainty TilesetType_MonsterBashBackground::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
+	if (len == 0) return PossiblyYes;
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return PossiblyYes;
 	// Some tiles are one byte larger for some reason
 	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG + 1) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr TilesetType_MonsterBashBackground::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_MonsterBashBackground::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	char empty[MB_TILE_LEN_BG];
-	memset(empty, 0x00, sizeof(empty));
-	for (int i = 0; i < MB_NUM_TILES_BG; i++) {
-		psGraphics->write(empty, MB_TILE_LEN_BG);
-	}
-	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_TILE));
+	content->truncate(0);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_MonsterBashBackground::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_MonsterBashBackground::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_TILE));
+	return std::make_shared<Tileset_MonsterBash>(
+		std::move(content), PlaneCount::Solid
+	);
 }
 
-SuppFilenames TilesetType_MonsterBashBackground::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashBackground::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -140,17 +166,17 @@ TilesetType_MonsterBashForeground::~TilesetType_MonsterBashForeground()
 {
 }
 
-std::string TilesetType_MonsterBashForeground::getCode() const
+std::string TilesetType_MonsterBashForeground::code() const
 {
 	return "tls-bash-fg";
 }
 
-std::string TilesetType_MonsterBashForeground::getFriendlyName() const
+std::string TilesetType_MonsterBashForeground::friendlyName() const
 {
 	return "Monster Bash Foreground Tileset";
 }
 
-std::vector<std::string> TilesetType_MonsterBashForeground::getFileExtensions() const
+std::vector<std::string> TilesetType_MonsterBashForeground::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("tfg");
@@ -158,43 +184,43 @@ std::vector<std::string> TilesetType_MonsterBashForeground::getFileExtensions() 
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_MonsterBashForeground::getGameList() const
+std::vector<std::string> TilesetType_MonsterBashForeground::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Monster Bash");
 	return vcGames;
 }
 
-TilesetType_MonsterBashForeground::Certainty TilesetType_MonsterBashForeground::isInstance(stream::input_sptr psGraphics) const
+TilesetType_MonsterBashForeground::Certainty TilesetType_MonsterBashForeground::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
+	if (len == 0) return PossiblyYes;
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return PossiblyYes;
 	// Some tiles are one byte larger for some reason
 	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG + 1) return PossiblyYes;
 	return DefinitelyNo;
 }
 
-TilesetPtr TilesetType_MonsterBashForeground::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_MonsterBashForeground::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	char empty[MB_TILE_LEN_FG];
-	memset(empty, 0x00, sizeof(empty));
-	for (int i = 0; i < MB_NUM_TILES_FG; i++) {
-		psGraphics->write(empty, MB_TILE_LEN_FG);
-	}
-	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_SPRITE));
+	content->truncate(0);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_MonsterBashForeground::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_MonsterBashForeground::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_MonsterBash(psGraphics, MB_NUMPLANES_SPRITE));
+	return std::make_shared<Tileset_MonsterBash>(
+		std::move(content), PlaneCount::Masked
+	);
 }
 
-SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -202,89 +228,78 @@ SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(const std::str
 // Tileset_MonsterBash
 //
 
-Tileset_MonsterBash::Tileset_MonsterBash(stream::inout_sptr data,
-	uint8_t numPlanes)
-	:	Tileset_FAT(data, MB_FIRST_TILE_OFFSET),
+Tileset_MonsterBash::Tileset_MonsterBash(std::unique_ptr<stream::inout> content,
+	PlaneCount numPlanes)
+	:	Tileset_FAT(std::move(content), MB_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize((MB_TILE_WIDTH * MB_TILE_HEIGHT / 8) * (unsigned int)numPlanes),
 		numPlanes(numPlanes)
 {
-	stream::pos len = this->data->size();
+	stream::pos len = this->content->size();
 
-	this->lenTile = (MB_TILE_WIDTH * MB_TILE_HEIGHT / 8) * numPlanes;
 	int numImages = len / this->lenTile;
-
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = i * this->lenTile;
-		fat->size = this->lenTile;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = i * this->lenTile;
+		fat->storedSize = this->lenTile;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
+		switch (this->numPlanes) {
+			case PlaneCount::Solid: fat->type = FILETYPE_BASH_TILE_SOLID;
+			case PlaneCount::Masked: fat->type = FILETYPE_BASH_TILE_MASKED;
+		}
+		this->vcFAT.push_back(std::move(fat));
 	}
-
 }
 
 Tileset_MonsterBash::~Tileset_MonsterBash()
 {
 }
 
-int Tileset_MonsterBash::getCaps()
+Tileset::Caps Tileset_MonsterBash::caps() const
 {
-	return Tileset::ColourDepthEGA;
+	return Caps::Default;
 }
 
-void Tileset_MonsterBash::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_MonsterBash::colourDepth() const
 {
-	if (newSize != this->lenTile) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return ColourDepth::EGA;
 }
 
-void Tileset_MonsterBash::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset_MonsterBash::dimensions() const
 {
-	*width = MB_TILE_WIDTH;
-	*height = MB_TILE_HEIGHT;
-	return;
+	return {MB_TILE_WIDTH, MB_TILE_HEIGHT};
 }
 
-
-unsigned int Tileset_MonsterBash::getLayoutWidth()
+unsigned int Tileset_MonsterBash::layoutWidth() const
 {
 	return 20;
 }
 
-ImagePtr Tileset_MonsterBash::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_MonsterBash::openImage(FileHandle& id)
 {
-	PLANE_LAYOUT planes;
-	int offset = (this->numPlanes == MB_NUMPLANES_SPRITE) ? 1 : 0;
-	planes[PLANE_BLUE] = 4 + offset;
-	planes[PLANE_GREEN] = 3 + offset;
-	planes[PLANE_RED] = 2 + offset;
-	planes[PLANE_INTENSITY] = 1 + offset;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 0 + offset;
+	EGAPlaneLayout planes = {
+		(this->numPlanes == PlaneCount::Masked)
+			? EGAPlanePurpose::Opaque1 : EGAPlanePurpose::Unused,
+		EGAPlanePurpose::Intensity1,
+		EGAPlanePurpose::Red1,
+		EGAPlanePurpose::Green1,
+		EGAPlanePurpose::Blue1,
+	};
 
-	Image_EGAPlanar *ega = new Image_EGAPlanar();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, MB_TILE_WIDTH, MB_TILE_HEIGHT, planes
+	return std::make_unique<Image_EGA_Planar>(
+		this->open(id, true), 0, this->dimensions(), planes, this->palette()
 	);
-
-	return conv;
 }
 
-Tileset_MonsterBash::FATEntry *Tileset_MonsterBash::preInsertFile(
-	const Tileset_MonsterBash::FATEntry *idBeforeThis, Tileset_MonsterBash::FATEntry *pNewEntry)
+Tileset::FileHandle Tileset_MonsterBash::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
 {
-	// All tiles are a fixed size in this format.
-	pNewEntry->size = this->lenTile;
-
-	return pNewEntry;
+	return this->insert(idBeforeThis, "", this->lenTile,
+		this->numPlanes == PlaneCount::Solid ? FILETYPE_BASH_TILE_SOLID : FILETYPE_BASH_TILE_MASKED,
+		attr);
 }
 
 } // namespace gamegraphics
