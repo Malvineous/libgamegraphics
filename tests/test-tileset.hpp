@@ -49,6 +49,12 @@ class test_tileset: public test_archive
 		/// Dimensions of the first tile in the tileset.
 		Point firstTileDims;
 
+		/// Does the format support transparent pixels?
+		bool hasMask;
+
+		/// Does the format support hitmask pixels?
+		bool hasHitmask;
+
 		/// Set to true if the colour indices can only be 0..3 (false == 0..15)
 		bool cga;
 };

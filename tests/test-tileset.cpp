@@ -53,6 +53,8 @@ Pixels createTileData(const Point& dims, bool cga, unsigned int index)
 test_tileset::test_tileset()
 {
 	this->firstTileDims = {9999, 9999};
+	this->hasMask = false;
+	this->hasHitmask = false;
 	this->cga = false;
 }
 
@@ -231,6 +233,18 @@ void test_tileset::test_open_image()
 		"First tile in tileset was not standard test image"
 	);
 
+	if (this->hasMask) {
+		BOOST_TEST_CHECKPOINT("Convert first tile to standard mask data");
+		auto mask = img->convert_mask();
+		auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
+		auto strMask = std::string(mask.begin(), mask.end());
+		auto strMaskExpected = std::string(maskExpected.begin(), maskExpected.end());
+		BOOST_REQUIRE_MESSAGE(
+			this->is_equal(strMaskExpected, strMask),
+			"Converting first tile to standard mask data produced incorrect result"
+		);
+	}
+
 	ep = this->findFile(1);
 
 	BOOST_TEST_CHECKPOINT("Opening second tile as image");
@@ -251,4 +265,16 @@ void test_tileset::test_open_image()
 		this->is_equal(strPixelsExpected, strPixels),
 		"Second tile in tileset was not standard test image"
 	);
+
+	if (this->hasMask) {
+		BOOST_TEST_CHECKPOINT("Converting second tile to standard mask data");
+		auto mask = img->convert_mask();
+		auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
+		auto strMask = std::string(mask.begin(), mask.end());
+		auto strMaskExpected = std::string(maskExpected.begin(), maskExpected.end());
+		BOOST_REQUIRE_MESSAGE(
+			this->is_equal(strMaskExpected, strMask),
+			"Converting second tile to standard mask data produced incorrect result"
+		);
+	}
 }
