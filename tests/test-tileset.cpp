@@ -214,8 +214,14 @@ void test_tileset::test_open_image()
 
 	auto ep = this->findFile(0);
 
+	auto targetTileset = tileset;
+	if (ep->fAttr & Archive::File::Attribute::Folder) {
+		BOOST_TEST_CHECKPOINT("Opening first sub-tileset as tileset");
+		targetTileset = tileset->openTileset(ep);
+		ep = targetTileset->files().at(0);
+	}
 	BOOST_TEST_CHECKPOINT("Opening first tile as image");
-	auto img = tileset->openImage(ep);
+	auto img = targetTileset->openImage(ep);
 	BOOST_REQUIRE(img);
 
 	BOOST_TEST_CHECKPOINT("Retrieving dimensions of first tile");
@@ -247,8 +253,15 @@ void test_tileset::test_open_image()
 
 	ep = this->findFile(1);
 
+	targetTileset = tileset;
+	if (ep->fAttr & Archive::File::Attribute::Folder) {
+		BOOST_TEST_CHECKPOINT("Opening second sub-tileset as tileset");
+		targetTileset = tileset->openTileset(ep);
+		ep = targetTileset->files().at(0);
+	}
+
 	BOOST_TEST_CHECKPOINT("Opening second tile as image");
-	img = tileset->openImage(ep);
+	img = targetTileset->openImage(ep);
 	BOOST_REQUIRE(img);
 
 	BOOST_TEST_CHECKPOINT("Retrieving dimensions of second tile");
