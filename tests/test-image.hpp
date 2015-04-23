@@ -258,6 +258,12 @@ class test_image: public test_main
 		 */
 		Point dimensions;
 
+		/// Image hotspot, if image caps report hotspot support.
+		Point hotspot;
+
+		/// Size of collision rectangle, if image caps report hitrect support.
+		Point hitrect;
+
 		/// Does this format support metadata?
 		std::map<camoto::Metadata::MetadataType, bool> hasMetadata;
 

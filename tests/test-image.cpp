@@ -110,6 +110,8 @@ test_image::test_image()
 
 	this->fixedDimensions = false;
 	this->dimensions = {0, 0};
+	this->hotspot = {0, 0};
+	this->hitrect = {0, 0};
 
 	this->hasMetadata[camoto::Metadata::Description] = false;
 	this->hasMetadata[camoto::Metadata::Version] = false;
@@ -331,6 +333,20 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 	BOOST_CHECK_EQUAL(dims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(dims.y, dimsReported.y);
 
+	if (img->caps() & Image::Caps::HasHotspot) {
+		BOOST_TEST_CHECKPOINT("Get hotspot");
+		auto hotspotReported = img->hotspot();
+		BOOST_CHECK_EQUAL(this->hotspot.x, hotspotReported.x);
+		BOOST_CHECK_EQUAL(this->hotspot.y, hotspotReported.y);
+	}
+
+	if (img->caps() & Image::Caps::HasHitRect) {
+		BOOST_TEST_CHECKPOINT("Get hit rectangle");
+		auto hitrectReported = img->hitrect();
+		BOOST_CHECK_EQUAL(this->hitrect.x, hitrectReported.x);
+		BOOST_CHECK_EQUAL(this->hitrect.y, hitrectReported.y);
+	}
+
 	BOOST_TEST_CHECKPOINT("Convert to standard pixel data");
 	auto pixels = img->convert();
 	if ((dims.x > 0) && (dims.y > 0)) {
@@ -438,6 +454,24 @@ void test_image::test_sizedContent_create(const Point& dims,
 	auto dimsReported = img->dimensions();
 	BOOST_CHECK_EQUAL(dims.x, dimsReported.x);
 	BOOST_CHECK_EQUAL(dims.y, dimsReported.y);
+
+	if (img->caps() & Image::Caps::HasHotspot) {
+		BOOST_TEST_CHECKPOINT("Set hotspot");
+		img->hotspot(this->hotspot);
+		BOOST_TEST_CHECKPOINT("Get hotspot");
+		auto hotspotReported = img->hotspot();
+		BOOST_CHECK_EQUAL(this->hotspot.x, hotspotReported.x);
+		BOOST_CHECK_EQUAL(this->hotspot.y, hotspotReported.y);
+	}
+
+	if (img->caps() & Image::Caps::HasHitRect) {
+		BOOST_TEST_CHECKPOINT("Set hit rectangle");
+		img->hitrect(this->hitrect);
+		BOOST_TEST_CHECKPOINT("Get hit rectangle");
+		auto hitrectReported = img->hitrect();
+		BOOST_CHECK_EQUAL(this->hitrect.x, hitrectReported.x);
+		BOOST_CHECK_EQUAL(this->hitrect.y, hitrectReported.y);
+	}
 
 	BOOST_TEST_CHECKPOINT("Set palette");
 	if (img->caps() & Image::Caps::SetPalette) {
