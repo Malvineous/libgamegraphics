@@ -22,8 +22,7 @@
 #define _CAMOTO_TLS_GOT_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
-#include "tileset-fat.hpp"
+#include "img-vga-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -34,33 +33,42 @@ class TilesetType_GOT: virtual public TilesetType
 		TilesetType_GOT();
 		virtual ~TilesetType_GOT();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 };
 
-class Tileset_GOT: virtual public Tileset_FAT
+/// Raw VGA Image implementation.
+class Image_GOT: virtual public Image_VGA_Planar
 {
 	public:
-		Tileset_GOT(stream::inout_sptr data,
-			PaletteTablePtr pal);
-		virtual ~Tileset_GOT();
+		/// Constructor
+		/**
+		 * No truncate function is required as the image dimensions are fixed, so
+		 * the file size will always remain constant.
+		 *
+		 * @param data
+		 *   VGA data
+		 *
+		 * @param pal
+		 *   Image palette
+		 */
+		Image_GOT(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_GOT();
 
-		virtual int getCaps();
-		virtual unsigned int getLayoutWidth();
-		PaletteTablePtr getPalette();
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		PaletteTablePtr pal;
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
 };
 
 } // namespace gamearchive

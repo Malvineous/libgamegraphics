@@ -21,10 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "tls-got.hpp"
 #include "pal-vga-raw.hpp"
-#include "img-vga-planar.hpp"
+#include "tileset-fat.hpp"
 
 /// Offset of first tile in an empty tileset
 #define GOT_FIRST_TILE_OFFSET  0
@@ -32,80 +34,79 @@
 /// Number of bytes in the header
 #define GOT_HEADER_LEN 6
 
+#define FILETYPE_GOT "tile/got"
+
 namespace camoto {
 namespace gamegraphics {
 
-
-/// Raw VGA Image implementation.
-class Image_GOT: virtual public Image_VGAPlanar
+class Tileset_GOT: virtual public Tileset_FAT
 {
 	public:
-		/// Constructor
-		/**
-		 * No truncate function is required as the image dimensions are fixed, so
-		 * the file size will always remain constant.
-		 *
-		 * @param data
-		 *   VGA data
-		 *
-		 * @param pal
-		 *   Image palette
-		 */
-		Image_GOT(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~Image_GOT();
+		Tileset_GOT(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_GOT();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual PaletteTablePtr getPalette();
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
 
-	protected:
-		PaletteTablePtr pal;
+		// Archive
+		virtual void resize(FileHandle& id, stream::len newStoredSize,
+			stream::len newRealSize);
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
 };
 
-Image_GOT::Image_GOT(stream::inout_sptr data, PaletteTablePtr pal)
-	:	Image_VGAPlanar(data, GOT_HEADER_LEN),
-		pal(pal)
+Image_GOT::Image_GOT(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Image_VGA_Planar(std::move(content), GOT_HEADER_LEN)
 {
+	this->pal = pal;
 }
 
 Image_GOT::~Image_GOT()
 {
 }
 
-int Image_GOT::getCaps()
+Image::Caps Image_GOT::caps() const
 {
-	return ColourDepthVGA | HasPalette;
+	return Caps::HasPalette | Caps::SetDimensions;
 }
 
-void Image_GOT::getDimensions(unsigned int *width, unsigned int *height)
+ColourDepth Image_GOT::colourDepth() const
 {
-	this->data->seekg(0, stream::start);
-	this->data
-		>> u16le(*width)
-		>> u16le(*height)
+	return ColourDepth::VGA;
+}
+
+Point Image_GOT::dimensions() const
+{
+	this->content->seekg(0, stream::start);
+	uint16_t width, height;
+	*this->content
+		>> u16le(width)
+		>> u16le(height)
 	;
-	*width *= 4;
-	return;
+	return {width * 4, height};
 }
 
-void Image_GOT::setDimensions(unsigned int width, unsigned int height)
+void Image_GOT::dimensions(const Point& newDimensions)
 {
-	if (width % 4 != 0) {
-		throw stream::error("God of Thunder tiles can only have a width that is a multiple of 4.");
+	if (newDimensions.x % 4 != 0) {
+		throw stream::error("God of Thunder tiles can only have a width that is a "
+			"multiple of 4.");
 	}
-	this->data->seekp(0, stream::start);
-	width /= 4;
-	this->data
+	this->content->seekp(0, stream::start);
+	unsigned int width = newDimensions.x / 4;
+	*this->content
 		<< u16le(width)
-		<< u16le(height)
+		<< u16le(newDimensions.y)
 	;
 	return;
-}
-
-PaletteTablePtr Image_GOT::getPalette()
-{
-	return this->pal;
 }
 
 
@@ -117,38 +118,41 @@ TilesetType_GOT::~TilesetType_GOT()
 {
 }
 
-std::string TilesetType_GOT::getCode() const
+std::string TilesetType_GOT::code() const
 {
 	return "tls-got";
 }
 
-std::string TilesetType_GOT::getFriendlyName() const
+std::string TilesetType_GOT::friendlyName() const
 {
 	return "God of Thunder tileset";
 }
 
-std::vector<std::string> TilesetType_GOT::getFileExtensions() const
+std::vector<std::string> TilesetType_GOT::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	return vcExtensions;
+	return {};
 }
 
-std::vector<std::string> TilesetType_GOT::getGameList() const
+std::vector<std::string> TilesetType_GOT::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("God of Thunder");
-	return vcGames;
+	return {
+		"God of Thunder"
+	};
 }
 
 TilesetType_GOT::Certainty TilesetType_GOT::isInstance(
-	stream::input_sptr psTileset) const
+	stream::input& content) const
 {
-	stream::pos len = psTileset->size();
+	stream::pos len = content.size();
 
-	psTileset->seekg(0, stream::start);
+	// Empty tileset
+	// TESTED BY: tls_got_isinstance_c04
+	if (len == 0) return PossiblyYes;
+
+	content.seekg(0, stream::start);
 	while (len) {
 		int width, height;
-		psTileset
+		content
 			>> u16le(width)
 			>> u16le(height)
 		;
@@ -169,44 +173,37 @@ TilesetType_GOT::Certainty TilesetType_GOT::isInstance(
 		if (len < lenTile) return DefinitelyNo;
 
 		len -= lenTile;
-		psTileset->seekg(lenTile + 2, stream::cur);
+		content.seekg(lenTile + 2, stream::cur);
 	}
 
 	// TESTED BY: tls_got_isinstance_c00
 	return DefinitelyYes;
 }
 
-TilesetPtr TilesetType_GOT::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_GOT::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psTileset->truncate(0);
-	psTileset->seekp(0, stream::start);
+	content->truncate(0);
+	content->seekp(0, stream::start);
 
-	PaletteTablePtr pal;
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
-	}
-	(*pal)[0].alpha = 0;
-	(*pal)[15].alpha = 0;
-	return TilesetPtr(new Tileset_GOT(psTileset, pal));
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_GOT::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_GOT::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	auto pal = std::make_shared<Palette>();
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 8));
-		pal = palFile->getPalette();
-	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		auto palFile = std::make_unique<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), 8
+		);
+		*pal = *palFile->palette();
+
+		// Make colours 0 and 15 transparent
+		(*pal)[0].alpha = 0;
+		(*pal)[15].alpha = 0;
 	}
-	(*pal)[0].alpha = 0;
-	(*pal)[15].alpha = 0;
-	return TilesetPtr(new Tileset_GOT(psTileset, pal));
+	return std::make_shared<Tileset_GOT>(std::move(content), pal);
 }
 
 SuppFilenames TilesetType_GOT::getRequiredSupps(
@@ -218,36 +215,35 @@ SuppFilenames TilesetType_GOT::getRequiredSupps(
 }
 
 
-Tileset_GOT::Tileset_GOT(stream::inout_sptr data,
-	PaletteTablePtr pal)
-	:	Tileset_FAT(data, GOT_FIRST_TILE_OFFSET),
-		pal(pal)
+Tileset_GOT::Tileset_GOT(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), GOT_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES)
 {
-	assert(this->pal);
+	this->pal = pal;
 
-	stream::len len = this->data->size();
+	stream::len len = this->content->size();
 	stream::pos off = 0;
-	this->data->seekg(0, stream::start);
+	this->content->seekg(0, stream::start);
 	unsigned int i = 0;
 	while (len > 6) {
 		unsigned int width, height;
 		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i++;
-		fat->offset = off;
+		FileHandle ep(fat);
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i++;
+		fat->iOffset = off;
 		fat->lenHeader = 0;
-		this->data
+		*this->content
 			>> u16le(width)
 			>> u16le(height)
 		;
 		width *= 4;
-		fat->size = width * height + GOT_HEADER_LEN;
-		off += fat->size;
-		len -= fat->size;
-		this->data->seekg(fat->size - 4, stream::cur);
-		this->items.push_back(ep);
+		fat->storedSize = width * height + GOT_HEADER_LEN;
+		off += fat->storedSize;
+		len -= fat->storedSize;
+		this->content->seekg(fat->storedSize - 4, stream::cur);
+		this->vcFAT.push_back(ep);
 	}
 }
 
@@ -255,26 +251,71 @@ Tileset_GOT::~Tileset_GOT()
 {
 }
 
-int Tileset_GOT::getCaps()
+Tileset::Caps Tileset_GOT::caps() const
 {
-	return Tileset::HasPalette | Tileset::ColourDepthVGA;
+	return Caps::HasPalette;
 }
 
-unsigned int Tileset_GOT::getLayoutWidth()
+ColourDepth Tileset_GOT::colourDepth() const
+{
+	return ColourDepth::VGA;
+}
+
+Point Tileset_GOT::dimensions() const
+{
+	return {0, 0};
+}
+
+unsigned int Tileset_GOT::layoutWidth() const
 {
 	return 8;
 }
 
-PaletteTablePtr Tileset_GOT::getPalette()
+void Tileset_GOT::resize(FileHandle& id, stream::len newStoredSize,
+	stream::len newRealSize)
 {
-	return this->pal;
+	auto fat = FATEntry::cast(id);
+	assert(fat);
+
+	auto targetSize = newStoredSize - GOT_HEADER_LEN;
+
+	// Find a width and height that can represent this amount
+	unsigned int newWidth = 1, newHeight;
+	for (unsigned int x = 4 * 8; x > 0; x -= 4) {
+		if (targetSize % x == 0) {
+			newWidth = x;
+			break;
+		}
+	}
+	if (newWidth < 4) {
+		throw stream::error(createString(
+			"GOT tiles cannot store exactly " << newStoredSize << " bytes."
+		));
+	}
+	newHeight = targetSize / newWidth;
+	newWidth /= 4;
+
+	this->Tileset_FAT::resize(id, newStoredSize, newRealSize);
+
+	// Write the new tile count, so the tileset won't be corrupted in case nothing
+	// gets written to this new file.
+	this->content->seekp(fat->iOffset, stream::start);
+	*this->content
+		<< u16le(newWidth)
+		<< u16le(newHeight)
+	;
+	return;
 }
 
-ImagePtr Tileset_GOT::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_GOT::openImage(FileHandle& id)
 {
-	ImagePtr img(new Image_GOT(content, this->pal));
-	return img;
+	return std::make_unique<Image_GOT>(this->open(id, true), this->pal);
+}
+
+Tileset::FileHandle Tileset_GOT::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", 6, FILETYPE_GOT, attr);
 }
 
 } // namespace gamegraphics

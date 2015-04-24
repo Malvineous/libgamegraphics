@@ -34,6 +34,7 @@ tests_SOURCES += test-tls-ccomic.cpp
 tests_SOURCES += test-tls-ccomic2.cpp
 tests_SOURCES += test-tls-cosmo.cpp
 tests_SOURCES += test-tls-ddave.cpp
+tests_SOURCES += test-tls-got.cpp
 tests_SOURCES += test-tls-harry-hsb.cpp
 tests_SOURCES += test-tls-harry-ico.cpp
 tests_SOURCES += test-tls-stryker.cpp
