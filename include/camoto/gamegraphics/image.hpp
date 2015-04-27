@@ -38,8 +38,8 @@ typedef std::vector<uint8_t> Pixels;
 
 struct Point
 {
-	unsigned int x;
-	unsigned int y;
+	long x;
+	long y;
 };
 
 enum class ColourDepth
