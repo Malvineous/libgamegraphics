@@ -260,7 +260,7 @@ Tileset_MonsterBash::~Tileset_MonsterBash()
 
 Tileset::Caps Tileset_MonsterBash::caps() const
 {
-	return Caps::Default;
+	return Caps::HasDimensions;
 }
 
 ColourDepth Tileset_MonsterBash::colourDepth() const

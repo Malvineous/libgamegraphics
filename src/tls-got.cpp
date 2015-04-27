@@ -48,7 +48,6 @@ class Tileset_GOT: virtual public Tileset_FAT
 
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
 		virtual unsigned int layoutWidth() const;
 
 		// Archive
@@ -259,11 +258,6 @@ Tileset::Caps Tileset_GOT::caps() const
 ColourDepth Tileset_GOT::colourDepth() const
 {
 	return ColourDepth::VGA;
-}
-
-Point Tileset_GOT::dimensions() const
-{
-	return {0, 0};
 }
 
 unsigned int Tileset_GOT::layoutWidth() const

@@ -222,11 +222,6 @@ ColourDepth Tileset_CCavesMain::colourDepth() const
 	return ColourDepth::EGA;
 }
 
-Point Tileset_CCavesMain::dimensions() const
-{
-	return {0, 0};
-}
-
 unsigned int Tileset_CCavesMain::layoutWidth() const
 {
 	return 1;

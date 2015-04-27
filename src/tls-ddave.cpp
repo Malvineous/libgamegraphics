@@ -63,7 +63,6 @@ class Tileset_DDave: public Tileset_FAT
 
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
 		virtual unsigned int layoutWidth() const;
 		virtual std::unique_ptr<Image> openImage(FileHandle& id);
 		virtual void updateFileOffset(const FATEntry *pid, stream::delta offDelta);
@@ -322,11 +321,6 @@ Tileset::Caps Tileset_DDave::caps() const
 ColourDepth Tileset_DDave::colourDepth() const
 {
 	return this->depth;
-}
-
-Point Tileset_DDave::dimensions() const
-{
-	return {0, 0};
 }
 
 unsigned int Tileset_DDave::layoutWidth() const

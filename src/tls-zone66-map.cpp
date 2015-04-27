@@ -183,7 +183,8 @@ Tileset_Zone66Map::~Tileset_Zone66Map()
 
 Tileset::Caps Tileset_Zone66Map::caps() const
 {
-	return this->pal ? Tileset::Caps::HasPalette : Tileset::Caps::Default;
+	return Caps::HasDimensions |
+		(this->pal ? Caps::HasPalette : Caps::Default);
 }
 
 ColourDepth Tileset_Zone66Map::colourDepth() const

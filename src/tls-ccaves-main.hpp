@@ -60,7 +60,6 @@ class Tileset_CCavesMain: virtual public Tileset_FAT
 
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
 		virtual unsigned int layoutWidth() const;
 
 		// Archive

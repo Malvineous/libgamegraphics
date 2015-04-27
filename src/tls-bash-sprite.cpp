@@ -52,7 +52,6 @@ class Tileset_MonsterBashSprite: virtual public Tileset_FAT
 
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
@@ -213,11 +212,6 @@ Tileset::Caps Tileset_MonsterBashSprite::caps() const
 ColourDepth Tileset_MonsterBashSprite::colourDepth() const
 {
 	return ColourDepth::EGA;
-}
-
-Point Tileset_MonsterBashSprite::dimensions() const
-{
-	return {0, 0};
 }
 
 unsigned int Tileset_MonsterBashSprite::layoutWidth() const

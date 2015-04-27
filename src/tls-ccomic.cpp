@@ -211,7 +211,7 @@ Tileset_CComic::~Tileset_CComic()
 
 Tileset::Caps Tileset_CComic::caps() const
 {
-	return Caps::Default;
+	return Caps::HasDimensions;
 }
 
 ColourDepth Tileset_CComic::colourDepth() const

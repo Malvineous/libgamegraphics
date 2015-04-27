@@ -203,7 +203,7 @@ Tileset_CComic2::~Tileset_CComic2()
 
 Tileset::Caps Tileset_CComic2::caps() const
 {
-	return Caps::Default;
+	return Caps::HasDimensions;
 }
 
 ColourDepth Tileset_CComic2::colourDepth() const
