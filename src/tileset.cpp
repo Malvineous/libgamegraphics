@@ -52,7 +52,12 @@ std::unique_ptr<Image> Tileset::openImage(FileHandle& id)
 
 Point Tileset::dimensions() const
 {
-	return {0, 0};
+	// Fail if this function is called when the caps say not to
+	assert(this->caps() & Caps::HasDimensions);
+
+	// If we get here the file format said the dimensions are present but
+	// forgot to override this function, so fail.
+	assert(false);
 }
 
 void Tileset::dimensions(const Point& newDimensions)

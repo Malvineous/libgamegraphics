@@ -108,9 +108,12 @@ class Tileset: virtual public gamearchive::Archive
 		 *
 		 * @return Image dimensions are stored in the two parameters.
 		 *
-		 * @note Default implementation returns 0 x 0.
+		 * @note Default implementation throws an assertion failure (either because
+		 *   the caller called it and the caps don't include HasDimensions, or
+		 *   because they do include HasDimensions and the format handler forgot to
+		 *   override the function.)
 		 */
-		virtual Point dimensions() const = 0;
+		virtual Point dimensions() const;
 
 		/// Set the size of all images in this tileset.
 		/**
