@@ -23,6 +23,7 @@
 #include <camoto/util.hpp> // make_unique
 #include "filter-ccomic.hpp"
 #include "img-ccomic.hpp"
+#include "img-ega-planar.hpp"
 
 /// Width of image, in pixels
 #define CCIMG_WIDTH 320

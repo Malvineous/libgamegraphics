@@ -22,7 +22,6 @@
 #define _CAMOTO_IMG_CCOMIC_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-ega-planar.hpp"
 
 namespace camoto {
 namespace gamegraphics {
