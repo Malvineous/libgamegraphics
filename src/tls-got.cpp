@@ -226,8 +226,7 @@ Tileset_GOT::Tileset_GOT(std::unique_ptr<stream::inout> content,
 	unsigned int i = 0;
 	while (len > 6) {
 		unsigned int width, height;
-		FATEntry *fat = new FATEntry();
-		FileHandle ep(fat);
+		auto fat = std::make_unique<FATEntry>();
 		fat->bValid = true;
 		fat->fAttr = File::Attribute::Default;
 		fat->iIndex = i++;
@@ -242,7 +241,7 @@ Tileset_GOT::Tileset_GOT(std::unique_ptr<stream::inout> content,
 		off += fat->storedSize;
 		len -= fat->storedSize;
 		this->content->seekg(fat->storedSize - 4, stream::cur);
-		this->vcFAT.push_back(ep);
+		this->vcFAT.push_back(std::move(fat));
 	}
 }
 
