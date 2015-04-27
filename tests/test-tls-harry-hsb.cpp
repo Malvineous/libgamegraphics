@@ -18,124 +18,253 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Dimensions of sample tiles
-#define DATA_TILE_WIDTH  2
-#define DATA_TILE_HEIGHT 3
-
-#define DATA_TILE_ONE \
-	"\x00\x00\x00\x00" \
-	"\x02\x00\x03\x00" \
-	"\x01\x01" \
-	"\x01\x01" \
-	"\x01\x0e"
-
-#define DATA_TILE_TWO \
-	"\x00\x00\x00\x00" \
-	"\x02\x00\x03\x00" \
-	"\x02\x02" \
-	"\x02\x02" \
-	"\x02\x0e"
-
-#define DATA_TILE_THREE \
-	"\x00\x00\x00\x00" \
-	"\x02\x00\x03\x00" \
-	"\x03\x03" \
-	"\x03\x03" \
-	"\x03\x0e"
-
-#define DATA_TILE_FOUR \
-	"\x00\x00\x00\x00" \
-	"\x02\x00\x03\x00" \
-	"\x04\x04" \
-	"\x04\x04" \
-	"\x04\x0e"
-
-
-#define test_tileset_initialstate \
-	DATA_TILE_ONE \
-	DATA_TILE_TWO
-
-#define test_tileset_insert_end \
-	DATA_TILE_ONE \
-	DATA_TILE_TWO \
-	DATA_TILE_THREE
-
-#define test_tileset_insert_mid \
-	DATA_TILE_ONE \
-	DATA_TILE_THREE \
-	DATA_TILE_TWO
-
-#define test_tileset_insert2 \
-	DATA_TILE_ONE \
-	DATA_TILE_THREE \
-	DATA_TILE_FOUR \
-	DATA_TILE_TWO
-
-#define test_tileset_remove \
-	DATA_TILE_TWO
-
-#define test_tileset_remove2 \
-	""
-
-#define test_tileset_insert_remove \
-	DATA_TILE_THREE \
-	DATA_TILE_TWO
-
-#define test_tileset_manip_zero \
-	test_tileset_insert_end
-
-#define test_tileset_overwrite_first \
-	DATA_TILE_FOUR \
-	DATA_TILE_TWO
-
-#define test_tileset_resize_first \
-	"\x00\x00\x00\x00" \
-	"\x03\x00\x04\x00" \
-	"\x05\x05\x05" \
-	"\x05\x05\x05" \
-	"\x05\x05\x05" \
-	"\x05\x05\x0e" \
-	DATA_TILE_TWO
-#define DATA_TILE_RESIZED_WIDTH 3
-#define DATA_TILE_RESIZED_HEIGHT 4
-
-#define TILESET_CLASS tls_harry_hsb
-#define TILESET_TYPE  "tls-harry-hsb"
 #include "test-tileset.hpp"
 
-// Test some invalid formats to make sure they're not identified as valid
-// tilesets.  Note that they can still be opened though (by 'force'), this
-// only checks whether they look like valid files or not.
+class test_tls_harry_hsb: public test_tileset
+{
+	public:
+		test_tls_harry_hsb()
+		{
+			this->type = "tls-harry-hsb";
+			this->lenMaxFilename = -1;
 
-// The "c00" test has already been performed in test-tileset.hpp to ensure the
-// initial state is correctly identified as a valid tileset.
+			this->content[0] = this->tile1();
+			this->content[1] = this->tile2();
+			this->content[2] = this->tile3();
+			this->content[3] = this->tile4();
 
-// File too short
-ISINSTANCE_TEST(c01,
-	"\x00\x00\x00\x00"
-	"\x00\x00"
-	,
-	DefinitelyNo
-);
+			this->content0_overwritten = this->tile1_larger_overwritten();
+			this->content0_largeSize = 8 + 8 * 9;
+			this->content0_smallSize = 8 + 5 * 2;
 
-// Header cut off
-ISINSTANCE_TEST(c02,
-	DATA_TILE_ONE
-	DATA_TILE_TWO
-	"\x00\x00\x00\x00"
-	"\x00\x00"
-	,
-	DefinitelyNo
-);
+			this->firstTileDims = {8, 8};
+		}
 
-// Data past EOF
-ISINSTANCE_TEST(c03,
-	DATA_TILE_ONE
-	DATA_TILE_TWO
-	"\x00\x00\x00\x00"
-	"\x02\x00\x03\x00"
-	"\x05\x05\x05"
-	"\x05\x05"
-	,
-	DefinitelyNo
-);
+		void addTests()
+		{
+			this->test_tileset::addTests();
+
+			// c00: Initial state
+			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+
+			// c01: Trailing data / header cut off
+			this->isInstance(ArchiveType::DefinitelyNo,
+				this->tile1() +
+				this->tile2() +
+				STRING_WITH_NULLS(
+					"\x00\x00\x00\x00"
+					"\x00\x00"
+				)
+			);
+
+			// c02: Tile too large for available data
+			this->isInstance(ArchiveType::DefinitelyNo,
+				this->tile1() +
+				this->tile2() +
+				STRING_WITH_NULLS(
+					"\x00\x00\x00\x00"
+					"\x10\x00\x10\x00"
+					"\x05\x05\x05"
+					"\x05\x05"
+				)
+			);
+		}
+
+		virtual std::string tile1() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x08\x00\x08\x00"
+				"\x0F\x00\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x00\x0E"
+			);
+		}
+
+		virtual std::string tile2() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x08\x00\x08\x00"
+				"\x0F\x01\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x01\x0E"
+			);
+		}
+
+		virtual std::string tile3() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x08\x00\x08\x00"
+				"\x0F\x02\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x02\x0E"
+			);
+		}
+
+		virtual std::string tile4() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x08\x00\x08\x00"
+				"\x0F\x03\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x03\x0E"
+			);
+		}
+
+		virtual std::string tile1_larger_overwritten() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x10\x00\x10\x00"
+				"\x0F\x00\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x09\x00\x0E"
+			);
+		}
+
+		virtual std::string initialstate()
+		{
+			return
+				this->tile1() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string rename()
+		{
+			throw stream::error("This tileset does not have any tilenames.");
+		}
+
+		virtual std::string insert_end()
+		{
+			return
+				this->tile1() +
+				this->tile2() +
+				this->tile3()
+			;
+		}
+
+		virtual std::string insert_mid()
+		{
+			return
+				this->tile1() +
+				this->tile3() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string insert2()
+		{
+			return
+				this->tile1() +
+				this->tile3() +
+				this->tile4() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string remove()
+		{
+			return
+				this->tile2()
+			;
+		}
+
+		virtual std::string remove2()
+		{
+			return {};
+		}
+
+		virtual std::string insert_remove()
+		{
+			return
+				this->tile3() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string move()
+		{
+			return
+				this->tile2() +
+				this->tile1()
+			;
+		}
+
+		virtual std::string resize_larger()
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x08\x00\x09\x00"
+				"\x0F\x00\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x00\x00\x00\x00\x00\x00\x0A"
+				"\x0C\x09\x09\x09\x09\x09\x00\x0E"
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+			) +
+				this->tile2()
+			;
+		}
+
+		virtual std::string resize_smaller()
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+				"\x0A\x00\x01\x00"
+				"\x0F\x00\x0F\x0F\x0F\x0F\x0F\x0F"
+				"\x0C\x00"
+			) +
+				this->tile2()
+			;
+		}
+
+		virtual std::string resize_write()
+		{
+			return
+				this->tile1_larger_overwritten() +
+				this->tile2()
+			;
+		}
+};
+
+IMPLEMENT_TESTS(tls_harry_hsb);

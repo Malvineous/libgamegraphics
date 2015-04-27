@@ -22,9 +22,6 @@
 #define _CAMOTO_TLS_HARRY_HSB_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
-#include "img-vga-raw.hpp"
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -34,81 +31,19 @@ class TilesetType_HarryHSB: virtual public TilesetType
 {
 	public:
 		TilesetType_HarryHSB();
-
 		virtual ~TilesetType_HarryHSB();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
-};
-
-/// Image inside Halloween Harry .HSB tileset
-class Image_HarryHSB: virtual public Image_VGA
-{
-	public:
-		/// Constructor
-		/**
-		 * Create an image from the supplied stream.
-		 *
-		 * @param data
-		 *   VGA image data.
-		 *
-		 * @param pal
-		 *   Image palette.
-		 */
-		Image_HarryHSB(stream::inout_sptr data, PaletteTablePtr pal);
-
-		virtual ~Image_HarryHSB();
-
-		virtual int getCaps();
-
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-
-		virtual void setDimensions(unsigned int width, unsigned int height);
-
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
-
-		virtual PaletteTablePtr getPalette();
-
-	protected:
-		uint16_t width;
-		uint16_t height;
-		PaletteTablePtr pal;
-};
-
-/// Halloween Harry .HSB tileset
-class Tileset_HarryHSB: virtual public Tileset_FAT
-{
-	public:
-		Tileset_HarryHSB(stream::inout_sptr data,
-			PaletteTablePtr pal);
-
-		virtual ~Tileset_HarryHSB();
-
-		virtual int getCaps();
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-		PaletteTablePtr getPalette();
-
-	protected:
-		PaletteTablePtr pal;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 };
 
 } // namespace gamearchive

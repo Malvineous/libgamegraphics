@@ -22,9 +22,12 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
-#include "tls-harry-chr.hpp"
+#include <camoto/util.hpp> // make_unique
+#include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
+#include "tls-harry-chr.hpp"
 
 /// Offset of first tile in an empty tileset
 #define CHR_FIRST_TILE_OFFSET  0
@@ -38,8 +41,31 @@
 /// Height of each image in the tileset
 #define CHR_HEIGHT 16
 
+#define FILETYPE_HARRY_CHR   "tile/harry-chr"
+
 namespace camoto {
 namespace gamegraphics {
+
+class Tileset_HarryCHR:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
+	public:
+		Tileset_HarryCHR(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_HarryCHR();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+};
 
 TilesetType_HarryCHR::TilesetType_HarryCHR()
 {
@@ -49,24 +75,24 @@ TilesetType_HarryCHR::~TilesetType_HarryCHR()
 {
 }
 
-std::string TilesetType_HarryCHR::getCode() const
+std::string TilesetType_HarryCHR::code() const
 {
 	return "tls-harry-chr";
 }
 
-std::string TilesetType_HarryCHR::getFriendlyName() const
+std::string TilesetType_HarryCHR::friendlyName() const
 {
 	return "Halloween Harry CHR tileset";
 }
 
-std::vector<std::string> TilesetType_HarryCHR::getFileExtensions() const
+std::vector<std::string> TilesetType_HarryCHR::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("chr");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_HarryCHR::getGameList() const
+std::vector<std::string> TilesetType_HarryCHR::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -75,47 +101,42 @@ std::vector<std::string> TilesetType_HarryCHR::getGameList() const
 }
 
 TilesetType_HarryCHR::Certainty TilesetType_HarryCHR::isInstance(
-	stream::input_sptr psTileset) const
+	stream::input& content) const
 {
-	stream::pos len = psTileset->size();
+	stream::pos len = content.size();
 
+	// Exact match with all tiles present
 	// TESTED BY: tls_harry_chr_isinstance_c01
-	if (len != CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return DefinitelyNo; // wrong size
+	if (len == CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return DefinitelyYes;
 
+	// Wrong size
+	// TESTED BY: tls_harry_chr_isinstance_c02
+	if (len % (CHR_WIDTH * CHR_HEIGHT) != 0)
+		return DefinitelyNo;
+
+	// Probable match with only some tiles present
 	// TESTED BY: tls_harry_chr_isinstance_c00
 	return PossiblyYes;
 }
 
-TilesetPtr TilesetType_HarryCHR::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryCHR::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psTileset->truncate(CHR_WIDTH * CHR_HEIGHT * 256);
-	psTileset->seekp(0, stream::start);
-	char empty[CHR_WIDTH * CHR_HEIGHT];
-	memset(empty, 0x00, CHR_WIDTH * CHR_HEIGHT);
-	for (int i = 0; i < 256; i++) psTileset->write(empty, CHR_WIDTH * CHR_HEIGHT);
-
-	PaletteTablePtr pal;
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
-	}
-	return TilesetPtr(new Tileset_HarryCHR(psTileset, pal));
+	content->truncate(0);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_HarryCHR::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryCHR::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_HarryGMF(suppData[SuppItem::Palette]));
-		pal = palFile->getPalette();
-	} else {
-		throw stream::error("no palette specified (missing supplementary item)");
+		auto palFile = std::make_unique<Palette_HarryGMF>(
+			std::move(suppData[SuppItem::Palette])
+		);
+		pal = palFile->palette();
 	}
-	return TilesetPtr(new Tileset_HarryCHR(psTileset, pal));
+	return std::make_shared<Tileset_HarryCHR>(std::move(content), pal);
 }
 
 SuppFilenames TilesetType_HarryCHR::getRequiredSupps(
@@ -131,23 +152,23 @@ SuppFilenames TilesetType_HarryCHR::getRequiredSupps(
 }
 
 
-Tileset_HarryCHR::Tileset_HarryCHR(stream::inout_sptr data,
-	PaletteTablePtr pal)
-	:	Tileset_FAT(data, CHR_FIRST_TILE_OFFSET),
-		pal(pal)
+Tileset_HarryCHR::Tileset_HarryCHR(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), CHR_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize(CHR_WIDTH * CHR_HEIGHT)
 {
-	assert(this->pal);
+	this->pal = pal;
 
-	for (int i = 0; i < CHR_NUM_TILES; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = i * CHR_WIDTH * CHR_HEIGHT;
+	auto len = this->content->size();
+	for (unsigned int i = 0; i < len / (CHR_WIDTH * CHR_HEIGHT); i++) {
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = i * CHR_WIDTH * CHR_HEIGHT;
 		fat->lenHeader = 0;
-		fat->size = CHR_WIDTH * CHR_HEIGHT;
-		this->items.push_back(ep);
+		fat->realSize = fat->storedSize = CHR_WIDTH * CHR_HEIGHT;
+		this->vcFAT.push_back(std::move(fat));
 	}
 }
 
@@ -155,33 +176,38 @@ Tileset_HarryCHR::~Tileset_HarryCHR()
 {
 }
 
-int Tileset_HarryCHR::getCaps()
+Tileset::Caps Tileset_HarryCHR::caps() const
 {
-	return Tileset::HasPalette | Tileset::ColourDepthVGA;
+	return Caps::HasPalette;
 }
 
-void Tileset_HarryCHR::getTilesetDimensions(unsigned int *width, unsigned int *height)
+ColourDepth Tileset_HarryCHR::colourDepth() const
 {
-	*width = CHR_WIDTH;
-	*height = CHR_HEIGHT;
-	return;
+	return ColourDepth::VGA;
 }
 
-unsigned int Tileset_HarryCHR::getLayoutWidth()
+Point Tileset_HarryCHR::dimensions() const
+{
+	return {CHR_WIDTH, CHR_HEIGHT};
+}
+
+unsigned int Tileset_HarryCHR::layoutWidth() const
 {
 	return 18;
 }
 
-PaletteTablePtr Tileset_HarryCHR::getPalette()
+std::unique_ptr<Image> Tileset_HarryCHR::openImage(FileHandle& id)
 {
-	return this->pal;
+	return std::make_unique<Image_VGARaw>(
+		this->open(id, true), this->dimensions(), this->palette()
+	);
 }
 
-ImagePtr Tileset_HarryCHR::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+Tileset::FileHandle Tileset_HarryCHR::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
 {
-	ImagePtr img(new Image_VGARaw(content, CHR_WIDTH, CHR_HEIGHT, this->pal));
-	return img;
+	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_HARRY_CHR,
+		attr);
 }
 
 } // namespace gamegraphics

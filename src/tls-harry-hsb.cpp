@@ -21,11 +21,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "tls-harry-hsb.hpp"
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
+#include "tileset-fat.hpp"
 
 /// Offset of first tile in an empty tileset
 #define HSB_FIRST_TILE_OFFSET  0
@@ -33,8 +35,62 @@
 /// Number of bytes in each image's header
 #define HSB_HEADER_LEN 8
 
+#define FILETYPE_HARRY_HSB   "tile/harry-hsb"
+
 namespace camoto {
 namespace gamegraphics {
+
+/// Image inside Halloween Harry .HSB tileset
+class Image_HarryHSB: virtual public Image_VGA
+{
+	public:
+		/// Constructor
+		/**
+		 * Create an image from the supplied stream.
+		 *
+		 * @param content
+		 *   VGA image data.
+		 *
+		 * @param pal
+		 *   Image palette.
+		 */
+		Image_HarryHSB(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_HarryHSB();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
+
+	protected:
+		Point dims;
+};
+
+
+/// Halloween Harry .HSB tileset
+class Tileset_HarryHSB: virtual public Tileset_FAT
+{
+	public:
+		Tileset_HarryHSB(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_HarryHSB();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual void resize(FileHandle& id, stream::len newStoredSize,
+			stream::len newRealSize);
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+};
+
 
 TilesetType_HarryHSB::TilesetType_HarryHSB()
 {
@@ -44,24 +100,24 @@ TilesetType_HarryHSB::~TilesetType_HarryHSB()
 {
 }
 
-std::string TilesetType_HarryHSB::getCode() const
+std::string TilesetType_HarryHSB::code() const
 {
 	return "tls-harry-hsb";
 }
 
-std::string TilesetType_HarryHSB::getFriendlyName() const
+std::string TilesetType_HarryHSB::friendlyName() const
 {
 	return "Halloween Harry HSB tileset";
 }
 
-std::vector<std::string> TilesetType_HarryHSB::getFileExtensions() const
+std::vector<std::string> TilesetType_HarryHSB::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("hsb");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_HarryHSB::getGameList() const
+std::vector<std::string> TilesetType_HarryHSB::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -70,73 +126,61 @@ std::vector<std::string> TilesetType_HarryHSB::getGameList() const
 }
 
 TilesetType_HarryHSB::Certainty TilesetType_HarryHSB::isInstance(
-	stream::input_sptr psTileset) const
+	stream::input& content) const
 {
-	stream::pos len = psTileset->size();
+	stream::pos len = content.size();
 
 	// Since there's no header, an empty file could mean an empty tileset.
 	// TESTED BY: tls_harry_hsb_new_isinstance
 	if (len == 0) return PossiblyYes;
 
-	// Make sure the file is large enough
-	// TESTED BY: fmt_harry_hsb_isinstance_c01
-	if (len < HSB_HEADER_LEN) return DefinitelyNo;
-
-	psTileset->seekg(0, stream::start);
-	stream::pos pos = 0;
-	while (pos < len) {
+	content.seekg(0, stream::start);
+	while (len > HSB_HEADER_LEN) {
 		uint16_t unk1, unk2;
 		uint16_t width, height;
-		try {
-			psTileset
-				>> u16le(unk1)
-				>> u16le(unk2)
-				>> u16le(width)
-				>> u16le(height)
-			;
-		} catch (const stream::incomplete_read&) {
-			// If EOF is encountered here it's not a valid file
-			// TESTED BY: fmt_harry_hsb_isinstance_c02
-			return DefinitelyNo;
-		}
-		int delta = width * height;
+		content
+			>> u16le(unk1)
+			>> u16le(unk2)
+			>> u16le(width)
+			>> u16le(height)
+		;
+		len -= HSB_HEADER_LEN;
+		unsigned int delta = width * height;
 
-		// If this pushes us past EOF it's not a valid file
-		// TESTED BY: fmt_harry_hsb_isinstance_c03
-		pos += delta + HSB_HEADER_LEN;
-		if (pos > len) return DefinitelyNo;
+		// If this tile goes past EOF then it's not a valid file
+		// TESTED BY: fmt_harry_hsb_isinstance_c01
+		if (len < delta) return DefinitelyNo;
+		len -= delta;
 
-		psTileset->seekg(delta, stream::cur);
+		content.seekg(delta, stream::cur);
 	}
+
+	// Trailing data
+	// TESTED BY: fmt_harry_hsb_isinstance_c02
+	if (len) return DefinitelyNo;
 
 	// TESTED BY: fmt_harry_hsb_isinstance_c00
 	return DefinitelyYes;
-
 }
 
-TilesetPtr TilesetType_HarryHSB::create(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryHSB::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psTileset->truncate(0);
-	psTileset->seekp(0, stream::start);
-
-	PaletteTablePtr pal;
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_HarryGMF(suppData[SuppItem::Palette]));
-		pal = palFile->getPalette();
-	}
-	return TilesetPtr(new Tileset_HarryHSB(psTileset, pal));
+	content->truncate(0);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_HarryHSB::open(stream::inout_sptr psTileset,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryHSB::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_HarryGMF(suppData[SuppItem::Palette]));
-		pal = palFile->getPalette();
+		auto palFile = std::make_unique<Palette_HarryGMF>(
+			std::move(suppData[SuppItem::Palette])
+		);
+		pal = palFile->palette();
 	}
-	return TilesetPtr(new Tileset_HarryHSB(psTileset, pal));
+	return std::make_shared<Tileset_HarryHSB>(std::move(content), pal);
 }
 
 SuppFilenames TilesetType_HarryHSB::getRequiredSupps(
@@ -148,22 +192,22 @@ SuppFilenames TilesetType_HarryHSB::getRequiredSupps(
 }
 
 
-Image_HarryHSB::Image_HarryHSB(stream::inout_sptr data, PaletteTablePtr pal)
-	:	Image_VGA(data, HSB_HEADER_LEN),
-		pal(pal)
+Image_HarryHSB::Image_HarryHSB(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Image_VGA(std::move(content), HSB_HEADER_LEN)
 {
-	assert(data->tellg() == 0);
-	if (data->size() == 0) {
+	this->pal = pal;
+	if (this->content->size() == 0) {
 		// Newly inserted tile
-		this->width = 0;
-		this->height = 0;
+		this->dims = {0, 0};
 	} else {
 		uint16_t unk1, unk2;
-		data
+		this->content->seekg(0, stream::start);
+		*this->content
 			>> u16le(unk1)
 			>> u16le(unk2)
-			>> u16le(this->width)
-			>> u16le(this->height)
+			>> u16le(this->dims.x)
+			>> u16le(this->dims.y)
 		;
 	}
 }
@@ -172,87 +216,85 @@ Image_HarryHSB::~Image_HarryHSB()
 {
 }
 
-int Image_HarryHSB::getCaps()
+Image::Caps Image_HarryHSB::caps() const
 {
-	return this->Image_VGA::getCaps()
-		| Image::HasPalette
-		| Image::CanSetDimensions;
+	return this->Image_VGA::caps()
+		| Caps::HasPalette
+		| Caps::SetDimensions;
 }
 
-void Image_HarryHSB::getDimensions(unsigned int *width, unsigned int *height)
+ColourDepth Image_HarryHSB::colourDepth() const
 {
-	*width = this->width;
-	*height = this->height;
+	return ColourDepth::VGA;
+}
+
+Point Image_HarryHSB::dimensions() const
+{
+	return this->dims;
+}
+
+void Image_HarryHSB::dimensions(const Point& newDimensions)
+{
+	assert(this->caps() & Caps::SetDimensions);
+	this->dims = newDimensions;
 	return;
 }
 
-void Image_HarryHSB::setDimensions(unsigned int width, unsigned int height)
+void Image_HarryHSB::convert(const Pixels& newContent,
+	const Pixels& newMask)
 {
-	assert(this->getCaps() & Image::CanSetDimensions);
-	this->width = width;
-	this->height = height;
-	return;
-}
-
-void Image_HarryHSB::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
-{
-	this->Image_VGA::fromStandard(newContent, newMask);
+	this->Image_VGA::convert(newContent, newMask);
 
 	// Update dimensions
-	this->data->seekp(0, stream::start);
-	this->data
+	this->content->seekp(0, stream::start);
+	*this->content
 		<< u16le(0) // TODO
 		<< u16le(0) // TODO
-		<< u16le(this->width)
-		<< u16le(this->height)
+		<< u16le(this->dims.x)
+		<< u16le(this->dims.y)
 	;
 	return;
 }
 
-PaletteTablePtr Image_HarryHSB::getPalette()
+
+Tileset_HarryHSB::Tileset_HarryHSB(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), HSB_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES)
 {
-	return this->pal;
-}
+	this->pal = pal;
 
+	stream::pos len = this->content->size();
+	this->content->seekg(0, stream::start);
 
-Tileset_HarryHSB::Tileset_HarryHSB(stream::inout_sptr data,
-	PaletteTablePtr pal)
-	:	Tileset_FAT(data, HSB_FIRST_TILE_OFFSET),
-		pal(pal)
-{
-	stream::pos len = this->data->size();
-
-	this->data->seekg(0, stream::start);
-
-	stream::pos pos = 0;
 	unsigned int i = 0;
-	while (pos < len) {
-
+	stream::pos pos = 0;
+	while (len > HSB_HEADER_LEN) {
 		uint16_t unk1, unk2;
 		uint16_t width, height;
-		this->data
+		*this->content
 			>> u16le(unk1)
 			>> u16le(unk2)
 			>> u16le(width)
 			>> u16le(height)
 		;
-		unsigned int delta = width * height;
+		auto fat = std::make_unique<FATEntry>();
+		fat->storedSize = HSB_HEADER_LEN + width * height;
 
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = pos;
-		fat->size = delta + HSB_HEADER_LEN;
+		// If this tile goes past EOF then ignore it
+		if (len < fat->storedSize) break;
+		len -= fat->storedSize;
+
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = pos;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
 
-		pos += fat->size;
+		this->content->seekg(fat->storedSize - HSB_HEADER_LEN, stream::cur);
+		pos += fat->storedSize;
 
-		this->data->seekg(delta, stream::cur);
+		this->vcFAT.push_back(std::move(fat));
+
 		i++;
 	}
 }
@@ -261,20 +303,92 @@ Tileset_HarryHSB::~Tileset_HarryHSB()
 {
 }
 
-int Tileset_HarryHSB::getCaps()
+Tileset::Caps Tileset_HarryHSB::caps() const
 {
-	return Tileset::HasPalette | Tileset::ColourDepthVGA;
+	return Caps::HasPalette;
 }
 
-PaletteTablePtr Tileset_HarryHSB::getPalette()
+ColourDepth Tileset_HarryHSB::colourDepth() const
 {
-	return this->pal;
+	return ColourDepth::VGA;
 }
 
-ImagePtr Tileset_HarryHSB::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+unsigned int Tileset_HarryHSB::layoutWidth() const
 {
-	return ImagePtr(new Image_HarryHSB(content, this->pal));
+	return 1;
+}
+
+void Tileset_HarryHSB::resize(FileHandle& id, stream::len newStoredSize,
+	stream::len newRealSize)
+{
+	auto fat = FATEntry::cast(id);
+	assert(fat);
+
+	auto targetSize = newStoredSize - HSB_HEADER_LEN;
+
+	// Try to preserve the old width if possible
+	uint16_t oldWidth = 0, oldHeight = 0;
+	if (fat->iOffset + HSB_HEADER_LEN < this->content->size()) {
+		// This tile already exists, read its height so we can try to match one
+		// dimension
+		this->content->seekg(fat->iOffset + 4, stream::start);
+		*this->content
+			>> u16le(oldWidth)
+			>> u16le(oldHeight)
+		;
+	}
+
+	// Avoid divide by zero
+	if (oldWidth == 0) oldWidth++;
+	if (oldHeight == 0) oldHeight++;
+
+	// Find a width and height that can represent this amount
+	unsigned int newWidth = 1, newHeight;
+	if (targetSize % oldWidth == 0) {
+		// Preserve width, extend height
+		newWidth = oldWidth;
+		newHeight = targetSize / newWidth;
+	} else if (targetSize % oldHeight == 0) {
+		// Preserve height, extend width
+		newHeight = oldHeight;
+		newWidth = targetSize / newHeight;
+	} else {
+		// Cannot preserve either height or width, just pick values that fit
+		for (unsigned int x = 64; x > 1; x--) {
+			if (targetSize % x == 0) {
+				newWidth = x;
+				break;
+			}
+		}
+		// This will always work because worst-case newWidth == 1
+		newHeight = targetSize / newWidth;
+	}
+
+	this->Tileset_FAT::resize(id, newStoredSize, newRealSize);
+
+	// Write the new tile count, so the tileset won't be corrupted in case nothing
+	// gets written to this new file.
+	this->content->seekp(fat->iOffset, stream::start);
+	*this->content
+		<< u16le(0) // TODO
+		<< u16le(0) // TODO
+		<< u16le(newWidth)
+		<< u16le(newHeight)
+	;
+	return;
+}
+
+std::unique_ptr<Image> Tileset_HarryHSB::openImage(FileHandle& id)
+{
+	return std::make_unique<Image_HarryHSB>(
+		this->open(id, true), this->palette()
+	);
+}
+
+Tileset::FileHandle Tileset_HarryHSB::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", 0, FILETYPE_HARRY_HSB, attr);
 }
 
 } // namespace gamegraphics

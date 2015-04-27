@@ -22,8 +22,6 @@
 #define _CAMOTO_TLS_HARRY_CHR_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "pal-vga-raw.hpp"
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -32,49 +30,19 @@ class TilesetType_HarryCHR: virtual public TilesetType
 {
 	public:
 		TilesetType_HarryCHR();
-
 		virtual ~TilesetType_HarryCHR();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
-};
-
-class Tileset_HarryCHR: virtual public Tileset_FAT
-{
-	public:
-		Tileset_HarryCHR(stream::inout_sptr data,
-			PaletteTablePtr pal);
-
-		virtual ~Tileset_HarryCHR();
-
-		virtual int getCaps();
-
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-
-		virtual unsigned int getLayoutWidth();
-
-		PaletteTablePtr getPalette();
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		PaletteTablePtr pal;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 };
 
 } // namespace gamearchive
