@@ -177,7 +177,7 @@ Tileset_CCavesSub::~Tileset_CCavesSub()
 
 Tileset::Caps Tileset_CCavesSub::caps() const
 {
-	return Tileset::Caps::ChangeDimensions;
+	return Caps::HasDimensions | Caps::SetDimensions;
 }
 
 ColourDepth Tileset_CCavesSub::colourDepth() const

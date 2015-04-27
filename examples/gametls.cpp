@@ -89,7 +89,7 @@ void printTilesetList(std::string prefix, gg::Tileset* pTileset, bool bScript)
 		std::cout << prefix << ": Tileset";
 	}
 
-	if (pTileset->caps() & gg::Tileset::Caps::ChangeDimensions) {
+	if (pTileset->caps() & gg::Tileset::Caps::HasDimensions) {
 		// This tileset has dimensions
 		auto dims = pTileset->dimensions();
 		if (bScript) {
@@ -1049,7 +1049,7 @@ finishTesting:
 						if (!ep) {
 							if (nextTileset) {
 								// ID was for a tileset
-								if (nextTileset->caps() & gg::Tileset::Caps::ChangeDimensions) {
+								if (nextTileset->caps() & gg::Tileset::Caps::SetDimensions) {
 									try {
 										nextTileset->dimensions({newWidth, newHeight});
 										modified = true;

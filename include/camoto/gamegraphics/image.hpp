@@ -71,7 +71,7 @@ class Image
 			/// No special capabilities.
 			Default       = 0x00,
 
-			/// Set if the image can be resized with setDimensions().
+			/// Set if the image can be resized.
 			SetDimensions = 0x01,
 
 			/// Set if palette() returns valid data.
@@ -80,11 +80,11 @@ class Image
 			/// Set if palette() can be used.  Must be used with HasPalette.
 			SetPalette    = 0x04,
 
-			/// Set if get/setHotspot() can be used.
+			/// Set if hotspot() can be used.
 			HasHotspot    = 0x08,
 
-			/// Set if get/setHitRect() can be used.
-			HasHitRect        = 0x40,
+			/// Set if hitrect() can be used.
+			HasHitRect    = 0x40,
 		};
 
 		/// Bit values for image mask data

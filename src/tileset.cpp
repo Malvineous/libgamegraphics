@@ -58,7 +58,7 @@ Point Tileset::dimensions() const
 void Tileset::dimensions(const Point& newDimensions)
 {
 	// Fail if this function is called when the caps say not to
-	assert(this->caps() & Caps::ChangeDimensions);
+	assert(this->caps() & Caps::SetDimensions);
 
 	// If we get here the file format said the dimensions can be changed but
 	// forgot to override this function, so fail.

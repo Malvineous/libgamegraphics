@@ -65,17 +65,20 @@ class Tileset: virtual public gamearchive::Archive
 			/// No special capabilities.
 			Default           = 0,
 
-			/// Set if all tiles are the same size and this can be changed.
-			ChangeDimensions  = 1 << 0,
+			/// Set if all tiles must always be the same size.
+			HasDimensions     = 1 << 0,
+
+			/// Set if all tiles must be the same size and this size can be changed.
+			SetDimensions     = 1 << 1,
 
 			/// Set if palette() returns valid data.
-			HasPalette        = 1 << 1,
+			HasPalette        = 1 << 2,
 
 			/// Set if palette() can be used.  Must be used with HasPalette.
-			SetPalette        = 1 << 2,
+			SetPalette        = 1 << 3,
 
 			/// Tiles have names
-			HasNames          = 1 << 3,
+			HasNames          = 1 << 4,
 		};
 
 		Tileset();
