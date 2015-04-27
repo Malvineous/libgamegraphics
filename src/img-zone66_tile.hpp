@@ -57,7 +57,7 @@ class Image_Zone66Tile: virtual public Image
 		virtual ~Image_Zone66Tile();
 
 		virtual Caps caps() const;
-		ColourDepth colourDepth() const;
+		virtual ColourDepth colourDepth() const;
 		virtual Point dimensions() const;
 		virtual void dimensions(const Point& newDimensions);
 		virtual Pixels convert() const;
