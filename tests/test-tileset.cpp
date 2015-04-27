@@ -212,6 +212,13 @@ void test_tileset::test_open_image()
 	auto tileset = std::dynamic_pointer_cast<Tileset>(this->pArchive);
 	BOOST_REQUIRE(tileset);
 
+	BOOST_TEST_CHECKPOINT("Checking global tileset dimensions");
+	if (tileset->caps() & Tileset::Caps::HasDimensions) {
+		auto dimsReported = tileset->dimensions();
+		BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
+		BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
+	}
+
 	auto ep = this->findFile(0);
 
 	auto targetTileset = tileset;
