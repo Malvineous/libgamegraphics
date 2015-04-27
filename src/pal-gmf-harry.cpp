@@ -20,26 +20,9 @@
 
 #include <camoto/util.hpp> // make_unique
 #include "pal-gmf-harry.hpp"
-#include "img-palette.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-/// Palette interface to Halloween Harry GMF files.
-class Palette_HarryGMF: virtual public Image_Palette
-{
-	private:
-		std::unique_ptr<stream::inout> content;
-
-	public:
-		Palette_HarryGMF(std::unique_ptr<stream::inout> content);
-		virtual ~Palette_HarryGMF();
-
-		virtual Caps caps() const;
-		virtual ColourDepth colourDepth() const;
-		virtual std::shared_ptr<const Palette> palette();
-		virtual void palette(std::shared_ptr<const Palette> newPalette);
-};
 
 ImageType_Palette_HarryGMF::ImageType_Palette_HarryGMF()
 {
