@@ -71,8 +71,6 @@ class Tileset_CCavesMain: virtual public Tileset_FAT
 		virtual FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
-		virtual void preInsertFile(const FATEntry *idBeforeThis,
-			FATEntry *pNewEntry);
 
 	protected:
 		PlaneCount numPlanes;

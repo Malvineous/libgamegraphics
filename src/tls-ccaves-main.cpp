@@ -107,16 +107,7 @@ TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
 
 		int delta = width * height * (int)PlaneCount::Masked
 			* numTiles + this->pad;
-/*
-		// Make sure we don't get stuck
-		if (delta == 0) {
-			if ((numTiles == 0) && (len == 3)) {
-				// This matches a valid empty file
-				return EC_POSSIBLY_YES;
-			}
-			return EC_DEFINITELY_NO;
-		}
-*/
+
 		// If this pushes us past EOF it's not a valid file
 		pos += delta;
 		if (pos > len) return DefinitelyNo;
@@ -132,9 +123,6 @@ std::shared_ptr<Tileset> TilesetType_CCavesMain::create(
 	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	content->truncate(0);
-	//content->seekp(0, stream::start);
-	// Zero tiles, 1 byte wide (8 pixels), 8 rows/pixels high
-	//content->write("\x00\x01\x08", 3);
 	return this->open(std::move(content), suppData);
 }
 
@@ -257,8 +245,8 @@ void Tileset_CCavesMain::resize(FileHandle& id, stream::len newStoredSize,
 
 	this->Tileset_FAT::resize(id, newStoredSize, newRealSize);
 
-	// Write the new tile count, so the file won't be corrupted in case nothing
-	// further gets done.
+	// Write the new tile count, so the tileset won't be corrupted in case nothing
+	// gets written to this new file.
 	unsigned int newNumTiles = (newStoredSize - 3) / tileSize;
 	this->content->seekp(fat->iOffset, stream::start);
 	*this->content
@@ -280,24 +268,6 @@ Tileset::FileHandle Tileset_CCavesMain::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", 3, FILETYPE_CCAVES_MAIN, attr);
-}
-
-void Tileset_CCavesMain::preInsertFile(
-	const Tileset_CCavesMain::FATEntry *idBeforeThis,
-	Tileset_CCavesMain::FATEntry *pNewEntry)
-{
-
-
-return;
-
-
-
-	if (pNewEntry->type.compare(FILETYPE_CCAVES_MAIN) != 0) {
-		throw stream::error("only files of type " FILETYPE_CCAVES_MAIN
-			" can be added to this tileset.");
-	}
-	// Write 3x 0x00 to the new stream?
-	return;
 }
 
 } // namespace gamegraphics
