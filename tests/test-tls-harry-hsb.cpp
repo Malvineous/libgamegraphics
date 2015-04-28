@@ -68,6 +68,16 @@ class test_tls_harry_hsb: public test_tileset
 					"\x05\x05"
 				)
 			);
+
+			// c03: We don't recognise width or height of zero
+			this->isInstance(ArchiveType::DefinitelyNo,
+				this->tile1() +
+				this->tile2() +
+				STRING_WITH_NULLS(
+					"\x00\x00\x00\x00"
+					"\x00\x00\x00\x00"
+				)
+			);
 		}
 
 		virtual std::string tile1() const

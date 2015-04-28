@@ -147,6 +147,10 @@ TilesetType_HarryHSB::Certainty TilesetType_HarryHSB::isInstance(
 		len -= HSB_HEADER_LEN;
 		unsigned int delta = width * height;
 
+		// Width or height of zero don't really make sense
+		// TESTED BY: fmt_harry_hsb_isinstance_c03
+		if ((width == 0) || (height == 0)) return DefinitelyNo;
+
 		// If this tile goes past EOF then it's not a valid file
 		// TESTED BY: fmt_harry_hsb_isinstance_c01
 		if (len < delta) return DefinitelyNo;

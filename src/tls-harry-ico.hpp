@@ -31,46 +31,19 @@ class TilesetType_HarryICO: virtual public TilesetType
 {
 	public:
 		TilesetType_HarryICO();
-
 		virtual ~TilesetType_HarryICO();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsTileset) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psTileset,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsTileset,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset) const;
-};
-
-class Tileset_HarryICO: virtual public Tileset_FAT
-{
-	public:
-		Tileset_HarryICO(stream::inout_sptr data, PaletteTablePtr pal);
-
-		virtual ~Tileset_HarryICO();
-
-		virtual int getCaps();
-
-		virtual unsigned int getLayoutWidth();
-
-		PaletteTablePtr getPalette();
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		PaletteTablePtr pal;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
+			const;
 };
 
 } // namespace gamearchive

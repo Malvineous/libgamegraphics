@@ -21,8 +21,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "tls-harry-ico.hpp"
 #include "img-pcx.hpp"
 #include "img-ddave.hpp"
@@ -36,6 +37,28 @@ namespace gamegraphics {
 /// Size of each image's header (2x UINT16LE)
 #define ICO_HEADER_LEN  4
 
+#define FILETYPE_HARRY_ICO   "tile/harry-ico"
+
+class Tileset_HarryICO: virtual public Tileset_FAT
+{
+	public:
+		Tileset_HarryICO(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_HarryICO();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual void resize(FileHandle& id, stream::len newStoredSize,
+			stream::len newRealSize);
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+};
+
 //
 // TilesetType_HarryICO
 //
@@ -48,25 +71,25 @@ TilesetType_HarryICO::~TilesetType_HarryICO()
 {
 }
 
-std::string TilesetType_HarryICO::getCode() const
+std::string TilesetType_HarryICO::code() const
 {
 	return "tls-harry-ico";
 }
 
-std::string TilesetType_HarryICO::getFriendlyName() const
+std::string TilesetType_HarryICO::friendlyName() const
 {
 	return "Halloween Harry ICO Tileset";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> TilesetType_HarryICO::getFileExtensions() const
+std::vector<std::string> TilesetType_HarryICO::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("ico");
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_HarryICO::getGameList() const
+std::vector<std::string> TilesetType_HarryICO::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Alien Carnage");
@@ -74,73 +97,67 @@ std::vector<std::string> TilesetType_HarryICO::getGameList() const
 	return vcGames;
 }
 
-TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(stream::input_sptr psGraphics) const
+TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 
 	// Since there's no header, an empty file could mean an empty tileset.
 	// TESTED BY: tls_harry_ico_new_isinstance
 	if (len == 0) return PossiblyYes;
 
-	// Make sure the file is large enough
-	// TESTED BY: fmt_harry_ico_isinstance_c01
-	if (len < ICO_HEADER_LEN) return DefinitelyNo;
-
-	psGraphics->seekg(0, stream::start);
-	stream::pos pos = 0;
-	while (pos < len) {
+	content.seekg(0, stream::start);
+	while (len > ICO_HEADER_LEN) {
 		uint16_t width, height;
-		try {
-			psGraphics
-				>> u16le(width)
-				>> u16le(height)
-			;
-		} catch (const stream::incomplete_read&) {
-			// If EOF is encountered here it's not a valid file
-			// TESTED BY: fmt_harry_ico_isinstance_c02
-			return DefinitelyNo;
-		}
-		int delta = width * height;
-		// If this pushes us past EOF it's not a valid file
-		// TESTED BY: fmt_harry_ico_isinstance_c03
-		pos += delta + ICO_HEADER_LEN;
-		if (pos > len) return DefinitelyNo;
+		content
+			>> u16le(width)
+			>> u16le(height)
+		;
+		len -= ICO_HEADER_LEN;
+		unsigned int delta = width * height;
 
-		psGraphics->seekg(delta, stream::cur);
+		// Width or height of zero don't really make sense
+		// TESTED BY: fmt_harry_ico_isinstance_c03
+		if ((width == 0) || (height == 0)) return DefinitelyNo;
+
+		// If this tile goes past EOF then it's not a valid file
+		// TESTED BY: fmt_harry_ico_isinstance_c01
+		if (len < delta) return DefinitelyNo;
+		len -= delta;
+
+		content.seekg(delta, stream::cur);
 	}
+
+	// Trailing data
+	// TESTED BY: fmt_harry_ico_isinstance_c02
+	if (len) return DefinitelyNo;
 
 	// TESTED BY: fmt_harry_ico_isinstance_c00
 	return DefinitelyYes;
 }
 
-TilesetPtr TilesetType_HarryICO::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryICO::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->truncate(0);
-	psGraphics->seekp(0, stream::start);
-
-	PaletteTablePtr pal;
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Image_PCX(suppData[SuppItem::Palette], 8, 1));
-		pal = palFile->getPalette();
-	}
-
-	return TilesetPtr(new Tileset_HarryICO(psGraphics, pal));
+	content->truncate(0);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_HarryICO::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_HarryICO::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Image_PCX(suppData[SuppItem::Palette], 8, 1));
-		pal = palFile->getPalette();
+		auto palFile = std::make_unique<Image_PCX>(
+			std::move(suppData[SuppItem::Palette]), 8, 1, true
+		);
+		pal = palFile->palette();
 	}
-
-	return TilesetPtr(new Tileset_HarryICO(psGraphics, pal));
+	return std::make_shared<Tileset_HarryICO>(std::move(content), pal);
 }
 
-SuppFilenames TilesetType_HarryICO::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_HarryICO::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "pre2.pcx"; // any UI image file
@@ -152,40 +169,41 @@ SuppFilenames TilesetType_HarryICO::getRequiredSupps(const std::string& filename
 // Tileset_HarryICO
 //
 
-Tileset_HarryICO::Tileset_HarryICO(stream::inout_sptr data, PaletteTablePtr pal)
-	:	Tileset_FAT(data, ICO_FIRST_TILE_OFFSET),
-		pal(pal)
+Tileset_HarryICO::Tileset_HarryICO(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), ICO_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES)
 {
-	stream::pos len = this->data->size();
+	this->pal = pal;
 
-	this->data->seekg(0, stream::start);
+	stream::pos len = this->content->size();
+	this->content->seekg(0, stream::start);
 
-	stream::pos pos = 0;
 	unsigned int i = 0;
-	while (pos < len) {
-
+	stream::pos pos = 0;
+	while (len > ICO_HEADER_LEN) {
 		uint16_t width, height;
-		this->data
+		*this->content
 			>> u16le(width)
 			>> u16le(height)
 		;
-		unsigned int delta = width * height;
+		auto fat = std::make_unique<FATEntry>();
+		fat->storedSize = ICO_HEADER_LEN + width * height;
 
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = pos;
-		fat->size = delta + ICO_HEADER_LEN;
+		// If this tile goes past EOF then ignore it
+		if (len < fat->storedSize) break;
+		len -= fat->storedSize;
+
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = pos;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
 
-		// If this pushes us past EOF it's not a valid file
-		// TESTED BY: fmt_harry_ico_isinstance_c02
-		pos += fat->size;
+		this->content->seekg(fat->storedSize - ICO_HEADER_LEN, stream::cur);
+		pos += fat->storedSize;
 
-		this->data->seekg(delta, stream::cur);
+		this->vcFAT.push_back(std::move(fat));
+
 		i++;
 	}
 }
@@ -194,25 +212,90 @@ Tileset_HarryICO::~Tileset_HarryICO()
 {
 }
 
-int Tileset_HarryICO::getCaps()
+Tileset::Caps Tileset_HarryICO::caps() const
 {
-	return Tileset::HasPalette | Tileset::ColourDepthVGA;
+	return Caps::HasPalette;
 }
 
-unsigned int Tileset_HarryICO::getLayoutWidth()
+ColourDepth Tileset_HarryICO::colourDepth() const
+{
+	return ColourDepth::VGA;
+}
+
+unsigned int Tileset_HarryICO::layoutWidth() const
 {
 	return 16;
 }
 
-PaletteTablePtr Tileset_HarryICO::getPalette()
+void Tileset_HarryICO::resize(FileHandle& id, stream::len newStoredSize,
+	stream::len newRealSize)
 {
-	return this->pal;
+	auto fat = FATEntry::cast(id);
+	assert(fat);
+
+	auto targetSize = newStoredSize - ICO_HEADER_LEN;
+
+	// Try to preserve the old width if possible
+	uint16_t oldWidth = 0, oldHeight = 0;
+	if (fat->iOffset + ICO_HEADER_LEN < this->content->size()) {
+		// This tile already exists, read its height so we can try to match one
+		// dimension
+		this->content->seekg(fat->iOffset, stream::start);
+		*this->content
+			>> u16le(oldWidth)
+			>> u16le(oldHeight)
+		;
+	}
+
+	// Avoid divide by zero
+	if (oldWidth == 0) oldWidth++;
+	if (oldHeight == 0) oldHeight++;
+
+	// Find a width and height that can represent this amount
+	unsigned int newWidth = 1, newHeight;
+	if (targetSize % oldWidth == 0) {
+		// Preserve width, extend height
+		newWidth = oldWidth;
+		newHeight = targetSize / newWidth;
+	} else if (targetSize % oldHeight == 0) {
+		// Preserve height, extend width
+		newHeight = oldHeight;
+		newWidth = targetSize / newHeight;
+	} else {
+		// Cannot preserve either height or width, just pick values that fit
+		for (unsigned int x = 64; x > 1; x--) {
+			if (targetSize % x == 0) {
+				newWidth = x;
+				break;
+			}
+		}
+		// This will always work because worst-case newWidth == 1
+		newHeight = targetSize / newWidth;
+	}
+
+	this->Tileset_FAT::resize(id, newStoredSize, newRealSize);
+
+	// Write the new tile count, so the tileset won't be corrupted in case nothing
+	// gets written to this new file.
+	this->content->seekp(fat->iOffset, stream::start);
+	*this->content
+		<< u16le(newWidth)
+		<< u16le(newHeight)
+	;
+	return;
 }
 
-ImagePtr Tileset_HarryICO::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_HarryICO::openImage(FileHandle& id)
 {
-	return ImagePtr(new Image_DDaveVGA(content, false, this->pal));
+	return std::make_unique<Image_DDaveVGA>(
+		this->open(id, true), false, this->palette()
+	);
+}
+
+Tileset::FileHandle Tileset_HarryICO::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", 0, FILETYPE_HARRY_ICO, attr);
 }
 
 } // namespace gamegraphics
