@@ -22,8 +22,11 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
+#include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 #include "img-ega-planar.hpp"
-#include "img-cga.hpp"
+#include "img-ega-linear.hpp"
 #include "tls-catacomb.hpp"
 
 namespace camoto {
@@ -36,19 +39,43 @@ namespace gamegraphics {
 #define CAT_TILE_HEIGHT 8
 
 /// Number of bytes per tile in the CGA tileset
-#define CAT_CGA_TILESIZE 16
+#define CAT_CGA_TILE_SIZE 16
 
 /// Number of bytes per tile in the EGA tileset
-#define CAT_EGA_TILESIZE 32
-
-/// Number of planes per tile
-#define CAT_NUMPLANES 4
+#define CAT_EGA_TILE_SIZE 32
 
 /// Number of tiles in the Catacomb I tileset
 #define CATI_NUMTILES 1462
 
 /// Number of tiles in the Catacomb II tileset
 #define CATII_NUMTILES 1618
+
+#define FILETYPE_CAT  "tile/catacomb"
+
+/// Tileset format handler.
+class Tileset_Catacomb:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
+	public:
+		Tileset_Catacomb(std::unique_ptr<stream::inout> content, ColourDepth depth);
+		virtual ~Tileset_Catacomb();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
+
+	protected:
+		ColourDepth depth;
+};
+
 
 TilesetType_Catacomb::TilesetType_Catacomb()
 {
@@ -58,7 +85,7 @@ TilesetType_Catacomb::~TilesetType_Catacomb()
 {
 }
 
-std::vector<std::string> TilesetType_Catacomb::getFileExtensions() const
+std::vector<std::string> TilesetType_Catacomb::fileExtensions() const
 {
 	std::vector<std::string> vcExtensions;
 	vcExtensions.push_back("cat");
@@ -66,7 +93,7 @@ std::vector<std::string> TilesetType_Catacomb::getFileExtensions() const
 	return vcExtensions;
 }
 
-std::vector<std::string> TilesetType_Catacomb::getGameList() const
+std::vector<std::string> TilesetType_Catacomb::games() const
 {
 	std::vector<std::string> vcGames;
 	vcGames.push_back("Catacomb");
@@ -74,7 +101,8 @@ std::vector<std::string> TilesetType_Catacomb::getGameList() const
 	return vcGames;
 }
 
-SuppFilenames TilesetType_Catacomb::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Catacomb::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -93,41 +121,48 @@ TilesetType_CatacombEGA::~TilesetType_CatacombEGA()
 {
 }
 
-std::string TilesetType_CatacombEGA::getCode() const
+std::string TilesetType_CatacombEGA::code() const
 {
 	return "tls-catacomb-ega";
 }
 
-std::string TilesetType_CatacombEGA::getFriendlyName() const
+std::string TilesetType_CatacombEGA::friendlyName() const
 {
 	return "Catacomb EGA Tileset";
 }
 
-TilesetType_CatacombEGA::Certainty TilesetType_CatacombEGA::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CatacombEGA::Certainty TilesetType_CatacombEGA::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 
 	// Catacomb I
-	if (len == CATI_NUMTILES * CAT_EGA_TILESIZE) return PossiblyYes;
+	// TESTED BY: tls_catacomb_ega_c01
+	if (len == CATI_NUMTILES * CAT_EGA_TILE_SIZE) return DefinitelyYes;
 
 	// Catacomb II
-	if (len == CATII_NUMTILES * CAT_EGA_TILESIZE) return PossiblyYes;
+	if (len == CATII_NUMTILES * CAT_EGA_TILE_SIZE) return DefinitelyYes;
 
+	// TESTED BY: tls_catacomb_ega_c00
+	if (len % CAT_EGA_TILE_SIZE == 0) return PossiblyYes;
+
+	// TESTED BY: tls_catacomb_ega_c02
 	return DefinitelyNo;
 }
 
-TilesetPtr TilesetType_CatacombEGA::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CatacombEGA::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->seekp(0, stream::start);
+	content->truncate(0);
 	// Zero tiles, 0x0
-	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_EGA));
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_CatacombEGA::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CatacombEGA::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_EGA));
+	return std::make_shared<Tileset_Catacomb>(std::move(content),
+		ColourDepth::EGA);
 }
 
 
@@ -143,41 +178,48 @@ TilesetType_CatacombCGA::~TilesetType_CatacombCGA()
 {
 }
 
-std::string TilesetType_CatacombCGA::getCode() const
+std::string TilesetType_CatacombCGA::code() const
 {
 	return "tls-catacomb-cga";
 }
 
-std::string TilesetType_CatacombCGA::getFriendlyName() const
+std::string TilesetType_CatacombCGA::friendlyName() const
 {
 	return "Catacomb CGA Tileset";
 }
 
-TilesetType_CatacombCGA::Certainty TilesetType_CatacombCGA::isInstance(stream::input_sptr psGraphics) const
+TilesetType_CatacombCGA::Certainty TilesetType_CatacombCGA::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 
 	// Catacomb I
-	if (len == CATI_NUMTILES * CAT_CGA_TILESIZE) return PossiblyYes;
+	// TESTED BY: tls_catacomb_ega_c01
+	if (len == CATI_NUMTILES * CAT_CGA_TILE_SIZE) return DefinitelyYes;
 
 	// Catacomb II
-	if (len == CATII_NUMTILES * CAT_CGA_TILESIZE) return PossiblyYes;
+	if (len == CATII_NUMTILES * CAT_CGA_TILE_SIZE) return DefinitelyYes;
 
+	// TESTED BY: tls_catacomb_ega_c00
+	if (len % CAT_EGA_TILE_SIZE == 0) return PossiblyYes;
+
+	// TESTED BY: tls_catacomb_ega_c02
 	return DefinitelyNo;
 }
 
-TilesetPtr TilesetType_CatacombCGA::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CatacombCGA::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->seekp(0, stream::start);
+	content->truncate(0);
 	// Zero tiles, 0x0
-	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_CGA));
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_CatacombCGA::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_CatacombCGA::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return TilesetPtr(new Tileset_Catacomb(psGraphics, CAT_CGA));
+	return std::make_shared<Tileset_Catacomb>(std::move(content),
+		ColourDepth::CGA);
 }
 
 
@@ -185,33 +227,30 @@ TilesetPtr TilesetType_CatacombCGA::open(stream::inout_sptr psGraphics,
 // Tileset_Catacomb
 //
 
-Tileset_Catacomb::Tileset_Catacomb(stream::inout_sptr data,
-	ImageType_Catacomb imageType)
-	:	Tileset_FAT(data, CAT_FIRST_TILE_OFFSET),
-		imageType(imageType)
+Tileset_Catacomb::Tileset_Catacomb(std::unique_ptr<stream::inout> content,
+	ColourDepth depth)
+	:	Tileset_FAT(std::move(content), CAT_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		Tileset_FAT_FixedTileSize(
+			(depth == ColourDepth::EGA) ? CAT_EGA_TILE_SIZE : CAT_CGA_TILE_SIZE
+		),
+		depth(depth)
 {
-	unsigned int tileSize;
-	switch (this->imageType) {
-		case CAT_EGA: tileSize = CAT_EGA_TILESIZE; break;
-		case CAT_CGA: tileSize = CAT_CGA_TILESIZE; break;
-		default: throw stream::error("Only CGA/EGA tiles are supported.");
-	}
-	stream::pos len = this->data->size();
+	stream::pos len = this->content->size();
 
-	this->data->seekg(0, stream::start);
-	int numImages = len / tileSize;
+	this->content->seekg(0, stream::start);
+	int numImages = len / this->lenTile;
 
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = i * tileSize;
-		fat->size = tileSize;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = i * this->lenTile;
+		fat->storedSize = this->lenTile;
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
+		fat->type = FILETYPE_CAT;
+		this->vcFAT.push_back(std::move(fat));
 	}
 
 }
@@ -220,68 +259,59 @@ Tileset_Catacomb::~Tileset_Catacomb()
 {
 }
 
-int Tileset_Catacomb::getCaps()
+Tileset::Caps Tileset_Catacomb::caps() const
 {
-	return 0;
+	return Caps::Default;
 }
 
-void Tileset_Catacomb::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_Catacomb::colourDepth() const
 {
-	unsigned int tileSize;
-	switch (this->imageType) {
-		case CAT_EGA: tileSize = CAT_EGA_TILESIZE; break;
-		case CAT_CGA: tileSize = CAT_CGA_TILESIZE; break;
-		default: throw stream::error("Only CGA/EGA tiles are supported.");
-	}
-	if (newSize != tileSize) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return this->depth;
 }
 
-void Tileset_Catacomb::getTilesetDimensions(unsigned int *width, unsigned int *height)
+Point Tileset_Catacomb::dimensions() const
 {
-	*width = CAT_TILE_WIDTH;
-	*height = CAT_TILE_HEIGHT;
-	return;
+	return {CAT_TILE_WIDTH, CAT_TILE_HEIGHT};
 }
 
-unsigned int Tileset_Catacomb::getLayoutWidth()
+unsigned int Tileset_Catacomb::layoutWidth() const
 {
 	return 2;
 }
 
-ImagePtr Tileset_Catacomb::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_Catacomb::openImage(FileHandle& id)
 {
-	ImagePtr conv;
-	switch (this->imageType) {
-		case CAT_EGA: {
-			PLANE_LAYOUT planes;
-			planes[PLANE_BLUE] = 1;
-			planes[PLANE_GREEN] = 2;
-			planes[PLANE_RED] = 3;
-			planes[PLANE_INTENSITY] = 4;
-			planes[PLANE_HITMAP] = 0;
-			planes[PLANE_OPACITY] = 0;
-
-			Image_EGAPlanar *ega = new Image_EGAPlanar();
-			ega->setParams(
-				content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT, planes
+	switch (this->depth) {
+		case ColourDepth::EGA:
+			return std::make_unique<Image_EGA_Planar>(
+				this->open(id, true), 0, this->dimensions(),
+				EGAPlaneLayout{
+					EGAPlanePurpose::Blue1,
+					EGAPlanePurpose::Green1,
+					EGAPlanePurpose::Red1,
+					EGAPlanePurpose::Intensity1,
+				},
+				this->palette()
 			);
-
-			conv.reset(ega);
-			break;
-		}
-		case CAT_CGA: {
-			Image_CGA *cga = new Image_CGA(content, 0, CAT_TILE_WIDTH, CAT_TILE_HEIGHT,
-				CGAPal_CyanMagentaBright);
-			conv.reset(cga);
-			break;
-		}
+		case ColourDepth::CGA:
+			return std::make_unique<Image_EGA_Linear>(
+				this->open(id, true), 0, this->dimensions(),
+				EGAPlaneLayout{
+					EGAPlanePurpose::Green1,
+					EGAPlanePurpose::Blue1,
+				},
+				bitstream::endian::bigEndian,
+				createPalette_CGA(CGAPaletteType::CyanMagentaBright)
+			);
+		default:
+			throw stream::error("Invalid depth.");
 	}
-	assert(conv);
-	return conv;
+}
+
+Tileset::FileHandle Tileset_Catacomb::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_CAT, attr);
 }
 
 } // namespace gamegraphics

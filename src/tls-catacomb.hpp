@@ -22,30 +22,21 @@
 #define _CAMOTO_TLS_CATACOMB_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
-#include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
-
-/// Flag for tileset image type.
-enum ImageType_Catacomb {
-	CAT_CGA = 0,
-	CAT_EGA = 1
-};
 
 /// Common code for Catacomb tilesets.
 class TilesetType_Catacomb: virtual public TilesetType
 {
 	public:
 		TilesetType_Catacomb();
-
 		virtual ~TilesetType_Catacomb();
 
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
+			const;
 };
 
 /// CGA-specific code for Catacomb tilesets.
@@ -53,20 +44,15 @@ class TilesetType_CatacombCGA: virtual public TilesetType_Catacomb
 {
 	public:
 		TilesetType_CatacombCGA();
-
 		virtual ~TilesetType_CatacombCGA();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 };
 
 /// EGA-specific code for Catacomb tilesets.
@@ -74,45 +60,15 @@ class TilesetType_CatacombEGA: virtual public TilesetType_Catacomb
 {
 	public:
 		TilesetType_CatacombEGA();
-
 		virtual ~TilesetType_CatacombEGA();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-};
-
-/// Tileset format handler.
-class Tileset_Catacomb: virtual public Tileset_FAT
-{
-	public:
-		Tileset_Catacomb(stream::inout_sptr data, ImageType_Catacomb imageType);
-
-		virtual ~Tileset_Catacomb();
-
-		virtual int getCaps();
-
-		void resize(EntryPtr& id, stream::len newSize);
-
-		virtual void getTilesetDimensions(unsigned int *width, unsigned int *height);
-
-		virtual unsigned int getLayoutWidth();
-
-		// Tileset_FAT
-
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
-
-	protected:
-		ImageType_Catacomb imageType;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 };
 
 } // namespace gamegraphics
