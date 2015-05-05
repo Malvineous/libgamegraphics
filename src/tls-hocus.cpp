@@ -21,8 +21,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "tls-hocus.hpp"
-#include "tls-img.hpp"
+#include "tileset-from_image_list.hpp"
 #include "img-pcx.hpp"
 
 namespace camoto {
@@ -30,9 +31,6 @@ namespace gamegraphics {
 
 #define HP_TILE_WIDTH  16 ///< Width of each tile
 #define HP_TILE_HEIGHT 16 ///< Height of each tile
-
-#define HP_TILES_X (320 / HP_TILE_WIDTH)  ///< Number of tiles in a row
-#define HP_TILES_Y (200 / HP_TILE_HEIGHT) ///< Number of tile rows
 
 TilesetType_Hocus::TilesetType_Hocus()
 {
@@ -42,40 +40,36 @@ TilesetType_Hocus::~TilesetType_Hocus()
 {
 }
 
-std::string TilesetType_Hocus::getCode() const
+std::string TilesetType_Hocus::code() const
 {
 	return "tls-hocus";
 }
 
-std::string TilesetType_Hocus::getFriendlyName() const
+std::string TilesetType_Hocus::friendlyName() const
 {
 	return "Hocus Pocus Tileset";
 }
 
-// Get a list of the known file extensions for this format.
-std::vector<std::string> TilesetType_Hocus::getFileExtensions() const
+std::vector<std::string> TilesetType_Hocus::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pcx");
-	return vcExtensions;
+	return {"pcx"};
 }
 
-std::vector<std::string> TilesetType_Hocus::getGameList() const
+std::vector<std::string> TilesetType_Hocus::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Hocus Pocus");
-	return vcGames;
+	return {"Hocus Pocus"};
 }
 
-TilesetType_Hocus::Certainty TilesetType_Hocus::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Hocus::Certainty TilesetType_Hocus::isInstance(
+	stream::input& content) const
 {
 	ImageType_PCX_LinearVGA pcx;
-	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
+	if (!pcx.isInstance(content)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
 /*
 	SuppData sd;
-	ImagePtr img = pcx.open(psGraphics, sd);
+	std::shared_ptr<Image> img = pcx.open(content, sd);
 
 	unsigned int width, height;
 	img->getDimensions(&width, &height);
@@ -84,25 +78,37 @@ TilesetType_Hocus::Certainty TilesetType_Hocus::isInstance(stream::input_sptr ps
 	return PossiblyYes; // best we can hope for
 }
 
-TilesetPtr TilesetType_Hocus::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Hocus::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	// TODO
+	// TODO (need to pass content to PCX create then get handle back again)
 	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr TilesetType_Hocus::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Hocus::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	ImagePtr img(new Image_PCX(psGraphics, 8, 1));
-	return TilesetPtr(new Image_TilesetFrom(img,
-		HP_TILE_WIDTH, HP_TILE_HEIGHT, HP_TILES_X, HP_TILES_Y));
+	auto img = std::make_unique<Image_PCX>(std::move(content), 8, 1, true);
+	auto imgDims = img->dimensions();
+	return make_Tileset_FromImageList(
+		{
+			{
+				std::move(img),
+				Tileset_FromImageList::Item::AttachmentType::Append,
+				Tileset_FromImageList::Item::SplitType::UniformTiles,
+				{HP_TILE_WIDTH, HP_TILE_HEIGHT},
+				{0, 0, imgDims.x, imgDims.y},
+				{}
+			}
+		},
+		320 / HP_TILE_WIDTH // pref width (tiles per row)
+	);
 }
 
-SuppFilenames TilesetType_Hocus::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Hocus::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 } // namespace gamegraphics

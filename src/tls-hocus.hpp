@@ -26,31 +26,23 @@
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetType_Hocus: virtual public TilesetType {
-
+class TilesetType_Hocus: virtual public TilesetType
+{
 	public:
 		TilesetType_Hocus();
-
 		virtual ~TilesetType_Hocus();
 
-		virtual std::string getCode() const;
-
-		virtual std::string getFriendlyName() const;
-
-		virtual std::vector<std::string> getFileExtensions() const;
-
-		virtual std::vector<std::string> getGameList() const;
-
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
-
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
-
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::shared_ptr<Tileset> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::shared_ptr<Tileset> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
+			const;
 };
 
 } // namespace gamegraphics

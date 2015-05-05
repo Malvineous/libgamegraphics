@@ -21,8 +21,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "tls-wordresc.hpp"
-#include "tls-img.hpp"
+#include "tileset-from_image_list.hpp"
 #include "img-pcx.hpp"
 
 namespace camoto {
@@ -30,9 +31,6 @@ namespace gamegraphics {
 
 #define WR_TILE_WIDTH  16 ///< Width of each tile
 #define WR_TILE_HEIGHT 16 ///< Height of each tile
-
-#define WR_TILES_X (320 / WR_TILE_WIDTH)  ///< Number of tiles in a row
-#define WR_TILES_Y (200 / WR_TILE_HEIGHT) ///< Number of tile rows
 
 TilesetType_Wordresc::TilesetType_Wordresc()
 {
@@ -42,40 +40,36 @@ TilesetType_Wordresc::~TilesetType_Wordresc()
 {
 }
 
-std::string TilesetType_Wordresc::getCode() const
+std::string TilesetType_Wordresc::code() const
 {
 	return "tls-wordresc";
 }
 
-std::string TilesetType_Wordresc::getFriendlyName() const
+std::string TilesetType_Wordresc::friendlyName() const
 {
 	return "Word Rescue Tileset";
 }
 
-// Get a list of the known file extensions for this format.
-std::vector<std::string> TilesetType_Wordresc::getFileExtensions() const
+std::vector<std::string> TilesetType_Wordresc::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("wr");
-	return vcExtensions;
+	return {"wr"};
 }
 
-std::vector<std::string> TilesetType_Wordresc::getGameList() const
+std::vector<std::string> TilesetType_Wordresc::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Word Rescue");
-	return vcGames;
+	return {"Word Rescue"};
 }
 
-TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(
+	stream::input& content) const
 {
 	ImageType_PCX_PlanarEGA pcx;
-	if (!pcx.isInstance(psGraphics)) return DefinitelyNo;
+	if (!pcx.isInstance(content)) return DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
 /*
 	SuppData sd;
-	ImagePtr img = pcx.open(psGraphics, sd);
+	std::shared_ptr<Image> img = pcx.open(content, sd);
 
 	unsigned int width, height;
 	img->getDimensions(&width, &height);
@@ -84,26 +78,37 @@ TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(stream::input_s
 	return PossiblyYes; // best we can hope for
 }
 
-TilesetPtr TilesetType_Wordresc::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Wordresc::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	// TODO
 	throw stream::error("Not yet implemented");
 }
 
-TilesetPtr TilesetType_Wordresc::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Wordresc::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	ImageType_PCX_PlanarEGA pcx;
-	ImagePtr img = pcx.open(psGraphics, suppData);//(new Image_PCX(psGraphics));
-	return TilesetPtr(new Image_TilesetFrom(img,
-		WR_TILE_WIDTH, WR_TILE_HEIGHT, WR_TILES_X, WR_TILES_Y));
+	auto img = std::make_unique<Image_PCX>(std::move(content), 1, 4, true);
+	auto imgDims = img->dimensions();
+	return make_Tileset_FromImageList(
+		{
+			{
+				std::move(img),
+				Tileset_FromImageList::Item::AttachmentType::Append,
+				Tileset_FromImageList::Item::SplitType::UniformTiles,
+				{WR_TILE_WIDTH, WR_TILE_HEIGHT},
+				{0, 0, imgDims.x, imgDims.y},
+				{}
+			}
+		},
+		320 / WR_TILE_WIDTH // pref width (tiles per row)
+	);
 }
 
-SuppFilenames TilesetType_Wordresc::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Wordresc::getRequiredSupps(
+	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 } // namespace gamegraphics
