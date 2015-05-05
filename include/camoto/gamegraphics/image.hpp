@@ -42,6 +42,22 @@ struct Point
 	long y;
 };
 
+inline bool operator== (const Point& a, const Point& b) {
+	return (a.x == b.x) && (a.y == b.y);
+}
+
+inline bool operator!= (const Point& a, const Point& b) {
+	return !(a == b);
+}
+
+struct Rect
+{
+	long x;      ///< X-coordinate, included in rectangle
+	long y;      ///< Y-coordinate, included in rectangle
+	long width;  ///< Width of rectangle
+	long height; ///< Height of rectangle
+};
+
 enum class ColourDepth
 {
 	Mono, ///< Set if the image is 1bpp (black and white)
