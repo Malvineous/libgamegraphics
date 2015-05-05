@@ -23,8 +23,6 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp> // make_unique
-#include "tileset-fat.hpp"
-#include "tileset-fat-fixed_tile_size.hpp"
 #include "pal-gmf-harry.hpp"
 #include "img-vga-raw.hpp"
 #include "tls-harry-chr.hpp"
@@ -45,27 +43,6 @@
 
 namespace camoto {
 namespace gamegraphics {
-
-class Tileset_HarryCHR:
-	virtual public Tileset_FAT,
-	virtual public Tileset_FAT_FixedTileSize
-{
-	public:
-		Tileset_HarryCHR(std::unique_ptr<stream::inout> content,
-			std::shared_ptr<const Palette> pal);
-		virtual ~Tileset_HarryCHR();
-
-		virtual Caps caps() const;
-		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
-		virtual unsigned int layoutWidth() const;
-
-		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
-			File::Attribute attr);
-		using Archive::insert;
-};
 
 TilesetType_HarryCHR::TilesetType_HarryCHR()
 {

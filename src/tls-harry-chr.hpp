@@ -22,6 +22,8 @@
 #define _CAMOTO_TLS_HARRY_CHR_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
+#include "tileset-fat.hpp"
+#include "tileset-fat-fixed_tile_size.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -43,6 +45,27 @@ class TilesetType_HarryCHR: virtual public TilesetType
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
 			const;
+};
+
+class Tileset_HarryCHR:
+	virtual public Tileset_FAT,
+	virtual public Tileset_FAT_FixedTileSize
+{
+	public:
+		Tileset_HarryCHR(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Tileset_HarryCHR();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual unsigned int layoutWidth() const;
+
+		// Tileset_FAT
+		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual FileHandle insert(const FileHandle& idBeforeThis,
+			File::Attribute attr);
+		using Archive::insert;
 };
 
 } // namespace gamearchive
