@@ -276,6 +276,13 @@ class test_archive: public test_main
 		 */
 		bool newIsInstance;
 
+		/// Is the file structure static?
+		/**
+		 * If true, files can be modified, but they can't be resized, relocated,
+		 * added or removed.  Defaults to false.
+		 */
+		bool staticFiles;
+
 		/// Any formats here identify us as an instance of that type, and it
 		/// cannot be avoided.
 		/**
