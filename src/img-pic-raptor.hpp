@@ -31,44 +31,20 @@ namespace gamegraphics {
 class ImageType_RaptorPIC: virtual public ImageType
 {
 	public:
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage) const;
-};
+		ImageType_RaptorPIC();
+		virtual ~ImageType_RaptorPIC();
 
-/// Raptor PIC Image implementation.
-class Image_RaptorPIC: virtual public Image_VGA
-{
-	protected:
-		int width, height;
-		PaletteTablePtr pal;
-
-	public:
-		/// Constructor
-		/**
-		 * No truncate function is required as the image dimensions are fixed, so
-		 * the file size will always remain constant.
-		 *
-		 * @param data
-		 *   VGA data
-		 *
-		 * @param pal
-		 *   Image palette
-		 */
-		Image_RaptorPIC(stream::inout_sptr data, PaletteTablePtr pal);
-		virtual ~Image_RaptorPIC();
-
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual PaletteTablePtr getPalette();
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
+			const;
 };
 
 } // namespace gamegraphics

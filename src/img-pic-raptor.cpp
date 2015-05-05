@@ -19,6 +19,7 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "img-pic-raptor.hpp"
 #include "pal-vga-raw.hpp"
 
@@ -26,60 +27,95 @@
 #define PIC_DATA_OFFSET 20
 
 /// Depth of the Raptor palette file
-#define PIC_PALETTE_DEPTH 6
+#define PIC_PAL_DEPTH 6
 
 namespace camoto {
 namespace gamegraphics {
 
-std::string ImageType_RaptorPIC::getCode() const
+/// Raptor PIC Image implementation.
+class Image_RaptorPIC: virtual public Image_VGA
+{
+	public:
+		/// Constructor
+		/**
+		 * No truncate function is required as the image dimensions are fixed, so
+		 * the file size will always remain constant.
+		 *
+		 * @param data
+		 *   VGA data
+		 *
+		 * @param pal
+		 *   Image palette
+		 */
+		Image_RaptorPIC(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal);
+		virtual ~Image_RaptorPIC();
+
+		virtual Caps caps() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+};
+
+
+ImageType_RaptorPIC::ImageType_RaptorPIC()
+{
+}
+
+ImageType_RaptorPIC::~ImageType_RaptorPIC()
+{
+}
+
+std::string ImageType_RaptorPIC::code() const
 {
 	return "img-pic-raptor";
 }
 
-std::string ImageType_RaptorPIC::getFriendlyName() const
+std::string ImageType_RaptorPIC::friendlyName() const
 {
 	return "Raptor PIC image";
 }
 
-std::vector<std::string> ImageType_RaptorPIC::getFileExtensions() const
+std::vector<std::string> ImageType_RaptorPIC::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pic");
-	return vcExtensions;
+	return {"pic"};
 }
 
-std::vector<std::string> ImageType_RaptorPIC::getGameList() const
+std::vector<std::string> ImageType_RaptorPIC::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Raptor");
-	return vcGames;
+	return {"Raptor"};
 }
 
-ImageType::Certainty ImageType_RaptorPIC::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_RaptorPIC::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psImage->size();
-	if (len < 20) return DefinitelyNo;
+	stream::pos len = content.size();
+	// File too short
+	// TESTED BY: img_pic_raptor_isinstance_c01
+	if (len < PIC_DATA_OFFSET) return DefinitelyNo;
 	uint32_t unknown1, unknown2, unknown3, width, height;
-	psImage->seekg(0, stream::start);
-	psImage
+	content.seekg(0, stream::start);
+	content
 		>> u32le(unknown1)
 		>> u32le(unknown2)
 		>> u32le(unknown3)
 		>> u32le(width)
 		>> u32le(height)
 	;
-	if (width * height + 20 != len) return DefinitelyNo;
 
-	// TESTED BY: TODO
+	// Image dimensions larger than available data
+	// TESTED BY: img_pic_raptor_isinstance_c02
+	if (width * height + PIC_DATA_OFFSET != len) return DefinitelyNo;
+
+	// TESTED BY: img_pic_raptor_isinstance_c00
 	return DefinitelyYes;
 }
 
-ImagePtr ImageType_RaptorPIC::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_RaptorPIC::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psImage->truncate(20);
-	psImage->seekp(0, stream::start);
-	psImage
+	content->truncate(PIC_DATA_OFFSET);
+	content->seekp(0, stream::start);
+	*content
 		<< u32le(1)
 		<< u32le(1)
 		<< u32le(0)
@@ -87,28 +123,25 @@ ImagePtr ImageType_RaptorPIC::create(stream::inout_sptr psImage,
 		<< u32le(0)
 	;
 
-	PaletteTablePtr pal;
-	// Only load the palette if one was given
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
-		pal = palFile->getPalette();
-	}
-	return ImagePtr(new Image_RaptorPIC(psImage, pal));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_RaptorPIC::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_RaptorPIC::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], PIC_PALETTE_DEPTH));
-		pal = palFile->getPalette();
+		auto palFile = std::make_unique<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), PIC_PAL_DEPTH
+		);
+		pal = palFile->palette();
 	}
-	return ImagePtr(new Image_RaptorPIC(psImage, pal));
+	return std::make_unique<Image_RaptorPIC>(std::move(content), pal);
 }
 
-SuppFilenames ImageType_RaptorPIC::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_RaptorPIC::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "palette_dat";
@@ -116,47 +149,44 @@ SuppFilenames ImageType_RaptorPIC::getRequiredSupps(const std::string& filenameI
 }
 
 
-Image_RaptorPIC::Image_RaptorPIC(stream::inout_sptr data, PaletteTablePtr pal)
-	:	Image_VGA(data, PIC_DATA_OFFSET),
-		pal(pal)
+Image_RaptorPIC::Image_RaptorPIC(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Image_VGA(std::move(content), PIC_DATA_OFFSET)
 {
+	this->pal = pal;
 }
 
 Image_RaptorPIC::~Image_RaptorPIC()
 {
 }
 
-int Image_RaptorPIC::getCaps()
+Image::Caps Image_RaptorPIC::caps() const
 {
-	return Image::ColourDepthVGA
-		| Image::CanSetDimensions
-		| (this->pal ? Image::HasPalette : 0)
-	;
+	return this->Image_VGA::caps()
+		| Caps::SetDimensions
+		| (this->pal ? Caps::HasPalette : Caps::Default);
 }
 
-void Image_RaptorPIC::getDimensions(unsigned int *width, unsigned int *height)
+Point Image_RaptorPIC::dimensions() const
 {
-	this->data->seekg(12, stream::start);
-	this->data
-		>> u32le(*width)
-		>> u32le(*height)
+	Point dims;
+	this->content->seekg(12, stream::start);
+	*this->content
+		>> u32le(dims.x)
+		>> u32le(dims.y)
+	;
+	return dims;
+}
+
+void Image_RaptorPIC::dimensions(const Point& newDimensions)
+{
+	this->content->truncate(PIC_DATA_OFFSET + newDimensions.x * newDimensions.y);
+	this->content->seekp(12, stream::start);
+	*this->content
+		<< u32le(newDimensions.x)
+		<< u32le(newDimensions.y)
 	;
 	return;
-}
-
-void Image_RaptorPIC::setDimensions(unsigned int width, unsigned int height)
-{
-	this->data->seekp(12, stream::start);
-	this->data
-		<< u32le(width)
-		<< u32le(height)
-	;
-	return;
-}
-
-PaletteTablePtr Image_RaptorPIC::getPalette()
-{
-	return this->pal;
 }
 
 } // namespace gamegraphics
