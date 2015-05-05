@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <camoto/util.hpp> // make_unique
 #include "img-tv-fog.hpp"
 #include "pal-vga-raw.hpp"
 #include "img-vga-raw.hpp"
@@ -27,6 +28,9 @@
 
 /// Height of the resulting image
 #define TV_FOG_HEIGHT 16
+
+/// Depth of the TV palette file
+#define FOG_PAL_DEPTH 6
 
 namespace camoto {
 namespace gamegraphics {
@@ -39,74 +43,79 @@ ImageType_TVFog::~ImageType_TVFog()
 {
 }
 
-std::string ImageType_TVFog::getCode() const
+std::string ImageType_TVFog::code() const
 {
 	return "img-tv-fog";
 }
 
-std::string ImageType_TVFog::getFriendlyName() const
+std::string ImageType_TVFog::friendlyName() const
 {
 	return "Terminal Velocity fog map";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> ImageType_TVFog::getFileExtensions() const
+std::vector<std::string> ImageType_TVFog::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("fog");
-	return vcExtensions;
+	return {"fog"};
 }
 
-std::vector<std::string> ImageType_TVFog::getGameList() const
+std::vector<std::string> ImageType_TVFog::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Terminal Velocity");
-	return vcGames;
+	return {"Terminal Velocity"};
 }
 
-ImageType::Certainty ImageType_TVFog::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_TVFog::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
-	// TESTED BY: TODO
+	// Image wrong length
+	// TESTED BY: img_tv_fog_isinstance_c01
 	if (len != 4096) return DefinitelyNo;
 
 	uint8_t start[256];
-	psImage->seekg(0, stream::start);
-	psImage->read((char *)start, 256);
+	content.seekg(0, stream::start);
+	content.read((char *)start, 256);
 	for (int i = 0; i < 256; i++) {
-		// TESTED BY: TODO
+		// TESTED BY: img_tv_fog_isinstance_c02
 		if (start[i] != i) return DefinitelyNo;
 	}
 
-	// TESTED BY: TODO
+	// TESTED BY: img_tv_fog_isinstance_c00
 	return DefinitelyYes;
 }
 
-ImagePtr ImageType_TVFog::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_TVFog::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psImage->truncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
+	content->truncate(TV_FOG_WIDTH * TV_FOG_HEIGHT);
+	content->seekp(0, stream::start);
 	uint8_t buf;
 	for (int i = 0; i < TV_FOG_WIDTH * TV_FOG_HEIGHT; i++) {
 		buf = i % 256;
-		psImage->write((char *)&buf, 1);
+		content->write((char *)&buf, 1);
 	}
-
-	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-	PaletteTablePtr pal = palFile->getPalette();
-	return ImagePtr(new Image_VGARaw(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_TVFog::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_TVFog::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-	PaletteTablePtr pal = palFile->getPalette();
-	return ImagePtr(new Image_VGARaw(psImage, TV_FOG_WIDTH, TV_FOG_HEIGHT, pal));
+	std::shared_ptr<const Palette> pal;
+	// Only load the palette if one was given
+	if (suppData.find(SuppItem::Palette) != suppData.end()) {
+		auto palFile = std::make_unique<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), FOG_PAL_DEPTH
+		);
+		pal = palFile->palette();
+	}
+	return std::make_unique<Image_VGARaw>(
+		std::move(content), Point{TV_FOG_WIDTH, TV_FOG_HEIGHT}, pal
+	);
 }
 
-SuppFilenames ImageType_TVFog::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_TVFog::getRequiredSupps(
+	const std::string& filenameImage) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =
