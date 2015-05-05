@@ -46,48 +46,26 @@ TilesetType_SAgent2k::~TilesetType_SAgent2k()
 {
 }
 
-std::string TilesetType_SAgent2k::getCode() const
+std::string TilesetType_SAgent2k::code() const
 {
 	return "tls-sagent-2k";
 }
 
-std::string TilesetType_SAgent2k::getFriendlyName() const
+std::string TilesetType_SAgent2k::friendlyName() const
 {
 	return "Secret Agent 2K Concatenated Tileset";
 }
 
-std::vector<std::string> TilesetType_SAgent2k::getFileExtensions() const
+std::vector<std::string> TilesetType_SAgent2k::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("gfx");
-	return vcExtensions;
+	return {"gfx"};
 }
 
-std::vector<std::string> TilesetType_SAgent2k::getGameList() const
+std::vector<std::string> TilesetType_SAgent2k::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Secret Agent");
-	return vcGames;
+	return {"Secret Agent"};
 }
 
-TilesetType_SAgent2k::Certainty TilesetType_SAgent2k::isInstance(
-	stream::input_sptr psGraphics) const
-{
-	return this->TilesetType_CCavesMain::isInstance(psGraphics);
-}
-
-TilesetPtr TilesetType_SAgent2k::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
-{
-	return this->TilesetType_CCavesMain::create(psGraphics, suppData);
-}
-
-// Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr TilesetType_SAgent2k::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
-{
-	return this->TilesetType_CCavesMain::open(psGraphics, suppData);
-}
 
 //
 // TilesetType_SAgent8k
@@ -102,47 +80,24 @@ TilesetType_SAgent8k::~TilesetType_SAgent8k()
 {
 }
 
-std::string TilesetType_SAgent8k::getCode() const
+std::string TilesetType_SAgent8k::code() const
 {
 	return "tls-sagent-8k";
 }
 
-std::string TilesetType_SAgent8k::getFriendlyName() const
+std::string TilesetType_SAgent8k::friendlyName() const
 {
 	return "Secret Agent 8K Concatenated Tileset";
 }
 
-std::vector<std::string> TilesetType_SAgent8k::getFileExtensions() const
+std::vector<std::string> TilesetType_SAgent8k::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("gfx");
-	return vcExtensions;
+	return {"gfx"};
 }
 
-std::vector<std::string> TilesetType_SAgent8k::getGameList() const
+std::vector<std::string> TilesetType_SAgent8k::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Secret Agent");
-	return vcGames;
-}
-
-TilesetType_SAgent8k::Certainty TilesetType_SAgent8k::isInstance(
-	stream::input_sptr psGraphics) const
-{
-	return this->TilesetType_CCavesMain::isInstance(psGraphics);
-}
-
-TilesetPtr TilesetType_SAgent8k::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
-{
-	return this->TilesetType_CCavesMain::create(psGraphics, suppData);
-}
-
-// Preconditions: isInstance() has returned > EC_DEFINITELY_NO
-TilesetPtr TilesetType_SAgent8k::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
-{
-	return this->TilesetType_CCavesMain::open(psGraphics, suppData);
+	return {"Secret Agent"};
 }
 
 } // namespace gamegraphics

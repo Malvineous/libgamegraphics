@@ -33,15 +33,10 @@ class TilesetType_SAgent2k: virtual public TilesetType_CCavesMain
 		TilesetType_SAgent2k();
 		virtual ~TilesetType_SAgent2k();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
 };
 
 class TilesetType_SAgent8k: virtual public TilesetType_CCavesMain
@@ -50,15 +45,10 @@ class TilesetType_SAgent8k: virtual public TilesetType_CCavesMain
 		TilesetType_SAgent8k();
 		virtual ~TilesetType_SAgent8k();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
-		virtual Certainty isInstance(stream::input_sptr fsGraphics) const;
-		virtual TilesetPtr create(stream::inout_sptr psGraphics,
-			SuppData& suppData) const;
-		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
-			SuppData& suppData) const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
 };
 
 } // namespace gamegraphics
