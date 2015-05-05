@@ -199,60 +199,6 @@ stream::len putNextChar(std::shared_ptr<stream::output> src, uint8_t *lastChar, 
 }
 
 
-/// Standard PCX Image implementation.
-class Image_PCX: virtual public Image
-{
-	public:
-		/// Constructor
-		/**
-		 * Create an image from the supplied stream.
-		 *
-		 * @param content
-		 *   VGA image data.
-		 *
-		 * @param bitsPerPlane
-		 *   Number of bits per pixel in each plane.  This must match the file being
-		 *   opened or a stream::error will be thrown.
-		 *
-		 * @param numPlanes
-		 *   Number of colour planes.  This must match the file being opened or a
-		 *   stream::error will be thrown.
-		 *
-		 * @param useRLE
-		 *   true to RLE encode the pixel data, false not to.  Almost all PCX files
-		 *   are RLE-encoded.  This value is only used when writing.  When reading,
-		 *   the file can have RLE on or not, it doesn't matter.  When set to false,
-		 *   a file will always be written without RLE.  When set to true, a file
-		 *   can be written with RLE on or off, depending on what the original
-		 *   file's setting was.
-		 *
-		 * @throw stream::error
-		 *   Read error or invalid file format.
-		 */
-		Image_PCX(std::shared_ptr<stream::inout> content, uint8_t bitsPerPlane,
-			uint8_t numPlanes, bool useRLE);
-		virtual ~Image_PCX();
-
-		virtual Caps caps() const;
-		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
-		virtual void dimensions(const Point& newDimensions);
-		virtual Pixels convert() const;
-		virtual Pixels convert_mask() const;
-		virtual void convert(const Pixels& newContent,
-			const Pixels& newMask);
-
-	protected:
-		std::shared_ptr<stream::inout> content;
-		uint8_t ver;
-		uint8_t encoding;
-		uint8_t bitsPerPlane;
-		uint8_t numPlanes;
-		bool useRLE;
-		Point dims;
-};
-
-
 ImageType_PCXBase::ImageType_PCXBase(int bitsPerPlane, int numPlanes,
 	bool useRLE)
 	:	bitsPerPlane(bitsPerPlane),
@@ -275,9 +221,7 @@ std::string ImageType_PCXBase::code() const
 
 std::vector<std::string> ImageType_PCXBase::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pcx");
-	return vcExtensions;
+	return {"pcx"};
 }
 
 ImageType::Certainty ImageType_PCXBase::isInstance(
@@ -410,9 +354,7 @@ std::string ImageType_PCX_PlanarEGA::friendlyName() const
 
 std::vector<std::string> ImageType_PCX_PlanarEGA::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Word Rescue");
-	return vcGames;
+	return {"Word Rescue"};
 }
 
 
@@ -432,9 +374,7 @@ std::string ImageType_PCX_LinearVGA::friendlyName() const
 
 std::vector<std::string> ImageType_PCX_LinearVGA::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Halloween Harry");
-	return vcGames;
+	return {"Halloween Harry"};
 }
 
 
@@ -454,14 +394,13 @@ std::string ImageType_PCX_LinearVGA_NoRLE::friendlyName() const
 
 std::vector<std::string> ImageType_PCX_LinearVGA_NoRLE::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 
-Image_PCX::Image_PCX(std::shared_ptr<stream::inout> content,
+Image_PCX::Image_PCX(std::unique_ptr<stream::inout> content,
 	uint8_t bitsPerPlane, uint8_t numPlanes, bool useRLE)
-	:	content(content),
+	:	content(std::move(content)),
 		bitsPerPlane(bitsPerPlane),
 		numPlanes(numPlanes),
 		useRLE(useRLE)

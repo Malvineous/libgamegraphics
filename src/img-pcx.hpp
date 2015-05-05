@@ -101,6 +101,59 @@ class ImageType_PCX_LinearVGA_NoRLE: virtual public ImageType_PCXBase
 		virtual std::vector<std::string> games() const;
 };
 
+/// Standard PCX Image implementation.
+class Image_PCX: virtual public Image
+{
+	public:
+		/// Constructor
+		/**
+		 * Create an image from the supplied stream.
+		 *
+		 * @param content
+		 *   VGA image data.
+		 *
+		 * @param bitsPerPlane
+		 *   Number of bits per pixel in each plane.  This must match the file being
+		 *   opened or a stream::error will be thrown.
+		 *
+		 * @param numPlanes
+		 *   Number of colour planes.  This must match the file being opened or a
+		 *   stream::error will be thrown.
+		 *
+		 * @param useRLE
+		 *   true to RLE encode the pixel data, false not to.  Almost all PCX files
+		 *   are RLE-encoded.  This value is only used when writing.  When reading,
+		 *   the file can have RLE on or not, it doesn't matter.  When set to false,
+		 *   a file will always be written without RLE.  When set to true, a file
+		 *   can be written with RLE on or off, depending on what the original
+		 *   file's setting was.
+		 *
+		 * @throw stream::error
+		 *   Read error or invalid file format.
+		 */
+		Image_PCX(std::unique_ptr<stream::inout> content, uint8_t bitsPerPlane,
+			uint8_t numPlanes, bool useRLE);
+		virtual ~Image_PCX();
+
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual void dimensions(const Point& newDimensions);
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
+
+	protected:
+		std::shared_ptr<stream::inout> content;
+		uint8_t ver;
+		uint8_t encoding;
+		uint8_t bitsPerPlane;
+		uint8_t numPlanes;
+		bool useRLE;
+		Point dims;
+};
+
 } // namespace gamegraphics
 } // namespace camoto
 
