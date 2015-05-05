@@ -22,10 +22,10 @@
 #include "../src/img-ddave.hpp"
 #include "test-image.hpp"
 
-class test_img_img_ddave_cga: public test_image
+class test_img_ddave_cga: public test_image
 {
 	public:
-		test_img_img_ddave_cga()
+		test_img_ddave_cga()
 		{
 			this->type = "img-ddave-cga";
 			this->hasMask = false;
@@ -111,10 +111,10 @@ class test_img_img_ddave_cga: public test_image
 		}
 };
 
-class test_img_img_ddave_ega: public test_image
+class test_img_ddave_ega: public test_image
 {
 	public:
-		test_img_img_ddave_ega()
+		test_img_ddave_ega()
 		{
 			this->type = "img-ddave-ega";
 			this->hasMask = false;
@@ -198,10 +198,10 @@ class test_img_img_ddave_ega: public test_image
 		}
 };
 
-class test_img_img_ddave_vga: public test_image
+class test_img_ddave_vga: public test_image
 {
 	public:
-		test_img_img_ddave_vga()
+		test_img_ddave_vga()
 		{
 			this->type = "img-ddave-vga";
 			this->hasMask = false;
@@ -286,6 +286,6 @@ class test_img_img_ddave_vga: public test_image
 		}
 };
 
-IMPLEMENT_TESTS(img_img_ddave_cga);
-IMPLEMENT_TESTS(img_img_ddave_ega);
-IMPLEMENT_TESTS(img_img_ddave_vga);
+IMPLEMENT_TESTS(img_ddave_cga);
+IMPLEMENT_TESTS(img_ddave_ega);
+IMPLEMENT_TESTS(img_ddave_vga);

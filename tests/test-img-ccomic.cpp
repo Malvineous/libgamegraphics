@@ -28,6 +28,8 @@ class test_img_ccomic: public test_image
 			this->type = "img-ccomic";
 			this->hasMask = false;
 			this->hasHitmask = false;
+			this->fixedDimensions = true;
+			this->dimensions = {320, 200};
 		}
 
 		void addTests()
