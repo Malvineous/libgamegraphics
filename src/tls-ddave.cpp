@@ -313,7 +313,7 @@ Tileset_DDave::~Tileset_DDave()
 
 Tileset::Caps Tileset_DDave::caps() const
 {
-	return (this->pal ? Tileset::Caps::HasPalette : Tileset::Caps::Default);
+	return (this->pal ? Caps::HasPalette : Caps::Default);
 }
 
 ColourDepth Tileset_DDave::colourDepth() const

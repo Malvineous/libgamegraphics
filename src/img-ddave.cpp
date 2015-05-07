@@ -56,7 +56,7 @@ Image_DDaveCGA::~Image_DDaveCGA()
 Image::Caps Image_DDaveCGA::caps() const
 {
 	return this->Image_EGA_Linear::caps() // handles palette caps
-		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
+		| (this->fixedSize ? Caps::Default : Caps::SetDimensions);
 }
 
 ColourDepth Image_DDaveCGA::colourDepth() const
@@ -112,7 +112,7 @@ Image_DDaveEGA::~Image_DDaveEGA()
 Image::Caps Image_DDaveEGA::caps() const
 {
 	return this->Image_EGA_RowPlanar::caps()
-		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
+		| (this->fixedSize ? Caps::Default : Caps::SetDimensions);
 }
 
 void Image_DDaveEGA::convert(const Pixels& newContent,
@@ -161,8 +161,8 @@ Image_DDaveVGA::~Image_DDaveVGA()
 Image::Caps Image_DDaveVGA::caps() const
 {
 	return this->Image_VGA::caps()
-		| Image::Caps::HasPalette
-		| (this->fixedSize ? Image::Caps::Default : Image::Caps::SetDimensions);
+		| Caps::HasPalette
+		| (this->fixedSize ? Caps::Default : Caps::SetDimensions);
 }
 
 Point Image_DDaveVGA::dimensions() const
@@ -172,7 +172,7 @@ Point Image_DDaveVGA::dimensions() const
 
 void Image_DDaveVGA::dimensions(const Point& newDimensions)
 {
-	assert(this->caps() & Image::Caps::SetDimensions);
+	assert(this->caps() & Caps::SetDimensions);
 	this->dims = newDimensions;
 	return;
 }

@@ -74,8 +74,8 @@ Tileset_EGAApogee::~Tileset_EGAApogee()
 
 Tileset::Caps Tileset_EGAApogee::caps() const
 {
-	return Tileset::Caps::HasDimensions
-		| (this->pal ? Tileset::Caps::HasPalette : Tileset::Caps::Default);
+	return Caps::HasDimensions
+		| (this->pal ? Caps::HasPalette : Caps::Default);
 }
 
 ColourDepth Tileset_EGAApogee::colourDepth() const

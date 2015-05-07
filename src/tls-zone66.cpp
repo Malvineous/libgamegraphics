@@ -238,7 +238,7 @@ Tileset_Zone66::~Tileset_Zone66()
 
 Tileset::Caps Tileset_Zone66::caps() const
 {
-	return Tileset::Caps::HasPalette;
+	return Caps::HasPalette;
 }
 
 ColourDepth Tileset_Zone66::colourDepth() const

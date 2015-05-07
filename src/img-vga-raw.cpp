@@ -130,7 +130,7 @@ Image_VGARaw::~Image_VGARaw()
 
 Image::Caps Image_VGARaw::caps() const
 {
-	return Image::Caps::HasPalette;
+	return Caps::HasPalette;
 }
 
 Point Image_VGARaw::dimensions() const

@@ -482,9 +482,9 @@ Image_PCX::~Image_PCX()
 Image::Caps Image_PCX::caps() const
 {
 	return
-		  Image::Caps::SetDimensions
-		| Image::Caps::HasPalette
-		| Image::Caps::SetPalette
+		  Caps::SetDimensions
+		| Caps::HasPalette
+		| Caps::SetPalette
 	;
 }
 
@@ -504,7 +504,7 @@ Point Image_PCX::dimensions() const
 
 void Image_PCX::dimensions(const Point& newDimensions)
 {
-	assert(this->caps() & Image::Caps::SetDimensions);
+	assert(this->caps() & Caps::SetDimensions);
 	this->dims = newDimensions;
 	return;
 }

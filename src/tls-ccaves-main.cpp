@@ -198,7 +198,7 @@ Tileset_CCavesMain::~Tileset_CCavesMain()
 
 Tileset::Caps Tileset_CCavesMain::caps() const
 {
-	return Tileset::Caps::Default;
+	return Caps::Default;
 }
 
 ColourDepth Tileset_CCavesMain::colourDepth() const

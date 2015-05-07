@@ -200,7 +200,7 @@ Image_Zone66Tile::~Image_Zone66Tile()
 
 Image::Caps Image_Zone66Tile::caps() const
 {
-	return Image::Caps::SetDimensions | Image::Caps::HasPalette;
+	return Caps::SetDimensions | Caps::HasPalette;
 }
 
 ColourDepth Image_Zone66Tile::colourDepth() const
