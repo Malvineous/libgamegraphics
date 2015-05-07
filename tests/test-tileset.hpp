@@ -36,6 +36,10 @@ class test_tileset: public test_archive
 
 		virtual void addTests();
 		virtual void prepareTest(bool empty);
+		virtual Archive::FileHandle getFileAt(const Archive::FileVector& files,
+			unsigned int index);
+		virtual std::shared_ptr<Tileset> openTileset(
+			std::unique_ptr<stream::inout> content,	bool create);
 
 		virtual void test_isInstance(ArchiveType::Certainty result,
 			const std::string& content, unsigned int testNumber);

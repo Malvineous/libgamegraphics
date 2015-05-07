@@ -18,12 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_SUBIMAGE_HPP_
-#define _CAMOTO_SUBIMAGE_HPP_
+#ifndef _CAMOTO_IMAGE_SUB_HPP_
+#define _CAMOTO_IMAGE_SUB_HPP_
 
-#include <boost/function.hpp>
-#include <camoto/gamegraphics/imagetype.hpp>
-#include "baseimage.hpp"
+#include <functional>
+#include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -31,13 +30,13 @@ namespace gamegraphics {
 /// Function to call when a subimage has been changed.
 /**
  * This function should make note that one (or more) subimages have been
- * changed, and eventually call img->fromStandard() to write the changes
+ * changed, and eventually call img->convert() to write the changes
  * to the underlying image in one pass.
  */
-typedef boost::function<void()> fn_image_changed;
+typedef std::function<void()> fn_image_changed;
 
 /// Image stored within another Image.
-class Image_Sub: virtual public Image_Base
+class Image_Sub: virtual public Image
 {
 	public:
 		/// Constructor
@@ -48,11 +47,11 @@ class Image_Sub: virtual public Image_Base
 		 *   Underlying image.
 		 *
 		 * @param stdImg
-		 *   Value of img->toStandard(), supplied here to avoid calling it once for
+		 *   Value of img->convert(), supplied here to avoid calling it once for
 		 *   every sub-image.
 		 *
 		 * @param stdMask
-		 *   Value of img->toStandardMask(), supplied here to avoid calling it once
+		 *   Value of img->convert_mask(), supplied here to avoid calling it once
 		 *   for every sub-image.
 		 *
 		 * @param xOffset
@@ -72,38 +71,37 @@ class Image_Sub: virtual public Image_Base
 		 *   underlying image.
 		 *
 		 * @param fnImageChanged
-		 *   Callback function called when fromStandard() has been used to update
+		 *   Callback function called when convert() has been used to update
 		 *   this subimage.  Unless this function has been called at least once,
 		 *   there is no need for the owner to write back to img.
 		 */
-		Image_Sub(ImagePtr img, StdImageDataPtr stdImg, StdImageDataPtr stdMask,
-			unsigned int xOffset, unsigned int yOffset, unsigned int width,
-			unsigned int height, fn_image_changed fnImageChanged);
+		Image_Sub(std::shared_ptr<Pixels> stdImg, std::shared_ptr<Pixels> stdMask,
+			Point dimsFull, Rect dimsViewport, ColourDepth depth,
+			std::shared_ptr<const Palette> pal, fn_image_changed fnImageChanged);
 		virtual ~Image_Sub();
 
-		virtual int getCaps();
-		virtual void getDimensions(unsigned int *width, unsigned int *height);
-		virtual void setDimensions(unsigned int width, unsigned int height);
-		virtual StdImageDataPtr toStandard();
-		virtual StdImageDataPtr toStandardMask();
-		virtual void fromStandard(StdImageDataPtr newContent,
-			StdImageDataPtr newMask);
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual Point dimensions() const;
+		virtual Pixels convert() const;
+		virtual Pixels convert_mask() const;
+		virtual void convert(const Pixels& newContent,
+			const Pixels& newMask);
 
 	protected:
-		/// Common code between toStandard() and toStandardMask()
-		StdImageDataPtr extractPortion(const StdImageDataPtr& source);
+		/// Common code between convert() and convert_mask()
+		Pixels extractPortion(const Pixels& source) const;
 
-		ImagePtr img;               ///< Underlying image
-		StdImageDataPtr parent;     ///< Pixel data cache
-		StdImageDataPtr parentMask; ///< Pixel data cache for mask
-		unsigned int xOffset;
-		unsigned int yOffset;
-		unsigned int width;
-		unsigned int height;
+		std::shared_ptr<Pixels> stdImg;     ///< Pixel data cache
+		std::shared_ptr<Pixels> stdMask; ///< Pixel data cache for mask
+		Point dimsFull;
+		Rect dimsViewport;
+		ColourDepth depth;
+		std::shared_ptr<const Palette> pal;
 		fn_image_changed fnImageChanged; ///< Called to flag a change
 };
 
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_SUBIMAGE_HPP_
+#endif // _CAMOTO_IMAGE_SUB_HPP_

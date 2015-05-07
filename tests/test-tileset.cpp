@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <functional>
 #include <camoto/util.hpp>
-#include <camoto/gamearchive/archive-fat.hpp> // getFileAt()
+#include "../src/tileset-from_image_list.hpp" // Tileset_FromImageList::ImageListEntry
 #include "test-tileset.hpp"
 #include "test-image.hpp"
 
@@ -67,35 +67,13 @@ void test_tileset::addTests()
 
 void test_tileset::prepareTest(bool emptyArchive)
 {
-	auto pTilesetType = TilesetManager::byCode(this->type);
-	BOOST_REQUIRE_MESSAGE(pTilesetType, "Could not find tileset type " + this->type);
-
 	// Make this->suppData valid
 	this->resetSuppData(emptyArchive);
 	this->populateSuppData();
 
 	this->base = std::make_unique<stream::string>();
 
-	if (emptyArchive) {
-		BOOST_TEST_CHECKPOINT("About to create new empty instance of "
-			+ this->basename);
-		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
-		// informative without it.
-		//BOOST_REQUIRE_NO_THROW(
-			this->pArchive = pTilesetType->create(
-				stream_wrap(this->base), this->suppData);
-		//);
-	} else {
-		*base << this->initialstate();
-		BOOST_TEST_CHECKPOINT("About to open " + this->basename
-			+ " initialstate as an archive");
-		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
-		// informative without it.
-		//BOOST_REQUIRE_NO_THROW(
-		this->pArchive = pTilesetType->open(
-			stream_wrap(this->base), this->suppData);
-		//);
-	}
+	this->pArchive = this->openTileset(stream_wrap(this->base), emptyArchive);
 	BOOST_REQUIRE_MESSAGE(this->pArchive, "Could not create tileset class");
 
 	if (this->lenMaxFilename < 0) {
@@ -106,6 +84,44 @@ void test_tileset::prepareTest(bool emptyArchive)
 		this->filename[3] = "dummy";
 	}
 	return;
+}
+Archive::FileHandle test_tileset::getFileAt(const Archive::FileVector& files,
+	unsigned int index)
+{
+	for (const auto& i : files) {
+		auto pEntry = dynamic_cast<const Tileset_FromImageList::ImageListEntry *>(&*i);
+		if (pEntry) {
+			if (pEntry->index == index) return i;
+		}
+	}
+	// Fall back to parent implementation
+	return this->test_archive::getFileAt(files, index);
+}
+
+std::shared_ptr<Tileset> test_tileset::openTileset(
+	std::unique_ptr<stream::inout> content,	bool create)
+{
+	auto pTilesetType = TilesetManager::byCode(this->type);
+	BOOST_REQUIRE_MESSAGE(pTilesetType, "Could not find tileset type " + this->type);
+
+	if (create) {
+		BOOST_TEST_CHECKPOINT("About to create new empty instance of "
+			+ this->basename);
+		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
+		// informative without it.
+		//BOOST_REQUIRE_NO_THROW(
+			return pTilesetType->create(stream_wrap(this->base), this->suppData);
+		//);
+	} else {
+		*base << this->initialstate();
+		BOOST_TEST_CHECKPOINT("About to open " + this->basename
+			+ " initialstate as an archive");
+		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
+		// informative without it.
+		//BOOST_REQUIRE_NO_THROW(
+		return pTilesetType->open(stream_wrap(this->base), this->suppData);
+		//);
+	}
 }
 
 void test_tileset::test_isInstance(ArchiveType::Certainty result,
