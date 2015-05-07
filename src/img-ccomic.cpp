@@ -54,9 +54,7 @@ std::string ImageType_CComic::friendlyName() const
 
 std::vector<std::string> ImageType_CComic::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("ega");
-	return vcExtensions;
+	return {"ega"};
 }
 
 std::vector<std::string> ImageType_CComic::games() const

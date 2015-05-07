@@ -60,8 +60,7 @@ std::string ImageType_Zone66Tile::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> ImageType_Zone66Tile::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	return vcExtensions;
+	return {};
 }
 
 std::vector<std::string> ImageType_Zone66Tile::games() const

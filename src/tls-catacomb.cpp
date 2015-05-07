@@ -87,25 +87,21 @@ TilesetType_Catacomb::~TilesetType_Catacomb()
 
 std::vector<std::string> TilesetType_Catacomb::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("cat");
-	vcExtensions.push_back("ca2");
-	return vcExtensions;
+	return {"cat", "ca2"};
 }
 
 std::vector<std::string> TilesetType_Catacomb::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Catacomb");
-	vcGames.push_back("Catacomb II");
-	return vcGames;
+	return {
+		"Catacomb",
+		"Catacomb II"
+	};
 }
 
 SuppFilenames TilesetType_Catacomb::getRequiredSupps(
 	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 

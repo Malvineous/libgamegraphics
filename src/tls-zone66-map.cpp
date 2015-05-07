@@ -95,9 +95,7 @@ std::string TilesetType_Zone66Map::friendlyName() const
 
 std::vector<std::string> TilesetType_Zone66Map::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("z66");
-	return vcExtensions;
+	return {"z66"};
 }
 
 std::vector<std::string> TilesetType_Zone66Map::games() const

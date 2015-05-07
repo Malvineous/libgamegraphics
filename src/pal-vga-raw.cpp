@@ -45,9 +45,7 @@ std::string ImageType_Palette_VGA::friendlyName() const
 
 std::vector<std::string> ImageType_Palette_VGA::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pal");
-	return vcExtensions;
+	return {"pal"};
 }
 
 std::vector<std::string> ImageType_Palette_VGA::games() const
@@ -121,9 +119,7 @@ std::string ImageType_VGA8Palette::friendlyName() const
 
 std::vector<std::string> ImageType_VGA8Palette::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pal");
-	return vcExtensions;
+	return {"pal"};
 }
 
 std::vector<std::string> ImageType_VGA8Palette::games() const

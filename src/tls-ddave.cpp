@@ -88,9 +88,7 @@ TilesetType_DDave::~TilesetType_DDave()
 
 std::vector<std::string> TilesetType_DDave::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("dav");
-	return vcExtensions;
+	return {"dav"};
 }
 
 std::vector<std::string> TilesetType_DDave::games() const

@@ -68,9 +68,7 @@ std::string TilesetType_Jill::getFriendlyName() const
 
 std::vector<std::string> TilesetType_Jill::getFileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("sha");
-	return vcExtensions;
+	return {"sha"};
 }
 
 std::vector<std::string> TilesetType_Jill::getGameList() const

@@ -92,9 +92,7 @@ std::string TilesetType_CComic2::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> TilesetType_CComic2::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("0");
-	return vcExtensions;
+	return {"0"};
 }
 
 std::vector<std::string> TilesetType_CComic2::games() const

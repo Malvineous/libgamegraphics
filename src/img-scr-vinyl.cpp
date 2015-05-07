@@ -45,9 +45,7 @@ std::string ImageType_VinylSCR::friendlyName() const
 
 std::vector<std::string> ImageType_VinylSCR::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("scr");
-	return vcExtensions;
+	return {"scr"};
 }
 
 std::vector<std::string> ImageType_VinylSCR::games() const

@@ -45,9 +45,7 @@ std::string ImageType_Palette_HarryGMF::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> ImageType_Palette_HarryGMF::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("gmf");
-	return vcExtensions;
+	return {"gmf"};
 }
 
 std::vector<std::string> ImageType_Palette_HarryGMF::games() const

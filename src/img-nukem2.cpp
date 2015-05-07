@@ -72,9 +72,7 @@ std::string ImageType_Nukem2::friendlyName() const
 
 std::vector<std::string> ImageType_Nukem2::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
+	return {"mni"};
 }
 
 std::vector<std::string> ImageType_Nukem2::games() const

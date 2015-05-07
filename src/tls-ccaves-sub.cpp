@@ -65,9 +65,7 @@ std::string TilesetType_CCavesSub::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> TilesetType_CCavesSub::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("gfx");
-	return vcExtensions;
+	return {"gfx"};
 }
 
 std::vector<std::string> TilesetType_CCavesSub::games() const

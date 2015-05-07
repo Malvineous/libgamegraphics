@@ -27,9 +27,7 @@ namespace gamegraphics {
 
 std::vector<std::string> ImageType_VGARawBase::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("pal");
-	return vcExtensions;
+	return {"pal"};
 }
 
 std::vector<std::string> ImageType_VGARawBase::games() const

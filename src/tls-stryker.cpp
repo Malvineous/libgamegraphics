@@ -78,9 +78,7 @@ std::string TilesetType_Stryker::friendlyName() const
 
 std::vector<std::string> TilesetType_Stryker::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("dr1");
-	return vcExtensions;
+	return {"dr1"};
 }
 
 std::vector<std::string> TilesetType_Stryker::games() const

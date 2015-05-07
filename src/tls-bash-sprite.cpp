@@ -87,9 +87,7 @@ std::string TilesetType_MonsterBashSprite::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> TilesetType_MonsterBashSprite::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("spr");
-	return vcExtensions;
+	return {"spr"};
 }
 
 std::vector<std::string> TilesetType_MonsterBashSprite::games() const

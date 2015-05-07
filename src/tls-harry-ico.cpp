@@ -84,9 +84,7 @@ std::string TilesetType_HarryICO::friendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> TilesetType_HarryICO::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("ico");
-	return vcExtensions;
+	return {"ico"};
 }
 
 std::vector<std::string> TilesetType_HarryICO::games() const

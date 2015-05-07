@@ -143,9 +143,7 @@ std::string TilesetType_Vinyl::getFriendlyName() const
 
 std::vector<std::string> TilesetType_Vinyl::getFileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("tls");
-	return vcExtensions;
+	return {"tls"};
 }
 
 std::vector<std::string> TilesetType_Vinyl::getGameList() const

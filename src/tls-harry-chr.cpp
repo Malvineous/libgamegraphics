@@ -64,9 +64,7 @@ std::string TilesetType_HarryCHR::friendlyName() const
 
 std::vector<std::string> TilesetType_HarryCHR::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("chr");
-	return vcExtensions;
+	return {"chr"};
 }
 
 std::vector<std::string> TilesetType_HarryCHR::games() const

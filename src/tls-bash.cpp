@@ -109,9 +109,7 @@ std::string TilesetType_MonsterBashBackground::friendlyName() const
 
 std::vector<std::string> TilesetType_MonsterBashBackground::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("tbg");
-	return vcExtensions;
+	return {"tbg"};
 }
 
 std::vector<std::string> TilesetType_MonsterBashBackground::games() const
@@ -178,10 +176,7 @@ std::string TilesetType_MonsterBashForeground::friendlyName() const
 
 std::vector<std::string> TilesetType_MonsterBashForeground::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("tfg");
-	vcExtensions.push_back("tbn");
-	return vcExtensions;
+	return {"tfg", "tbn"};
 }
 
 std::vector<std::string> TilesetType_MonsterBashForeground::games() const

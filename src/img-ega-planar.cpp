@@ -207,8 +207,7 @@ std::string ImageType_EGA_RawPlanarBGRI::friendlyName() const
 
 std::vector<std::string> ImageType_EGA_RawPlanarBGRI::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	return vcExtensions;
+	return {};
 }
 
 std::vector<std::string> ImageType_EGA_RawPlanarBGRI::games() const

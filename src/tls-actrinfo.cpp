@@ -124,9 +124,7 @@ std::string TilesetType_Actrinfo::getFriendlyName() const
 
 std::vector<std::string> TilesetType_Actrinfo::getFileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
+	return {"mni"};
 }
 
 std::vector<std::string> TilesetType_Actrinfo::getGameList() const

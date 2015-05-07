@@ -112,9 +112,7 @@ std::string TilesetType_HarryHSB::friendlyName() const
 
 std::vector<std::string> TilesetType_HarryHSB::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("hsb");
-	return vcExtensions;
+	return {"hsb"};
 }
 
 std::vector<std::string> TilesetType_HarryHSB::games() const

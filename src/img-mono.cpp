@@ -45,8 +45,7 @@ std::string ImageType_Mono::getFriendlyName() const
 // Get a list of the known file extensions for this format.
 std::vector<std::string> ImageType_Mono::getFileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	return vcExtensions;
+	return {};
 }
 
 std::vector<std::string> ImageType_Mono::getGameList() const

@@ -69,16 +69,12 @@ std::string TilesetType_CCavesMain::friendlyName() const
 
 std::vector<std::string> TilesetType_CCavesMain::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("gfx");
-	return vcExtensions;
+	return {"gfx"};
 }
 
 std::vector<std::string> TilesetType_CCavesMain::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Crystal Caves");
-	return vcGames;
+	return {"Crystal Caves"};
 }
 
 TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
