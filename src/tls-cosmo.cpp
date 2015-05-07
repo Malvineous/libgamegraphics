@@ -48,11 +48,14 @@ namespace gamegraphics {
 /// Size in bytes of Cosmo backdrop (40 tiles by 18 tiles)
 #define CCA_SIZE_BACKDROP ((40 * 18) * CCA_TILE_SIZE(PlaneCount::Solid))
 
-/// Size in bytes of Duke Nukem II backdrop (40 tiles by 25 tiles)
+/// Size in bytes of Duke Nukem II backdrop and CZone solid (40 tiles by 25 tiles)
 #define DN2_SIZE_BACKDROP ((40 * 25) * CCA_TILE_SIZE(PlaneCount::Solid))
 
-/// Size in bytes of masked Cosmo tileset (40 tiles by 100 tiles)
+/// Size in bytes of masked Cosmo tileset (40 tiles by 25 tiles)
 #define CCA_SIZE_STDMASK ((40 * 25) * CCA_TILE_SIZE(PlaneCount::Masked))
+
+/// Size in bytes of masked Duke II tileset (40 tiles by 4 tiles)
+#define DN2_SIZE_CZONE_MASK ((40 * 4) * CCA_TILE_SIZE(PlaneCount::Masked))
 
 /// Ideal width of tileset, in number of tiles
 #define CCA_IDEAL_WIDTH 40
@@ -81,17 +84,15 @@ std::string TilesetType_Cosmo::friendlyName() const
 
 std::vector<std::string> TilesetType_Cosmo::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
+	return {"mni"};
 }
 
 std::vector<std::string> TilesetType_Cosmo::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Cosmo's Cosmic Adventures");
-	vcGames.push_back("Duke Nukem II");
-	return vcGames;
+	return {
+		"Cosmo's Cosmic Adventures",
+		"Duke Nukem II"
+	};
 }
 
 TilesetType_Cosmo::Certainty TilesetType_Cosmo::isInstance(
@@ -105,7 +106,7 @@ TilesetType_Cosmo::Certainty TilesetType_Cosmo::isInstance(
 	// Map backdrop (Cosmo)
 	if (len == CCA_SIZE_BACKDROP) return PossiblyYes;
 
-	// Map backdrop (Duke II)
+	// Map backdrop / CZone solid (Duke II)
 	if (len == DN2_SIZE_BACKDROP) return PossiblyYes;
 
 	return DefinitelyNo;
@@ -132,8 +133,7 @@ std::shared_ptr<Tileset> TilesetType_Cosmo::open(
 SuppFilenames TilesetType_Cosmo::getRequiredSupps(
 	const std::string& filenameGraphics) const
 {
-	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -156,6 +156,7 @@ TilesetType_CosmoMasked::Certainty TilesetType_CosmoMasked::isInstance(
 {
 	stream::pos len = content.size();
 	if (len == CCA_SIZE_STDMASK) return PossiblyYes;
+	if (len == DN2_SIZE_CZONE_MASK) return PossiblyYes;
 	return DefinitelyNo;
 }
 
