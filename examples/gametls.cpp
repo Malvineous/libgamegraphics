@@ -226,7 +226,8 @@ void tilesetToPng(gg::Tileset* tileset, unsigned int widthTiles,
 	std::shared_ptr<const gg::Palette> srcPal;
 	if (tileset->caps() & gg::Tileset::Caps::HasPalette) {
 		srcPal = tileset->palette();
-	} else {
+	}
+	if (!srcPal) {
 		// Need to use the default palette
 		switch (tileset->colourDepth()) {
 			case gg::ColourDepth::VGA: {
@@ -338,7 +339,8 @@ void pngToTileset(gg::Tileset* tileset, const std::string& srcFile)
 	std::shared_ptr<const gg::Palette> tilesetPal;
 	if (tileset->caps() & gg::Tileset::Caps::HasPalette) {
 		tilesetPal = tileset->palette();
-	} else {
+	}
+	if (!tilesetPal) {
 		// Need to use the default palette
 		switch (tileset->colourDepth()) {
 			case gg::ColourDepth::VGA:
@@ -423,6 +425,7 @@ void pngToTileset(gg::Tileset* tileset, const std::string& srcFile)
 			// TODO: This format supports custom palettes, so update it from the
 			// PNG image.
 			//img->palette(...);
+			std::cout << "TODO: Use image's custom palette\n";
 		}
 		img->convert(pix, mask);
 		t++;

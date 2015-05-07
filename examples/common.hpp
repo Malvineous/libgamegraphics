@@ -49,7 +49,8 @@ void imageToPng(const gg::Image& img, const std::string& destFile,
 
 	if (img.caps() & gg::Image::Caps::HasPalette) {
 		srcPal = palImg;
-	} else {
+	}
+	if (!srcPal) {
 		// Need to use the default palette
 		switch (img.colourDepth()) {
 			case gg::ColourDepth::VGA:
@@ -99,16 +100,16 @@ void imageToPng(const gg::Image& img, const std::string& destFile,
 
 	// Put the pixel data into the .png structure
 	for (unsigned int y = 0; y < dims.y; y++) {
-		auto& row = png[y];
-		for (auto& x : row) {
+		auto row = &png[y][0];
+		for (unsigned int x = 0; x < dims.x; x++) {
 			if (useMask) {
 				if (mask[y*dims.x+x] & 0x01) {
-					png[y][x] = png::index_pixel(0);
+					*row++ = png::index_pixel(0);
 				} else {
-					png[y][x] = png::index_pixel(data[y*dims.x+x] + 1);
+					*row++ = png::index_pixel(data[y*dims.x+x] + 1);
 				}
 			} else {
-				png[y][x] = png::index_pixel(data[y*dims.x+x]);
+				*row++ = png::index_pixel(data[y*dims.x+x]);
 			}
 		}
 	}
