@@ -21,136 +21,122 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <camoto/iostream_helpers.hpp>
-#include "img-ega-byteplanar-tiled.hpp"
+#include <camoto/util.hpp> // make_unique
 #include "img-ega-backdrop.hpp"
+#include "image-from_tileset.hpp"
 #include "tls-ega-apogee.hpp"
 
 using namespace camoto;
 using namespace camoto::gamegraphics;
 
-ImageType_Backdrop::ImageType_Backdrop(unsigned int width, unsigned int height,
-	unsigned int tileWidth, unsigned int tileHeight, unsigned int planeCount)
-	:	width(width),
-		height(height),
-		tileWidth(tileWidth),
-		tileHeight(tileHeight),
+ImageType_Backdrop::ImageType_Backdrop(Point dimsTile, Point dimsTileset,
+	PlaneCount planeCount)
+	:	dimsTile(dimsTile),
+		dimsTileset(dimsTileset),
 		planeCount(planeCount)
 {
 }
 
-ImageType::Certainty ImageType_Backdrop::isInstance(stream::input_sptr psImage)
+ImageType::Certainty ImageType_Backdrop::isInstance(stream::input& content)
 	const
 {
-	unsigned int tileSize = this->tileWidth / 8 * this->tileHeight
-		* this->planeCount;
-	unsigned int expectedSize = this->width * this->height * tileSize;
-
 	// Files are a fixed size.
 	// TESTED BY: TODO
-	if (psImage->size() != expectedSize) return DefinitelyNo;
+	if (content.size() != this->getExpectedSize()) return DefinitelyNo;
 
 	// TESTED BY: TODO
 	return PossiblyYes;
 }
 
-ImagePtr ImageType_Backdrop::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Backdrop::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	return this->open(psImage, suppData);
+	content->truncate(this->getExpectedSize());
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_Backdrop::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Backdrop::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 1;
-	planes[PLANE_GREEN] = 2;
-	planes[PLANE_RED] = 3;
-	planes[PLANE_INTENSITY] = 4;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 0;
-
-	Image_EGABytePlanarTiled *ega = new Image_EGABytePlanarTiled();
-	ImagePtr img(ega);
-	ega->setParams(
-		psImage, 0, this->width * this->tileWidth, this->height * this->tileHeight,
-		planes, PaletteTablePtr()
+	return std::make_unique<Image_FromTileset>(
+		std::make_unique<Tileset_EGAApogee>(
+			std::move(content),
+			this->dimsTile,
+			PlaneCount::Solid, 1, nullptr
+		),
+		0, this->dimsTileset.x, this->dimsTileset
 	);
-
-	return img;
 }
 
 SuppFilenames ImageType_Backdrop::getRequiredSupps(
 	const std::string& filenameImage) const
 {
-	return SuppFilenames();
+	return {};
+}
+
+stream::len ImageType_Backdrop::getExpectedSize() const
+{
+	auto tileSize = this->dimsTile.x / 8 * this->dimsTile.y *
+		(unsigned int)this->planeCount;
+	return this->dimsTileset.x * this->dimsTileset.y * tileSize;
 }
 
 
 ImageType_CosmoBackdrop::ImageType_CosmoBackdrop()
 	:	ImageType_Backdrop(
-			 8,  8, // tile size
-			40, 18, // image size (in tiles)
-			EGA_NUMPLANES_SOLID
+			Point{ 8,  8}, // tile size
+			Point{40, 18}, // image size (in tiles)
+			PlaneCount::Solid
 		)
 {
 }
 
-std::string ImageType_CosmoBackdrop::getCode() const
+std::string ImageType_CosmoBackdrop::code() const
 {
 	return "img-cosmo-backdrop";
 }
 
-std::string ImageType_CosmoBackdrop::getFriendlyName() const
+std::string ImageType_CosmoBackdrop::friendlyName() const
 {
 	return "Cosmo's Cosmic Adventures level backdrop";
 }
 
-std::vector<std::string> ImageType_CosmoBackdrop::getFileExtensions() const
+std::vector<std::string> ImageType_CosmoBackdrop::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
+	return {"mni"};
 }
 
-std::vector<std::string> ImageType_CosmoBackdrop::getGameList() const
+std::vector<std::string> ImageType_CosmoBackdrop::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Cosmo's Cosmic Adventures");
-	return vcGames;
+	return {"Cosmo's Cosmic Adventures"};
 }
 
 
 ImageType_Nukem2Backdrop::ImageType_Nukem2Backdrop()
 	:	ImageType_Backdrop(
-			 8,  8, // tile size
-			40, 25, // image size (in tiles)
-			EGA_NUMPLANES_SOLID
+			Point{ 8,  8}, // tile size
+			Point{40, 25}, // image size (in tiles)
+			PlaneCount::Solid
 		)
 {
 }
 
-std::string ImageType_Nukem2Backdrop::getCode() const
+std::string ImageType_Nukem2Backdrop::code() const
 {
 	return "img-nukem2-backdrop";
 }
 
-std::string ImageType_Nukem2Backdrop::getFriendlyName() const
+std::string ImageType_Nukem2Backdrop::friendlyName() const
 {
 	return "Duke Nukem II level backdrop";
 }
 
-std::vector<std::string> ImageType_Nukem2Backdrop::getFileExtensions() const
+std::vector<std::string> ImageType_Nukem2Backdrop::fileExtensions() const
 {
-	std::vector<std::string> vcExtensions;
-	vcExtensions.push_back("mni");
-	return vcExtensions;
+	return {"mni"};
 }
 
-std::vector<std::string> ImageType_Nukem2Backdrop::getGameList() const
+std::vector<std::string> ImageType_Nukem2Backdrop::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Duke Nukem II");
-	return vcGames;
+	return {"Duke Nukem II"};
 }

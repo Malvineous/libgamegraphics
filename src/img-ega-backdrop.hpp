@@ -22,7 +22,7 @@
 #define _CAMOTO_IMG_EGA_BACKDROP_HPP_
 
 #include <camoto/gamegraphics/imagetype.hpp>
-#include "img-ega-planar.hpp"
+#include "img-ega.hpp"
 
 namespace camoto {
 namespace gamegraphics {
@@ -31,23 +31,23 @@ namespace gamegraphics {
 class ImageType_Backdrop: virtual public ImageType
 {
 	public:
-		ImageType_Backdrop(unsigned int width, unsigned int height,
-			unsigned int tileWidth, unsigned int tileHeight, unsigned int planeCount);
+		ImageType_Backdrop(Point dimsTile, Point dimsTileset,
+			PlaneCount planeCount);
 
-		virtual Certainty isInstance(stream::input_sptr fsImage) const;
-		virtual ImagePtr create(stream::inout_sptr psImage,
-			SuppData& suppData) const;
-		virtual ImagePtr open(stream::inout_sptr fsImage,
-			SuppData& suppData) const;
+		virtual Certainty isInstance(stream::input& content) const;
+		virtual std::unique_ptr<Image> create(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
+		virtual std::unique_ptr<Image> open(
+			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
 			const;
 
 	private:
-		unsigned int width;
-		unsigned int height;
-		unsigned int tileWidth;
-		unsigned int tileHeight;
-		unsigned int planeCount;
+		stream::len getExpectedSize() const;
+
+		Point dimsTile;
+		Point dimsTileset;
+		PlaneCount planeCount;
 };
 
 class ImageType_CosmoBackdrop: virtual public ImageType_Backdrop
@@ -55,10 +55,10 @@ class ImageType_CosmoBackdrop: virtual public ImageType_Backdrop
 	public:
 		ImageType_CosmoBackdrop();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
 };
 
 class ImageType_Nukem2Backdrop: virtual public ImageType_Backdrop
@@ -66,10 +66,10 @@ class ImageType_Nukem2Backdrop: virtual public ImageType_Backdrop
 	public:
 		ImageType_Nukem2Backdrop();
 
-		virtual std::string getCode() const;
-		virtual std::string getFriendlyName() const;
-		virtual std::vector<std::string> getFileExtensions() const;
-		virtual std::vector<std::string> getGameList() const;
+		virtual std::string code() const;
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> fileExtensions() const;
+		virtual std::vector<std::string> games() const;
 };
 
 } // namespace gamegraphics
