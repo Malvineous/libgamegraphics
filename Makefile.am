@@ -1,5 +1,6 @@
 # "src" must go first so the library is available when the examples compile
-SUBDIRS = src doc examples include tests utils
+# "tests" should go last so failed tests don't stop anything else from compiling
+SUBDIRS = src doc examples include utils tests
 
 EXTRA_DIST = @PACKAGE@.pc.in README
 
