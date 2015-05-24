@@ -514,7 +514,7 @@ boost::test_tools::predicate_result test_image::is_content_equal(
 }
 
 boost::test_tools::predicate_result test_image::is_supp_equal(
-	camoto::SuppItem::Type type, const std::string& strExpected)
+	camoto::SuppItem type, const std::string& strExpected)
 {
 	// Use the supp's test-class' own comparison function, as this will use its
 	// preferred outputWidth value, which might be different to the main file's.

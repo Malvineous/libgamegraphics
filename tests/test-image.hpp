@@ -181,7 +181,7 @@ class test_image: public test_main
 
 		/// Does the given supplementary item content match the parameter?
 		boost::test_tools::predicate_result is_supp_equal(
-			camoto::SuppItem::Type type, const std::string& strExpected);
+			camoto::SuppItem type, const std::string& strExpected);
 
 		/// Create an Image instance to test.
 		/**
@@ -203,7 +203,7 @@ class test_image: public test_main
 		ImageManager::handler_t pImageType;
 
 		/// Pointers to the underlying storage used for suppitems.
-		std::map<SuppItem::Type, std::shared_ptr<stream::string>> suppBase;
+		std::map<SuppItem, std::shared_ptr<stream::string>> suppBase;
 
 		/// Supplementary data for the archive, populated by streams sitting on
 		/// top of suppBase.
@@ -291,7 +291,7 @@ class test_image: public test_main
 
 		/// Link between supplementary items and the class containing the expected
 		/// content for each test case.
-		std::map<camoto::SuppItem::Type, std::unique_ptr<test_image>> suppResult;
+		std::map<camoto::SuppItem, std::unique_ptr<test_image>> suppResult;
 };
 
 /// Add a test_image member function to the test suite
