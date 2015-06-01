@@ -22,8 +22,8 @@
  */
 
 #include <camoto/util.hpp> // make_unique
+#include <camoto/gamegraphics/tileset-from_image_list.hpp>
 #include "tls-wordresc.hpp"
-#include "tileset-from_image_list.hpp"
 #include "img-pcx.hpp"
 
 namespace camoto {

@@ -222,57 +222,6 @@ inline bool operator& (Tileset::Caps a, Tileset::Caps b) {
 	;
 }
 
-/// Information about the location of a tile within an image.
-struct TilePos {
-	unsigned int xOffset;
-	unsigned int yOffset;
-	unsigned int width;
-	unsigned int height;
-};
-typedef std::vector<TilePos> TileList;
-
-/// Create a tileset out of different rectangles in a single image
-/**
- * @param tileList
- *   List of coordinates in the image to turn into tiles.
- *
- * @param img
- *   Image to use for the underlying picture data.
- *
- * @param layoutWidth
- *   The ideal width of the tileset, as a number of tiles, when all the tiles
- *   are displayed together in a block.
- */
-std::unique_ptr<Tileset> DLL_EXPORT createTilesetFromList(
-	const TileList& tileList, std::shared_ptr<Image> img,
-	unsigned int layoutWidth);
-// Defined in tilesetFromList.cpp
-
-/// Element in list of images composing a tileset
-struct TilesetFromImages_Item {
-	std::string name;                 ///< Name of this tile
-	bool isImage;                     ///< true=image, false=tileset
-	std::shared_ptr<Image> image;     ///< valid if isImage is true
-	std::shared_ptr<Tileset> tileset; ///< valid if isImage is false
-};
-
-/// List of elements used to construct a tileset
-typedef std::vector<TilesetFromImages_Item> TilesetFromImages_List;
-
-/// Create a tileset out of a list of images
-/**
- * @param content
- *   Vector of images to include in the tileset.  The first element becomes the
- *   first entry in the tileset.  It can be an image or a sub-tileset.
- *
- * @param layoutWidth
- *   The ideal width of the tileset, as a number of tiles, when all the tiles
- *   are displayed together in a block.
- */
-std::unique_ptr<Tileset> DLL_EXPORT createTilesetFromImages(
-	TilesetFromImages_List& content, unsigned int layoutWidth);
-// Defined in tilesetFromImages.cpp
-
 } // namespace gamegraphics
 } // namespace camoto
 

@@ -20,7 +20,7 @@
 
 #include <cassert>
 #include <camoto/util.hpp> // make_unique
-#include "tileset-from_image_list.hpp"
+#include <camoto/gamegraphics/tileset-from_image_list.hpp>
 #include "image-sub.hpp"
 
 namespace camoto {
@@ -256,6 +256,10 @@ std::shared_ptr<Tileset> Tileset_FromImageList::openTileset(FileHandle& id)
 	if (item.att != Item::AttachmentType::Child) {
 		throw stream::error("Tried to open tile as a sub-tileset.");
 	}
+
+	// If a tileset was given, just use that.
+	if (item.tileset) return item.tileset;
+
 	// Copy the item but make it append not child
 	Item n = item;
 	n.att = Item::AttachmentType::Append;

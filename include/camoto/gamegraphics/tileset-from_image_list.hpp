@@ -52,17 +52,22 @@ class Tileset_FromImageList: virtual public Tileset
 			/// depth.
 			std::shared_ptr<Image> img;
 
+			/// Sub-tileset to place here.  All images must be the same colour depth.
+			std::shared_ptr<Tileset> tileset;
+
 			/// How should this item be attached to the tileset being created?
 			enum class AttachmentType {
-				/// Add this item onto the end of the tileset.
+				/// Add img onto the end of the tileset.
 				Append,
-				/// Add this item as a sub-tileset.
+				/// Add img or tileset as a sub-tileset.
 				Child,
 			} att;
 
 			/// How should the image be split?
 			enum class SplitType {
 				/// Add the whole image as a single tile.  Tile is resizable if img is.
+				/** If tileset is given instead of img, then whole tileset is added
+				 */
 				SingleTile,
 				/// Split img into multiple tiles, all the same size.
 				UniformTiles,
@@ -84,6 +89,10 @@ class Tileset_FromImageList: virtual public Tileset
 
 			/// Coordinates of each tile within img, if split == List.
 			std::vector<Rect> coords;
+
+			inline Item()
+			{
+			}
 
 			inline Item(std::shared_ptr<Image> img, AttachmentType att,
 				SplitType split, Point tileSize, Rect tileArea,

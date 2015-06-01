@@ -94,7 +94,6 @@ EXTRA_libgamegraphics_la_SOURCES += pal-vga-raw.hpp
 EXTRA_libgamegraphics_la_SOURCES += pal-gmf-harry.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat.hpp
 EXTRA_libgamegraphics_la_SOURCES += tileset-fat-fixed_tile_size.hpp
-EXTRA_libgamegraphics_la_SOURCES += tileset-from_image_list.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-actrinfo.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-bash.hpp
 EXTRA_libgamegraphics_la_SOURCES += tls-bash-sprite.hpp
