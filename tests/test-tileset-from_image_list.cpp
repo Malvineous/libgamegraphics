@@ -19,7 +19,7 @@
  */
 
 #include "test-tileset.hpp"
-#include "../src/tileset-from_image_list.hpp"
+#include <camoto/gamegraphics/tileset-from_image_list.hpp>
 #include "../src/img-vga-raw.hpp" // convenient format to load tiles from
 
 class test_tileset_from_image_list: public test_tileset
@@ -31,6 +31,7 @@ class test_tileset_from_image_list: public test_tileset
 			this->lenMaxFilename = -1;
 			this->create = false;
 			this->staticFiles = true;
+			this->virtualFiles = true;
 //			this->lenFilesizeFixed = 256;
 
 			this->content[0] = this->tile1();
@@ -38,7 +39,7 @@ class test_tileset_from_image_list: public test_tileset
 			this->content[2] = this->tile3();
 			this->content[3] = this->tile4();
 
-			this->firstTileDims = {16, 16};
+			this->firstTileDims = {4, 4};
 		}
 
 		void addTests()
@@ -159,12 +160,24 @@ class test_tileset_from_image_list: public test_tileset
 		{
 			if (create) {
 				throw stream::error("Cannot create empty tileset from image.");
+			} else {
+				*content << this->initialstate();
 			}
+
+			// Make sure the stream contains enough data
+			BOOST_REQUIRE_EQUAL(content->size(), 16 * 4);
+
 			auto img = std::make_shared<Image_VGARaw>(
 				std::move(content),
 				Point{4*4, 4},
 				nullptr
 			);
+
+			// This does nothing, we just want to check it can be converted ok before
+			// we continue
+			auto imgTest = img->convert();
+			auto mskTest = img->convert_mask();
+
 			return make_Tileset_FromImageList(
 				{
 					{

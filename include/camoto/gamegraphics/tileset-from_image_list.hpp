@@ -30,10 +30,15 @@ class Tileset_FromImageList: virtual public Tileset
 {
 	public:
 		struct ImageListEntry: public File {
-			/// Index into imageList
+			/// Unique index (mainly used by test code to open images by index)
 			unsigned int index;
-			/// Index into possible split described by imageList[index]
+
+			/// Index into imageList
+			unsigned int srcindex;
+
+			/// Index into possible split described by imageList[srcindex]
 			unsigned int subindex;
+
 			/// Cached dimensions of tile within parent image, when
 			/// imageList[index]->split != SingleImage
 			Rect dims;

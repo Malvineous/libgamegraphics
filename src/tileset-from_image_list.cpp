@@ -33,7 +33,7 @@ Tileset_FromImageList::Tileset_FromImageList(std::vector<Item> imageList,
 {
 	this->pal = pal;
 
-	unsigned int j = 0;
+	unsigned int j = 0, count = 0;
 	for (auto& i : this->imageList) {
 		i.imageChanged = false;
 		switch (i.att) {
@@ -44,7 +44,8 @@ Tileset_FromImageList::Tileset_FromImageList(std::vector<Item> imageList,
 						fat->bValid = true;
 						fat->fAttr = File::Attribute::Default;
 						fat->type = "tileset/from-image-list+single";
-						fat->index = j;
+						fat->index = count++;
+						fat->srcindex = j;
 						fat->subindex = 0;
 						this->vcFAT.push_back(std::move(fat));
 						break;
@@ -59,7 +60,8 @@ Tileset_FromImageList::Tileset_FromImageList(std::vector<Item> imageList,
 								fat->bValid = true;
 								fat->fAttr = File::Attribute::Default;
 								fat->type = "tileset/from-image-list+uniform-entry";
-								fat->index = j;
+								fat->index = count++;
+								fat->srcindex = j;
 								fat->subindex = k++;
 								fat->dims = {x, y, i.tileSize.x, i.tileSize.y};
 								this->vcFAT.push_back(std::move(fat));
@@ -74,7 +76,8 @@ Tileset_FromImageList::Tileset_FromImageList(std::vector<Item> imageList,
 							fat->bValid = true;
 							fat->fAttr = File::Attribute::Default;
 							fat->type = "tileset/from-image-list+list-entry";
-							fat->index = j;
+							fat->index = count++;
+							fat->srcindex = j;
 							fat->subindex = k++;
 							fat->dims = l;
 							this->vcFAT.push_back(std::move(fat));
@@ -88,7 +91,8 @@ Tileset_FromImageList::Tileset_FromImageList(std::vector<Item> imageList,
 				fat->bValid = true;
 				fat->fAttr = File::Attribute::Folder;
 				fat->type = "tileset/from-image-list+sub";
-				fat->index = j;
+				fat->index = count++;
+				fat->srcindex = j;
 				fat->subindex = 0;
 				this->vcFAT.push_back(std::move(fat));
 				break;
@@ -115,7 +119,7 @@ Tileset::FileHandle Tileset_FromImageList::find(const std::string& strFilename) 
 
 bool Tileset_FromImageList::isValid(const FileHandle& id) const
 {
-	return id->bValid;
+	return id && id->bValid;
 }
 
 std::unique_ptr<stream::inout> Tileset_FromImageList::open(const FileHandle& id, bool useFilter)
@@ -218,7 +222,7 @@ unsigned int Tileset_FromImageList::layoutWidth() const
 std::unique_ptr<Image> Tileset_FromImageList::openImage(FileHandle& id)
 {
 	auto fat = ImageListEntry::cast(id);
-	auto& item = this->imageList[fat->index];
+	auto& item = this->imageList[fat->srcindex];
 	switch (item.att) {
 		case Item::AttachmentType::Append:
 			switch (item.split) {
@@ -252,7 +256,7 @@ throw stream::error("TODO: Not implemented yet!");
 std::shared_ptr<Tileset> Tileset_FromImageList::openTileset(FileHandle& id)
 {
 	auto fat = ImageListEntry::cast(id);
-	auto& item = this->imageList[fat->index];
+	auto& item = this->imageList[fat->srcindex];
 	if (item.att != Item::AttachmentType::Child) {
 		throw stream::error("Tried to open tile as a sub-tileset.");
 	}
