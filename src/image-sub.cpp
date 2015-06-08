@@ -68,8 +68,8 @@ Pixels Image_Sub::convert_mask() const
 
 void Image_Sub::convert(const Pixels& newContent, const Pixels& newMask)
 {
-	auto dstImg = this->stdImg.get();
-	auto dstMask = this->stdMask.get();
+	auto dstImg = this->stdImg->data();
+	auto dstMask = this->stdMask->data();
 	auto srcImg = newContent.data();
 	auto srcMask = newMask.data();
 
@@ -77,25 +77,16 @@ void Image_Sub::convert(const Pixels& newContent, const Pixels& newMask)
 	dstImg += this->dimsViewport.y * this->dimsFull.x;
 	dstMask += this->dimsViewport.y * this->dimsFull.x;
 	for (int y = 0; y < this->dimsViewport.height; y++) {
-		//dstImg += this->dimsViewport.x;
-		//dstMask += this->dimsViewport.x;
 		memcpy(dstImg + this->dimsViewport.x, srcImg, this->dimsViewport.width);
 		memcpy(dstMask + this->dimsViewport.x, srcMask, this->dimsViewport.width);
 		dstImg += this->dimsFull.x;
 		dstMask += this->dimsFull.x;
 		srcImg += this->dimsViewport.width;
 		srcMask += this->dimsViewport.width;
-		/*
-		for (unsigned int x = 0; x < this->width; x++) {
-			*dstImg++ = *srcImg++;
-			*dstMask++ = *srcMask++;
-			}
-		dstImg += remX;
-		dstMask += remX;*/
 	}
 
 	// Notify parent for eventual image update
-	this->fnImageChanged();
+	if (this->fnImageChanged) this->fnImageChanged();
 
 	return;
 }
@@ -103,7 +94,7 @@ void Image_Sub::convert(const Pixels& newContent, const Pixels& newMask)
 Pixels Image_Sub::extractPortion(const Pixels& source) const
 {
 	Pixels dest;
-	dest.reserve(this->dimsViewport.width * this->dimsViewport.height);
+	dest.resize(this->dimsViewport.width * this->dimsViewport.height);
 
 	auto src = source.data();
 	auto dst = dest.data();
@@ -111,11 +102,6 @@ Pixels Image_Sub::extractPortion(const Pixels& source) const
 	// Copy the data out of the main image
 	src += this->dimsViewport.y * this->dimsFull.x;
 	for (int y = 0; y < this->dimsViewport.height; y++) {
-		/*
-		for (unsigned int x = 0; x < this->width; x++) {
-			*imgData++ = *parentData++;
-		}
-		*/
 		memcpy(dst, src + this->dimsViewport.x, this->dimsViewport.width);
 		src += this->dimsFull.x;
 		dst += this->dimsViewport.width;

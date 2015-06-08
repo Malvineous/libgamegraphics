@@ -18,278 +18,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/test/unit_test.hpp>
-#include <boost/bind.hpp>
-#include <camoto/gamegraphics/image.hpp>
-#include <camoto/util.hpp>
-#include <camoto/stream_string.hpp>
-#include "../src/img-ega-byteplanar.hpp"
-#include "../src/subimage.hpp"
-#include "tests.hpp"
+#include "../src/img-vga-raw.hpp"
+#include "../src/image-sub.hpp"
+#include "test-image.hpp"
 
-using namespace camoto::gamegraphics;
-using namespace camoto;
+class test_subimage: public test_image
+{
+	public:
+		test_subimage()
+		{
+			this->type = "subimage";
+			this->hasMask = false;
+			this->hasHitmask = false;
+			this->fixedDimensions = true;
+			this->dimensions = {4, 4};
+		}
 
-#define TESTDATA_INITIAL \
-	"\xFF\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF\xFF" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\x80\x00\x00\x80\x80" "\x01\x00\x01\x00\x01" \
-	"\xFF\x7F\x00\x80\xFF" "\xFF\xFE\x01\x00\xFF"
+		void addTests()
+		{
+			this->test_image::addTests();
 
-struct subimage: public default_sample {
+			this->sizedContent({4, 4}, ImageType::DefinitelyYes,
+				this->initialstate());
+		}
 
-	boost::shared_ptr<std::string> d;
-	stream::string_sptr base;
-	ImagePtr img;
-	SuppData suppData;
-	bool update;
+		virtual std::string initialstate() const
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+				"\x00\x00\x0F\x0F\x0F\x0F\x00\x00"
+				"\x00\x00\x0C\x00\x00\x0A\x00\x00"
+				"\x00\x00\x0C\x00\x00\x0A\x00\x00"
+				"\x00\x00\x0C\x09\x09\x0E\x00\x00"
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+				"\x00\x00\x00\x00\x00\x00\x00\x00"
+			);
+		}
 
-	subimage()
-		:	base(new stream::string())
-	{
-		this->d.reset(new std::string(makeString(TESTDATA_INITIAL)));
-		this->base->open(this->d);
-	}
-
-	void openImage(int width, int height)
-	{
-		PLANE_LAYOUT planes;
-		planes[PLANE_BLUE] = 2;
-		planes[PLANE_GREEN] = 3;
-		planes[PLANE_RED] = 4;
-		planes[PLANE_INTENSITY] = 5;
-		planes[PLANE_HITMAP] = 0;
-		planes[PLANE_OPACITY] = -1;
-		Image_EGABytePlanar *ega = new Image_EGABytePlanar();
-		this->img.reset(ega);
-		ega->setParams(this->base, 0, width, height, planes, createPalette_DefaultEGA());
-		BOOST_REQUIRE_MESSAGE(this->img, "Could not open image instance");
-		this->update = false;
-	}
-
-	void updateImage()
-	{
-		this->update = true;
-		return;
-	}
-
+		virtual std::unique_ptr<Image> openImage(const Point& dims,
+			std::unique_ptr<stream::inout> content, ImageType::Certainty result,
+			bool create)
+		{
+			if (create) {
+				// Create an empty image, 8x8 pixels in size
+				content->truncate(8 * 8);
+			}
+			auto imgMain = std::make_shared<Image_VGARaw>(std::move(content),
+				Point{8, 8}, nullptr);
+			auto imgMainPix = std::make_shared<Pixels>(imgMain->convert());
+			auto imgMainMsk = std::make_shared<Pixels>(imgMain->convert_mask());
+			return std::make_unique<Image_Sub>(
+				imgMainPix,
+				imgMainMsk,
+				imgMain->dimensions(),
+				Rect{2, 2, 4, 4},
+				ColourDepth::VGA,
+				nullptr,
+				[imgMain, imgMainPix, imgMainMsk](){
+					imgMain->convert(*imgMainPix, *imgMainMsk);
+				});
+		}
 };
 
-BOOST_FIXTURE_TEST_SUITE(subimage_suite, subimage)
-
-BOOST_AUTO_TEST_CASE(subimage_open)
-{
-	BOOST_TEST_MESSAGE("Opening subimage");
-
-	this->openImage(16, 16);
-
-	int subWidth = 4, subHeight = 2;
-
-	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
-	BOOST_REQUIRE_EQUAL(this->update, false);
-
-	StdImageDataPtr stdImg = this->img->toStandard();
-	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
-		0, 4, subWidth, subHeight,
-		boost::bind<void>(&subimage::updateImage, this)));
-	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
-
-	// Confirm the image still doesn't need to be updated
-	BOOST_REQUIRE_EQUAL(this->update, false);
-
-	StdImageDataPtr output = sub->toStandard();
-
-	const uint8_t target[] = {
-		0x0c, 0x00, 0x00, 0x00,
-		0x0c, 0x00, 0x00, 0x00,
-		0x00 // terminating null for std::string conversion
-	};
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(target),
-			std::string((const char *)output.get(), subWidth * subHeight),
-			subWidth),
-		"Wrong data when opening subimage"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(subimage_open2)
-{
-	BOOST_TEST_MESSAGE("Opening subimage 2");
-
-	this->openImage(16, 16);
-
-	int subWidth = 4, subHeight = 2;
-
-	StdImageDataPtr stdImg = this->img->toStandard();
-	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
-		16-subWidth, 16-subHeight, subWidth, subHeight,
-		boost::bind<void>(&subimage::updateImage, this)));
-	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
-
-	StdImageDataPtr output = sub->toStandard();
-
-	const uint8_t target[] = {
-		0x00, 0x00, 0x00, 0x0a,
-		0x09, 0x09, 0x09, 0x0a,
-		0x00 // terminating null for std::string conversion
-	};
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(target),
-			std::string((const char *)output.get(), subWidth * subHeight),
-			subWidth),
-		"Wrong data when opening subimage"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(subimage_open_mask)
-{
-	BOOST_TEST_MESSAGE("Opening subimage mask");
-
-	this->openImage(16, 16);
-
-	int subWidth = 4, subHeight = 2;
-
-	StdImageDataPtr stdImg = this->img->toStandard();
-	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
-		16-subWidth, 16-subHeight, subWidth, subHeight,
-		boost::bind<void>(&subimage::updateImage, this)));
-	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
-
-	StdImageDataPtr output = sub->toStandardMask();
-
-	const uint8_t target[] = {
-		0x01, 0x01, 0x01, 0x00,
-		0x00, 0x00, 0x00, 0x00,
-		0x00 // terminating null for std::string conversion
-	};
-
-	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
-	BOOST_REQUIRE_EQUAL(this->update, false);
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(target),
-			std::string((const char *)output.get(), subWidth * subHeight),
-			subWidth),
-		"Wrong data when opening subimage"
-	);
-}
-
-BOOST_AUTO_TEST_CASE(subimage_edit)
-{
-	BOOST_TEST_MESSAGE("Editing subimage");
-
-	this->openImage(16, 16);
-
-	int subWidth = 4, subHeight = 2;
-
-	StdImageDataPtr stdImg = this->img->toStandard();
-	StdImageDataPtr stdMask = this->img->toStandardMask();
-	ImagePtr sub(new Image_Sub(this->img, stdImg, stdMask,
-		16-subWidth, 16-subHeight, subWidth, subHeight,
-		boost::bind<void>(&subimage::updateImage, this)));
-	BOOST_REQUIRE_MESSAGE(sub, "Could not create sub image");
-
-	// Confirm the image doesn't need to be updated yet (because it hasn't changed)
-	BOOST_REQUIRE_EQUAL(this->update, false);
-
-	const uint8_t change[] = {
-		0x01, 0x02, 0x03, 0x04,
-		0x08, 0x07, 0x06, 0x05,
-		0x00 // terminating null for std::string conversion
-	};
-	const uint8_t changeMask[] = {
-		0x01, 0x01, 0x00, 0x00,
-		0x00, 0x00, 0x01, 0x01,
-		0x00 // terminating null for std::string conversion
-	};
-	StdImageDataPtr alt(new uint8_t[subWidth * subHeight]);
-	memcpy(alt.get(), change, subWidth * subHeight);
-	StdImageDataPtr altMask(new uint8_t[subWidth * subHeight]);
-	memcpy(altMask.get(), changeMask, subWidth * subHeight);
-	sub->fromStandard(alt, altMask);
-
-	// Confirm the image now needs to be updated, as it has changed
-	BOOST_REQUIRE_EQUAL(this->update, true);
-	this->img->fromStandard(stdImg, stdMask);
-	this->update = false;
-
-	StdImageDataPtr output = this->img->toStandard();
-	const uint8_t target[] = {
-		0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,  0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A,
-		0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04,
-		0x0C, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09,  0x09, 0x09, 0x09, 0x09, 0x08, 0x07, 0x06, 0x05,
-		0x00 // terminating null for std::string conversion
-	};
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(target),
-			std::string((const char *)output.get(), 16 * 16),
-			16),
-		"Wrong image data after editing subimage"
-	);
-
-	output = this->img->toStandardMask();
-	const uint8_t targetMask[] = {
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-		0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01,
-		0x00 // terminating null for std::string conversion
-	};
-
-	BOOST_CHECK_MESSAGE(
-		default_sample::is_equal(
-			makeString(targetMask),
-			std::string((const char *)output.get(), 16 * 16),
-			16),
-		"Wrong mask data after editing subimage"
-	);
-}
-
-BOOST_AUTO_TEST_SUITE_END()
+IMPLEMENT_TESTS(subimage);
