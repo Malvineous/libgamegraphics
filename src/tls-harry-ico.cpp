@@ -154,8 +154,8 @@ std::shared_ptr<Tileset> TilesetType_HarryICO::open(
 	return std::make_shared<Tileset_HarryICO>(std::move(content), pal);
 }
 
-SuppFilenames TilesetType_HarryICO::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_HarryICO::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "pre2.pcx"; // any UI image file

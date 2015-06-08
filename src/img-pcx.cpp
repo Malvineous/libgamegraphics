@@ -331,8 +331,8 @@ std::unique_ptr<Image> ImageType_PCXBase::open(
 	);
 }
 
-SuppFilenames ImageType_PCXBase::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_PCXBase::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

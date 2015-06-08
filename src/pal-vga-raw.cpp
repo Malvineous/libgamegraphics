@@ -91,8 +91,8 @@ std::unique_ptr<Image> ImageType_Palette_VGA::open(
 	return std::make_unique<Palette_VGA>(std::move(content), 6);
 }
 
-SuppFilenames ImageType_Palette_VGA::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_VGA::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();
@@ -158,8 +158,8 @@ std::unique_ptr<Image> ImageType_VGA8Palette::open(
 	return std::make_unique<Palette_VGA>(std::move(content), 8);
 }
 
-SuppFilenames ImageType_VGA8Palette::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_VGA8Palette::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

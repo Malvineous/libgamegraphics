@@ -42,8 +42,8 @@ class ImageType_Mono: virtual public ImageType
 			SuppData& suppData) const;
 		virtual ImagePtr open(stream::inout_sptr fsImage,
 			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 } // namespace gamegraphics

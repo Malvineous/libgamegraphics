@@ -43,8 +43,8 @@ class ImageType_Palette_VGA: virtual public ImageType
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual std::unique_ptr<Image> open(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 /// Filetype handler for VGA 8-bit palette files.
@@ -63,8 +63,8 @@ class ImageType_VGA8Palette: virtual public ImageType_Palette_VGA
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual std::unique_ptr<Image> open(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 /// Palette interface to 768-byte raw 6/8-bit VGA palette files.

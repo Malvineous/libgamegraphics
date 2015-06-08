@@ -177,8 +177,8 @@ std::shared_ptr<Tileset> TilesetType_DDave::open(
 	);
 }
 
-SuppFilenames TilesetType_DDave::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_DDave::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }
@@ -236,8 +236,8 @@ std::string TilesetType_DDaveVGA::friendlyName() const
 	return "Dangerous Dave VGA tileset";
 }
 
-SuppFilenames TilesetType_DDaveVGA::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_DDaveVGA::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "vga.pal";

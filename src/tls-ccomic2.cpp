@@ -155,8 +155,8 @@ std::shared_ptr<Tileset> TilesetType_CComic2::open(
 		numPlanes);
 }
 
-SuppFilenames TilesetType_CComic2::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CComic2::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

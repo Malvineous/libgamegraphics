@@ -130,8 +130,8 @@ std::shared_ptr<Tileset> TilesetType_Cosmo::open(
 	);
 }
 
-SuppFilenames TilesetType_Cosmo::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Cosmo::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

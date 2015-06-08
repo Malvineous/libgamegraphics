@@ -142,7 +142,11 @@ class TilesetType
 		 * This function obtains a list of these supplementary files, so the caller
 		 * can open them and pass them along to the tileset manipulation classes.
 		 *
-		 * @param filenameTileset
+		 * @param content
+		 *   Read-only stream containing the tileset content.  This is for tilesets
+		 *   which contain the names of the other files they need.
+		 *
+		 * @param filename
 		 *   The filename of the tileset.  This is for supplemental files which
 		 *   share the same base name as the tileset, but a different filename
 		 *   extension.  The filename should not have a path.
@@ -153,8 +157,8 @@ class TilesetType
 		 *   added to an \ref SuppData map where it can be passed to
 		 *   create() or open().
 		 */
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
-			const = 0;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const = 0;
 };
 
 } // namespace gamegraphics

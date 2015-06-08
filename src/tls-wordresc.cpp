@@ -105,8 +105,8 @@ std::shared_ptr<Tileset> TilesetType_Wordresc::open(
 	);
 }
 
-SuppFilenames TilesetType_Wordresc::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Wordresc::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

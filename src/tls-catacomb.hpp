@@ -35,8 +35,8 @@ class TilesetType_Catacomb: virtual public TilesetType
 
 		virtual std::vector<std::string> fileExtensions() const;
 		virtual std::vector<std::string> games() const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 /// CGA-specific code for Catacomb tilesets.

@@ -68,8 +68,8 @@ class ImageType_EGA_RawPlanarBGRI: virtual public ImageType
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual std::unique_ptr<Image> open(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 } // namespace gamegraphics

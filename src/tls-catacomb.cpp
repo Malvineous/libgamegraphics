@@ -98,8 +98,8 @@ std::vector<std::string> TilesetType_Catacomb::games() const
 	};
 }
 
-SuppFilenames TilesetType_Catacomb::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Catacomb::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

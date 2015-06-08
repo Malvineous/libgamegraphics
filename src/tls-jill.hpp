@@ -43,8 +43,8 @@ class TilesetType_Jill: virtual public TilesetType
 			SuppData& suppData) const;
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 class Tileset_Jill: virtual public Tileset_FAT

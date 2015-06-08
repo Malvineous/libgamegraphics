@@ -119,8 +119,8 @@ std::shared_ptr<Tileset> TilesetType_CComic::open(
 	return std::make_shared<Tileset_CComic>(std::move(content), PlaneCount::Solid);
 }
 
-SuppFilenames TilesetType_CComic::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CComic::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

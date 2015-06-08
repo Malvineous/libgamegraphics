@@ -120,11 +120,11 @@ TilesetPtr TilesetType_Jill::open(stream::inout_sptr psGraphics,
 	return TilesetPtr(new Tileset_Jill(psGraphics, pal));
 }
 
-SuppFilenames TilesetType_Jill::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_Jill::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
-	std::string baseName = filenameTileset.substr(0, filenameTileset.length() - 3);
+	std::string baseName = filename.substr(0, filename.length() - 3);
 	supps[SuppItem::Palette] = baseName + "pal";
 	return supps;
 }

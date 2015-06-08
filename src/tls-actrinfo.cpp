@@ -163,12 +163,13 @@ TilesetPtr TilesetType_Actrinfo::open(stream::inout_sptr psGraphics,
 	);
 }
 
-SuppFilenames TilesetType_Actrinfo::getRequiredSupps(const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Actrinfo::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
-	if (filenameGraphics.compare("players.mni") == 0) {
+	if (filename.compare("players.mni") == 0) {
 		supps[SuppItem::FAT] = "plyrinfo.mni";
-	} else if (filenameGraphics.compare("cartoon.mni") == 0) {
+	} else if (filename.compare("cartoon.mni") == 0) {
 		supps[SuppItem::FAT] = "cartinfo.mni";
 	} else {
 		supps[SuppItem::FAT] = "actrinfo.mni";

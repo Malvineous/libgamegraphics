@@ -148,8 +148,8 @@ std::unique_ptr<Image> ImageType_CComic::open(
 	);
 }
 
-SuppFilenames ImageType_CComic::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_CComic::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return SuppFilenames();
 }

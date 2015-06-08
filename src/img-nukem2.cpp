@@ -122,8 +122,8 @@ std::unique_ptr<Image> ImageType_Nukem2::open(
 	return std::make_unique<Image_Nukem2>(std::move(content));
 }
 
-SuppFilenames ImageType_Nukem2::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_Nukem2::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return SuppFilenames();
 }

@@ -153,8 +153,8 @@ std::shared_ptr<Tileset> TilesetType_MonsterBashSprite::open(
 	return std::make_shared<Tileset_MonsterBashSprite>(std::move(content));
 }
 
-SuppFilenames TilesetType_MonsterBashSprite::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashSprite::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

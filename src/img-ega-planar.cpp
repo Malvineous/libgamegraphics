@@ -259,8 +259,8 @@ std::unique_ptr<Image> ImageType_EGA_RawPlanarBGRI::open(
 	);
 }
 
-SuppFilenames ImageType_EGA_RawPlanarBGRI::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_EGA_RawPlanarBGRI::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return SuppFilenames();
 }

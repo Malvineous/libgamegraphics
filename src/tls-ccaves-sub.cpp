@@ -120,8 +120,8 @@ std::shared_ptr<Tileset> TilesetType_CCavesSub::open(
 	);
 }
 
-SuppFilenames TilesetType_CCavesSub::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesSub::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

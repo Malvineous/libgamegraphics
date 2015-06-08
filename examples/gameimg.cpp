@@ -256,7 +256,7 @@ finishTesting:
 		}
 
 		// See if the format requires any supplemental files
-		camoto::SuppFilenames suppList = pImageType->getRequiredSupps(strFilename);
+		auto suppList = pImageType->getRequiredSupps(*content, strFilename);
 		camoto::SuppData suppData;
 		for (auto& i : suppList) {
 			try {
@@ -370,7 +370,7 @@ palFinishTesting:
 				}
 
 				// See if the format requires any supplemental files
-				camoto::SuppFilenames suppList = pPalType->getRequiredSupps(strFilename);
+				auto suppList = pPalType->getRequiredSupps(*content, strFilename);
 				camoto::SuppData suppData;
 				for (auto& i : suppList) {
 					try {

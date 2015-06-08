@@ -96,7 +96,8 @@ ImagePtr ImageType_Mono::open(stream::inout_sptr psImage,
 	return img;
 }
 
-SuppFilenames ImageType_Mono::getRequiredSupps(const std::string& filenameImage) const
+SuppFilenames ImageType_Mono::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return SuppFilenames();
 }

@@ -141,7 +141,11 @@ class ImageType
 		 * This function obtains a list of these supplementary files, so the caller
 		 * can open them and pass them along to the image manipulation classes.
 		 *
-		 * @param filenameImage
+		 * @param content
+		 *   Read-only stream containing the image content.  This is for images
+		 *   which contain the names of the other files they need.
+		 *
+		 * @param filename
 		 *   The filename of the image.  This is for supplemental files which share
 		 *   the same base name as the image, but a different filename extension.
 		 *
@@ -151,8 +155,8 @@ class ImageType
 		 *   added to an \ref SuppData map where it can be passed to newImage()
 		 *   or open().
 		 */
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameImage)
-			const = 0;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const = 0;
 };
 
 } // namespace gamegraphics

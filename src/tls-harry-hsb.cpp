@@ -185,8 +185,8 @@ std::shared_ptr<Tileset> TilesetType_HarryHSB::open(
 	return std::make_shared<Tileset_HarryHSB>(std::move(content), pal);
 }
 
-SuppFilenames TilesetType_HarryHSB::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_HarryHSB::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "m1z1.gmf"; // any map file

@@ -43,8 +43,8 @@ class TilesetType_Cosmo: virtual public TilesetType
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual std::shared_ptr<Tileset> open(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(
-			const std::string& filenameGraphics) const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 class TilesetType_CosmoMasked: virtual public TilesetType_Cosmo

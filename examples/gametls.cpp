@@ -816,7 +816,7 @@ finishTesting:
 		}
 
 		// See if the format requires any supplemental files
-		camoto::SuppFilenames suppList = pTilesetType->getRequiredSupps(strFilename);
+		auto suppList = pTilesetType->getRequiredSupps(*content, strFilename);
 		camoto::SuppData suppData;
 		for (auto& i : suppList) {
 			try {

@@ -165,8 +165,8 @@ std::unique_ptr<Image> ImageType_Zone66Tile::open(
 	return std::make_unique<Image_Zone66Tile>(std::move(content), pal);
 }
 
-SuppFilenames ImageType_Zone66Tile::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_Zone66Tile::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "tpal.z66";

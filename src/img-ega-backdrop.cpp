@@ -68,8 +68,8 @@ std::unique_ptr<Image> ImageType_Backdrop::open(
 	);
 }
 
-SuppFilenames ImageType_Backdrop::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_Backdrop::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

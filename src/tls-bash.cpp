@@ -145,8 +145,8 @@ std::shared_ptr<Tileset> TilesetType_MonsterBashBackground::open(
 	);
 }
 
-SuppFilenames TilesetType_MonsterBashBackground::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashBackground::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }
@@ -212,8 +212,8 @@ std::shared_ptr<Tileset> TilesetType_MonsterBashForeground::open(
 	);
 }
 
-SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_MonsterBashForeground::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

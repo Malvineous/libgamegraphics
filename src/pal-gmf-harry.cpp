@@ -91,8 +91,8 @@ std::unique_ptr<Image> ImageType_Palette_HarryGMF::open(
 	return std::make_unique<Palette_HarryGMF>(std::move(content));
 }
 
-SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

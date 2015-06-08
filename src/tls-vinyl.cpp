@@ -221,11 +221,11 @@ TilesetPtr TilesetType_Vinyl::open(stream::inout_sptr psTileset,
 	return TilesetPtr(new Tileset_Vinyl(psTileset, pal));
 }
 
-SuppFilenames TilesetType_Vinyl::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_Vinyl::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
-	std::string baseName = filenameTileset.substr(0, filenameTileset.length() - 3);
+	std::string baseName = filename.substr(0, filename.length() - 3);
 	supps[SuppItem::Palette] = baseName + "pal";
 	return supps;
 }

@@ -105,8 +105,8 @@ std::shared_ptr<Tileset> TilesetType_Wacky::open(
 	);
 }
 
-SuppFilenames TilesetType_Wacky::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Wacky::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

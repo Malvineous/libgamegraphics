@@ -39,8 +39,8 @@ class TilesetType_DDave: virtual public TilesetType
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
 		virtual std::shared_ptr<Tileset> open(
 			std::unique_ptr<stream::inout> content, SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 
 	protected:
 		/// Figure out what colour depth we'll be creating the Tileset in
@@ -79,8 +79,8 @@ class TilesetType_DDaveVGA: virtual public TilesetType_DDave
 		virtual std::string friendlyName() const;
 
 		// Extra one to add palette as supp
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameTileset)
-			const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 
 	protected:
 		virtual ColourDepth colourDepth() const;

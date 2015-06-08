@@ -114,12 +114,12 @@ std::unique_ptr<Image> ImageType_TVFog::open(
 	);
 }
 
-SuppFilenames ImageType_TVFog::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_TVFog::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	std::string filenameBase =
-		filenameImage.substr(0, filenameImage.find_last_of('.'));
+		filename.substr(0, filename.find_last_of('.'));
 	supps[SuppItem::Palette] = filenameBase + ".act";
 	return supps;
 }

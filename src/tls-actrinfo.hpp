@@ -41,7 +41,8 @@ class TilesetType_Actrinfo: virtual public TilesetType
 			SuppData& suppData) const;
 		virtual TilesetPtr open(stream::inout_sptr fsGraphics,
 			SuppData& suppData) const;
-		virtual SuppFilenames getRequiredSupps(const std::string& filenameGraphics) const;
+		virtual SuppFilenames getRequiredSupps(stream::input& content,
+			const std::string& filename) const;
 };
 
 } // namespace gamegraphics

@@ -114,13 +114,13 @@ std::shared_ptr<Tileset> TilesetType_HarryCHR::open(
 	return std::make_shared<Tileset_HarryCHR>(std::move(content), pal);
 }
 
-SuppFilenames TilesetType_HarryCHR::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_HarryCHR::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	// Convert "missionX.chr" into "mXz1.gmf"
 	std::string palName = "m";
-	palName += filenameTileset[filenameTileset.length() - 5];
+	palName += filename[filename.length() - 5];
 	palName += "z1.gmf";
 	supps[SuppItem::Palette] = palName;
 	return supps;

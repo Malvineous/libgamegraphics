@@ -121,8 +121,8 @@ std::shared_ptr<Tileset> TilesetType_Stryker::open(
 	);
 }
 
-SuppFilenames TilesetType_Stryker::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Stryker::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	// No supplemental types/empty list
 	return SuppFilenames();

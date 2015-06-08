@@ -180,8 +180,8 @@ std::shared_ptr<Tileset> TilesetType_Zone66::open(
 	return std::make_shared<Tileset_Zone66>(std::move(content), pal);
 }
 
-SuppFilenames TilesetType_Zone66::getRequiredSupps(
-	const std::string& filenameTileset) const
+SuppFilenames TilesetType_Zone66::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "mpal.z66";

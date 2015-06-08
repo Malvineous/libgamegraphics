@@ -131,8 +131,8 @@ std::shared_ptr<Tileset> TilesetType_CCavesMain::open(
 	);
 }
 
-SuppFilenames TilesetType_CCavesMain::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_CCavesMain::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

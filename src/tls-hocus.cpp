@@ -105,8 +105,8 @@ std::shared_ptr<Tileset> TilesetType_Hocus::open(
 	);
 }
 
-SuppFilenames TilesetType_Hocus::getRequiredSupps(
-	const std::string& filenameGraphics) const
+SuppFilenames TilesetType_Hocus::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	return {};
 }

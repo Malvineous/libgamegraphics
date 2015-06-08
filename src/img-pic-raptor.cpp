@@ -140,8 +140,8 @@ std::unique_ptr<Image> ImageType_RaptorPIC::open(
 	return std::make_unique<Image_RaptorPIC>(std::move(content), pal);
 }
 
-SuppFilenames ImageType_RaptorPIC::getRequiredSupps(
-	const std::string& filenameImage) const
+SuppFilenames ImageType_RaptorPIC::getRequiredSupps(stream::input& content,
+	const std::string& filename) const
 {
 	SuppFilenames supps;
 	supps[SuppItem::Palette] = "palette_dat";
