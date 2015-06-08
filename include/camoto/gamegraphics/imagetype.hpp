@@ -37,6 +37,12 @@ namespace gamegraphics {
 class ImageType
 {
 	public:
+		/// Type of object this class creates
+		typedef Image obj_t;
+
+		/// Type name as a string
+		static constexpr const char* const obj_t_name = "Image";
+
 		/// Confidence level when guessing a file format.
 		enum Certainty {
 			DefinitelyNo,  ///< Definitely not in this format

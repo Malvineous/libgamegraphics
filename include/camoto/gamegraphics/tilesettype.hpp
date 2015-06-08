@@ -38,6 +38,12 @@ namespace gamegraphics {
 class TilesetType
 {
 	public:
+		/// Type of object this class creates
+		typedef Tileset obj_t;
+
+		/// Type name as a string
+		static constexpr const char* const obj_t_name = "Tileset";
+
 		/// Confidence level when guessing a file format.
 		enum Certainty {
 			DefinitelyNo,  ///< Definitely not in this format
