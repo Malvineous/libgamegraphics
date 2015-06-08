@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <functional>
 #include <camoto/util.hpp>
-#include "../src/tileset-from_image_list.hpp" // Tileset_FromImageList::ImageListEntry
+#include <camoto/gamegraphics/tileset-from_image_list.hpp> // Tileset_FromImageList::ImageListEntry
 #include "test-tileset.hpp"
 #include "test-image.hpp"
 
@@ -85,17 +85,28 @@ void test_tileset::prepareTest(bool emptyArchive)
 	}
 	return;
 }
+
 Archive::FileHandle test_tileset::getFileAt(const Archive::FileVector& files,
 	unsigned int index)
 {
+	bool foundType = false;
 	for (const auto& i : files) {
 		auto pEntry = dynamic_cast<const Tileset_FromImageList::ImageListEntry *>(&*i);
 		if (pEntry) {
+			foundType = true;
 			if (pEntry->index == index) return i;
 		}
 	}
-	// Fall back to parent implementation
-	return this->test_archive::getFileAt(files, index);
+
+	if (!foundType) {
+		// Fall back to parent implementation
+		return this->test_archive::getFileAt(files, index);
+	} else {
+		// Found the type in the list above, but didn't match the index, so return
+		// an empty pointer here.  This gives a "could not find file at index X"
+		// error rather than an assertion failure.
+		return nullptr;
+	}
 }
 
 std::shared_ptr<Tileset> test_tileset::openTileset(
@@ -110,16 +121,16 @@ std::shared_ptr<Tileset> test_tileset::openTileset(
 		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
 		// informative without it.
 		//BOOST_REQUIRE_NO_THROW(
-			return pTilesetType->create(stream_wrap(this->base), this->suppData);
+			return pTilesetType->create(std::move(content), this->suppData);
 		//);
 	} else {
-		*base << this->initialstate();
+		*content << this->initialstate();
 		BOOST_TEST_CHECKPOINT("About to open " + this->basename
 			+ " initialstate as an archive");
 		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
 		// informative without it.
 		//BOOST_REQUIRE_NO_THROW(
-		return pTilesetType->open(stream_wrap(this->base), this->suppData);
+			return pTilesetType->open(std::move(content), this->suppData);
 		//);
 	}
 }
@@ -169,7 +180,7 @@ void test_tileset::test_isinstance_others()
 		// handler is to blame.
 		auto isInstanceResult = pTestType->isInstance(content);
 
-		BOOST_CHECK_MESSAGE(isInstanceResult < ArchiveType::DefinitelyYes,
+		BOOST_CHECK_MESSAGE(isInstanceResult < TilesetType::DefinitelyYes,
 			"isInstance() for " << otherType << " incorrectly recognises content for "
 			<< this->type);
 	}

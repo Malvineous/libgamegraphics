@@ -440,11 +440,10 @@ void test_image::test_sizedContent_create(const Point& dims,
 
 	this->resetSuppData(true); // true == empty
 	this->populateSuppData();
-	auto ss = std::make_unique<stream::string>();
-	auto ss_data = &ss->data;
+	auto ss = std::make_shared<stream::string>();
 
 	BOOST_TEST_CHECKPOINT("openImage()");
-	auto img = this->openImage(dims, std::move(ss), result, true);
+	auto img = this->openImage(dims, stream_wrap(ss), result, true);
 
 	if (img->caps() & Image::Caps::SetDimensions) {
 		BOOST_TEST_CHECKPOINT("Set dimensions");
@@ -501,7 +500,7 @@ void test_image::test_sizedContent_create(const Point& dims,
 
 	BOOST_TEST_CHECKPOINT("Compare result of conversion");
 	BOOST_REQUIRE_MESSAGE(
-		this->is_equal(content, *ss_data),
+		this->is_equal(content, ss->data),
 		"Converting to native format produced incorrect result"
 	);
 	return;
