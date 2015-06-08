@@ -122,17 +122,14 @@ class Tileset: virtual public gamearchive::Archive
 		 * is the responsibility of the caller to save, convert and then restore
 		 * all the image data.
 		 *
-		 * @pre caps() return value includes ChangeTilesetDimensions.
+		 * @pre caps() return value includes SetDimensions.
 		 *
 		 * @post The image data is not adjusted to reflect the change in size, so
 		 *   after this function is called all the images in the tileset (if any)
 		 *   will be undefined (i.e. random data).
 		 *
-		 * @param width
-		 *   New width
-		 *
-		 * @param height
-		 *   New height
+		 * @param newDimensions
+		 *   New width and height of all tiles.
 		 *
 		 * @note Default implementation triggers assertion failure.
 		 */
@@ -175,7 +172,7 @@ class Tileset: virtual public gamearchive::Archive
 		 *   there are sub-tilesets available.
 		 *
 		 * @param id
-		 *   ID of the item to open, as returned by getItems().
+		 *   ID of the item to open, as returned by files().
 		 *
 		 * @return A shared pointer to another Tileset instance.
 		 */
