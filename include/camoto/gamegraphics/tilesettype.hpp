@@ -42,7 +42,7 @@ class TilesetType
 		typedef Tileset obj_t;
 
 		/// Type name as a string
-		static constexpr const char* const obj_t_name = "Tileset";
+		static constexpr const char* const obj_t_name = "Tileset"; // defined in main.cpp
 
 		/// Confidence level when guessing a file format.
 		enum Certainty {

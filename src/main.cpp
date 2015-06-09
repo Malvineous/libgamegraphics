@@ -138,4 +138,11 @@ const std::vector<std::shared_ptr<const ImageType> > FormatEnumerator<ImageType>
 	return list;
 }
 
+namespace gamegraphics {
+
+constexpr const char* const ImageType::obj_t_name;
+constexpr const char* const TilesetType::obj_t_name;
+
+} // namespace gamegraphics
+
 } // namespace camoto
