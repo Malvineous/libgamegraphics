@@ -168,6 +168,9 @@ std::shared_ptr<Tileset> TilesetType_DDave::open(
 		auto imgPal = std::make_unique<Palette_VGA>(
 			std::move(suppData[SuppItem::Palette]), 6);
 		pal = imgPal->palette();
+	} else if (this->colourDepth() == ColourDepth::CGA) {
+		// Use the default CGA palette
+		pal = createPalette_CGA(CGAPaletteType::CyanMagentaBright);
 	}
 
 	return std::make_shared<Tileset_DDave>(
