@@ -51,12 +51,12 @@ class Tileset_GOT: virtual public Tileset_FAT
 		virtual unsigned int layoutWidth() const;
 
 		// Archive
-		virtual void resize(FileHandle& id, stream::len newStoredSize,
+		virtual void resize(const FileHandle& id, stream::len newStoredSize,
 			stream::len newRealSize);
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 };
@@ -264,7 +264,7 @@ unsigned int Tileset_GOT::layoutWidth() const
 	return 8;
 }
 
-void Tileset_GOT::resize(FileHandle& id, stream::len newStoredSize,
+void Tileset_GOT::resize(const FileHandle& id, stream::len newStoredSize,
 	stream::len newRealSize)
 {
 	auto fat = FATEntry::cast(id);
@@ -300,12 +300,12 @@ void Tileset_GOT::resize(FileHandle& id, stream::len newStoredSize,
 	return;
 }
 
-std::unique_ptr<Image> Tileset_GOT::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_GOT::openImage(const FileHandle& id)
 {
 	return std::make_unique<Image_GOT>(this->open(id, true), this->pal);
 }
 
-Tileset::FileHandle Tileset_GOT::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_GOT::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", 6, FILETYPE_GOT, attr);

@@ -67,8 +67,8 @@ class Tileset_Catacomb:
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 
@@ -275,7 +275,7 @@ unsigned int Tileset_Catacomb::layoutWidth() const
 	return 2;
 }
 
-std::unique_ptr<Image> Tileset_Catacomb::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_Catacomb::openImage(const FileHandle& id)
 {
 	switch (this->depth) {
 		case ColourDepth::EGA:
@@ -304,7 +304,7 @@ std::unique_ptr<Image> Tileset_Catacomb::openImage(FileHandle& id)
 	}
 }
 
-Tileset::FileHandle Tileset_Catacomb::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_Catacomb::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_CAT, attr);

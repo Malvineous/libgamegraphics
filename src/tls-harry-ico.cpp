@@ -51,10 +51,10 @@ class Tileset_HarryICO: virtual public Tileset_FAT
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual void resize(FileHandle& id, stream::len newStoredSize,
+		virtual void resize(const FileHandle& id, stream::len newStoredSize,
 			stream::len newRealSize);
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 };
@@ -225,7 +225,7 @@ unsigned int Tileset_HarryICO::layoutWidth() const
 	return 16;
 }
 
-void Tileset_HarryICO::resize(FileHandle& id, stream::len newStoredSize,
+void Tileset_HarryICO::resize(const FileHandle& id, stream::len newStoredSize,
 	stream::len newRealSize)
 {
 	auto fat = FATEntry::cast(id);
@@ -283,14 +283,14 @@ void Tileset_HarryICO::resize(FileHandle& id, stream::len newStoredSize,
 	return;
 }
 
-std::unique_ptr<Image> Tileset_HarryICO::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_HarryICO::openImage(const FileHandle& id)
 {
 	return std::make_unique<Image_DDaveVGA>(
 		this->open(id, true), false, this->palette()
 	);
 }
 
-Tileset::FileHandle Tileset_HarryICO::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_HarryICO::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", 0, FILETYPE_HARRY_ICO, attr);

@@ -211,7 +211,7 @@ unsigned int Tileset_CCavesMain::layoutWidth() const
 	return 1;
 }
 
-void Tileset_CCavesMain::resize(FileHandle& id, stream::len newStoredSize,
+void Tileset_CCavesMain::resize(const FileHandle& id, stream::len newStoredSize,
 	stream::len newRealSize)
 {
 	auto fat = FATEntry::cast(id);
@@ -253,14 +253,14 @@ void Tileset_CCavesMain::resize(FileHandle& id, stream::len newStoredSize,
 	return;
 }
 
-std::shared_ptr<Tileset> Tileset_CCavesMain::openTileset(FileHandle& id)
+std::shared_ptr<Tileset> Tileset_CCavesMain::openTileset(const FileHandle& id)
 {
 	return std::make_unique<Tileset_CCavesSub>(
 		this->open(id, true), this->numPlanes
 	);
 }
 
-Tileset::FileHandle Tileset_CCavesMain::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_CCavesMain::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", 3, FILETYPE_CCAVES_MAIN, attr);

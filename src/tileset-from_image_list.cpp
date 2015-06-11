@@ -111,7 +111,7 @@ const Tileset::FileVector& Tileset_FromImageList::files() const
 	return this->vcFAT;
 }
 
-Tileset::FileHandle Tileset_FromImageList::find(const std::string& strFilename) const
+const Tileset::FileHandle Tileset_FromImageList::find(const std::string& strFilename) const
 {
 	// no filenames means no matches, ever
 	return {};
@@ -137,29 +137,29 @@ std::shared_ptr<camoto::gamearchive::Archive> Tileset_FromImageList::openFolder(
 		"underlying storage");
 }
 
-Tileset::FileHandle Tileset_FromImageList::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_FromImageList::insert(const FileHandle& idBeforeThis,
 	const std::string& strFilename, stream::len storedSize, std::string type,
 	File::Attribute attr)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
-void Tileset_FromImageList::remove(FileHandle& id)
+void Tileset_FromImageList::remove(const FileHandle& id)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged (yet?)");
 }
 
-void Tileset_FromImageList::rename(FileHandle& id, const std::string& strNewName)
+void Tileset_FromImageList::rename(const FileHandle& id, const std::string& strNewName)
 {
 	throw stream::error("tiles in this tileset cannot be renamed");
 }
 
-void Tileset_FromImageList::move(const FileHandle& idBeforeThis, FileHandle& id)
+void Tileset_FromImageList::move(const FileHandle& idBeforeThis, const FileHandle& id)
 {
 	throw stream::error("tiles in this tileset cannot be rearranged");
 }
 
-void Tileset_FromImageList::resize(FileHandle& id, stream::len newStoredSize,
+void Tileset_FromImageList::resize(const FileHandle& id, stream::len newStoredSize,
 	stream::len newRealSize)
 {
 	// Should never get any resize requests from child objects (which are either
@@ -219,7 +219,7 @@ unsigned int Tileset_FromImageList::layoutWidth() const
 	return this->prefLayoutWidth;
 }
 
-std::unique_ptr<Image> Tileset_FromImageList::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_FromImageList::openImage(const FileHandle& id)
 {
 	auto fat = ImageListEntry::cast(id);
 	auto& item = this->imageList[fat->srcindex];
@@ -253,7 +253,7 @@ throw stream::error("TODO: Not implemented yet!");
 	throw stream::error("Invalid image list item attachment/split type.");
 }
 
-std::shared_ptr<Tileset> Tileset_FromImageList::openTileset(FileHandle& id)
+std::shared_ptr<Tileset> Tileset_FromImageList::openTileset(const FileHandle& id)
 {
 	auto fat = ImageListEntry::cast(id);
 	auto& item = this->imageList[fat->srcindex];

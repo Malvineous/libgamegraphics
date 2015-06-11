@@ -171,14 +171,14 @@ unsigned int Tileset_HarryCHR::layoutWidth() const
 	return 18;
 }
 
-std::unique_ptr<Image> Tileset_HarryCHR::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_HarryCHR::openImage(const FileHandle& id)
 {
 	return std::make_unique<Image_VGARaw>(
 		this->open(id, true), this->dimensions(), this->palette()
 	);
 }
 
-Tileset::FileHandle Tileset_HarryCHR::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_HarryCHR::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_HARRY_CHR,

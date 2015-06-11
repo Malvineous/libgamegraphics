@@ -34,7 +34,7 @@ Tileset_FAT_FixedTileSize::~Tileset_FAT_FixedTileSize()
 {
 }
 
-void Tileset_FAT_FixedTileSize::resize(FileHandle& id, stream::len newStoredSize,
+void Tileset_FAT_FixedTileSize::resize(const FileHandle& id, stream::len newStoredSize,
 	stream::len newRealSize)
 {
 	if (newStoredSize != this->lenTile) {

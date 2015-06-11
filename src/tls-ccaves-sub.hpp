@@ -64,8 +64,8 @@ class Tileset_CCavesSub:
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 		virtual void preInsertFile(const FATEntry *idBeforeThis,

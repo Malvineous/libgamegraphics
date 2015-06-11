@@ -76,8 +76,8 @@ class Tileset_MonsterBash:
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 
@@ -273,7 +273,7 @@ unsigned int Tileset_MonsterBash::layoutWidth() const
 	return 20;
 }
 
-std::unique_ptr<Image> Tileset_MonsterBash::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_MonsterBash::openImage(const FileHandle& id)
 {
 	EGAPlaneLayout planes = {
 		(this->numPlanes == PlaneCount::Masked)
@@ -289,7 +289,7 @@ std::unique_ptr<Image> Tileset_MonsterBash::openImage(FileHandle& id)
 	);
 }
 
-Tileset::FileHandle Tileset_MonsterBash::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_MonsterBash::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", this->lenTile,

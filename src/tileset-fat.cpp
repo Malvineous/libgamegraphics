@@ -41,12 +41,12 @@ Tileset_FAT::~Tileset_FAT()
 {
 }
 
-std::unique_ptr<Image> Tileset_FAT::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_FAT::openImage(const FileHandle& id)
 {
 	throw stream::error("Invalid file handle.");
 }
 
-std::shared_ptr<Tileset> Tileset_FAT::openTileset(FileHandle& id)
+std::shared_ptr<Tileset> Tileset_FAT::openTileset(const FileHandle& id)
 {
 	throw stream::error("Invalid file handle.");
 }

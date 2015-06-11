@@ -32,7 +32,7 @@ Tileset::~Tileset()
 {
 }
 
-std::shared_ptr<Tileset> Tileset::openTileset(FileHandle& id)
+std::shared_ptr<Tileset> Tileset::openTileset(const FileHandle& id)
 {
 	// Caller didn't check FileHandle->fAttr
 	assert(false);
@@ -41,7 +41,7 @@ std::shared_ptr<Tileset> Tileset::openTileset(FileHandle& id)
 		" attributes to detect this).");
 }
 
-std::unique_ptr<Image> Tileset::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset::openImage(const FileHandle& id)
 {
 	// Caller didn't check FileHandle->fAttr
 	assert(false);
@@ -75,7 +75,7 @@ unsigned int Tileset::layoutWidth() const
 	return 0;
 }
 
-Tileset::FileHandle Tileset::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	throw stream::error("This tileset contains a fixed number of images and "

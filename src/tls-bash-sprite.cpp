@@ -55,8 +55,8 @@ class Tileset_MonsterBashSprite: virtual public Tileset_FAT
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 		virtual void preInsertFile(const FATEntry *idBeforeThis,
@@ -217,12 +217,12 @@ unsigned int Tileset_MonsterBashSprite::layoutWidth() const
 	return 1;
 }
 
-std::unique_ptr<Image> Tileset_MonsterBashSprite::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_MonsterBashSprite::openImage(const FileHandle& id)
 {
 	return std::make_unique<Image_BashSprite>(this->open(id, true));
 }
 
-Tileset::FileHandle Tileset_MonsterBashSprite::insert(
+const Tileset::FileHandle Tileset_MonsterBashSprite::insert(
 	const FileHandle& idBeforeThis, File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", MB_MIN_IMAGE_LEN, FILETYPE_BASH_SPRITE,

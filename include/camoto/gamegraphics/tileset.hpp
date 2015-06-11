@@ -158,7 +158,7 @@ class Tileset: virtual public gamearchive::Archive
 		 *
 		 * @return A shared pointer to an instance of the Image class.
 		 */
-		virtual std::unique_ptr<Image> openImage(FileHandle& id) = 0;
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id) = 0;
 
 		/// Open the sub-tileset at the given offset.
 		/**
@@ -176,14 +176,14 @@ class Tileset: virtual public gamearchive::Archive
 		 *
 		 * @return A shared pointer to another Tileset instance.
 		 */
-		virtual std::shared_ptr<Tileset> openTileset(FileHandle& id) = 0;
+		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id) = 0;
 
 		/// Add a tile.
 		/**
 		 * Dimensions are standard for the tileset or 0x0, and can possibly be
 		 * changed after the tile is opened.
 		 */
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 
 		/// Get the indexed colour map from the image.

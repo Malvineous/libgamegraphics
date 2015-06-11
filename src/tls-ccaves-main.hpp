@@ -63,12 +63,12 @@ class Tileset_CCavesMain: virtual public Tileset_FAT
 		virtual unsigned int layoutWidth() const;
 
 		// Archive
-		virtual void resize(FileHandle& id, stream::len newStoredSize,
+		virtual void resize(const FileHandle& id, stream::len newStoredSize,
 			stream::len newRealSize);
 
 		// Tileset_FAT
-		virtual std::shared_ptr<Tileset> openTileset(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 

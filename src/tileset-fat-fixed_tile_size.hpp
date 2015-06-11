@@ -34,7 +34,7 @@ class Tileset_FAT_FixedTileSize: virtual public Tileset_FAT
 		Tileset_FAT_FixedTileSize(stream::len lenTile);
 		virtual ~Tileset_FAT_FixedTileSize();
 
-		virtual void resize(FileHandle& id, stream::len newStoredSize,
+		virtual void resize(const FileHandle& id, stream::len newStoredSize,
 			stream::len newRealSize);
 
 	protected:

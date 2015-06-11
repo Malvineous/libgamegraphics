@@ -216,7 +216,7 @@ unsigned int Tileset_CCavesSub::layoutWidth() const
 	return 10;
 }
 
-std::unique_ptr<Image> Tileset_CCavesSub::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_CCavesSub::openImage(const FileHandle& id)
 {
 	EGAPlaneLayout planes = {
 		(this->numPlanes == PlaneCount::Masked)
@@ -232,7 +232,7 @@ std::unique_ptr<Image> Tileset_CCavesSub::openImage(FileHandle& id)
 	);
 }
 
-Tileset::FileHandle Tileset_CCavesSub::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_CCavesSub::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	return this->insert(idBeforeThis, "", this->lenTile, FILETYPE_CCAVES_SUB, attr);

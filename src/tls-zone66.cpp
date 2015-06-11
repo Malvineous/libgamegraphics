@@ -69,7 +69,7 @@ class Tileset_Zone66: virtual public Tileset_FAT
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
 		virtual void updateFileOffset(const FATEntry *pid, stream::delta offDelta);
 		virtual void preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry);
@@ -251,7 +251,7 @@ unsigned int Tileset_Zone66::layoutWidth() const
 	return 16;
 }
 
-std::unique_ptr<Image> Tileset_Zone66::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_Zone66::openImage(const FileHandle& id)
 {
 	auto contentImage = this->open(id, true);
 	if (contentImage->size() == 64000) {

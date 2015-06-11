@@ -58,8 +58,8 @@ class Tileset_CComic2:
 		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual FileHandle insert(const FileHandle& idBeforeThis,
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
 
@@ -219,7 +219,7 @@ unsigned int Tileset_CComic2::layoutWidth() const
 	return 4;
 }
 
-std::unique_ptr<Image> Tileset_CComic2::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_CComic2::openImage(const FileHandle& id)
 {
 	EGAPlaneLayout planes = {
 		EGAPlanePurpose::Blue1,
@@ -236,7 +236,7 @@ std::unique_ptr<Image> Tileset_CComic2::openImage(FileHandle& id)
 	);
 }
 
-Tileset::FileHandle Tileset_CComic2::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_CComic2::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	auto newHandle = this->insert(idBeforeThis, "", this->lenTile,

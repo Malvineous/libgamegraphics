@@ -64,7 +64,7 @@ class Tileset_DDave: public Tileset_FAT
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
 		virtual unsigned int layoutWidth() const;
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
 		virtual void updateFileOffset(const FATEntry *pid, stream::delta offDelta);
 		virtual void preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry);
@@ -326,7 +326,7 @@ unsigned int Tileset_DDave::layoutWidth() const
 	return 4;
 }
 
-std::unique_ptr<Image> Tileset_DDave::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_DDave::openImage(const FileHandle& id)
 {
 	auto fat = FATEntry::cast(id);
 	bool fixedSize = fat->iIndex < DD_FIRST_TILE_WITH_DIMS;

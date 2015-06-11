@@ -38,8 +38,8 @@ class Tileset_FAT:
 		virtual ~Tileset_FAT();
 
 		// Functions to be filled out by descendent classes
-		virtual std::unique_ptr<Image> openImage(FileHandle& id);
-		virtual std::shared_ptr<Tileset> openTileset(FileHandle& id);
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
+		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id);
 
 	protected:
 		Tileset_FAT(); // for Tileset_FAT_FixedTileSize

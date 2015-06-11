@@ -93,7 +93,7 @@ unsigned int Tileset_EGAApogee::layoutWidth() const
 	return this->idealWidth;
 }
 
-std::unique_ptr<Image> Tileset_EGAApogee::openImage(FileHandle& id)
+std::unique_ptr<Image> Tileset_EGAApogee::openImage(const FileHandle& id)
 {
 	EGAPlaneLayout planes;
 	switch (this->numPlanes) {
@@ -120,7 +120,7 @@ std::unique_ptr<Image> Tileset_EGAApogee::openImage(FileHandle& id)
 	);
 }
 
-Tileset::FileHandle Tileset_EGAApogee::insert(const FileHandle& idBeforeThis,
+const Tileset::FileHandle Tileset_EGAApogee::insert(const FileHandle& idBeforeThis,
 	File::Attribute attr)
 {
 	auto newHandle = this->insert(idBeforeThis, "", this->lenTile,
