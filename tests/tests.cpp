@@ -25,9 +25,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 #include <iomanip>
-
 #include <camoto/debug.hpp> // for ANSI colours
-#include <camoto/util.hpp>  // createString
 #include "tests.hpp"
 
 using namespace camoto;
