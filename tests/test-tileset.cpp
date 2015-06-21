@@ -28,16 +28,6 @@
 using namespace camoto;
 using namespace camoto::gamearchive;
 
-/// Check whether a supp item is present and if so that the content is correct.
-#define CHECK_SUPP_ITEM(item, check_func, msg) \
-	if (this->suppResult.find(camoto::SuppItem::item) != this->suppResult.end()) { \
-		BOOST_CHECK_MESSAGE( \
-			this->is_supp_equal(camoto::SuppItem::item, \
-				this->suppResult[camoto::SuppItem::item]->check_func()), \
-			"[SuppItem::" TOSTRING(item) "] " msg \
-		); \
-	}
-
 /// Create a standard pattern in the given size.
 Pixels createTileData(const Point& dims, bool cga, unsigned int index)
 {
