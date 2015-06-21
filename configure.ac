@@ -19,8 +19,8 @@ AC_PROG_LIBTOOL
 
 AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
 
-PKG_CHECK_MODULES([libgamecommon], [libgamecommon])
-PKG_CHECK_MODULES([libgamearchive], [libgamearchive])
+PKG_CHECK_MODULES([libgamecommon], [libgamecommon >= 2])
+PKG_CHECK_MODULES([libgamearchive], [libgamearchive >= 2])
 PKG_CHECK_MODULES([libpng], [libpng])
 
 SAVE_CPPFLAGS=$CPPFLAGS
