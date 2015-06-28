@@ -103,8 +103,8 @@ test_image::test_image()
 	this->hotspot = {0, 0};
 	this->hitrect = {0, 0};
 
-	this->hasMetadata[camoto::Metadata::Description] = false;
-	this->hasMetadata[camoto::Metadata::Version] = false;
+	this->hasMetadata[camoto::Metadata::MetadataType::Description] = false;
+	this->hasMetadata[camoto::Metadata::MetadataType::Version] = false;
 
 	this->metadataDesc = "Metadata description";
 	this->metadataVer = "123";
