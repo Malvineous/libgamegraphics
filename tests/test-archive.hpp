@@ -171,7 +171,7 @@ class test_archive: public test_main
 		 * This may be called mid-test if the suppBase content should be reset to
 		 * the initial state.
 		 */
-		void resetSuppData(bool emptyArchive);
+		void resetSuppData(bool empty);
 
 		/// Populate suppData with data loaded from suppBase.
 		/**
@@ -186,6 +186,18 @@ class test_archive: public test_main
 		 * resetSuppData() first to return everything to the initialstate.
 		 */
 		void populateSuppData();
+
+		/// Check if all supp data streams match the expected values.
+		/**
+		 * @param fnExpected
+		 *   test_map2d member function to call (on the suppitem instance) to
+		 *   get the expected data, e.g. &test_map2d::initialstate
+		 *
+		 * @param msg
+		 *   Error message in case of data mismatch.
+		 */
+		void checkData(std::function<std::string(test_archive&)> fnExpected,
+			const std::string& msg);
 
 		/// Add an isInstance check to run later.
 		/**

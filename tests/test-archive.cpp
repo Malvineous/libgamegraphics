@@ -28,16 +28,6 @@
 using namespace camoto;
 using namespace camoto::gamearchive;
 
-/// Check whether a supp item is present and if so that the content is correct.
-#define CHECK_SUPP_ITEM(item, check_func, msg) \
-	if (this->suppResult.find(camoto::SuppItem::item) != this->suppResult.end()) { \
-		BOOST_CHECK_MESSAGE( \
-			this->is_supp_equal(camoto::SuppItem::item, \
-				this->suppResult[camoto::SuppItem::item]->check_func()), \
-			"[SuppItem::" TOSTRING(item) "] " msg \
-		); \
-	}
-
 BOOST_AUTO_TEST_CASE(archive_attribute_operators)
 {
 	BOOST_TEST_MESSAGE("Confirm Attribute operators calculate as expected");
@@ -90,8 +80,8 @@ test_archive::test_archive()
 	this->content0_largeSize_unfiltered = this->content0_largeSize;
 	this->content0_smallSize_unfiltered = this->content0_smallSize;
 
-	this->hasMetadata[camoto::Metadata::Description] = false;
-	this->hasMetadata[camoto::Metadata::Version] = false;
+	this->hasMetadata[camoto::Metadata::MetadataType::Description] = false;
+	this->hasMetadata[camoto::Metadata::MetadataType::Version] = false;
 
 	this->metadataDesc = "Metadata description";
 	this->metadataVer = "123";
@@ -137,12 +127,12 @@ void test_archive::addTests()
 	}
 
 	// Only perform the metadata tests if supported by the archive format
-	if (this->hasMetadata[camoto::Metadata::Description]) {
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Description]) {
 		ADD_ARCH_TEST(false, &test_archive::test_metadata_get_desc);
 		ADD_ARCH_TEST(false, &test_archive::test_metadata_set_desc_larger);
 		ADD_ARCH_TEST(false, &test_archive::test_metadata_set_desc_smaller);
 	}
-	if (this->hasMetadata[camoto::Metadata::Version]) {
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Version]) {
 		ADD_ARCH_TEST(false, &test_archive::test_metadata_get_ver);
 	}
 
@@ -192,18 +182,18 @@ void test_archive::runTest(bool empty, std::function<void()> fnTest)
 	return;
 }
 
-void test_archive::prepareTest(bool emptyArchive)
+void test_archive::prepareTest(bool empty)
 {
 	auto pArchType = ArchiveManager::byCode(this->type);
 	BOOST_REQUIRE_MESSAGE(pArchType, "Could not find archive type " + this->type);
 
 	// Make this->suppData valid
-	this->resetSuppData(emptyArchive);
+	this->resetSuppData(empty);
 	this->populateSuppData();
 
 	this->base = std::make_unique<stream::string>();
 
-	if (emptyArchive) {
+	if (empty) {
 		BOOST_TEST_CHECKPOINT("About to create new empty instance of "
 			+ this->basename);
 		// This should really use BOOST_REQUIRE_NO_THROW but the message is more
@@ -292,7 +282,7 @@ Archive::FileHandle test_archive::getFileAt(
 	return nullptr;
 }
 
-void test_archive::resetSuppData(bool emptyArchive)
+void test_archive::resetSuppData(bool empty)
 {
 	this->suppBase.clear();
 	for (auto& i : this->suppResult) {
@@ -303,7 +293,7 @@ void test_archive::resetSuppData(bool emptyArchive)
 			continue;
 		}
 		auto suppSS = std::make_shared<stream::string>();
-		if (!emptyArchive) {
+		if (!empty) {
 			// Populate the suppitem with its initial state
 			*suppSS << i.second->initialstate();
 		}
@@ -321,6 +311,28 @@ void test_archive::populateSuppData()
 		// Wrap this in a substream to get a unique pointer, with an independent
 		// seek position.
 		this->suppData[item] = stream_wrap(suppSS);
+	}
+	return;
+}
+
+void test_archive::checkData(std::function<std::string(test_archive&)> fnExpected,
+	const std::string& msg)
+{
+	// Flush out any changes before we perform the check
+	if (this->pArchive) this->pArchive->flush();
+
+	// Check main data
+	BOOST_CHECK_MESSAGE(
+		this->is_content_equal(fnExpected(*this)),
+		msg
+	);
+
+	// Check all available suppitems
+	for (auto& suppItem : this->suppResult) {
+		BOOST_CHECK_MESSAGE(
+			this->is_supp_equal(suppItem.first, fnExpected(*suppItem.second)),
+			"[SuppItem::" << camoto::suppToString(suppItem.first) << "] " << msg
+		);
 	}
 	return;
 }
@@ -405,7 +417,7 @@ void test_archive::changeMetadata(camoto::Metadata::MetadataType item,
 	this->ts->add(boost::unit_test::make_test_case(
 			boost::unit_test::callback0<>(fnTest),
 			createString("test_archive[" << this->basename << "]::changemetadata_c"
-				<< std::setfill('0') << std::setw(2) << this->numIsInstanceTests)
+				<< std::setfill('0') << std::setw(2) << this->numChangeMetadataTests)
 		));
 	this->numChangeMetadataTests++;
 	return;
@@ -421,37 +433,23 @@ void test_archive::test_changeMetadata(camoto::Metadata::MetadataType item,
 	this->prepareTest(false);
 	this->pArchive->setMetadata(item, newValue);
 
+	// Can't use checkData() here as we don't have parameter for target suppData
 	BOOST_CHECK_MESSAGE(
 		this->is_content_equal(content),
 		"Error setting metadata field"
 	);
-/*
-	CHECK_SUPP_ITEM(FAT, metadata_set_desc_larger,
-		"Error setting 'description' metadata field");
-*/
 	return;
 }
 
 boost::test_tools::predicate_result test_archive::is_content_equal(
 	const std::string& exp)
 {
-	// Flush out any changes before we perform the check
-	BOOST_CHECK_NO_THROW(
-		if (this->pArchive) this->pArchive->flush()
-	);
-
 	return this->is_equal(exp, this->base->data);
 }
 
 boost::test_tools::predicate_result test_archive::is_supp_equal(
 	camoto::SuppItem type, const std::string& strExpected)
 {
-	// Flush out any changes to the main archive before we perform the check,
-	// in case this function was called first.
-	BOOST_CHECK_NO_THROW(
-		if (this->pArchive) this->pArchive->flush()
-	);
-
 	// Use the supp's test-class' own comparison function, as this will use its
 	// preferred outputWidth value, which might be different to the main file's.
 	return this->suppResult[type]->is_equal(strExpected,
@@ -527,12 +525,8 @@ void test_archive::test_rename()
 
 	this->pArchive->rename(ep, this->filename[2]);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->rename()),
-		"Error renaming file"
-	);
-
-	CHECK_SUPP_ITEM(FAT, rename, "Error renaming file");
+	this->checkData(&test_archive::rename,
+		"Error renaming file");
 }
 
 void test_archive::test_rename_long()
@@ -557,12 +551,9 @@ void test_archive::test_rename_long()
 		stream::error
 	);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->initialstate()),
+	this->checkData(&test_archive::initialstate,
 		"Archive corrupted after failed rename"
 	);
-
-	CHECK_SUPP_ITEM(FAT, initialstate, "Archive corrupted after failed rename");
 
 	memset(name, 'A', this->lenMaxFilename);
 	name[this->lenMaxFilename - 4] = '.';
@@ -572,7 +563,6 @@ void test_archive::test_rename_long()
 	BOOST_CHECK_NO_THROW(
 		this->pArchive->rename(ep, name)
 	);
-
 }
 
 void test_archive::test_insert_long()
@@ -597,12 +587,9 @@ void test_archive::test_insert_long()
 		stream::error
 	);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->initialstate()),
+	this->checkData(&test_archive::initialstate,
 		"Archive corrupted after failed insert"
 	);
-
-	CHECK_SUPP_ITEM(FAT, initialstate, "Archive corrupted after failed insert");
 
 	memset(name, 'A', this->lenMaxFilename);
 	name[this->lenMaxFilename - 4] = '.';
@@ -612,7 +599,6 @@ void test_archive::test_insert_long()
 		Archive::FileHandle ep = this->pArchive->insert(epb, name,
 			this->content[0].length(), this->insertType, this->insertAttr)
 	);
-
 }
 
 void test_archive::test_insert_end()
@@ -637,12 +623,9 @@ void test_archive::test_insert_end()
 	pfsNew->write(this->content[2]);
 	pfsNew->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert_end()),
+	this->checkData(&test_archive::insert_end,
 		"Error inserting file at end of archive"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert_end, "Error inserting file at end of archive");
 }
 
 void test_archive::test_insert_mid()
@@ -665,12 +648,9 @@ void test_archive::test_insert_mid()
 	pfsNew->write(this->content[2]);
 	pfsNew->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert_mid()),
+	this->checkData(&test_archive::insert_mid,
 		"Error inserting file in middle of archive"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert_mid, "Error inserting file in middle of archive");
 }
 
 void test_archive::test_insert2()
@@ -708,12 +688,9 @@ void test_archive::test_insert2()
 	pfsNew2->write(this->content[3]);
 	pfsNew2->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert2()),
+	this->checkData(&test_archive::insert2,
 		"Error inserting two files"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert2, "Error inserting two files");
 }
 
 void test_archive::test_remove()
@@ -725,12 +702,9 @@ void test_archive::test_remove()
 	// Remove it
 	this->pArchive->remove(ep);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->remove()),
+	this->checkData(&test_archive::remove,
 		"Error removing file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, remove, "Error removing file");
 }
 
 void test_archive::test_remove2()
@@ -744,12 +718,9 @@ void test_archive::test_remove2()
 	this->pArchive->remove(ep1);
 	this->pArchive->remove(ep2);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->remove2()),
+	this->checkData(&test_archive::remove2,
 		"Error removing multiple files"
 	);
-
-	CHECK_SUPP_ITEM(FAT, remove2, "Error removing multiple files");
 }
 
 void test_archive::test_remove_open()
@@ -763,12 +734,9 @@ void test_archive::test_remove_open()
 	// Removing an open file should be allowed
 	this->pArchive->remove(ep1);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->remove()),
+	this->checkData(&test_archive::remove,
 		"Error removing open file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, remove, "Error removing open file");
 
 	// But now it should no longer be possible to use the file
 	BOOST_CHECK_THROW(
@@ -802,12 +770,9 @@ void test_archive::test_insert_remove()
 	// Remove it
 	this->pArchive->remove(ep2);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert_remove()),
+	this->checkData(&test_archive::insert_remove,
 		"Error inserting then removing file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert_remove, "Error inserting then removing file");
 }
 
 void test_archive::test_remove_insert()
@@ -835,15 +800,11 @@ void test_archive::test_remove_insert()
 	pfsNew->write(this->content[2]);
 	pfsNew->flush();
 
-	BOOST_CHECK_MESSAGE(
-		// This test checks against the insert_remove result instead, as the end
-		// result should be the same as that test.
-		this->is_content_equal(this->insert_remove()),
+	// This test checks against the insert_remove result instead, as the end
+	// result should be the same as that test.
+	this->checkData(&test_archive::insert_remove,
 		"Error removing then inserting file"
 	);
-
-	// Again, use insert_remove result instead
-	CHECK_SUPP_ITEM(FAT, insert_remove, "Error removing then inserting file");
 }
 
 void test_archive::test_move()
@@ -856,12 +817,9 @@ void test_archive::test_move()
 	// Swap the file positions
 	this->pArchive->move(ep1, ep2);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->move()),
+	this->checkData(&test_archive::move,
 		"Error moving file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, move, "Error moving file");
 }
 
 void test_archive::test_resize_larger()
@@ -873,12 +831,9 @@ void test_archive::test_resize_larger()
 	this->pArchive->resize(ep, this->content0_largeSize,
 		this->content0_largeSize_unfiltered);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->resize_larger()),
+	this->checkData(&test_archive::resize_larger,
 		"Error enlarging a file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, resize_larger, "Error enlarging a file");
 }
 
 void test_archive::test_resize_smaller()
@@ -891,12 +846,9 @@ void test_archive::test_resize_smaller()
 	this->pArchive->resize(ep, this->content0_smallSize,
 		this->content0_smallSize_unfiltered);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->resize_smaller()),
+	this->checkData(&test_archive::resize_smaller,
 		"Error shrinking a file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, resize_smaller, "Error shrinking a file");
 }
 
 void test_archive::test_resize_write()
@@ -929,13 +881,9 @@ void test_archive::test_resize_write()
 	// Make sure it's the right size
 	BOOST_REQUIRE_EQUAL(pfsNew->size(), this->content0_overwritten.length());
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->resize_write()),
+	this->checkData(&test_archive::resize_write,
 		"Error enlarging a file then writing into new space"
 	);
-
-	CHECK_SUPP_ITEM(FAT, resize_write,
-		"Error enlarging a file then writing into new space");
 
 	// Open the file following it to make sure it was moved out of the way
 	Archive::FileHandle ep2 = this->findFile(1);
@@ -984,8 +932,7 @@ void test_archive::test_resize_after_close()
 	// Make sure it's the right size
 	BOOST_REQUIRE_EQUAL(pfsNew->size(), this->content0_overwritten.length());
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->resize_write()),
+	this->checkData(&test_archive::resize_write,
 		"Error writing to a file after closing the archive"
 	);
 }
@@ -1030,13 +977,9 @@ void test_archive::test_remove_all_re_add()
 	pfsNew->write(this->content[1]);
 	pfsNew->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->initialstate()),
+	this->checkData(&test_archive::initialstate,
 		"Error removing all files then reinserting them again"
 	);
-
-	CHECK_SUPP_ITEM(FAT, initialstate,
-		"Error removing all files then reinserting them again");
 }
 
 // The function shifting files can get confused if a zero-length file is
@@ -1061,12 +1004,9 @@ void test_archive::test_insert_zero_then_resize()
 	pfsNew->write(this->content[2]);
 	pfsNew->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert_end()),
+	this->checkData(&test_archive::insert_end,
 		"Error resizing newly inserted empty file"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert_end, "Error resizing newly inserted empty file");
 }
 
 void test_archive::test_resize_over64k()
@@ -1079,12 +1019,9 @@ void test_archive::test_resize_over64k()
 	try {
 		pArchive->resize(ep, 65537, 65537);
 	} catch (stream::error) {
-		BOOST_CHECK_MESSAGE(
-			this->is_content_equal(this->initialstate()),
+		this->checkData(&test_archive::initialstate,
 			"Archive corrupted after failed file resize to over 64k"
 		);
-		CHECK_SUPP_ITEM(FAT, initialstate,
-			"Archive corrupted after failed file resize to over 64k");
 	}
 }
 
@@ -1118,8 +1055,7 @@ void test_archive::test_shortext()
 
 	this->pArchive->rename(ep, this->filename[0]);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->initialstate()),
+	this->checkData(&test_archive::initialstate,
 		"Failed to rename file with short extension back to long"
 	);
 }
@@ -1165,10 +1101,10 @@ void test_archive::test_new_to_initialstate()
 {
 	BOOST_TEST_MESSAGE("Creating archive from scratch");
 
-	if (this->hasMetadata[camoto::Metadata::Version]) {
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Version]) {
 		// Need to set this first as (in the case of Blood RFF) it affects what type
 		// of files we are allowed to insert.
-		this->pArchive->setMetadata(camoto::Metadata::Version, this->metadataVer);
+		this->pArchive->setMetadata(camoto::Metadata::MetadataType::Version, this->metadataVer);
 	}
 
 	auto& files2 = this->pArchive->files();
@@ -1196,24 +1132,20 @@ void test_archive::test_new_to_initialstate()
 	pfsNew->write(this->content[1]);
 	pfsNew->flush();
 
-	if (this->hasMetadata[camoto::Metadata::Description]) {
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Description]) {
 		// If this format has metadata, set it to the same value used when comparing
 		// against the initialstate, so that this new archive will hopefully match
 		// the initialstate itself.
-		this->pArchive->setMetadata(camoto::Metadata::Description, this->metadataDesc);
+		this->pArchive->setMetadata(camoto::Metadata::MetadataType::Description, this->metadataDesc);
 	}
-
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->initialstate()),
-		"Error inserting files in new/empty archive"
-	);
 
 	// Make sure there are now the correct number of files in the archive
 	auto& files = this->pArchive->files();
 	BOOST_REQUIRE_EQUAL(files.size(), 2);
 
-	CHECK_SUPP_ITEM(FAT, initialstate,
-		"Error inserting files in new/empty archive");
+	this->checkData(&test_archive::initialstate,
+		"Error inserting files in new/empty archive"
+	);
 }
 
 // The function shifting files can get confused if a zero-length file is
@@ -1222,14 +1154,14 @@ void test_archive::test_new_manipulate_zero_length_files()
 {
 	BOOST_TEST_MESSAGE("Inserting empty files into archive, then resizing them");
 
-	if (this->hasMetadata[camoto::Metadata::Description]) {
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Description]) {
 		// If this format has metadata, set it to the same value used when comparing
 		// against the initialstate, so that this new archive will hopefully match
 		// the initialstate itself.
-		this->pArchive->setMetadata(camoto::Metadata::Description, this->metadataDesc);
+		this->pArchive->setMetadata(camoto::Metadata::MetadataType::Description, this->metadataDesc);
 	}
-	if (this->hasMetadata[camoto::Metadata::Version]) {
-		this->pArchive->setMetadata(camoto::Metadata::Version, this->metadataVer);
+	if (this->hasMetadata[camoto::Metadata::MetadataType::Version]) {
+		this->pArchive->setMetadata(camoto::Metadata::MetadataType::Version, this->metadataVer);
 	}
 
 	// Insert the file
@@ -1306,12 +1238,9 @@ void test_archive::test_new_manipulate_zero_length_files()
 	//file3->write(CONTENT3, sizeof(CONTENT3) - 1);
 	file3->flush();
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->insert_end()),
+	this->checkData(&test_archive::insert_end,
 		"Error manipulating zero-length files"
 	);
-
-	CHECK_SUPP_ITEM(FAT, insert_end, "Error manipulating zero-length files");
 }
 
 //
@@ -1323,10 +1252,9 @@ void test_archive::test_metadata_get_desc()
 	BOOST_TEST_MESSAGE("Get 'description' metadata field");
 
 	// Make sure this format reports having a 'description' metadata field
-	camoto::Metadata::MetadataTypes items = this->pArchive->getMetadataList();
 	bool bFound = false;
-	for (camoto::Metadata::MetadataTypes::iterator i = items.begin(); i != items.end(); i++) {
-		if (*i == camoto::Metadata::Description) {
+	for (auto& i : this->pArchive->getMetadataList()) {
+		if (i == camoto::Metadata::MetadataType::Description) {
 			bFound = true;
 			break;
 		}
@@ -1334,7 +1262,7 @@ void test_archive::test_metadata_get_desc()
 	BOOST_REQUIRE_EQUAL(bFound, true);
 
 	// Change the field's value
-	std::string value = this->pArchive->getMetadata(camoto::Metadata::Description);
+	std::string value = this->pArchive->getMetadata(camoto::Metadata::MetadataType::Description);
 
 	// Make sure we didn't read in extra data (e.g. 400MB with a broken length)
 	BOOST_REQUIRE_EQUAL(value.length(), this->metadataDesc.length());
@@ -1347,7 +1275,6 @@ void test_archive::test_metadata_get_desc()
 		this->is_equal(this->metadataDesc, out.data),
 		"Error getting 'description' metadata field"
 	);
-
 }
 
 void test_archive::test_metadata_set_desc_larger()
@@ -1359,15 +1286,11 @@ void test_archive::test_metadata_set_desc_larger()
 
 	// Change the field's value
 	this->pArchive->setMetadata(
-		camoto::Metadata::Description, this->metadataDescLarger);
+		camoto::Metadata::MetadataType::Description, this->metadataDescLarger);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->metadata_set_desc_larger()),
-		"Error setting 'description' metadata field"
+	this->checkData(&test_archive::metadata_set_desc_larger,
+		"Error enlarging 'description' metadata field"
 	);
-
-	CHECK_SUPP_ITEM(FAT, metadata_set_desc_larger,
-		"Error setting 'description' metadata field");
 }
 
 void test_archive::test_metadata_set_desc_smaller()
@@ -1379,15 +1302,11 @@ void test_archive::test_metadata_set_desc_smaller()
 
 	// Change the field's value
 	this->pArchive->setMetadata(
-		camoto::Metadata::Description, this->metadataDescSmaller);
+		camoto::Metadata::MetadataType::Description, this->metadataDescSmaller);
 
-	BOOST_CHECK_MESSAGE(
-		this->is_content_equal(this->metadata_set_desc_smaller()),
-		"Error setting 'description' metadata field"
+	this->checkData(&test_archive::metadata_set_desc_smaller,
+		"Error shrinking 'description' metadata field"
 	);
-
-	CHECK_SUPP_ITEM(FAT, metadata_set_desc_smaller,
-		"Error setting 'description' metadata field");
 }
 
 void test_archive::test_metadata_get_ver()
@@ -1395,10 +1314,9 @@ void test_archive::test_metadata_get_ver()
 	BOOST_TEST_MESSAGE("Get 'version' metadata field");
 
 	// Make sure this format reports having a 'version' metadata field
-	camoto::Metadata::MetadataTypes items = this->pArchive->getMetadataList();
 	bool bFound = false;
-	for (camoto::Metadata::MetadataTypes::iterator i = items.begin(); i != items.end(); i++) {
-		if (*i == camoto::Metadata::Version) {
+	for (auto& i : this->pArchive->getMetadataList()) {
+		if (i == camoto::Metadata::MetadataType::Version) {
 			bFound = true;
 			break;
 		}
@@ -1406,7 +1324,7 @@ void test_archive::test_metadata_get_ver()
 	BOOST_REQUIRE_EQUAL(bFound, true);
 
 	// Change the field's value
-	std::string value = this->pArchive->getMetadata(camoto::Metadata::Version);
+	std::string value = this->pArchive->getMetadata(camoto::Metadata::MetadataType::Version);
 
 	// Make sure we didn't read in extra data (e.g. 400MB with a broken length)
 	BOOST_REQUIRE_EQUAL(value.length(), this->metadataVer.length());
