@@ -52,7 +52,7 @@ TilesetFromList::TilesetFromList(const TileList& tileList, ImagePtr img,
 		fat->index = i;
 		this->items.push_back(ep);
 	}
-	this->fnImageChanged = boost::bind<void>(&TilesetFromList::imageChanged, this);
+	this->fnImageChanged = boost::bind(&TilesetFromList::imageChanged, this);
 }
 
 TilesetFromList::~TilesetFromList()

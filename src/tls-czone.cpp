@@ -188,7 +188,7 @@ TilesetPtr Tileset_CZone::openTileset(const EntryPtr& id)
 {
 	Tileset_FAT::FATEntryPtr pFAT = boost::dynamic_pointer_cast<Tileset_FAT::FATEntry>(id);
 	assert(pFAT);
-	stream::fn_truncate fnTruncate = boost::bind<void>(&Tileset_CZone::resize, this, id, _1);
+	stream::fn_truncate fnTruncate = boost::bind(&Tileset_CZone::resize, this, id, _1);
 	stream::sub_sptr sub(new stream::sub);
 	sub->open(this->data, pFAT->offset + pFAT->lenHeader, pFAT->size, fnTruncate);
 	TilesetPtr tileset;

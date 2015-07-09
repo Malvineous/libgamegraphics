@@ -48,7 +48,7 @@ Image_TilesetFrom::Image_TilesetFrom(ImagePtr img, unsigned int tileWidth,
 		fat->index = i;
 		this->items.push_back(ep);
 	}
-	this->fnImageChanged = boost::bind<void>(&Image_TilesetFrom::imageChanged, this);
+	this->fnImageChanged = boost::bind(&Image_TilesetFrom::imageChanged, this);
 }
 
 Image_TilesetFrom::~Image_TilesetFrom()

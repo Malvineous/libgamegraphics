@@ -350,7 +350,7 @@ stream::inout_sptr Tileset_FAT::openStream(const EntryPtr& id)
 	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
 	assert(pFAT);
 
-	stream::fn_truncate fnTruncate = boost::bind<void>(&Tileset_FAT::resize, this, id, _1);
+	stream::fn_truncate fnTruncate = boost::bind(&Tileset_FAT::resize, this, id, _1);
 
 	stream::sub_sptr sub(new stream::sub);
 	sub->open(
