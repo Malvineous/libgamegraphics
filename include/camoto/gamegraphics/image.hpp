@@ -286,6 +286,18 @@ inline bool operator& (Image::Caps a, Image::Caps b) {
 	;
 }
 
+inline Image::Mask operator| (Image::Mask a, Image::Mask b) {
+	return static_cast<Image::Mask>(
+		static_cast<unsigned int>(a) | static_cast<unsigned int>(b)
+	);
+}
+
+inline bool operator& (Image::Mask a, Image::Mask b) {
+	return
+		static_cast<unsigned int>(a) & static_cast<unsigned int>(b)
+	;
+}
+
 } // namespace gamegraphics
 } // namespace camoto
 

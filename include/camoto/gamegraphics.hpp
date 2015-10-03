@@ -92,6 +92,7 @@ Additional information is available from the Camoto homepage
 #include <camoto/gamegraphics/image.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
+#include <camoto/gamegraphics/tileset-from_image_list.hpp>
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/manager.hpp>
 
