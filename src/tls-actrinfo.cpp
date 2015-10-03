@@ -1,6 +1,6 @@
 /**
  * @file  tls-actrinfo.cpp
- * @brief Cosmo/Duke II actor tileset
+ * @brief Cosmo actor tileset
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileinfo_Format
@@ -21,11 +21,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
-#include <camoto/gamegraphics/palettetable.hpp>
-#include "tileset-fat.hpp"
-#include "img-ega-byteplanar-tiled.hpp"
+#include <camoto/util.hpp> // make_unique
+#include <camoto/gamegraphics/palette.hpp>
 #include "tls-actrinfo.hpp"
+#include "tileset-fat.hpp"
+#include "image-from_tileset.hpp"
+#include "tls-ega-apogee.hpp"
 
 /// Number of planes in each image
 #define ACTR_NUMPLANES  5
@@ -40,13 +43,6 @@
 #define ACTR_TILE_WIDTH 8
 #define ACTR_TILE_HEIGHT 8
 
-/// Size of each tile within a single actor frame, in bytes.
-#define ACTR_TILE_SIZE (ACTR_TILE_WIDTH / 8 * ACTR_TILE_HEIGHT * ACTR_NUMPLANES)
-
-#include <camoto/gamegraphics/tilesettype.hpp>
-#include <camoto/gamegraphics/palettetable.hpp>
-#include "tileset-fat.hpp"
-
 namespace camoto {
 namespace gamegraphics {
 
@@ -54,50 +50,62 @@ namespace gamegraphics {
 class Tileset_Actrinfo: virtual public Tileset_FAT
 {
 	public:
-		Tileset_Actrinfo(stream::inout_sptr dataInfo, stream::inout_sptr dataTiles,
-			PaletteTablePtr pal);
+		Tileset_Actrinfo(std::unique_ptr<stream::inout> content,
+			std::unique_ptr<stream::inout> contentTileset, const Point& tileSize,
+			std::shared_ptr<const Palette> pal);
 		virtual ~Tileset_Actrinfo();
 
-		virtual int getCaps();
-		void resize(EntryPtr& id, stream::len newSize);
-		virtual unsigned int getLayoutWidth();
-		virtual PaletteTablePtr getPalette();
+		// Archive
+		virtual std::shared_ptr<Archive> openFolder(const FileHandle& id);
+
+		// Tileset
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual unsigned int layoutWidth() const;
 
 		// Tileset_FAT
-		virtual TilesetPtr createTilesetInstance(const EntryPtr& id,
-			stream::inout_sptr content);
+		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id);
 
 	protected:
-		stream::inout_sptr dataTiles;  ///< ACTORS.MNI or equivalent
-		PaletteTablePtr pal;
+		/// Actual 8x8 tiles comprising the actors (e.g. ACTORS.MNI)
+		std::shared_ptr<Tileset> actorTiles;
+
+		/// Tile dimensions, in pixels (e.g. 8x8), for calculating index from offset
+		Point tileSize;
 };
 
-/// Tileset containing each frame for a single actor.
+/// Tileset containing all the frames for a single actor.
 class Tileset_SingleActor: virtual public Tileset_FAT
 {
 	public:
-		Tileset_SingleActor(stream::inout_sptr fat, stream::inout_sptr data,
-			PaletteTablePtr pal);
+		Tileset_SingleActor(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<Tileset> actorTiles, const Point& tileSize);
 		virtual ~Tileset_SingleActor();
 
-		virtual int getCaps();
-		void resize(EntryPtr& id, stream::len newSize);
-		virtual unsigned int getLayoutWidth();
-		virtual PaletteTablePtr getPalette();
+		virtual Caps caps() const;
+		virtual ColourDepth colourDepth() const;
+		virtual unsigned int layoutWidth() const;
+		virtual std::shared_ptr<const Palette> palette() const;
+
+		void resize(const FileHandle& id, stream::len newSize);
 
 		// Tileset_FAT
-		virtual ImagePtr createImageInstance(const EntryPtr& id,
-			stream::inout_sptr content);
+		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
 
-		class ActorEntry: virtual public FATEntry {
+		class SingleActorEntry: virtual public FATEntry {
 			public:
-				unsigned int width;  ///< Image width, in tiles
-				unsigned int height; ///< Image height, in tiles
+				Point dims; // Image size, in tiles
 		};
 
 	protected:
-		stream::inout_sptr dataInfo;  ///< ACTRINFO.MNI or equivalent
-		PaletteTablePtr pal;
+		/// Tile arrangement data (e.g. ACTRINFO.MNI)
+		std::shared_ptr<Tileset_Actrinfo> base;
+
+		/// Actual 8x8 tiles comprising the actors (e.g. ACTORS.MNI)
+		std::shared_ptr<Tileset> actorTiles;
+
+		/// Tile dimensions, in pixels (e.g. 8x8), for calculating index from offset
+		Point tileSize;
 };
 
 //
@@ -112,54 +120,57 @@ TilesetType_Actrinfo::~TilesetType_Actrinfo()
 {
 }
 
-std::string TilesetType_Actrinfo::getCode() const
+std::string TilesetType_Actrinfo::code() const
 {
 	return "tls-actrinfo";
 }
 
-std::string TilesetType_Actrinfo::getFriendlyName() const
+std::string TilesetType_Actrinfo::friendlyName() const
 {
 	return "Cosmo Actor Tileset";
 }
 
-std::vector<std::string> TilesetType_Actrinfo::getFileExtensions() const
+std::vector<std::string> TilesetType_Actrinfo::fileExtensions() const
 {
 	return {"mni"};
 }
 
-std::vector<std::string> TilesetType_Actrinfo::getGameList() const
+std::vector<std::string> TilesetType_Actrinfo::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Cosmo's Cosmic Adventures");
-	return vcGames;
+	return {
+		"Cosmo's Cosmic Adventures",
+	};
 }
 
-TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
+	stream::input& content) const
 {
 	return Unsure;
 }
 
-TilesetPtr TilesetType_Actrinfo::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Actrinfo::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psGraphics->seekp(0, stream::start);
+	content->seekp(0, stream::start);
 	// Zero tiles, 0x0
-	if (suppData.find(SuppItem::FAT) == suppData.end()) {
-		throw stream::error("no actor info file specified (missing supplementary item)");
-	}
-	return TilesetPtr(
-		new Tileset_Actrinfo(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
-	);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_Actrinfo::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Actrinfo::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	if (suppData.find(SuppItem::FAT) == suppData.end()) {
 		throw stream::error("no actor info file specified (missing supplementary item)");
 	}
-	return TilesetPtr(
-		new Tileset_Actrinfo(suppData[SuppItem::FAT], psGraphics, PaletteTablePtr())
+	// The file data is loaded in lots of 65535 bytes, into memory blocks of
+	// 65536 bytes.  This means after every 65535 bytes, a padding byte should be
+	// inserted in order for the offsets to add up correctly.  Likewise when
+	// saving data, every 65536th byte should be dropped.
+	return std::make_shared<Tileset_Actrinfo>(
+		std::move(suppData[SuppItem::FAT]),
+		std::move(content),
+		Point{ACTR_TILE_WIDTH, ACTR_TILE_HEIGHT},
+		nullptr
 	);
 }
 
@@ -182,83 +193,92 @@ SuppFilenames TilesetType_Actrinfo::getRequiredSupps(stream::input& content,
 // Tileset_Actrinfo
 //
 
-Tileset_Actrinfo::Tileset_Actrinfo(stream::inout_sptr dataInfo,
-	stream::inout_sptr dataTiles, PaletteTablePtr pal)
-	:	Tileset_FAT(dataInfo, ACTR_FIRST_TILE_OFFSET),
-		dataTiles(dataTiles),
-		pal(pal)
+Tileset_Actrinfo::Tileset_Actrinfo(std::unique_ptr<stream::inout> content,
+	std::unique_ptr<stream::inout> contentTileset, const Point& tileSize,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), ACTR_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		actorTiles(
+			std::make_shared<Tileset_EGAApogee>(
+				std::move(contentTileset),
+				tileSize,
+				PlaneCount::Masked, 40, pal
+			)
+		),
+		tileSize(tileSize)
 {
-	this->data->seekg(0, stream::start);
-	std::vector<unsigned int> offsets;
-	unsigned int nextOffset;
-	unsigned int numImages = 1;
-	for (unsigned int i = 0; i < numImages; i++) {
-		this->data >> u16le(nextOffset);
-		nextOffset -= nextOffset / 65536;
-		if (i == 0) numImages = nextOffset;
-		nextOffset *= 2;
-		offsets.push_back(nextOffset);
-	}
-	stream::len lenInfo = dataInfo->size();
-	offsets.push_back(lenInfo);
+	this->pal = pal;
 
-	this->items.reserve(numImages);
-	std::vector<unsigned int>::const_iterator oi = offsets.begin();
-	for (unsigned int i = 0; i < numImages; i++) {
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = Tileset::SubTileset;
-		fat->index = i;
-		fat->lenHeader = 0;
-		fat->offset = *oi++;
-		fat->size = *oi - fat->offset;
-		if (fat->size == 0) {
-			fat->attr = Tileset::EmptySlot;
+	auto lenContent = this->content->size();
+	if (lenContent > 2) {
+		this->content->seekg(0, stream::start);
+		stream::pos nextOffset;
+		*this->content >> u16le(nextOffset);
+		nextOffset -= nextOffset / 65536;
+		unsigned int numImages = nextOffset;
+		nextOffset *= 2;
+		if (lenContent < numImages * 2) {
+			throw stream::error("Actor info FAT truncated");
 		}
-		this->items.push_back(ep);
+		this->vcFAT.reserve(numImages);
+		for (unsigned int i = 0; i < numImages; i++) {
+			auto fat = std::make_unique<FATEntry>();
+			fat->bValid = true;
+			fat->fAttr = File::Attribute::Folder;
+			fat->iIndex = i;
+			fat->lenHeader = 0;
+			fat->iOffset = nextOffset;
+			if (i == numImages - 1) {
+				nextOffset = this->content->size();
+			} else {
+				*this->content >> u16le(nextOffset);
+				nextOffset *= 2;
+				nextOffset -= nextOffset / 65536;
+			}
+			if (nextOffset < fat->iOffset) {
+				throw stream::error(createString("Invalid end offset for actor "
+					<< i << " (actor size would be negative - offset is "
+					<< fat->iOffset << ", end offset is " << nextOffset << ")"));
+			}
+			fat->realSize = fat->storedSize = nextOffset - fat->iOffset;
+			if (fat->storedSize == 0) {
+				fat->fAttr = File::Attribute::Vacant;
+			}
+			this->vcFAT.push_back(std::move(fat));
+		}
 	}
+
 }
 
 Tileset_Actrinfo::~Tileset_Actrinfo()
 {
 }
 
-int Tileset_Actrinfo::getCaps()
+std::shared_ptr<gamearchive::Archive> Tileset_Actrinfo::openFolder(const FileHandle& id)
 {
-	return Tileset::ColourDepthEGA
-		| (this->pal ? Tileset::HasPalette : 0);
+	return this->openTileset(id);
 }
 
-void Tileset_Actrinfo::resize(EntryPtr& id, stream::len newSize)
+Tileset::Caps Tileset_Actrinfo::caps() const
 {
-	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
-	assert(fat);
-
-	if (newSize != fat->size) {
-		throw stream::error("tiles in this tileset are a fixed size");
-	}
-	return;
+	return (this->pal ? Caps::HasPalette : Caps::Default);
 }
 
-unsigned int Tileset_Actrinfo::getLayoutWidth()
+ColourDepth Tileset_Actrinfo::colourDepth() const
+{
+	return this->actorTiles->colourDepth();
+}
+
+unsigned int Tileset_Actrinfo::layoutWidth() const
 {
 	return 1;
 }
 
-PaletteTablePtr Tileset_Actrinfo::getPalette()
+std::shared_ptr<Tileset> Tileset_Actrinfo::openTileset(const FileHandle& id)
 {
-	return this->pal;
-}
-
-TilesetPtr Tileset_Actrinfo::createTilesetInstance(const EntryPtr& id,
-	stream::inout_sptr content)
-{
-	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
-	assert(fat);
-
-	return TilesetPtr(
-		new Tileset_SingleActor(content, this->dataTiles, this->pal)
+	return std::make_shared<Tileset_SingleActor>(
+		this->open(id, true),
+		this->actorTiles,
+		this->tileSize
 	);
 }
 
@@ -267,45 +287,46 @@ TilesetPtr Tileset_Actrinfo::createTilesetInstance(const EntryPtr& id,
 // Tileset_SingleActor
 //
 
-Tileset_SingleActor::Tileset_SingleActor(stream::inout_sptr dataInfo,
-	stream::inout_sptr data, PaletteTablePtr pal)
-	:	Tileset_FAT(data, ACTR_SINGLE_FIRST_TILE_OFFSET),
-		pal(pal)
+Tileset_SingleActor::Tileset_SingleActor(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<Tileset> actorTiles, const Point& tileSize)
+	:	Tileset_FAT(std::move(content), ACTR_SINGLE_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
+		actorTiles(actorTiles),
+		tileSize(tileSize)
 {
-	stream::pos lenFAT = dataInfo->size();
-	this->data->seekg(0, stream::start);
+	stream::pos lenFAT = this->content->size();
+	this->content->seekg(0, stream::start);
 
 	stream::len lenRemaining = lenFAT;
-	ActorEntry *fatLast = NULL;
+	SingleActorEntry *fatLast = nullptr;
 	unsigned int i = 0;
-	while (lenRemaining) {
-		ActorEntry *fat = new ActorEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = Tileset::Default;
-		fat->index = i++;
+	while (lenRemaining >= 8) {
+		SingleActorEntry *fat = new SingleActorEntry();
+		FileHandle ep(fat);
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i++;
 		fat->lenHeader = 0;
-		dataInfo
-			>> u16le(fat->height)
-			>> u16le(fat->width)
-			>> u32le(fat->offset)
+		*this->content
+			>> u16le(fat->dims.y)
+			>> u16le(fat->dims.x)
+			>> u32le(fat->iOffset)
 		;
 		// Adjust for memory alignment
-		fat->offset -= fat->offset / 65536;
+		fat->iOffset -= fat->iOffset / 65536;
 		if (fatLast) {
-			fatLast->size = fat->offset - fatLast->offset;
-			if (fatLast->size == 0) {
-				fatLast->attr = Tileset::EmptySlot;
+			fatLast->storedSize = fat->iOffset - fatLast->iOffset;
+			if (fatLast->storedSize == 0) {
+				fatLast->fAttr = File::Attribute::Vacant;
 			}
 		}
 
-		this->items.push_back(ep);
+		this->vcFAT.push_back(ep);
 		lenRemaining -= 8;
 		fatLast = fat;
 	}
 	if (fatLast) {
-		stream::pos lenData = this->data->size();
-		fatLast->size = lenData - fatLast->offset;
+		stream::pos lenData = this->content->size();
+		fatLast->storedSize = lenData - fatLast->iOffset;
 	}
 }
 
@@ -313,55 +334,49 @@ Tileset_SingleActor::~Tileset_SingleActor()
 {
 }
 
-int Tileset_SingleActor::getCaps()
+Tileset::Caps Tileset_SingleActor::caps() const
 {
-	return Tileset::ColourDepthEGA
-		| (this->pal ? Tileset::HasPalette : 0);
+	return Caps::Default
+		| ((this->actorTiles->caps() & Caps::HasPalette) ? Caps::HasPalette : Caps::Default);
 }
 
-void Tileset_SingleActor::resize(EntryPtr& id, stream::len newSize)
+ColourDepth Tileset_SingleActor::colourDepth() const
 {
-	FATEntry *fat = dynamic_cast<FATEntry *>(id.get());
+	return this->actorTiles->colourDepth();
+}
+
+void Tileset_SingleActor::resize(const FileHandle& id, stream::len newSize)
+{
+	auto fat = FATEntry::cast(id);
 	assert(fat);
 
-	if (newSize != fat->size) {
+	if (newSize != fat->storedSize) {
 		throw stream::error("tiles in this tileset are a fixed size");
 	}
 	return;
 }
 
-unsigned int Tileset_SingleActor::getLayoutWidth()
+unsigned int Tileset_SingleActor::layoutWidth() const
 {
-	return 40;
+	return 1;
 }
 
-PaletteTablePtr Tileset_SingleActor::getPalette()
+std::shared_ptr<const Palette> Tileset_SingleActor::palette() const
 {
-	return this->pal;
+	return this->actorTiles->palette();
 }
 
-ImagePtr Tileset_SingleActor::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_SingleActor::openImage(const FileHandle& id)
 {
-	ActorEntry *fat = dynamic_cast<ActorEntry *>(id.get());
+	auto fat = dynamic_cast<const SingleActorEntry *>(id.get());
 	assert(fat);
 
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 2;
-	planes[PLANE_GREEN] = 3;
-	planes[PLANE_RED] = 4;
-	planes[PLANE_INTENSITY] = 5;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 1;
+	unsigned int firstTile = fat->iOffset /
+		(this->tileSize.x * this->tileSize.y * ACTR_NUMPLANES / 8);
 
-	Image_EGABytePlanarTiled *ega = new Image_EGABytePlanarTiled();
-	ImagePtr conv(ega);
-	ega->setParams(
-		content, 0, fat->width * ACTR_TILE_WIDTH, fat->height * ACTR_TILE_HEIGHT,
-		planes, this->pal
+	return std::make_unique<Image_FromTileset>(
+		this->actorTiles, firstTile, fat->dims.x, fat->dims
 	);
-
-	return conv;
 }
 
 } // namespace gamegraphics
