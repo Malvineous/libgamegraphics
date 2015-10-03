@@ -95,7 +95,7 @@ SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(stream::input& conten
 	const std::string& filename) const
 {
 	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 

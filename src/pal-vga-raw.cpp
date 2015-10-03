@@ -95,7 +95,7 @@ SuppFilenames ImageType_Palette_VGA::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
 	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
@@ -162,7 +162,7 @@ SuppFilenames ImageType_VGA8Palette::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
 	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 

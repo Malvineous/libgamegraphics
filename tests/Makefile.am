@@ -48,6 +48,7 @@ tests_SOURCES += test-tls-zone66.cpp
 tests_SOURCES += test-tls-zone66-map.cpp
 
 EXTRA_tests_SOURCES = tests.hpp
+EXTRA_tests_SOURCES += test-archive.hpp
 EXTRA_tests_SOURCES += test-filter.hpp
 EXTRA_tests_SOURCES += test-image.hpp
 EXTRA_tests_SOURCES += test-tileset.hpp

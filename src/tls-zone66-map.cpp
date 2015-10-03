@@ -111,8 +111,10 @@ TilesetType::Certainty TilesetType_Zone66Map::isInstance(
 	stream::pos len = content.size();
 
 	// Standard tileset
+	// TESTED BY: tls_zone66_map_c01
 	if (len % Z66_TILE_SIZE != 0) return DefinitelyNo;
 
+	// TESTED BY: tls_zone66_map_c00
 	return PossiblyYes;
 }
 

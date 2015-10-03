@@ -151,7 +151,7 @@ std::unique_ptr<Image> ImageType_CComic::open(
 SuppFilenames ImageType_CComic::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
-	return SuppFilenames();
+	return {};
 }
 
 } // namespace gamegraphics

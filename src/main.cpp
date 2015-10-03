@@ -1,5 +1,5 @@
 /**
- * @file  main.cpp
+ * @file  libgamegraphics/src/main.cpp
  * @brief Entry point for libgamegraphics.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -30,7 +30,6 @@
 #include "tls-ccomic.hpp"
 #include "tls-ccomic2.hpp"
 #include "tls-cosmo.hpp"
-#include "tls-czone.hpp"
 #include "tls-ddave.hpp"
 #include "tls-got.hpp"
 #include "tls-harry-chr.hpp"
@@ -84,7 +83,6 @@ const std::vector<std::shared_ptr<const TilesetType> > FormatEnumerator<TilesetT
 		TilesetType_CComic2,
 		TilesetType_Cosmo,
 		TilesetType_CosmoMasked,
-		TilesetType_CZone,
 		TilesetType_DDaveCGA,
 		TilesetType_DDaveEGA,
 		TilesetType_DDaveVGA,

@@ -125,7 +125,7 @@ SuppFilenames TilesetType_Stryker::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
 	// No supplemental types/empty list
-	return SuppFilenames();
+	return {};
 }
 
 
