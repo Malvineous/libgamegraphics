@@ -21,7 +21,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/stream_sub.hpp>
+#include <camoto/util.hpp> // make_unique
 #include "img-ega-byteplanar.hpp"
 #include "pal-vga-raw.hpp"
 #include "tls-jill.hpp"
@@ -44,6 +47,11 @@ namespace gamegraphics {
 
 #define BYTE_OFFSET 16  ///< 16 == VGA, 8 == EGA, 0 == CGA
 
+/// Colour depth of VGA palette
+#define JILL_PAL_DEPTH 6
+
+#define FILETYPE_JILL "tileset/jill-sub"
+
 //
 // TilesetType_Jill
 //
@@ -56,68 +64,63 @@ TilesetType_Jill::~TilesetType_Jill()
 {
 }
 
-std::string TilesetType_Jill::getCode() const
+std::string TilesetType_Jill::code() const
 {
 	return "tls-jill";
 }
 
-std::string TilesetType_Jill::getFriendlyName() const
+std::string TilesetType_Jill::friendlyName() const
 {
 	return "Jill of the Jungle Tileset";
 }
 
-std::vector<std::string> TilesetType_Jill::getFileExtensions() const
+std::vector<std::string> TilesetType_Jill::fileExtensions() const
 {
 	return {"sha"};
 }
 
-std::vector<std::string> TilesetType_Jill::getGameList() const
+std::vector<std::string> TilesetType_Jill::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Jill of the Jungle");
-	return vcGames;
+	return {
+		"Jill of the Jungle",
+	};
 }
 
-TilesetType_Jill::Certainty TilesetType_Jill::isInstance(stream::input_sptr psGraphics) const
+TilesetType_Jill::Certainty TilesetType_Jill::isInstance(
+	stream::input& content) const
 {
-	stream::pos len = psGraphics->size();
+	stream::pos len = content.size();
 	if (len < 128 * 6) return DefinitelyNo; // missing offset table
 
 	uint32_t offset;
 	for (int i = 0; i < 128; i++) {
-		psGraphics >> u32le(offset);
+		content >> u32le(offset);
 		if (offset > len) return DefinitelyNo; // offset past EOF
 	}
 
 	return DefinitelyYes;
 }
 
-TilesetPtr TilesetType_Jill::create(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Jill::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
-	// Only load the palette if one was given
-	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
-	}
-
-	psGraphics->seekp(0, stream::start);
-	for (int i = 0; i < 128; i++) psGraphics->write("\0\0\0\0\0\0", 6);
-	return TilesetPtr(new Tileset_Jill(psGraphics, pal));
+	content->seekp(0, stream::start);
+	for (int i = 0; i < 128; i++) content->write("\0\0\0\0\0\0", 6);
+	return this->open(std::move(content), suppData);
 }
 
-TilesetPtr TilesetType_Jill::open(stream::inout_sptr psGraphics,
-	SuppData& suppData) const
+std::shared_ptr<Tileset> TilesetType_Jill::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	PaletteTablePtr pal;
+	std::shared_ptr<const Palette> pal;
 	// Only load the palette if one was given
 	if (suppData.find(SuppItem::Palette) != suppData.end()) {
-		ImagePtr palFile(new Palette_VGA(suppData[SuppItem::Palette], 6));
-		pal = palFile->getPalette();
+		auto palFile = std::make_shared<Palette_VGA>(
+			std::move(suppData[SuppItem::Palette]), JILL_PAL_DEPTH
+		);
+		pal = palFile->palette();
 	}
-
-	return TilesetPtr(new Tileset_Jill(psGraphics, pal));
+	return std::make_shared<Tileset_Jill>(std::move(content), pal);
 }
 
 SuppFilenames TilesetType_Jill::getRequiredSupps(stream::input& content,
@@ -134,32 +137,33 @@ SuppFilenames TilesetType_Jill::getRequiredSupps(stream::input& content,
 // Tileset_Jill
 //
 
-Tileset_Jill::Tileset_Jill(stream::inout_sptr data, PaletteTablePtr pal)
-	:	Tileset_FAT(data, JILL_FIRST_TILESET_OFFSET),
-		pal(pal)
+Tileset_Jill::Tileset_Jill(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), JILL_FIRST_TILESET_OFFSET, ARCH_NO_FILENAMES)
 {
-	this->items.reserve(JILL_NUM_TILESETS);
+	this->pal = pal;
+
+	this->vcFAT.reserve(JILL_NUM_TILESETS);
 	for (int i = 0; i < JILL_NUM_TILESETS; i++) {
 		uint32_t offset;
-		this->data->seekg(4 * i, stream::start);
-		this->data >> u32le(offset);
+		this->content->seekg(4 * i, stream::start);
+		*this->content >> u32le(offset);
 
 		uint16_t len;
-		this->data->seekg((128 * 4) + 2 * i, stream::start);
-		this->data >> u16le(len);
+		this->content->seekg((128 * 4) + 2 * i, stream::start);
+		*this->content >> u16le(len);
 
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = Tileset::SubTileset;
-		if ((offset == 0) && (len == 0)) fat->attr |= Tileset::EmptySlot;
-		fat->index = i;
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Folder;
+		if ((offset == 0) && (len == 0)) fat->fAttr |= File::Attribute::Vacant;
+		fat->iIndex = i;
 		fat->lenHeader = 0;
 
-		fat->offset = offset;
-		fat->size = len;
+		fat->iOffset = offset;
+		fat->storedSize = len;
 
-		this->items.push_back(ep);
+		this->vcFAT.push_back(std::move(fat));
 	}
 
 }
@@ -168,37 +172,47 @@ Tileset_Jill::~Tileset_Jill()
 {
 }
 
-int Tileset_Jill::getCaps()
+Tileset::Caps Tileset_Jill::caps() const
 {
-	return this->pal ? Tileset::HasPalette : 0;
+	return this->pal ? Caps::HasPalette : Caps::Default;
 }
 
-PaletteTablePtr Tileset_Jill::getPalette()
+ColourDepth Tileset_Jill::colourDepth() const
 {
-	return this->pal;
+	return ColourDepth::VGA;
 }
 
-TilesetPtr Tileset_Jill::createTilesetInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+unsigned int Tileset_Jill::layoutWidth() const
+{
+	return 1;
+}
+
+std::shared_ptr<Tileset> Tileset_Jill::openTileset(const FileHandle& id)
 {
 	// Make sure nobody tries to open an empty slot!
-	assert((id->getAttr() & Tileset::EmptySlot) == 0);
+	assert(!(id->fAttr & File::Attribute::Vacant));
 
-	//stream::sub_sptr sub = boost::dynamic_pointer_cast<stream::sub>(content);
-	return TilesetPtr(new Tileset_JillSub(content));
+	return std::make_shared<Tileset_JillSub>(this->open(id, true),
+		this->palette());
+}
+
+const Tileset::FileHandle Tileset_Jill::insert(const FileHandle& idBeforeThis,
+	File::Attribute attr)
+{
+	return this->insert(idBeforeThis, "", 0, FILETYPE_JILL, attr);
 }
 
 void Tileset_Jill::updateFileOffset(const FATEntry *pid, stream::len offDelta)
 {
-	this->data->seekp(pid->index * 4, stream::start);
-	this->data << u32le(pid->offset);
+	this->content->seekp(pid->iIndex * 4, stream::start);
+	*this->content << u32le(pid->iOffset);
 	return;
 }
 
 void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 {
-	this->data->seekp((128 * 4) + pid->index * 2, stream::start);
-	this->data << u16le(pid->size);
+	this->content->seekp((128 * 4) + pid->iIndex * 2, stream::start);
+	*this->content << u16le(pid->storedSize);
 	return;
 }
 
@@ -207,16 +221,19 @@ void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 // Tileset_JillSub
 //
 
-Tileset_JillSub::Tileset_JillSub(stream::inout_sptr data)
-	:	Tileset_FAT(data, JILL_FIRST_TILE_OFFSET)
+Tileset_JillSub::Tileset_JillSub(std::unique_ptr<stream::inout> content,
+	std::shared_ptr<const Palette> pal)
+	:	Tileset_FAT(std::move(content), JILL_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES)
 {
+	this->pal = pal;
+
 	uint8_t numImages;
 	uint16_t numRots;
 	uint16_t lenCGA, lenEGA, lenVGA;
 	uint8_t bppColourMap;
 	uint16_t flags;
 
-	this->data
+	*this->content
 		>> u8(numImages)
 		>> u16le(numRots)
 		>> u16le(lenCGA)
@@ -227,44 +244,44 @@ Tileset_JillSub::Tileset_JillSub(stream::inout_sptr data)
 	;
 
 	unsigned int offset = 12;
+	this->colourMap.clear();
 	if (flags & JILL_F_FONT) {
 		// Predefined colour map
 		int lenColourMap = 1 << bppColourMap;
-		this->colourMap.reset(new uint8_t[lenColourMap]);
+		this->colourMap.resize(lenColourMap);
 		for (int i = 0; i < lenColourMap; i++) this->colourMap[i] = i;
 
 	} else if (bppColourMap == 8) {
 		// Predefined colour map
-		this->colourMap.reset(new uint8_t[256]);
+		this->colourMap.resize(256);
 		for (int i = 0; i < 256; i++) this->colourMap[i] = i;
 
 	} else {
 		// Read the colour map
 		int lenColourMap = 1 << bppColourMap;
-		this->colourMap.reset(new uint8_t[lenColourMap]);
+		this->colourMap.resize(lenColourMap);
 		for (int i = 0; i < lenColourMap; i++) {
 			uint32_t value;
-			this->data >> u32le(value);
+			*this->content >> u32le(value);
 			this->colourMap[i] = (value >> BYTE_OFFSET) & 0xFF;
 		}
 		offset += lenColourMap * 4;
 	}
 
-	this->items.reserve(numImages);
+	this->vcFAT.reserve(numImages);
 	for (int i = 0; i < numImages; i++) {
 		uint8_t width, height;
-		this->data >> u8(width) >> u8(height);
-		FATEntry *fat = new FATEntry();
-		EntryPtr ep(fat);
-		fat->valid = true;
-		fat->attr = 0;
-		fat->index = i;
-		fat->offset = offset;
-		fat->size = width * height + 3; // always 8bpp
+		*this->content >> u8(width) >> u8(height);
+		auto fat = std::make_unique<FATEntry>();
+		fat->bValid = true;
+		fat->fAttr = File::Attribute::Default;
+		fat->iIndex = i;
+		fat->iOffset = offset;
+		fat->storedSize = width * height + 3; // always 8bpp
 		fat->lenHeader = 0;
-		this->items.push_back(ep);
-		offset += fat->size;
-		this->data->seekg(fat->size - 2, stream::cur); // -2 because we read them above
+		this->vcFAT.push_back(std::move(fat));
+		offset += fat->storedSize;
+		this->content->seekg(fat->storedSize - 2, stream::cur); // -2 because we read them above
 	}
 
 }
@@ -273,55 +290,99 @@ Tileset_JillSub::~Tileset_JillSub()
 {
 }
 
-int Tileset_JillSub::getCaps()
+Tileset::Caps Tileset_JillSub::caps() const
 {
-	return Tileset::ColourDepthVGA;
+	return Caps::Default;
 }
 
-unsigned int Tileset_JillSub::getLayoutWidth()
+ColourDepth Tileset_JillSub::colourDepth() const
+{
+	return ColourDepth::VGA;
+}
+
+unsigned int Tileset_JillSub::layoutWidth() const
 {
 	return 10;
 }
 
-ImagePtr Tileset_JillSub::createImageInstance(const EntryPtr& id,
-	stream::inout_sptr content)
+std::unique_ptr<Image> Tileset_JillSub::openImage(const FileHandle& id)
 {
-	FATEntryPtr pFAT = boost::dynamic_pointer_cast<FATEntry>(id);
-	assert(pFAT);
+	auto fat = FATEntry::cast(id);
+	assert(fat);
 
-	if (pFAT->size == 64 * 12 + 3) {
+	auto contentImage = this->open(id, true);
+	contentImage->seekg(0, stream::start);
+
+	uint8_t width, height;
+	*contentImage >> u8(width) >> u8(height);
+
+	if (fat->storedSize == 64 * 12 + 3) {
 		// This could actually be palette data
-		uint8_t width, height;
-		content >> u8(width) >> u8(height);
 		if ((width == 64) && (height == 12)) {
 			// Yes, definitely a palette
-			camoto::stream::sub_sptr sub(new stream::sub());
-			sub->open(content, 3, 768, NULL); // NULL because this is a fixed size
-			return ImagePtr(new Palette_VGA(sub, 6));
+			return std::make_unique<Palette_VGA>(
+				std::make_unique<stream::sub>(
+					std::move(contentImage), 3, 768, nullptr // nullptr because this is a fixed size
+				),
+				6
+			);
 		}
 	}
-	return ImagePtr(new Image_Jill(content, this->colourMap));
+
+	auto numPixels = width * height;
+
+	// Convert image here
+	Pixels pix;
+	pix.resize(numPixels, 0);
+	auto lenContentImage = std::min<stream::len>(numPixels, fat->storedSize);
+
+	contentImage->read(pix.data(), lenContentImage);
+
+	// Apply the colour map
+	uint8_t *p = pix.data();
+	for (int i = 0; i < numPixels; i++) {
+		*p = this->colourMap[*p];
+		p++;
+	}
+
+	Pixels mask;
+	mask.resize(numPixels, 0);
+	return std::make_unique<Image_Jill>(
+		Point{width, height},
+		std::move(pix), std::move(mask),
+		this->palette(), [](){
+			// TODO (changed func)
+#warning Need tile writeback function or tileset cannot be modified
+/*
+We need to make Tileset_JillSub remember each opened tile ala
+stream_archfile, so that when each tile/image is modified the
+change is noted.  Then when the last change is made or the
+Tileset_JillSub is flushed, all tiles can be written back out using
+an optimal colour map for VGA, EGA and CGA.
+*/
+		}
+	);
 }
 
-Tileset_JillSub::FATEntry *Tileset_JillSub::preInsertFile(
-	const Tileset_JillSub::FATEntry *idBeforeThis, Tileset_JillSub::FATEntry *pNewEntry)
+void Tileset_JillSub::preInsertFile(const FATEntry *idBeforeThis,
+	FATEntry *pNewEntry)
 {
-	if (this->items.size() >= 255) {
+	if (this->vcFAT.size() >= 255) {
 		throw stream::error("maximum number of tiles reached");
 	}
 
 	// Update the header
-	this->data->seekp(0, stream::start);
-	this->data << u8(this->items.size() + 1);
+	this->content->seekp(0, stream::start);
+	*this->content << u8(this->vcFAT.size() + 1);
 
-	return pNewEntry;
+	return;
 }
 
 void Tileset_JillSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
-	this->data->seekp(0, stream::start);
-	this->data << u8(this->items.size());
+	this->content->seekp(0, stream::start);
+	*this->content << u8(this->vcFAT.size());
 	return;
 }
 
@@ -330,35 +391,39 @@ void Tileset_JillSub::postRemoveFile(const FATEntry *pid)
 // Image_Jill
 //
 
-Image_Jill::Image_Jill(stream::inout_sptr data, const StdImageDataPtr colourMap)
-	:	Image_VGA(data, 3), // 3 == skip width/height/flag fields
-		colourMap(colourMap)
+Image_Jill::Image_Jill(const Point& dims, Pixels&& pix, Pixels&& mask,
+	std::shared_ptr<const Palette> pal, fn_changed_t fnChanged)
+	:	dims(dims),
+		pix(std::move(pix)),
+		mask(std::move(mask)),
+		fnChanged(fnChanged)
 {
-	this->data->seekg(0, stream::start);
-	data >> u8(this->width) >> u8(this->height);
+	this->pal = pal;
 }
 
 Image_Jill::~Image_Jill()
 {
 }
 
-int Image_Jill::getCaps()
+Image::Caps Image_Jill::caps() const
 {
-	return this->Image_VGA::getCaps()
-		| Image::CanSetDimensions;
+	return Caps::SetDimensions;
 }
 
-void Image_Jill::getDimensions(unsigned int *width, unsigned int *height)
+ColourDepth Image_Jill::colourDepth() const
 {
-	*width = this->width;
-	*height = this->height;
-	return;
+	return ColourDepth::VGA;
 }
 
-void Image_Jill::setDimensions(unsigned int width, unsigned int height)
+Point Image_Jill::dimensions() const
 {
-	assert(this->getCaps() & Image::CanSetDimensions);
-	if ((width == 64) && (height == 12)) {
+	return this->dims;
+}
+
+void Image_Jill::dimensions(const Point& newDimensions)
+{
+	assert(this->caps() & Caps::SetDimensions);
+	if ((newDimensions.x == 64) && (newDimensions.y == 12)) {
 		// We can't store images this size (in 8-bit/VGA mode at least) because
 		// if the game encounters these dimensions the image data is immediately
 		// loaded into the VGA palette registers instead!
@@ -366,53 +431,25 @@ void Image_Jill::setDimensions(unsigned int width, unsigned int height)
 			"are exactly 64x12 pixels in size.  You will have to use a different "
 			"size.");
 	}
-	this->width = width;
-	this->height = height;
+	this->dims = newDimensions;
 	return;
 }
 
-StdImageDataPtr Image_Jill::toStandard()
+Pixels Image_Jill::convert() const
 {
-	StdImageDataPtr img = this->Image_VGA::toStandard();
-
-	uint8_t *p = img.get();
-
-	// Apply the colour map
-	for (int i = 0; i < this->width * this->height; i++) {
-		*p = this->colourMap[*p];
-		p++;
-	}
-
-	return img;
+	return this->pix;
 }
 
-void Image_Jill::fromStandard(StdImageDataPtr newContent,
-	StdImageDataPtr newMask
-)
+Pixels Image_Jill::convert_mask() const
 {
-	std::cerr << "ERROR: Cannot overwrite Jill images yet (no colourmap handling)" << std::endl;
+	return this->mask;
+}
 
-	this->Image_VGA::fromStandard(newContent, newMask);
-
-	// Update dimensions
-	this->data->seekp(0, stream::start);
-	this->data << u8(this->width) << u8(this->height);
-
-	uint8_t *img = new uint8_t[this->width * this->height];
-	boost::shared_array<uint8_t> pimg(img);
-	this->data->seekg(3, stream::start);
-	this->data->read(img, this->width * this->height);
-
-	// Apply the colour map
-	uint8_t *p = img;
-	for (int i = 0; i < this->width * this->height; i++) {
-		*p = this->colourMap[*p];
-		p++;
-	}
-
-	this->data->seekp(3, stream::start);
-	this->data->write(img, this->width * this->height);
-
+void Image_Jill::convert(const Pixels& newContent, const Pixels& newMask)
+{
+	this->pix = newContent;
+	this->mask = newMask;
+	this->fnChanged();
 	return;
 }
 
