@@ -70,17 +70,14 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 			case EGAPlanePurpose::Opaque1:    doMask = true;  value = (uint8_t)Mask::Transparent; swap = true; break;
 		}
 
-		auto imgData = &newContent[0];
-		auto maskData = &newMask[0];
+		// Work out if this plane will read from the input image or mask data.
+		auto rowData = doMask ? newMask.data() : newContent.data();
 
 		// For each pixel, set the appropriate bits in the cell
 		for (unsigned int y = 0; y < dims.y; y++) {
 
 			// Run through each lot of eight pixels (a "cell")
 			for (unsigned int x = 0; x < dims.x; x += 8) {
-
-				// Work out if this plane will read from the input image or mask data.
-				auto rowData = doMask ? maskData : imgData;
 
 				// See how many bits we should run through.  This is only used
 				// when the image is not an even multiple of 8.
@@ -99,8 +96,7 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 
 				*this->content << u8(c);
 			}
-			imgData += dims.x;
-			maskData += dims.x;
+			rowData += dims.x;
 		}
 	}
 	this->content->truncate_here();
@@ -212,8 +208,7 @@ std::vector<std::string> ImageType_EGA_RawPlanarBGRI::fileExtensions() const
 
 std::vector<std::string> ImageType_EGA_RawPlanarBGRI::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 ImageType::Certainty ImageType_EGA_RawPlanarBGRI::isInstance(
@@ -237,8 +232,7 @@ std::unique_ptr<Image> ImageType_EGA_RawPlanarBGRI::create(
 	memset(buf, 0, 64);
 	for (int i = 0; i < 500; i++) content->write(buf, 64);
 
-	SuppData dummy;
-	return this->open(std::move(content), dummy);
+	return this->open(std::move(content), suppData);
 }
 
 std::unique_ptr<Image> ImageType_EGA_RawPlanarBGRI::open(
