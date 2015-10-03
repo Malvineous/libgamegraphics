@@ -55,8 +55,8 @@ void Image_EGA_RowPlanar::convert(const Pixels& newContent,
 			// Run through each lot of eight pixels (a "cell")
 			for (unsigned int x = 0; x < dims.x; x += 8) {
 
-				bool doMask, swap;
-				uint8_t value;
+				bool doMask = false, swap = false;
+				uint8_t value = 0;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
 					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
@@ -123,8 +123,8 @@ void Image_EGA_RowPlanar::doConversion()
 			// Run through each lot of eight pixels (a "cell"), including a partial
 			// cell at the end if the width isn't a multiple of 8.
 			for (unsigned int x = 0; x < dims.x; x += 8) {
-				bool doMask, swap;
-				uint8_t value;
+				bool doMask = false, swap = false;
+				uint8_t value = 0;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
 					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;

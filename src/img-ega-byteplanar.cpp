@@ -55,8 +55,8 @@ void Image_EGA_BytePlanar::convert(const Pixels& newContent,
 			for (auto p : this->planes) {
 				if (p == EGAPlanePurpose::Unused) break;
 
-				bool doMask, swap;
-				uint8_t value;
+				bool doMask = false, swap = false;
+				uint8_t value = 0;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
 					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
@@ -123,8 +123,8 @@ void Image_EGA_BytePlanar::doConversion()
 			for (auto p : this->planes) {
 				if (p == EGAPlanePurpose::Unused) break;
 
-				bool doMask, swap;
-				uint8_t value;
+				bool doMask = false, swap = false;
+				uint8_t value = 0;
 				switch (p) {
 					case EGAPlanePurpose::Unused: continue;
 					case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;

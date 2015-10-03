@@ -51,8 +51,8 @@ void Image_EGA_Planar::convert(const Pixels& newContent,
 		// implement it if it ever becomes necessary.
 		if (p == EGAPlanePurpose::Unused) continue;
 
-		bool doMask, swap;
-		uint8_t value;
+		bool doMask = false, swap = false;
+		uint8_t value = 0;
 		switch (p) {
 			case EGAPlanePurpose::Unused: continue;
 			case EGAPlanePurpose::Blank:      doMask = false; value = 0x00; swap = false; break;
@@ -133,8 +133,8 @@ void Image_EGA_Planar::doConversion()
 			this->content->seekg(lenSkip, stream::cur);
 		}
 
-		bool doMask, swap;
-		uint8_t value;
+		bool doMask = false, swap = false;
+		uint8_t value = 0;
 		switch (p) {
 			case EGAPlanePurpose::Unused: continue;
 			case EGAPlanePurpose::Blank:  continue;
