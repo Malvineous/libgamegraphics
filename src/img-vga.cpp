@@ -19,6 +19,7 @@
  */
 
 #include <cassert>
+#include <camoto/util.hpp>
 #include "img-vga.hpp"
 
 namespace camoto {
@@ -49,6 +50,14 @@ Pixels Image_VGA::convert() const
 {
 	auto dims = this->dimensions();
 	unsigned long dataSize = dims.x * dims.y;
+
+	// Safety check to ensure supplied stream is long enough
+	auto streamSize = this->content->size();
+	if (streamSize < dataSize) {
+		throw stream::error(createString("An image of " << dims.x << "x" << dims.y
+			<< " requires " << dataSize << " bytes, but the supplied stream is only "
+			<< streamSize << " bytes long."));
+	}
 
 	Pixels pix;
 	pix.resize(dataSize);
