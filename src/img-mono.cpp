@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstring>  // memset
+#include <camoto/util.hpp> // make_unique
 #include "img-mono.hpp"
 #include "img-ega-planar.hpp"
 
@@ -32,31 +34,30 @@ ImageType_Mono::~ImageType_Mono()
 {
 }
 
-std::string ImageType_Mono::getCode() const
+std::string ImageType_Mono::code() const
 {
 	return "img-mono-raw-fullscreen";
 }
 
-std::string ImageType_Mono::getFriendlyName() const
+std::string ImageType_Mono::friendlyName() const
 {
 	return "Raw monochrome fullscreen image";
 }
 
 // Get a list of the known file extensions for this format.
-std::vector<std::string> ImageType_Mono::getFileExtensions() const
+std::vector<std::string> ImageType_Mono::fileExtensions() const
 {
 	return {};
 }
 
-std::vector<std::string> ImageType_Mono::getGameList() const
+std::vector<std::string> ImageType_Mono::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
-ImageType::Certainty ImageType_Mono::isInstance(stream::input_sptr psImage) const
+ImageType::Certainty ImageType_Mono::isInstance(stream::input& content) const
 {
-	stream::pos len = psImage->size();
+	stream::pos len = content.size();
 
 	// TESTED BY: TODO
 	if (len == 8000) return PossiblyYes;
@@ -65,41 +66,40 @@ ImageType::Certainty ImageType_Mono::isInstance(stream::input_sptr psImage) cons
 	return DefinitelyNo;
 }
 
-ImagePtr ImageType_Mono::create(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Mono::create(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	psImage->truncate(8000);
-	psImage->seekp(0, stream::start);
+	content->truncate(8000);
+	content->seekp(0, stream::start);
 	char buf[64];
 	memset(buf, 0, 64);
-	for (int i = 0; i < 125; i++) psImage->write(buf, 64);
+	for (int i = 0; i < 125; i++) content->write(buf, 64);
 
-	SuppData dummy;
-	return this->open(psImage, dummy);
+	return this->open(std::move(content), suppData);
 }
 
-ImagePtr ImageType_Mono::open(stream::inout_sptr psImage,
-	SuppData& suppData) const
+std::unique_ptr<Image> ImageType_Mono::open(
+	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
-	Image_EGAPlanar *ega = new Image_EGAPlanar();
-	ImagePtr img(ega);
-
-	PLANE_LAYOUT planes;
-	planes[PLANE_BLUE] = 0;
-	planes[PLANE_GREEN] = 0;
-	planes[PLANE_RED] = 0;
-	planes[PLANE_INTENSITY] = 1;
-	planes[PLANE_HITMAP] = 0;
-	planes[PLANE_OPACITY] = 0;
-	ega->setParams(psImage, 0, 320, 200, planes);
-
-	return img;
+	return std::make_unique<Image_EGA_Planar>(
+		std::move(content), 0,
+		Point{320, 200},
+		EGAPlaneLayout{
+			EGAPlanePurpose::Intensity1,
+			EGAPlanePurpose::Unused,
+			EGAPlanePurpose::Unused,
+			EGAPlanePurpose::Unused,
+			EGAPlanePurpose::Unused,
+			EGAPlanePurpose::Unused
+		},
+		nullptr
+	);
 }
 
 SuppFilenames ImageType_Mono::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
-	return SuppFilenames();
+	return {};
 }
 
 } // namespace gamegraphics
