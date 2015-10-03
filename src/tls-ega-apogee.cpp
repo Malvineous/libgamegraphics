@@ -107,7 +107,7 @@ std::unique_ptr<Image> Tileset_EGAApogee::openImage(const FileHandle& id)
 			break;
 		case PlaneCount::Masked:
 			planes = {
-				EGAPlanePurpose::Opaque1,
+				EGAPlanePurpose::Opaque0,
 				EGAPlanePurpose::Blue1,
 				EGAPlanePurpose::Green1,
 				EGAPlanePurpose::Red1,
