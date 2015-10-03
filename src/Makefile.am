@@ -61,11 +61,9 @@ libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 libgamegraphics_la_SOURCES += tls-zone66-map.cpp
 
-EXTRA_libgamegraphics_la_SOURCES  = baseimage.hpp
-EXTRA_libgamegraphics_la_SOURCES += tileset.hpp
+EXTRA_libgamegraphics_la_SOURCES  = filter-block-pad.hpp
 EXTRA_libgamegraphics_la_SOURCES += filter-ccomic.hpp
 EXTRA_libgamegraphics_la_SOURCES += filter-ccomic2.hpp
-EXTRA_libgamegraphics_la_SOURCES += filter-pad.hpp
 EXTRA_libgamegraphics_la_SOURCES += image-from_tileset.hpp
 EXTRA_libgamegraphics_la_SOURCES += image-sub.hpp
 EXTRA_libgamegraphics_la_SOURCES += img-bash-sprite.hpp
