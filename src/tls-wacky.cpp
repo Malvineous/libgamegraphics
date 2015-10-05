@@ -57,7 +57,9 @@ std::vector<std::string> TilesetType_Wacky::fileExtensions() const
 
 std::vector<std::string> TilesetType_Wacky::games() const
 {
-	return {"Wacky Wheels"};
+	return {
+		"Wacky Wheels",
+	};
 }
 
 TilesetType_Wacky::Certainty TilesetType_Wacky::isInstance(

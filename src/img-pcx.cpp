@@ -354,7 +354,9 @@ std::string ImageType_PCX_PlanarEGA::friendlyName() const
 
 std::vector<std::string> ImageType_PCX_PlanarEGA::games() const
 {
-	return {"Word Rescue"};
+	return {
+		"Word Rescue",
+	};
 }
 
 
@@ -374,7 +376,9 @@ std::string ImageType_PCX_LinearVGA::friendlyName() const
 
 std::vector<std::string> ImageType_PCX_LinearVGA::games() const
 {
-	return {"Halloween Harry"};
+	return {
+		"Halloween Harry",
+	};
 }
 
 

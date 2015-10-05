@@ -93,9 +93,9 @@ std::vector<std::string> TilesetType_DDave::fileExtensions() const
 
 std::vector<std::string> TilesetType_DDave::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Dangerous Dave");
-	return vcGames;
+	return {
+		"Dangerous Dave",
+	};
 }
 
 TilesetType::Certainty TilesetType_DDave::isInstance(stream::input& content)

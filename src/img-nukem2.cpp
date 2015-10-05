@@ -77,9 +77,9 @@ std::vector<std::string> ImageType_Nukem2::fileExtensions() const
 
 std::vector<std::string> ImageType_Nukem2::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Duke Nukem II");
-	return vcGames;
+	return {
+		"Duke Nukem II",
+	};
 }
 
 ImageType::Certainty ImageType_Nukem2::isInstance(

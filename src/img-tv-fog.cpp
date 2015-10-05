@@ -61,7 +61,9 @@ std::vector<std::string> ImageType_TVFog::fileExtensions() const
 
 std::vector<std::string> ImageType_TVFog::games() const
 {
-	return {"Terminal Velocity"};
+	return {
+		"Terminal Velocity",
+	};
 }
 
 ImageType::Certainty ImageType_TVFog::isInstance(

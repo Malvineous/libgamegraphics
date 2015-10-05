@@ -57,7 +57,9 @@ std::vector<std::string> TilesetType_Hocus::fileExtensions() const
 
 std::vector<std::string> TilesetType_Hocus::games() const
 {
-	return {"Hocus Pocus"};
+	return {
+		"Hocus Pocus",
+	};
 }
 
 TilesetType_Hocus::Certainty TilesetType_Hocus::isInstance(

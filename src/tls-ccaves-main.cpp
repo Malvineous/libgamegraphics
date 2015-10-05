@@ -74,7 +74,9 @@ std::vector<std::string> TilesetType_CCavesMain::fileExtensions() const
 
 std::vector<std::string> TilesetType_CCavesMain::games() const
 {
-	return {"Crystal Caves"};
+	return {
+		"Crystal Caves",
+	};
 }
 
 TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(

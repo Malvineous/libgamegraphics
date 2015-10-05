@@ -69,10 +69,10 @@ std::vector<std::string> TilesetType_HarryCHR::fileExtensions() const
 
 std::vector<std::string> TilesetType_HarryCHR::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Alien Carnage");
-	vcGames.push_back("Halloween Harry");
-	return vcGames;
+	return {
+		"Alien Carnage",
+		"Halloween Harry",
+	};
 }
 
 TilesetType_HarryCHR::Certainty TilesetType_HarryCHR::isInstance(

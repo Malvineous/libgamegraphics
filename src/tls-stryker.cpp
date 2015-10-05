@@ -83,9 +83,9 @@ std::vector<std::string> TilesetType_Stryker::fileExtensions() const
 
 std::vector<std::string> TilesetType_Stryker::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Major Stryker");
-	return vcGames;
+	return {
+		"Major Stryker",
+	};
 }
 
 TilesetType::Certainty TilesetType_Stryker::isInstance(

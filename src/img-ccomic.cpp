@@ -59,9 +59,9 @@ std::vector<std::string> ImageType_CComic::fileExtensions() const
 
 std::vector<std::string> ImageType_CComic::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Captain Comic");
-	return vcGames;
+	return {
+		"Captain Comic",
+	};
 }
 
 ImageType::Certainty ImageType_CComic::isInstance(

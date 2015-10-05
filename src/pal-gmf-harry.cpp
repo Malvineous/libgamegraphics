@@ -50,8 +50,7 @@ std::vector<std::string> ImageType_Palette_HarryGMF::fileExtensions() const
 
 std::vector<std::string> ImageType_Palette_HarryGMF::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input& content) const

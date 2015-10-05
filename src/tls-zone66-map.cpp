@@ -100,9 +100,9 @@ std::vector<std::string> TilesetType_Zone66Map::fileExtensions() const
 
 std::vector<std::string> TilesetType_Zone66Map::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Zone 66");
-	return vcGames;
+	return {
+		"Zone 66",
+	};
 }
 
 TilesetType::Certainty TilesetType_Zone66Map::isInstance(

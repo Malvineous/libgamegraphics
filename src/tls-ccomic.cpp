@@ -91,9 +91,9 @@ std::vector<std::string> TilesetType_CComic::fileExtensions() const
 
 std::vector<std::string> TilesetType_CComic::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Captain Comic");
-	return vcGames;
+	return {
+		"Captain Comic",
+	};
 }
 
 TilesetType_CComic::Certainty TilesetType_CComic::isInstance(

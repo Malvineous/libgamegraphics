@@ -63,7 +63,9 @@ std::vector<std::string> TilesetType_SAgent2k::fileExtensions() const
 
 std::vector<std::string> TilesetType_SAgent2k::games() const
 {
-	return {"Secret Agent"};
+	return {
+		"Secret Agent",
+	};
 }
 
 
@@ -97,7 +99,9 @@ std::vector<std::string> TilesetType_SAgent8k::fileExtensions() const
 
 std::vector<std::string> TilesetType_SAgent8k::games() const
 {
-	return {"Secret Agent"};
+	return {
+		"Secret Agent",
+	};
 }
 
 } // namespace gamegraphics

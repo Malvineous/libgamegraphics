@@ -65,9 +65,9 @@ std::vector<std::string> ImageType_Zone66Tile::fileExtensions() const
 
 std::vector<std::string> ImageType_Zone66Tile::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Zone 66");
-	return vcGames;
+	return {
+		"Zone 66",
+	};
 }
 
 ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)

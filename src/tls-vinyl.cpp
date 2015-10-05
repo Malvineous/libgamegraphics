@@ -186,9 +186,9 @@ std::vector<std::string> TilesetType_Vinyl::fileExtensions() const
 
 std::vector<std::string> TilesetType_Vinyl::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Vinyl Goddess From Mars");
-	return vcGames;
+	return {
+		"Vinyl Goddess From Mars",
+	};
 }
 
 TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(

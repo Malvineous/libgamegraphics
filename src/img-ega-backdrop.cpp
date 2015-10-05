@@ -108,7 +108,9 @@ std::vector<std::string> ImageType_CosmoBackdrop::fileExtensions() const
 
 std::vector<std::string> ImageType_CosmoBackdrop::games() const
 {
-	return {"Cosmo's Cosmic Adventures"};
+	return {
+		"Cosmo's Cosmic Adventures",
+	};
 }
 
 
@@ -138,5 +140,7 @@ std::vector<std::string> ImageType_Nukem2Backdrop::fileExtensions() const
 
 std::vector<std::string> ImageType_Nukem2Backdrop::games() const
 {
-	return {"Duke Nukem II"};
+	return {
+		"Duke Nukem II",
+	};
 }

@@ -50,9 +50,9 @@ std::vector<std::string> ImageType_VinylSCR::fileExtensions() const
 
 std::vector<std::string> ImageType_VinylSCR::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Vinyl Goddess From Mars");
-	return vcGames;
+	return {
+		"Vinyl Goddess From Mars",
+	};
 }
 
 ImageType::Certainty ImageType_VinylSCR::isInstance(

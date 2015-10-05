@@ -70,9 +70,9 @@ std::vector<std::string> TilesetType_CCavesSub::fileExtensions() const
 
 std::vector<std::string> TilesetType_CCavesSub::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Crystal Caves");
-	return vcGames;
+	return {
+		"Crystal Caves",
+	};
 }
 
 TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(

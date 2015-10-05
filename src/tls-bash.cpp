@@ -114,9 +114,9 @@ std::vector<std::string> TilesetType_MonsterBashBackground::fileExtensions() con
 
 std::vector<std::string> TilesetType_MonsterBashBackground::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Monster Bash");
-	return vcGames;
+	return {
+		"Monster Bash",
+	};
 }
 
 TilesetType::Certainty TilesetType_MonsterBashBackground::isInstance(
@@ -181,9 +181,9 @@ std::vector<std::string> TilesetType_MonsterBashForeground::fileExtensions() con
 
 std::vector<std::string> TilesetType_MonsterBashForeground::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Monster Bash");
-	return vcGames;
+	return {
+		"Monster Bash",
+	};
 }
 
 TilesetType_MonsterBashForeground::Certainty TilesetType_MonsterBashForeground::isInstance(

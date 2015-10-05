@@ -50,8 +50,7 @@ std::vector<std::string> ImageType_Palette_VGA::fileExtensions() const
 
 std::vector<std::string> ImageType_Palette_VGA::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input& content)
@@ -124,8 +123,7 @@ std::vector<std::string> ImageType_VGA8Palette::fileExtensions() const
 
 std::vector<std::string> ImageType_VGA8Palette::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 ImageType::Certainty ImageType_VGA8Palette::isInstance(stream::input& content)

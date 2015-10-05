@@ -57,7 +57,9 @@ std::vector<std::string> TilesetType_Wordresc::fileExtensions() const
 
 std::vector<std::string> TilesetType_Wordresc::games() const
 {
-	return {"Word Rescue"};
+	return {
+		"Word Rescue",
+	};
 }
 
 TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(

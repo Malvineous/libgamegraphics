@@ -82,7 +82,9 @@ std::vector<std::string> ImageType_RaptorPIC::fileExtensions() const
 
 std::vector<std::string> ImageType_RaptorPIC::games() const
 {
-	return {"Raptor"};
+	return {
+		"Raptor",
+	};
 }
 
 ImageType::Certainty ImageType_RaptorPIC::isInstance(

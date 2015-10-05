@@ -89,10 +89,10 @@ std::vector<std::string> TilesetType_HarryICO::fileExtensions() const
 
 std::vector<std::string> TilesetType_HarryICO::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Alien Carnage");
-	vcGames.push_back("Halloween Harry");
-	return vcGames;
+	return {
+		"Alien Carnage",
+		"Halloween Harry",
+	};
 }
 
 TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(

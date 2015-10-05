@@ -92,9 +92,9 @@ std::vector<std::string> TilesetType_MonsterBashSprite::fileExtensions() const
 
 std::vector<std::string> TilesetType_MonsterBashSprite::games() const
 {
-	std::vector<std::string> vcGames;
-	vcGames.push_back("Monster Bash");
-	return vcGames;
+	return {
+		"Monster Bash",
+	};
 }
 
 TilesetType::Certainty TilesetType_MonsterBashSprite::isInstance(

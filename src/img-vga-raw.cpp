@@ -32,8 +32,7 @@ std::vector<std::string> ImageType_VGARawBase::fileExtensions() const
 
 std::vector<std::string> ImageType_VGARawBase::games() const
 {
-	std::vector<std::string> vcGames;
-	return vcGames;
+	return {};
 }
 
 ImageType::Certainty ImageType_VGARawBase::isInstance(
