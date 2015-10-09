@@ -222,87 +222,93 @@ void tilesetToPng(gg::Tileset* tileset, unsigned int widthTiles,
 
 	png::image<png::index_pixel> png(dims.x * widthTiles, dims.y * heightTiles);
 
-	bool useMask;
 	std::shared_ptr<const gg::Palette> srcPal;
 	if (tileset->caps() & gg::Tileset::Caps::HasPalette) {
 		srcPal = tileset->palette();
 	}
-	if (!srcPal) {
-		// Need to use the default palette
-		switch (tileset->colourDepth()) {
-			case gg::ColourDepth::VGA: {
-				auto p = gg::createPalette_DefaultVGA();
-				p->pop_back(); // remove entry 255 to make room for transparency
-				srcPal = std::move(p);
-				break;
-			}
-			case gg::ColourDepth::EGA:
-				srcPal = gg::createPalette_DefaultEGA();
-				break;
-			case gg::ColourDepth::CGA:
-				srcPal = gg::createPalette_CGA(gg::CGAPaletteType::CyanMagenta);
-				break;
-			case gg::ColourDepth::Mono:
-				srcPal = gg::createPalette_DefaultMono();
-				break;
-		}
-	}
 
-	unsigned int palSize = srcPal->size();
-	int j = 0;
+	int forceXP = -1;
+	png::palette pngPal;
+	png::tRNS pngTNS;
+	int palOffset;
+	std::vector<bool> clrUsed(256, false);
 
-	// Figure out whether there's enough room in the palette to use the image
-	// mask for transparency, or whether we have to fall back to palette index
-	// transparency only.
-	png::tRNS transparency;
-	if (palSize < 256) {
-		transparency.push_back(j);
-		j++;
-		palSize++;
-		useMask = true;
-	} else {
-		// Not enough room in the palette for masked transparent entry
-		useMask = false;
-	}
-	png::palette pal(palSize);
+// Prepare the .png file once.  If during the process, we discover there are
+// transparent pixels, but there is no palette transparency, then we will look
+// for an unused colour in the palette.  If one is found, we will jump back to
+// this label to convert the image a second time, using the unused colour for
+// palette transparency on the second run.  This ensures that the only time
+// transparency will be dropped is when all 256 colours are in use.
+rewrite_png:
 
-	// Set a colour for the transparent palette entry, for apps which can't
-	// display transparent pixels (we couldn't set this above.)
-	if (useMask) pal[0] = png::color(0xFF, 0x00, 0xFF);
+	auto transparentIndex = preparePalette(tileset->colourDepth(), srcPal.get(),
+		&pngPal, &pngTNS, &palOffset, forceXP);
 
-	for (auto& i : *srcPal) {
-		pal[j] = png::color(i.red, i.green, i.blue);
-		if (i.alpha == 0x00) transparency.push_back(j);
-	}
-	png.set_palette(pal);
-	if (transparency.size()) png.set_tRNS(transparency);
+	// forceXP will be -1 on the first loop, but if the goto brings us back,
+	// we must have a transparent index or we'll end up in an infinite loop.
+	assert((forceXP < 0) || (transparentIndex >= 0));
+
+	png.set_palette(pngPal);
+	if (pngTNS.size() > 0) png.set_tRNS(pngTNS);
 
 	int t = 0;
+	bool hasXP = false; // set to true later if a transparent pixel is found
 	for (auto& i : tiles) {
 		if (i->fAttr & gg::Tileset::File::Attribute::Folder) continue; // aah! tileset! bad!
 
-		auto copyHandle = i;
-		auto img = tileset->openImage(copyHandle);
+		auto img = tileset->openImage(i);
 		auto data = img->convert();
 		auto mask = img->convert_mask();
 
 		unsigned int offX = (t % widthTiles) * dims.x;
 		unsigned int offY = (t / widthTiles) * dims.y;
 
+		auto pixelData = data.data();
+		auto pixelMask = mask.data();
 		for (unsigned int y = 0; y < dims.y; y++) {
 			for (unsigned int x = 0; x < dims.x; x++) {
-				if (useMask) {
-					if (mask[y * dims.x + x] & 0x01) {
-						png[offY + y][offX + x] = png::index_pixel(0);
-					} else {
-						png[offY + y][offX + x] =
-							// +1 to the colour to skip over transparent (#0)
-							png::index_pixel(data[y * dims.x + x] + 1);
-					}
+				if (
+					(transparentIndex >= 0)
+					&& (*pixelMask & (int)gg::Image::Mask::Transparent)
+				) {
+					png[offY + y][offX + x] = png::index_pixel(transparentIndex);
 				} else {
-					png[offY + y][offX + x] = png::index_pixel(data[y * dims.x + x]);
+					auto pix = data[y * dims.x + x];
+					png[offY + y][offX + x] = png::index_pixel(pix + palOffset);
+					clrUsed[pix] = true;
+				}
+				hasXP = hasXP || (*pixelMask & (int)gg::Image::Mask::Transparent);
+				pixelData++;
+				pixelMask++;
+			}
+		}
+		t++;
+	}
+
+	if ((transparentIndex < 0) && hasXP) {
+		// No transparency was put in the image, but transparent pixels were found.
+		// See if we can find an unused colour to make transparent.
+		// Prefer colour 255 if possible, then 0, otherwise find any unused colour
+		if (!clrUsed[255]) {
+			forceXP = 255;
+		} else if (!clrUsed[0]) {
+			forceXP = 0;
+		} else {
+			for (int i = 1; i < 255; i++) {
+				if (!clrUsed[i]) {
+					forceXP = i;
+					break;
 				}
 			}
+		}
+		if (forceXP < 0) {
+			// Every single colour in the image is used!
+			std::cerr << "Warning: This image uses all 256 colours plus "
+				"transparency, so there is no room for palette-based transparency!  "
+				"There will be no transparency in the output image.\n";
+		} else {
+			// We found a color, do it all again
+			goto rewrite_png;
 		}
 	}
 

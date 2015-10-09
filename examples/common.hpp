@@ -20,6 +20,7 @@
 
 #include <camoto/gamegraphics.hpp>
 #include <png++/png.hpp>
+#include "pngutil.hpp"
 
 namespace stream = camoto::stream;
 namespace gg = camoto::gamegraphics;
@@ -43,74 +44,65 @@ void imageToPng(const gg::Image& img, const std::string& destFile,
 
 	png::image<png::index_pixel> png(dims.x, dims.y);
 
-	bool useMask;
-
-	std::shared_ptr<const gg::Palette> srcPal;
-
+	const gg::Palette* srcPal;
 	if (img.caps() & gg::Image::Caps::HasPalette) {
-		srcPal = palImg;
+		srcPal = palImg.get();
 	}
-	if (!srcPal) {
-		// Need to use the default palette
-		switch (img.colourDepth()) {
-			case gg::ColourDepth::VGA:
-				srcPal = gg::createPalette_DefaultVGA();
+
+	// Scan the image and see if there is an unused colour
+	int forceXP = -1;
+	std::vector<bool> clrUsed(256, false);
+	auto *pixMask = mask.data();
+	for (auto pix : data) {
+		if (!(*pixMask & (int)gg::Image::Mask::Transparent)) {
+			// Only count non-transparent pixels as using a colour
+			clrUsed[pix] = true;
+		}
+		pixMask++;
+	}
+	// Prefer colour 255 if possible, then 0, otherwise find any unused colour
+	if (!clrUsed[255]) {
+		forceXP = 255;
+	} else if (!clrUsed[0]) {
+		forceXP = 0;
+	} else {
+		for (int i = 1; i < 255; i++) {
+			if (!clrUsed[i]) {
+				forceXP = i;
 				break;
-			case gg::ColourDepth::EGA:
-				srcPal = gg::createPalette_DefaultEGA();
-				break;
-			case gg::ColourDepth::CGA:
-				srcPal = gg::createPalette_CGA(gg::CGAPaletteType::CyanMagenta);
-				break;
-			case gg::ColourDepth::Mono:
-				srcPal = gg::createPalette_DefaultMono();
-				break;
+			}
+		}
+		if (forceXP < 0) {
+			// Every single colour in the image is used!
+			std::cerr << "Warning: This image uses all 256 colours plus "
+				"transparency, so there is no room for palette-based transparency!  "
+				"There will be no transparency in the output image.\n";
 		}
 	}
-
-	unsigned int palSize = srcPal->size();
-	int j = 0;
-
-	// Figure out whether there's enough room in the palette to use the image
-	// mask for transparency, or whether we have to fall back to palette index
-	// transparency only.
-	png::tRNS transparency;
-	if (palSize < 256) {
-		transparency.push_back(j);
-		j++;
-		palSize++;
-		useMask = true;
-	} else {
-		// Not enough room in the palette for masked transparent entry
-		useMask = false;
-	}
-	png::palette pal(palSize);
-
-	// Set a colour for the transparent palette entry, for apps which can't
-	// display transparent pixels (we couldn't set this above.)
-	if (useMask) pal[0] = png::color(0xFF, 0x00, 0xFF);
-
-	for (auto& i : *srcPal) {
-		pal[j] = png::color(i.red, i.green, i.blue);
-		if (i.alpha == 0x00) transparency.push_back(j); // @todo < 0x80 perhaps?
-		j++;
-	}
-	png.set_palette(pal);
-	if (transparency.size()) png.set_tRNS(transparency);
+	png::palette pngPal;
+	png::tRNS pngTNS;
+	int palOffset;
+	auto transparentIndex = preparePalette(img.colourDepth(), srcPal,
+		&pngPal, &pngTNS, &palOffset, forceXP);
+	png.set_palette(pngPal);
+	if (pngTNS.size() > 0) png.set_tRNS(pngTNS);
 
 	// Put the pixel data into the .png structure
+	auto pixelData = data.data();
+	auto pixelMask = mask.data();
 	for (unsigned int y = 0; y < dims.y; y++) {
 		auto row = &png[y][0];
 		for (unsigned int x = 0; x < dims.x; x++) {
-			if (useMask) {
-				if (mask[y*dims.x+x] & 0x01) {
-					*row++ = png::index_pixel(0);
-				} else {
-					*row++ = png::index_pixel(data[y*dims.x+x] + 1);
-				}
+			if (
+				(transparentIndex >= 0)
+				&& (*pixelMask & (int)gg::Image::Mask::Transparent)
+			) {
+				*row++ = png::index_pixel(transparentIndex);
 			} else {
-				*row++ = png::index_pixel(data[y*dims.x+x]);
+				*row++ = png::index_pixel(*pixelData + palOffset);
 			}
+			pixelData++;
+			pixelMask++;
 		}
 	}
 
