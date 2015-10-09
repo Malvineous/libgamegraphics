@@ -277,7 +277,7 @@ std::unique_ptr<Image> Tileset_MonsterBash::openImage(const FileHandle& id)
 {
 	EGAPlaneLayout planes = {
 		(this->numPlanes == PlaneCount::Masked)
-			? EGAPlanePurpose::Opaque1 : EGAPlanePurpose::Unused,
+			? EGAPlanePurpose::Opaque0 : EGAPlanePurpose::Unused,
 		EGAPlanePurpose::Intensity1,
 		EGAPlanePurpose::Red1,
 		EGAPlanePurpose::Green1,
