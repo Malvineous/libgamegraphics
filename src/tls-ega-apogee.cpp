@@ -23,7 +23,9 @@
  */
 
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/stream_filtered.hpp>
 #include <camoto/util.hpp> // make_unique
+#include "filter-block-pad.hpp"
 #include "img-ega-byteplanar.hpp"
 #include "tls-ega-apogee.hpp"
 
@@ -35,11 +37,26 @@ namespace gamegraphics {
 /// Offset of first tileset in a tileset collection.
 #define EGA_APOGEE_FIRST_TILE_OFFSET 0
 
+/// Insert/remove padding bytes after every block of this size
+#define EGA_APOGEE_PAD_BLOCK (65535 - 15)
+
 Tileset_EGAApogee::Tileset_EGAApogee(std::unique_ptr<stream::inout> content,
 	Point tileDimensions, PlaneCount numPlanes, unsigned int idealWidth,
 	std::shared_ptr<const Palette> pal)
-	:	Tileset_FAT(std::move(content), EGA_APOGEE_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
-		Tileset_FAT_FixedTileSize(tileDimensions.x / 8 * tileDimensions.y * (unsigned int)numPlanes),
+	:	Tileset_FAT(
+			// Add a padding byte to the stream every 65535 bytes
+			std::make_unique<stream::filtered>(
+				std::move(content),
+				std::make_shared<filter_block_unpad>(15, EGA_APOGEE_PAD_BLOCK),
+				std::make_shared<filter_block_pad>(std::string(15, '\x00'), EGA_APOGEE_PAD_BLOCK),
+				nullptr
+			),
+			EGA_APOGEE_FIRST_TILE_OFFSET,
+			ARCH_NO_FILENAMES
+		),
+		Tileset_FAT_FixedTileSize(
+			tileDimensions.x / 8 * tileDimensions.y * (unsigned int)numPlanes
+		),
 		tileDimensions(tileDimensions),
 		numPlanes(numPlanes),
 		idealWidth(idealWidth)
