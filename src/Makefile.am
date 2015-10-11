@@ -6,6 +6,7 @@ libgamegraphics_la_SOURCES += filter-ccomic.cpp
 libgamegraphics_la_SOURCES += filter-ccomic2.cpp
 libgamegraphics_la_SOURCES += image.cpp
 libgamegraphics_la_SOURCES += image-from_tileset.cpp
+libgamegraphics_la_SOURCES += image-memory.cpp
 libgamegraphics_la_SOURCES += image-sub.cpp
 libgamegraphics_la_SOURCES += img-bash-sprite.cpp
 libgamegraphics_la_SOURCES += img-ega.cpp
