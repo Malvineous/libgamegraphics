@@ -20,7 +20,6 @@
 
 #include <camoto/gamegraphics/manager.hpp>
 
-// Include all the file formats for the Manager to load
 #include "tls-actrinfo.hpp"
 #include "tls-bash.hpp"
 #include "tls-bash-sprite.hpp"

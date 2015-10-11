@@ -1,8 +1,8 @@
 /**
  * @file  camoto/gamegraphics/image.hpp
  * @brief Image class interface, used to convert between various game
- *         formats and a standard image data format.  Actual format conversions
- *         are handled by other classes which implement this interface.
+ *        formats and a standard image data format.  Actual format conversions
+ *        are handled by other classes which implement this interface.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
