@@ -60,6 +60,7 @@ libgamegraphics_la_SOURCES += tls-wacky.cpp
 libgamegraphics_la_SOURCES += tls-wordresc.cpp
 libgamegraphics_la_SOURCES += tls-zone66.cpp
 libgamegraphics_la_SOURCES += tls-zone66-map.cpp
+libgamegraphics_la_SOURCES += util.cpp
 
 EXTRA_libgamegraphics_la_SOURCES  = filter-block-pad.hpp
 EXTRA_libgamegraphics_la_SOURCES += filter-ccomic.hpp

@@ -8,3 +8,4 @@ nobase_library_include_HEADERS += gamegraphics/palette.hpp
 nobase_library_include_HEADERS += gamegraphics/tileset.hpp
 nobase_library_include_HEADERS += gamegraphics/tilesettype.hpp
 nobase_library_include_HEADERS += gamegraphics/tileset-from_image_list.hpp
+nobase_library_include_HEADERS += gamegraphics/util.hpp
