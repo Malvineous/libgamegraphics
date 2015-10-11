@@ -162,10 +162,6 @@ std::shared_ptr<Tileset> TilesetType_Actrinfo::open(
 	if (suppData.find(SuppItem::FAT) == suppData.end()) {
 		throw stream::error("no actor info file specified (missing supplementary item)");
 	}
-	// The file data is loaded in lots of 65535 bytes, into memory blocks of
-	// 65536 bytes.  This means after every 65535 bytes, a padding byte should be
-	// inserted in order for the offsets to add up correctly.  Likewise when
-	// saving data, every 65536th byte should be dropped.
 	return std::make_shared<Tileset_Actrinfo>(
 		std::move(suppData[SuppItem::FAT]),
 		std::move(content),
@@ -213,9 +209,16 @@ Tileset_Actrinfo::Tileset_Actrinfo(std::unique_ptr<stream::inout> content,
 		this->content->seekg(0, stream::start);
 		stream::pos nextOffset;
 		*this->content >> u16le(nextOffset);
-		nextOffset -= nextOffset / 65536;
+
 		unsigned int numImages = nextOffset;
+
+		// The file data is loaded in lots of 65535 bytes, into memory blocks of
+		// 65536 bytes.  This means after every 65535 bytes, a padding byte should be
+		// inserted in order for the offsets to add up correctly.  Likewise when
+		// saving data, every 65536th byte should be dropped.
 		nextOffset *= 2;
+		nextOffset -= nextOffset / 65536;
+
 		if (lenContent < numImages * 2) {
 			throw stream::error("Actor info FAT truncated");
 		}
@@ -228,7 +231,7 @@ Tileset_Actrinfo::Tileset_Actrinfo(std::unique_ptr<stream::inout> content,
 			fat->lenHeader = 0;
 			fat->iOffset = nextOffset;
 			if (i == numImages - 1) {
-				nextOffset = this->content->size();
+				nextOffset = lenContent;
 			} else {
 				*this->content >> u16le(nextOffset);
 				nextOffset *= 2;
