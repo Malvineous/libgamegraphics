@@ -94,13 +94,17 @@ std::string TilesetType_SAgent8k::friendlyName() const
 
 std::vector<std::string> TilesetType_SAgent8k::fileExtensions() const
 {
-	return {"gfx"};
+	return {
+		"gfx",
+		"da1",
+	};
 }
 
 std::vector<std::string> TilesetType_SAgent8k::games() const
 {
 	return {
 		"Secret Agent",
+		"Dark Ages",
 	};
 }
 
