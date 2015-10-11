@@ -214,11 +214,12 @@ void tilesetToPng(gg::Tileset* tileset, unsigned int widthTiles,
 	if (widthTiles > numTiles) widthTiles = numTiles;
 	unsigned int heightTiles = (numTiles + widthTiles - 1) / widthTiles;
 
-	auto dims = tileset->dimensions();
-	if ((dims.x == 0) || (dims.y == 0)) {
-		throw stream::error("this only works with tilesets where all tiles "
-			"are the same size");
+	if (!(tileset->caps() & gg::Tileset::Caps::HasDimensions)) {
+		throw stream::error("This only works with tilesets where all tiles "
+			"are the same size.");
 	}
+	auto dims = tileset->dimensions();
+	assert((dims.x != 0) && (dims.y != 0));
 
 	png::image<png::index_pixel> png(dims.x * widthTiles, dims.y * heightTiles);
 
