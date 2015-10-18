@@ -129,15 +129,17 @@ class test_tileset_from_image_list: public test_tileset
 
 		virtual std::string insert_remove()
 		{
-			throw stream::error("Tiles in this format cannot be rearranged.");
+			return STRING_WITH_NULLS(
+				"\x0F\x02\x0F\x0F" "\x0F\x01\x0F\x0F" "\x0F\x02\x0F\x0F" "\x0F\x03\x0F\x0F"
+				"\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A"
+				"\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A" "\x0C\x00\x00\x0A"
+				"\x0C\x09\x02\x0E" "\x0C\x09\x01\x0E" "\x0C\x09\x02\x0E" "\x0C\x09\x03\x0E"
+			);
 		}
 
 		virtual std::string move()
 		{
-			return
-				this->tile2() +
-				this->tile1()
-			;
+			throw stream::error("Tiles in this format cannot be rearranged.");
 		}
 
 		virtual std::string resize_larger()
