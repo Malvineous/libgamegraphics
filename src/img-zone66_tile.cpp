@@ -239,12 +239,10 @@ Pixels Image_Zone66Tile::convert() const
 	auto dims = this->dimensions();
 	Pixels imgData(dims.x * dims.y, 0x00);
 
-	if ((dims.x == 320) && (dims.x == 200)) {
-		// Special case for headerless fullscreen images
-		this->content->seekg(0, stream::start);
-		this->content->read(imgData.data(), 64000);
-		return imgData;
-	}
+	// Full screen images are in a different format, so should never end up here.
+	// The tls-zone66 handler should create an Image_VGARaw for those tiles
+	// instead.
+	assert((dims.x != 320) && (dims.y != 200));
 
 	this->content->seekg(Z66_IMG_OFFSET, stream::start);
 	unsigned int y = 0;
@@ -296,12 +294,10 @@ void Image_Zone66Tile::convert(const Pixels& newContent, const Pixels& newMask)
 
 	auto dims = this->dimensions();
 
-	if ((dims.x == 320) && (dims.y == 200)) {
-		// Special case for headerless fullscreen images
-		this->content->truncate(64000);
-		this->content->write(newContent.data(), 64000);
-		return;
-	}
+	// Full screen images are in a different format, so should never end up here.
+	// The tls-zone66 handler should create an Image_VGARaw for those tiles
+	// instead.
+	assert((dims.x != 320) && (dims.y != 200));
 
 	// Start off with enough space for the worst-case size
 	this->content->truncate(4 + (dims.x + 2) * dims.y + 1);

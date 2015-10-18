@@ -338,4 +338,227 @@ class test_tls_zone66: public test_tileset
 		}
 };
 
+class test_tls_zone66_fullscreen: public test_tileset
+{
+	public:
+		test_tls_zone66_fullscreen()
+		{
+			this->type = "tls-zone66";
+			this->lenMaxFilename = -1;
+
+			this->content[0] = this->tile1();
+			this->content[1] = this->tile2();
+			this->content[2] = this->tile3();
+			this->content[3] = this->tile4();
+
+			// The filesize isn't really fixed, but as soon as the tiles are resized
+			// we'll have to change the format which is a pain.  Plus once the image
+			// is opened as an Image_VGARaw it can't be resized anyway.
+			this->lenFilesizeFixed = 320 * 200;
+
+			this->firstTileDims = {320, 200};
+		}
+
+		void addTests()
+		{
+			this->test_tileset::addTests();
+
+			// c00: Initial state
+			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+		}
+
+		virtual std::string tile1() const
+		{
+			std::string content;
+
+			content += STRING_WITH_NULLS("\x0F\x00") + std::string(318, '\x0F');
+			for (int y = 1; y < 199; y++) {
+				content += '\x0C';
+				content += std::string(318, '\x00');
+				content += '\x0A';
+			}
+			content += '\x0C';
+			content += std::string(317, '\x09');
+			content += STRING_WITH_NULLS("\x00\x0E");
+
+			return content;
+		}
+
+		virtual std::string tile2() const
+		{
+			std::string content;
+
+			content += STRING_WITH_NULLS("\x0F\x01") + std::string(318, '\x0F');
+			for (int y = 1; y < 199; y++) {
+				content += '\x0C';
+				content += std::string(318, '\x00');
+				content += '\x0A';
+			}
+			content += '\x0C';
+			content += std::string(317, '\x09');
+			content += STRING_WITH_NULLS("\x01\x0E");
+
+			return content;
+		}
+
+		virtual std::string tile3() const
+		{
+			std::string content;
+
+			content += STRING_WITH_NULLS("\x0F\x02") + std::string(318, '\x0F');
+			for (int y = 1; y < 199; y++) {
+				content += '\x0C';
+				content += std::string(318, '\x00');
+				content += '\x0A';
+			}
+			content += '\x0C';
+			content += std::string(317, '\x09');
+			content += STRING_WITH_NULLS("\x02\x0E");
+
+			return content;
+		}
+
+		virtual std::string tile4() const
+		{
+			std::string content;
+
+			content += STRING_WITH_NULLS("\x0F\x03") + std::string(318, '\x0F');
+			for (int y = 1; y < 199; y++) {
+				content += '\x0C';
+				content += std::string(318, '\x00');
+				content += '\x0A';
+			}
+			content += '\x0C';
+			content += std::string(317, '\x09');
+			content += STRING_WITH_NULLS("\x03\x0E");
+
+			return content;
+		}
+
+		virtual std::string initialstate()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x02\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+				) +
+				this->tile1() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string rename()
+		{
+			throw stream::error("This tileset does not have any tilenames.");
+		}
+
+		virtual std::string insert_end()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x03\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+					"\x00\xF4\x01\x00"
+				) +
+				this->tile1() +
+				this->tile2() +
+				this->tile3()
+			;
+		}
+
+		virtual std::string insert_mid()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x03\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+					"\x00\xF4\x01\x00"
+				) +
+				this->tile1() +
+				this->tile3() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string insert2()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x04\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+					"\x00\xF4\x01\x00"
+					"\x00\xEE\x02\x00"
+				) +
+				this->tile1() +
+				this->tile3() +
+				this->tile4() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string remove()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x01\x00\x00\x00"
+					"\x00\x00\x00\x00"
+				) +
+				this->tile2()
+			;
+		}
+
+		virtual std::string remove2()
+		{
+			return STRING_WITH_NULLS(
+				"\x00\x00\x00\x00"
+			);
+		}
+
+		virtual std::string insert_remove()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x02\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+				) +
+				this->tile3() +
+				this->tile2()
+			;
+		}
+
+		virtual std::string move()
+		{
+			return
+				STRING_WITH_NULLS(
+					"\x02\x00\x00\x00"
+					"\x00\x00\x00\x00"
+					"\x00\xFA\x00\x00"
+				) +
+				this->tile2() +
+				this->tile1()
+			;
+		}
+
+		virtual std::string resize_larger()
+		{
+			throw stream::error("Test not implemented.");
+		}
+
+		virtual std::string resize_smaller()
+		{
+			throw stream::error("Test not implemented.");
+		}
+
+		virtual std::string resize_write()
+		{
+			throw stream::error("Test not implemented.");
+		}
+};
+
 IMPLEMENT_TESTS(tls_zone66);
+IMPLEMENT_TESTS(tls_zone66_fullscreen);
