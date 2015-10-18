@@ -23,7 +23,6 @@
 
 #include <camoto/iostream_helpers.hpp>
 #include <camoto/util.hpp> // make_unique
-#include "img-ega-byteplanar.hpp"
 #include "tls-stryker.hpp"
 #include "tls-ega-apogee.hpp"
 

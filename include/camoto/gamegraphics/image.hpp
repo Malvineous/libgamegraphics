@@ -134,12 +134,12 @@ class Image
 
 		/// Set the size of this image in pixels.
 		/**
-		 * @pre caps() return value includes CanSetDimensions.
+		 * @pre caps() return value includes SetDimensions.
 		 *
 		 * @param newDimensions
 		 *   New dimensions to set.
 		 *
-		 * @post Image content is undefined, fromStandard() must be called.
+		 * @post Image content is undefined, convert() must be called.
 		 *
 		 * @throw stream::error on I/O error.
 		 */
@@ -245,7 +245,7 @@ class Image
 		 *   Image data, in the standard 8bpp format, to convert and replace the
 		 *   underlying mask with.
 		 *
-		 * @note If caps() reports CanSetDimensions the dimensions should be
+		 * @note If caps() reports SetDimensions the dimensions should be
 		 *   set *before* this function is called (if necessary) as some formats
 		 *   encode data differently depending on the image size (e.g. 'end of
 		 *   line' codes can't be used unless the line width is known.)
