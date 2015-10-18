@@ -24,10 +24,12 @@
 #include <cassert>
 #include <iostream>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/stream_filtered.hpp>
 #include <camoto/util.hpp> // make_unique
 #include "img-vga-raw.hpp"
-#include "tls-vinyl.hpp"
 #include "pal-vga-raw.hpp"
+#include "filter-vinyl-tileset.hpp"
+#include "tls-vinyl.hpp"
 
 /// Offset of the number of tilesets
 #define VGFM_TILECOUNT_OFFSET    0
@@ -53,6 +55,138 @@
 namespace camoto {
 namespace gamegraphics {
 
+/// Image implementation for masked tiles within a VGFM tileset.
+/**
+ * The data read by this class is not the same as the data in the tileset.
+ * Rather filter-vinyl-tileset replaces all the codes with pixel values
+ * (effectively decoding/decompressing the whole tileset), then we just read
+ * the decoded values here.  We get a mask byte after every four expanded
+ * pixels, so this class takes care of breaking those out into a separate mask
+ * image.  But don't pay too much attention to how this class reads/writes
+ * data, because it doesn't really correspond to any Vinyl file formats!
+ */
+class Image_VGFM_MaskedTile: virtual public Image
+{
+	public:
+		/// Constructor
+		/**
+		 * @param content
+		 *   VGFM tile data, without length header.
+		 */
+		Image_VGFM_MaskedTile(std::unique_ptr<stream::inout> content,
+			std::shared_ptr<const Palette> pal)
+			:	content(std::move(content))
+		{
+			this->pal = pal;
+		}
+
+		virtual ~Image_VGFM_MaskedTile()
+		{
+		}
+
+		virtual Caps caps() const
+		{
+			return this->pal ? Caps::HasPalette : Caps::Default;
+		}
+
+		virtual ColourDepth colourDepth() const
+		{
+			return ColourDepth::VGA;
+		}
+
+		virtual Point dimensions() const
+		{
+			return {VGFM_TILE_WIDTH, VGFM_TILE_HEIGHT};
+		}
+
+		virtual Pixels convert() const
+		{
+			auto dims = this->dimensions();
+			unsigned long dataSize = dims.x * dims.y;
+
+			// Safety check to ensure supplied stream is long enough
+			auto streamSize = this->content->size();
+			if (streamSize < dataSize) {
+				throw stream::error(createString("An image of " << dims.x << "x" << dims.y
+						<< " requires " << dataSize << " bytes, but the supplied stream is only "
+						<< streamSize << " bytes long."));
+			}
+
+			Pixels pix;
+			pix.resize(dataSize);
+
+			this->content->seekg(0, stream::start);
+			auto pixbuf = pix.data();
+			for (unsigned int i = 0; i < dataSize; i += 4) {
+				// Skip over mask byte
+				this->content->seekg(1, stream::cur);
+				this->content->read(pixbuf, 4);
+				pixbuf += 4;
+			}
+			return pix;
+		}
+
+		virtual Pixels convert_mask() const
+		{
+			auto dims = this->dimensions();
+			unsigned int dataSize = dims.x * dims.y;
+
+			Pixels pix;
+			pix.resize(dataSize, 0);
+
+			this->content->seekg(0, stream::start);
+			for (unsigned int i = 0; i < dataSize; i += 4) {
+				uint8_t mask;
+				*this->content >> u8(mask);
+				for (int j = 0; j < 4; j++) {
+					// This algorithm only works with this enum value
+					static_assert((int)Image::Mask::Transparent == 1, "Algorithm must be updated");
+
+					pix[i + j] = (mask & 1) ^ 1;
+					mask >>= 1;
+				}
+				// Skip over pixels
+				this->content->seekg(4, stream::cur);
+			}
+			return pix;
+		}
+
+		virtual void convert(const Pixels& newContent, const Pixels& newMask)
+		{
+			auto dims = this->dimensions();
+			unsigned long dataSize = dims.x * dims.y;
+
+			// Safety check to ensure supplied stream is long enough
+			auto streamSize = this->content->size();
+			if (streamSize < dataSize) {
+				throw stream::error(createString("An image of " << dims.x << "x" << dims.y
+						<< " requires " << dataSize << " bytes, but the supplied stream is only "
+						<< streamSize << " bytes long."));
+			}
+
+			this->content->seekp(0, stream::start);
+			auto pixbuf = newContent.data();
+			auto maskbuf = newMask.data();
+			for (unsigned int i = 0; i < dataSize; i += 4) {
+				uint8_t maskbyte = 0;
+				for (int j = 0; j < 4; j++) {
+					// This algorithm only works with this enum value
+					static_assert((int)Image::Mask::Transparent == 1, "Algorithm must be updated");
+
+					maskbyte |= ((*maskbuf++ & 1) ^ 1) << 4;
+					maskbyte >>= 1;
+				}
+				this->content->write(&maskbyte, 1);
+				this->content->write(pixbuf, 4);
+				pixbuf += 4;
+			}
+			return;
+		}
+
+	protected:
+		std::unique_ptr<stream::inout> content; ///< Image content
+};
+
 /// Tileset implementation for a VGFM tileset.
 class Tileset_Vinyl: virtual public Tileset_FAT
 {
@@ -68,98 +202,16 @@ class Tileset_Vinyl: virtual public Tileset_FAT
 
 		// Tileset_FAT
 		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
-		virtual void flush();
+		//virtual void flush();
 		virtual void preInsertFile(const FATEntry *idBeforeThis,
 			FATEntry *pNewEntry);
 		virtual void postInsertFile(FATEntry *pNewEntry);
 		virtual void postRemoveFile(const FATEntry *pid);
 
-		// Called by Image_VGFMTile
-		virtual Pixels convert(unsigned int index) const;
-		virtual Pixels convert_mask(unsigned int index) const;
-		virtual void convert(unsigned int index, const Pixels& newContent,
-			const Pixels& newMask);
-
 	private:
-		std::vector<uint8_t> pixels; ///< Pixels for each pixel code
-		bool pixelsChanged;          ///< Does the pixel array need to be written back to the file?
-
 		/// Update the number of tiles in the tileset
-		void updateFileCount(uint32_t newCount);
+		void updateFileCount(unsigned int newCount);
 };
-
-/// Image implementation for tiles within a VGFM tileset.
-class Image_VGFMTile: virtual public Image
-{
-	public:
-		Image_VGFMTile(Tileset_Vinyl *tileset, unsigned int index,
-			unsigned int size);
-		virtual ~Image_VGFMTile();
-
-		virtual Caps caps() const;
-		virtual ColourDepth colourDepth() const;
-		virtual Point dimensions() const;
-		virtual Pixels convert() const;
-		virtual Pixels convert_mask() const;
-		virtual void convert(const Pixels& newContent,
-			const Pixels& newMask);
-		virtual std::shared_ptr<const Palette> palette() const;
-
-	protected:
-		Tileset_Vinyl *tileset;
-		unsigned int index; ///< Tile index into tileset
-		unsigned int size;
-};
-
-Image_VGFMTile::Image_VGFMTile(Tileset_Vinyl *tileset, unsigned int index,
-	unsigned int size)
-	:	tileset(tileset),
-		index(index),
-		size(size)
-{
-}
-
-Image_VGFMTile::~Image_VGFMTile()
-{
-}
-
-Image::Caps Image_VGFMTile::caps() const
-{
-	return Caps::HasPalette;
-}
-
-ColourDepth Image_VGFMTile::colourDepth() const
-{
-	return ColourDepth::VGA;
-}
-
-Point Image_VGFMTile::dimensions() const
-{
-	return {VGFM_TILE_WIDTH, VGFM_TILE_HEIGHT};
-}
-
-Pixels Image_VGFMTile::convert() const
-{
-	return this->tileset->convert(this->index);
-}
-
-Pixels Image_VGFMTile::convert_mask() const
-{
-	return this->tileset->convert_mask(this->index);
-}
-
-void Image_VGFMTile::convert(const Pixels& newContent,
-	const Pixels& newMask)
-{
-	this->tileset->convert(this->index, newContent, newMask);
-	return;
-}
-
-std::shared_ptr<const Palette> Image_VGFMTile::palette() const
-{
-	return this->tileset->palette();
-}
-
 
 TilesetType_Vinyl::TilesetType_Vinyl()
 {
@@ -207,7 +259,6 @@ TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 
 	stream::pos nextOffset = 2;
 	if (numTiles > 0) {
-		if (nextOffset >= len) return DefinitelyNo; // truncated
 		unsigned int size;
 		for (unsigned int i = 0; i < numTiles; i++) {
 			content
@@ -215,16 +266,37 @@ TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 			;
 			nextOffset += VGFM_FAT_ENTRY_LEN + size;
 
+			// Truncated tile (or missing lookup table if last tile)
 			// TESTED BY: tls_vinyl_isinstance_c03
-			if (nextOffset >= len) return DefinitelyNo; // truncated
+			if (nextOffset + 2 >= len) return DefinitelyNo;
 
 			// Don't seek +VGFM_FAT_ENTRY_LEN here because we just read those bytes
 			content.seekg(size, stream::cur);
 		}
 	}
 
+	// Should not be possible to be here if there aren't another two bytes
+	uint16_t lenLookup;
+	content >> u16le(lenLookup);
+	nextOffset += 2;
+	if (lenLookup) {
+		// Lookup table truncated
+		// TESTED BY: tls_vinyl_isinstance_c04
+		if (nextOffset + lenLookup > len) return DefinitelyNo;
+		nextOffset += lenLookup;
+	}
+
+	// If we're here, the file seems valid, so do some extra checks to try to
+	// minimise false positives.
+	// TESTED BY: tls_vinyl_isinstance_c05
+	if (nextOffset != len) return Unsure;
+
+	// Empty file - we can't be quite so sure
+	// TESTED BY: tls_vinyl_isinstance_c06
+	if ((numTiles == 0) && (lenLookup == 0)) return PossiblyYes;
+
 	// TESTED BY: tls_vinyl_isinstance_c00
-	return PossiblyYes;
+	return DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Vinyl::create(
@@ -249,8 +321,16 @@ std::shared_ptr<Tileset> TilesetType_Vinyl::open(
 		pal = palFile->palette();
 	}
 
-	return std::make_shared<Tileset_Vinyl>(
+	// Create a filter to handle the compression/expansion of the tile codes
+	auto content_filtered = std::make_unique<stream::filtered>(
 		std::move(content),
+		std::make_shared<filter_vinyl_tileset_expand>(),
+		std::make_shared<filter_vinyl_tileset_compress>(),
+		nullptr
+	);
+
+	return std::make_shared<Tileset_Vinyl>(
+		std::move(content_filtered),
 		pal
 	);
 }
@@ -267,8 +347,7 @@ SuppFilenames TilesetType_Vinyl::getRequiredSupps(stream::input& content,
 
 Tileset_Vinyl::Tileset_Vinyl(std::unique_ptr<stream::inout> content,
 	std::shared_ptr<const Palette> pal)
-	:	Tileset_FAT(std::move(content), VGFM_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES),
-		pixelsChanged(false)
+	:	Tileset_FAT(std::move(content), VGFM_FIRST_TILE_OFFSET, ARCH_NO_FILENAMES)
 {
 	this->pal = pal;
 	stream::pos len = this->content->size();
@@ -302,22 +381,10 @@ Tileset_Vinyl::Tileset_Vinyl(std::unique_ptr<stream::inout> content,
 			this->vcFAT.push_back(ep);
 		}
 	}
-	uint16_t lenPixels;
-	*this->content >> u16le(lenPixels);
-	this->pixels.resize(lenPixels, 0);
-	this->content->read(this->pixels.data(), lenPixels);
 }
 
 Tileset_Vinyl::~Tileset_Vinyl()
 {
-	if (this->pixelsChanged) {
-		this->flush();
-/*
-		std::cerr
-			<< "ERROR: Vinyl tileset destroyed without flushing changed pixels!"
-			<< std::endl;
-*/
-	}
 }
 
 Tileset::Caps Tileset_Vinyl::caps() const
@@ -340,129 +407,20 @@ unsigned int Tileset_Vinyl::layoutWidth() const
 	return 16;
 }
 
-void Tileset_Vinyl::flush()
-{
-	if (this->pixelsChanged) {
-
-		// Figure out which codes are in use and which aren't
-		unsigned int numValidCodes = this->pixels.size() / 4;
-		std::vector<bool> usedCodes(numValidCodes, false);
-
-		stream::pos endOfData = VGFM_FIRST_TILE_OFFSET;
-		uint8_t tileData[VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT * 3];
-		for (auto t : this->vcFAT) {
-			auto pFAT = FATEntry::cast(t);
-
-			// Figure out where the tile data ends, since we're looping through the
-			// list of tiles already.
-			stream::pos proposed = pFAT->iOffset + pFAT->lenHeader + pFAT->storedSize;
-			if (proposed > endOfData) endOfData = proposed;
-
-			// Examine each tile for the list of used codes
-			this->content->seekg(pFAT->iOffset, stream::start);
-			uint16_t lenTile;
-			*this->content >> u16le(lenTile);
-			if ((lenTile != 0x80) && (lenTile != 0xC0)) {
-				std::cerr << "tls-vinyl: Encountered a tile of unknown type 0x"
-					<< std::hex << lenTile << " at offset 0x" << pFAT->iOffset
-					<< std::dec << std::endl;
-				throw stream::error("Encountered a tile of an unknown type!");
-			}
-			this->content->read(tileData, lenTile);
-			for (unsigned int p = 0; p < VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT / 4; p++) {
-				uint8_t *base = &tileData[p * (lenTile == 0x80 ? 2 : 3) + (lenTile == 0x80 ? 0 : 1)];
-				uint16_t code = base[0] + (base[1] << 8);
-				if (code >= numValidCodes) {
-					std::cerr << "tls-vinyl: Got invalid code " << code
-						<< " (max valid code is one less than " << numValidCodes
-						<< ") - tile " << pFAT->iIndex << ", offset " << p << std::endl;
-					continue;
-				}
-				usedCodes[code] = true;
-			}
-		}
-
-		// See whether any codes are unused
-		bool unused = false;
-		for (unsigned int c = 0; c < numValidCodes; c++) {
-			if (!usedCodes[c]) {
-				unused = true;
-				break;
-			}
-		}
-
-		if (unused) {
-			// Rewrite all the tiles to only use codes in use
-			for (auto t : this->vcFAT) {
-				auto pFAT = FATEntry::cast(t);
-				this->content->seekg(pFAT->iOffset, stream::start);
-				uint16_t lenTile;
-				*this->content >> u16le(lenTile);
-				if ((lenTile != 0x80) && (lenTile != 0xC0)) {
-					std::cerr << "tls-vinyl: Encountered a tile of unknown type 0x"
-						<< std::hex << lenTile << " at offset 0x" << pFAT->iOffset
-						<< std::dec << std::endl;
-					throw stream::error("Encountered a tile of an unknown type!");
-				}
-				this->content->read(tileData, lenTile);
-				for (unsigned int p = 0; p < VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT / 4; p++) {
-					unsigned int offset = p * (lenTile == 0x80 ? 2 : 3) + (lenTile == 0x80 ? 0 : 1);
-					uint8_t *base = &tileData[offset];
-					uint16_t code = base[0] + (base[1] << 8);
-					if (code >= numValidCodes) {
-						// Ignore, already printed warning in the loop above
-						continue;
-					}
-					uint16_t destCode = code;
-					for (unsigned int c2 = 0; c2 < code; c2++) {
-						if (!usedCodes[c2]) destCode--;
-					}
-					if (destCode != code) {
-						this->content->seekp(pFAT->iOffset + pFAT->lenHeader + offset, stream::start);
-						*this->content << u16le(destCode);
-					}
-				}
-			}
-
-			// Remove all the unused codes from the pixel data
-			for (int c = (int)numValidCodes - 1; c >= 0; c--) {
-				if (!usedCodes[c]) {
-					this->pixels.erase(this->pixels.begin() + c * 4, this->pixels.begin() + (c + 1) * 4);
-				}
-			}
-			// numValidCodes is no longer accurate
-		}
-
-		// Write the optimised pixel data
-
-		// Expand or shrink the stream so there is just enough space for the pixel data
-		stream::pos lenCurrent = this->content->size();
-		stream::pos lenTarget = endOfData + 2 + this->pixels.size();
-		if (lenTarget < lenCurrent) {
-			this->content->seekp(lenTarget, stream::start);
-			this->content->remove(lenCurrent - lenTarget);
-		} else if (lenTarget > lenCurrent) {
-			this->content->seekp(lenCurrent, stream::start);
-			this->content->insert(lenTarget - lenCurrent);
-		}
-		this->content->seekp(endOfData, stream::start);
-		*this->content << u16le(this->pixels.size());
-		this->content->write(this->pixels.data(), this->pixels.size());
-		this->pixelsChanged = false;
-	}
-
-	this->Tileset_FAT::flush();
-	return;
-}
-
 std::unique_ptr<Image> Tileset_Vinyl::openImage(const FileHandle& id)
 {
 	auto fat = FATEntry::cast(id);
-	assert(fat);
-
-	return std::make_unique<Image_VGFMTile>(
-		this, fat->iIndex, fat->storedSize
-	);
+	switch (fat->storedSize) {
+		case VGFM_USOLID_LEN:
+			return std::make_unique<Image_VGARaw>(
+				this->open(id, true), this->dimensions(), this->palette()
+			);
+		case VGFM_UMASKED_LEN:
+			return std::make_unique<Image_VGFM_MaskedTile>(
+				this->open(id, true), this->palette()
+			);
+	}
+	throw stream::error("Tried to open tile of unknown size (not masked or solid)");
 }
 
 void Tileset_Vinyl::preInsertFile(const FATEntry *idBeforeThis,
@@ -488,156 +446,21 @@ void Tileset_Vinyl::preInsertFile(const FATEntry *idBeforeThis,
 void Tileset_Vinyl::postInsertFile(FATEntry *pNewEntry)
 {
 	this->updateFileCount(this->vcFAT.size());
-	this->pixelsChanged = true; // optimise pixels on flush()
 	return;
 }
 
 void Tileset_Vinyl::postRemoveFile(const FATEntry *pid)
 {
 	this->updateFileCount(this->vcFAT.size());
-	this->pixelsChanged = true; // optimise pixels on flush()
 	return;
 }
 
-Pixels Tileset_Vinyl::convert(unsigned int index) const
-{
-	auto fat = FATEntry::cast(this->vcFAT[index]);
-	assert(fat);
-
-	unsigned int height = fat->storedSize / VGFM_TILE_WIDTH_BYTES;
-	int dataSize = VGFM_TILE_WIDTH * height;
-
-	Pixels inData(fat->storedSize);
-	Pixels outData(dataSize, '\x00');
-
-	this->content->seekg(fat->iOffset + VGFM_FAT_ENTRY_LEN, stream::start);
-	this->content->read(inData.data(), fat->storedSize);
-
-	unsigned int len;
-	if (fat->storedSize == 0x80) len = 0x80/2;
-	else if (fat->storedSize == 0xC0) len = 0xC0/3;
-	else {
-		throw stream::error("Encountered a VGFM tile of an unsupported size - "
-			"please report this error!");
-	}
-
-	auto imgData = outData.data();
-	auto maxCode = this->pixels.size() / 4;
-	for (unsigned int i = 0; i < len; i++) {
-		unsigned int code;
-		if (fat->storedSize == 0x80) {
-			code = inData[i * 2] | (inData[i * 2 + 1] << 8);
-		} else { // fat->storedSize == 0xC0
-			code = inData[i * 3 + 1] | (inData[i * 3 + 2] << 8);
-		}
-		if (code > maxCode) code = 0; // just in case, should never happen
-		memcpy(imgData, &this->pixels[code * 4], 4);
-		imgData += 4;
-	}
-	return outData;
-}
-
-Pixels Tileset_Vinyl::convert_mask(unsigned int index) const
-{
-	auto fat = FATEntry::cast(this->vcFAT[index]);
-	assert(fat);
-
-	int dataSize = VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT;
-
-	Pixels outData(dataSize, '\x00');
-
-	if (fat->storedSize == 0x80) {
-		// Return an entirely opaque mask
-		for (int i = 0; i < dataSize; i++) assert(outData[i] == 0); // be sure
-	} else if (fat->storedSize == 0xC0) {
-		// Decode the mask bytes
-		Pixels inData(fat->storedSize);
-		this->content->seekg(fat->iOffset + VGFM_FAT_ENTRY_LEN, stream::start);
-		this->content->read(inData.data(), fat->storedSize);
-		auto imgData = outData.data();
-		for (unsigned int i = 0; i < 0xC0/3; i++) {
-			int maskVal = inData[i * 3];
-			for (int b = 0; b < 4; b++) {
-				*imgData++ = ((maskVal >> b) & 1) ^ 1;
-			}
-		}
-	}
-
-	return outData;
-}
-
-void Tileset_Vinyl::convert(unsigned int index, const Pixels& newContent,
-	const Pixels& newMask)
-{
-	auto fat = FATEntry::cast(this->vcFAT[index]);
-	assert(fat);
-
-	bool hasMask = false;
-	for (unsigned int i = 0; i < VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT; i++) {
-		if (newMask[i] != 0x01) {
-			hasMask = true;
-			break;
-		}
-	}
-	unsigned int len = hasMask ? 0xC0 : 0x80;
-	// Don't include the embedded FAT here as that is added to the requested
-	// length internally.
-	this->resize(this->vcFAT[index], len, len);
-
-	this->content->seekg(fat->iOffset, stream::start);
-	*this->content << u16le(len);
-
-	unsigned int numValidCodes = this->pixels.size() / 4;
-	for (unsigned int i = 0; i < VGFM_TILE_WIDTH * VGFM_TILE_HEIGHT; i += 4) {
-		if (hasMask) {
-			// Write the mask byte first
-			uint8_t val = 0;
-			for (unsigned int j = 0; j < 4; j++) {
-				if (!(newMask[i + j] & (int)Image::Mask::Transparent)) {
-					val |= 1 << j;
-				}
-			}
-			*this->content << u8(val);
-		}
-
-		// Try to find a code that matches these pixels
-		long code = -1;
-		for (unsigned int c = 0; c < numValidCodes; c++) {
-			if (
-				(newContent[i + 0] == this->pixels[c * 4 + 0]) &&
-				(newContent[i + 1] == this->pixels[c * 4 + 1]) &&
-				(newContent[i + 2] == this->pixels[c * 4 + 2]) &&
-				(newContent[i + 3] == this->pixels[c * 4 + 3])
-			) {
-				code = c;
-				break;
-			}
-		}
-		if (code == -1) {
-			// Need to allocate a new code.  We won't bother searching for unused
-			// codes, because the optimiser in flush() will take care of removing
-			// those.
-			code = numValidCodes;
-			numValidCodes++;
-			this->pixels.push_back(newContent[i + 0]);
-			this->pixels.push_back(newContent[i + 1]);
-			this->pixels.push_back(newContent[i + 2]);
-			this->pixels.push_back(newContent[i + 3]);
-			this->pixelsChanged = true;
-		}
-		assert(this->content->tellg() - fat->iOffset < len + VGFM_FAT_ENTRY_LEN);
-		*this->content << u16le(code);
-	}
-	return;
-}
-
-void Tileset_Vinyl::updateFileCount(uint32_t newCount)
+void Tileset_Vinyl::updateFileCount(unsigned int newCount)
 {
 	this->content->seekp(VGFM_TILECOUNT_OFFSET, stream::start);
 	*this->content << u16le(newCount);
 	return;
 }
-
 
 } // namespace gamegraphics
 } // namespace camoto
