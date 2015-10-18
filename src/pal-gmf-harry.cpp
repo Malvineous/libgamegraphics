@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cassert>
 #include <camoto/util.hpp> // make_unique
 #include "pal-gmf-harry.hpp"
 
@@ -101,6 +102,7 @@ SuppFilenames ImageType_Palette_HarryGMF::getRequiredSupps(stream::input& conten
 Palette_HarryGMF::Palette_HarryGMF(std::unique_ptr<stream::inout> content)
 	:	content(std::move(content))
 {
+	assert(this->content);
 }
 
 Palette_HarryGMF::~Palette_HarryGMF()
