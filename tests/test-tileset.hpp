@@ -65,6 +65,18 @@ class test_tileset: public test_archive
 
 		/// Set to true if the colour indices can only be 0..3 (false == 0..15)
 		bool cga;
+
+		/// Set to true if the tiles have a hotspot value.
+		bool hasHotspot;
+
+		/// The hotspot values of the tiles, if hasHotspot is true.
+		Point ptHotspot[4];
+
+		/// Set to true if the tiles have a hitrect value.
+		bool hasHitrect;
+
+		/// The hitrect values of the tiles, if hasHitrect is true.
+		Point ptHitrect[4];
 };
 
 /// Add a test_tileset member function to the test suite

@@ -46,6 +46,8 @@ test_tileset::test_tileset()
 	this->hasMask = false;
 	this->hasHitmask = false;
 	this->cga = false;
+	this->hasHotspot = false;
+	this->hasHitrect = false;
 }
 
 void test_tileset::addTests()
@@ -237,83 +239,60 @@ void test_tileset::test_open_image()
 		BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 	}
 
-	auto ep = this->findFile(0);
+	for (int i = 0; i < 2; i++) {
+		auto ep = this->findFile(i);
 
-	auto targetTileset = tileset;
-	if (ep->fAttr & Archive::File::Attribute::Folder) {
-		BOOST_TEST_CHECKPOINT("Opening first sub-tileset as tileset");
-		targetTileset = tileset->openTileset(ep);
-		ep = targetTileset->files().at(0);
-	}
-	BOOST_TEST_CHECKPOINT("Opening first tile as image");
-	auto img = targetTileset->openImage(ep);
-	BOOST_REQUIRE(img);
+		auto targetTileset = tileset;
+		if (ep->fAttr & Archive::File::Attribute::Folder) {
+			BOOST_TEST_CHECKPOINT("Opening first sub-tileset as tileset");
+			targetTileset = tileset->openTileset(ep);
+			ep = targetTileset->files().at(0);
+		}
+		BOOST_TEST_CHECKPOINT("Opening tile #" << i << " as image");
+		auto img = targetTileset->openImage(ep);
+		BOOST_REQUIRE(img);
 
-	BOOST_TEST_CHECKPOINT("Retrieving dimensions of first tile");
-	auto dimsReported = img->dimensions();
-	BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
-	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
+		BOOST_TEST_CHECKPOINT("Retrieving dimensions of tile #" << i);
+		auto dimsReported = img->dimensions();
+		BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
+		BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 
-	BOOST_TEST_CHECKPOINT("Converting first image to standard format");
-	auto pixels = img->convert();
-	auto pixelsExpected = createTileData(dimsReported, this->cga, 0);
-	auto strPixels = std::string(pixels.begin(), pixels.end());
-	auto strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
-	BOOST_REQUIRE_MESSAGE(
-		this->is_equal(strPixelsExpected, strPixels),
-		"First tile in tileset was not standard test image"
-	);
-
-	if (this->hasMask) {
-		BOOST_TEST_CHECKPOINT("Convert first tile to standard mask data");
-		auto mask = img->convert_mask();
-		auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
-		auto strMask = std::string(mask.begin(), mask.end());
-		auto strMaskExpected = std::string(maskExpected.begin(), maskExpected.end());
+		BOOST_TEST_CHECKPOINT("Converting first image to standard format");
+		auto pixels = img->convert();
+		auto pixelsExpected = createTileData(dimsReported, this->cga, i);
+		auto strPixels = std::string(pixels.begin(), pixels.end());
+		auto strPixelsExpected = std::string(
+			pixelsExpected.begin(), pixelsExpected.end());
 		BOOST_REQUIRE_MESSAGE(
-			this->is_equal(strMaskExpected, strMask),
-			"Converting first tile to standard mask data produced incorrect result"
+			this->is_equal(strPixelsExpected, strPixels),
+			"Tile #" << i << " in tileset was not standard test image"
 		);
-	}
 
-	ep = this->findFile(1);
+		if (this->hasMask) {
+			BOOST_TEST_CHECKPOINT("Convert tile #" << i << " to standard mask data");
+			auto mask = img->convert_mask();
+			auto strMask = std::string(mask.begin(), mask.end());
+			auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
+			auto strMaskExpected = std::string(maskExpected.begin(), maskExpected.end());
+			BOOST_REQUIRE_MESSAGE(
+				this->is_equal(strMaskExpected, strMask),
+				"Converting tile #" << i
+				<< " to standard mask data produced incorrect result"
+			);
+		}
 
-	targetTileset = tileset;
-	if (ep->fAttr & Archive::File::Attribute::Folder) {
-		BOOST_TEST_CHECKPOINT("Opening second sub-tileset as tileset");
-		targetTileset = tileset->openTileset(ep);
-		ep = targetTileset->files().at(0);
-	}
-
-	BOOST_TEST_CHECKPOINT("Opening second tile as image");
-	img = targetTileset->openImage(ep);
-	BOOST_REQUIRE(img);
-
-	BOOST_TEST_CHECKPOINT("Retrieving dimensions of second tile");
-	dimsReported = img->dimensions();
-	BOOST_CHECK_EQUAL(this->firstTileDims.x, dimsReported.x);
-	BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
-
-	BOOST_TEST_CHECKPOINT("Converting second image to standard format");
-	pixels = img->convert();
-	pixelsExpected = createTileData(dimsReported, this->cga, 1);
-	strPixels = std::string(pixels.begin(), pixels.end());
-	strPixelsExpected = std::string(pixelsExpected.begin(), pixelsExpected.end());
-	BOOST_REQUIRE_MESSAGE(
-		this->is_equal(strPixelsExpected, strPixels),
-		"Second tile in tileset was not standard test image"
-	);
-
-	if (this->hasMask) {
-		BOOST_TEST_CHECKPOINT("Converting second tile to standard mask data");
-		auto mask = img->convert_mask();
-		auto maskExpected = createMaskData(dimsReported, this->hasHitmask);
-		auto strMask = std::string(mask.begin(), mask.end());
-		auto strMaskExpected = std::string(maskExpected.begin(), maskExpected.end());
-		BOOST_REQUIRE_MESSAGE(
-			this->is_equal(strMaskExpected, strMask),
-			"Converting second tile to standard mask data produced incorrect result"
-		);
+		if (this->hasHotspot) {
+			BOOST_TEST_CHECKPOINT("Checking hotspot for tile #" << i);
+			auto dimsReported = img->hotspot();
+			BOOST_CHECK_EQUAL(this->ptHotspot[i].x, dimsReported.x);
+			BOOST_CHECK_EQUAL(this->ptHotspot[i].y, dimsReported.y);
+		}
+		if (this->hasHitrect) {
+			BOOST_TEST_CHECKPOINT("Checking hitrect for tile #" << i);
+			auto dimsReported = img->hitrect();
+			BOOST_CHECK_EQUAL(this->ptHitrect[i].x, dimsReported.x);
+			BOOST_CHECK_EQUAL(this->ptHitrect[i].y, dimsReported.y);
+		}
 	}
 }
 
@@ -342,6 +321,15 @@ void test_tileset::test_change_image()
 	auto pixels3 = createTileData(dimsReported, this->cga, 2);
 	auto mask3 = createMaskData(dimsReported, this->hasHitmask);
 	img->convert(pixels3, mask3);
+
+	if (this->hasHotspot) {
+		BOOST_TEST_CHECKPOINT("Setting hotspot for first image");
+		img->hotspot(this->ptHotspot[2]);
+	}
+	if (this->hasHitrect) {
+		BOOST_TEST_CHECKPOINT("Setting hitrect for first image");
+		img->hitrect(this->ptHitrect[2]);
+	}
 
 	this->checkData(&test_tileset::insert_remove,
 		"Error replacing tile with different image"

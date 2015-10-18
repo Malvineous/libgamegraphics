@@ -328,6 +328,9 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 		auto hotspotReported = img->hotspot();
 		BOOST_CHECK_EQUAL(this->hotspot.x, hotspotReported.x);
 		BOOST_CHECK_EQUAL(this->hotspot.y, hotspotReported.y);
+	} else {
+		BOOST_CHECK_MESSAGE((this->hotspot.x == 0) && (this->hotspot.y == 0),
+			"Hotspot supplied for image format that does not support a hotspot");
 	}
 
 	if (img->caps() & Image::Caps::HasHitRect) {
@@ -335,6 +338,9 @@ void test_image::test_sizedContent_read_pix(const Point& dims,
 		auto hitrectReported = img->hitrect();
 		BOOST_CHECK_EQUAL(this->hitrect.x, hitrectReported.x);
 		BOOST_CHECK_EQUAL(this->hitrect.y, hitrectReported.y);
+	} else {
+		BOOST_CHECK_MESSAGE((this->hitrect.x == 0) && (this->hitrect.y == 0),
+			"Hitrect supplied for image format that does not support a hitrect");
 	}
 
 	BOOST_TEST_CHECKPOINT("Convert to standard pixel data");
