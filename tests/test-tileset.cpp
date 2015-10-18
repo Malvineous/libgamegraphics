@@ -52,6 +52,7 @@ void test_tileset::addTests()
 {
 	this->test_archive::addTests();
 	ADD_TILESET_TEST(false, &test_tileset::test_open_image);
+	ADD_TILESET_TEST(false, &test_tileset::test_change_image);
 	return;
 }
 
@@ -314,4 +315,35 @@ void test_tileset::test_open_image()
 			"Converting second tile to standard mask data produced incorrect result"
 		);
 	}
+}
+
+void test_tileset::test_change_image()
+{
+	BOOST_TEST_MESSAGE("Replacing image in tileset");
+
+	auto tileset = std::dynamic_pointer_cast<Tileset>(this->pArchive);
+	BOOST_REQUIRE(tileset);
+
+	auto ep = this->findFile(0);
+
+	auto targetTileset = tileset;
+	if (ep->fAttr & Archive::File::Attribute::Folder) {
+		BOOST_TEST_CHECKPOINT("Opening first sub-tileset as tileset");
+		targetTileset = tileset->openTileset(ep);
+		ep = targetTileset->files().at(0);
+	}
+	BOOST_TEST_CHECKPOINT("Opening first tile as image");
+	auto img = targetTileset->openImage(ep);
+	BOOST_REQUIRE(img);
+
+	auto dimsReported = img->dimensions();
+
+	BOOST_TEST_CHECKPOINT("Replacing first image with content of standard tile 3");
+	auto pixels3 = createTileData(dimsReported, this->cga, 2);
+	auto mask3 = createMaskData(dimsReported, this->hasHitmask);
+	img->convert(pixels3, mask3);
+
+	this->checkData(&test_tileset::insert_remove,
+		"Error replacing tile with different image"
+	);
 }

@@ -48,7 +48,11 @@ class test_tileset: public test_archive
 		virtual void test_new_isinstance();
 		virtual void test_new_to_initialstate();
 
+		/// Open tiles 1 and 2 and verify content.
 		void test_open_image();
+
+		/// Replace tile 1 with tile's 3 content and verify against insert_remove()
+		void test_change_image();
 
 		/// Dimensions of the first tile in the tileset.
 		Point firstTileDims;
