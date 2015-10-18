@@ -94,7 +94,7 @@ TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
 
 	content.seekg(0, stream::start);
 	stream::pos pos = 0;
-	while (pos < len) {
+	while (pos + 3 < len) {
 		uint8_t numTiles, width, height;
 		content
 			>> u8(numTiles)
