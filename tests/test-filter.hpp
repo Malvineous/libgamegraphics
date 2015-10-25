@@ -18,6 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _CAMOTO_GAMEGRAPHICS_TEST_FILTER_HPP_
+#define _CAMOTO_GAMEGRAPHICS_TEST_FILTER_HPP_
+
 #include <boost/test/unit_test.hpp>
 
 #include <camoto/stream_string.hpp>
@@ -52,6 +55,7 @@ class test_filter: public test_main
 
 		/// Add a test to the suite.  Used by ADD_FILTER_TEST().
 		void addBoundTest(bool empty, std::function<void()> fnTest,
+			boost::unit_test::const_string file, std::size_t line,
 			boost::unit_test::const_string name);
 
 		/// Reset the filter to the initial state and run the given test.
@@ -94,3 +98,5 @@ class test_filter: public test_main
 		/// Number of failure tests, used to number them sequentially.
 		unsigned int numFailTests;
 };
+
+#endif // _CAMOTO_GAMEGRAPHICS_TEST_FILTER_HPP_

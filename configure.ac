@@ -53,7 +53,7 @@ Please download and install png++ 0.2.7 or newer <http://download.savannah.gnu.o
 
 CPPFLAGS=$SAVE_CPPFLAGS
 
-AX_BOOST_BASE([1.46], [], [AC_MSG_ERROR([Could not find Boost])])
+AX_BOOST_BASE([1.59], [], [AC_MSG_ERROR([Could not find Boost])])
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_UNIT_TEST_FRAMEWORK
 

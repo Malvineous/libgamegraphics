@@ -117,14 +117,16 @@ void test_image::addTests()
 }
 
 void test_image::addBoundTest(bool empty, std::function<void()> fnTest,
+	boost::unit_test::const_string file, std::size_t line,
 	boost::unit_test::const_string name)
 {
-	std::function<void()> fnTestWrapper = std::bind(&test_image::runTest,
-		this, empty, fnTest);
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTestWrapper),
-		createString(name << '[' << this->basename << ']')
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::runTest, this, empty, fnTest),
+			createString(name << '[' << this->basename << ']'),
+			file, line
+		)
+	);
 	return;
 }
 
@@ -181,13 +183,15 @@ void test_image::populateSuppData()
 void test_image::isInstance(ImageType::Certainty result,
 	const std::string& content)
 {
-	std::function<void()> fnTest = std::bind(&test_image::test_isInstance,
-		this, result, content, this->numIsInstanceTests);
-	this->ts->add(boost::unit_test::make_test_case(
-			boost::unit_test::callback0<>(fnTest),
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::test_isInstance, this, result, content,
+				this->numIsInstanceTests),
 			createString("test_image[" << this->basename << "]::isinstance_c"
-				<< std::setfill('0') << std::setw(2) << this->numIsInstanceTests)
-		));
+				<< std::setfill('0') << std::setw(2) << this->numIsInstanceTests),
+			__FILE__, __LINE__
+		)
+	);
 	this->numIsInstanceTests++;
 	return;
 }
@@ -211,13 +215,15 @@ void test_image::test_isInstance(ImageType::Certainty result,
 
 void test_image::invalidContent(const std::string& content)
 {
-	std::function<void()> fnTest = std::bind(&test_image::test_invalidContent,
-		this, content, this->numInvalidContentTests);
-	this->ts->add(boost::unit_test::make_test_case(
-			boost::unit_test::callback0<>(fnTest),
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::test_invalidContent, this, content,
+				this->numInvalidContentTests),
 			createString("test_image[" << this->basename << "]::invalidcontent_i"
-				<< std::setfill('0') << std::setw(2) << this->numInvalidContentTests)
-		));
+				<< std::setfill('0') << std::setw(2) << this->numInvalidContentTests),
+			__FILE__, __LINE__
+		)
+	);
 	this->numInvalidContentTests++;
 	return;
 }
@@ -253,13 +259,15 @@ void test_image::test_invalidContent(const std::string& content,
 void test_image::changeMetadata(camoto::Metadata::MetadataType item,
 	const std::string& newValue, const std::string& content)
 {
-	std::function<void()> fnTest = std::bind(&test_image::test_changeMetadata,
-		this, item, newValue, content, this->numChangeMetadataTests);
-	this->ts->add(boost::unit_test::make_test_case(
-			boost::unit_test::callback0<>(fnTest),
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::test_changeMetadata, this, item, newValue,
+				content, this->numChangeMetadataTests),
 			createString("test_image[" << this->basename << "]::changemetadata_c"
-				<< std::setfill('0') << std::setw(2) << this->numIsInstanceTests)
-		));
+				<< std::setfill('0') << std::setw(2) << this->numChangeMetadataTests),
+			__FILE__, __LINE__
+		)
+	);
 	this->numChangeMetadataTests++;
 	return;
 }
@@ -278,33 +286,39 @@ void test_image::sizedContent(const Point& dims, ImageType::Certainty result,
 	std::string strPixelsExpected)
 {
 	// Read pixels
-	std::function<void()> fnTest = std::bind(&test_image::test_sizedContent_read_pix,
-		this, dims, result, content, palette, strPixelsExpected);
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTest),
-		createString("test_image[" << this->basename << "]::sizedContent_read_pix["
-			<< dims.x << "x" << dims.y << "]")
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::test_sizedContent_read_pix,
+				this, dims, result, content, palette, strPixelsExpected),
+			createString("test_image[" << this->basename
+				<< "]::sizedContent_read_pix[" << dims.x << "x" << dims.y << "]"),
+			__FILE__, __LINE__
+		)
+	);
 
 	// Read mask (if present)
 	if (this->hasMask || this->hasHitmask) {
-		fnTest = std::bind(&test_image::test_sizedContent_read_mask,
-			this, dims, result, content);
-		this->ts->add(boost::unit_test::make_test_case(
-			boost::unit_test::callback0<>(fnTest),
-			createString("test_image[" << this->basename << "]::sizedContent_read_mask["
-				<< dims.x << "x" << dims.y << "]")
-		));
+		this->ts->add(
+			boost::unit_test::make_test_case(
+				std::bind(&test_image::test_sizedContent_read_mask,
+					this, dims, result, content),
+				createString("test_image[" << this->basename
+					<< "]::sizedContent_read_mask[" << dims.x << "x" << dims.y << "]"),
+				__FILE__, __LINE__
+			)
+		);
 	}
 
 	// Write pixels and mask
-	fnTest = std::bind(&test_image::test_sizedContent_create,
-		this, dims, result, content, palette, strPixelsExpected);
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTest),
-		createString("test_image[" << this->basename << "]::sizedContent_create["
-			<< dims.x << "x" << dims.y << "]")
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_image::test_sizedContent_create,
+				this, dims, result, content, palette, strPixelsExpected),
+			createString("test_image[" << this->basename
+				<< "]::sizedContent_create[" << dims.x << "x" << dims.y << "]"),
+			__FILE__, __LINE__
+		)
+	);
 	return;
 }
 

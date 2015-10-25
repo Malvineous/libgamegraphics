@@ -36,14 +36,16 @@ void test_filter::addTests()
 }
 
 void test_filter::addBoundTest(bool empty, std::function<void()> fnTest,
+	boost::unit_test::const_string file, std::size_t line,
 	boost::unit_test::const_string name)
 {
-	std::function<void()> fnTestWrapper = std::bind(&test_filter::runTest,
-		this, empty, fnTest);
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTestWrapper),
-		createString(name << '[' << this->basename << ']')
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			std::bind(&test_filter::runTest, this, empty, fnTest),
+			createString(name << '[' << this->basename << ']'),
+			file, line
+		)
+	);
 	return;
 }
 
@@ -68,11 +70,14 @@ void test_filter::process(std::unique_ptr<filter> algo,
 		assert(algo);
 		this->test_process(std::move(algo), input, output, this->numFailTests);
 	});
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTest),
-		createString("test_filter[" << this->basename << "]::process["
-			<< std::setfill('0') << std::setw(2) << this->numProcessTests << "]")
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			fnTest,
+			createString("test_filter[" << this->basename << "]::process["
+				<< std::setfill('0') << std::setw(2) << this->numProcessTests << "]"),
+			__FILE__, __LINE__
+		)
+	);
 	this->numProcessTests++;
 	return;
 }
@@ -86,11 +91,14 @@ void test_filter::fail(std::unique_ptr<filter> algo,
 		assert(algo);
 		this->test_fail(std::move(algo), input, this->numFailTests);
 	});
-	this->ts->add(boost::unit_test::make_test_case(
-		boost::unit_test::callback0<>(fnTest),
-		createString("test_filter[" << this->basename << "]::fail["
-			<< std::setfill('0') << std::setw(2) << this->numFailTests << "]")
-	));
+	this->ts->add(
+		boost::unit_test::make_test_case(
+			fnTest,
+			createString("test_filter[" << this->basename << "]::fail["
+				<< std::setfill('0') << std::setw(2) << this->numFailTests << "]"),
+			__FILE__, __LINE__
+		)
+	);
 	this->numFailTests++;
 	return;
 }

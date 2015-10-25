@@ -67,8 +67,9 @@ class test_image: public test_main
 		// Get content for a generic instance of the format.
 		virtual std::string initialstate() const = 0;
 
-		/// Add a test to the suite.  Used by ADD_ARCH_TEST().
+		/// Add a test to the suite.  Used by ADD_IMAGE_TEST().
 		void addBoundTest(bool empty, std::function<void()> fnTest,
+			boost::unit_test::const_string file, std::size_t line,
 			boost::unit_test::const_string name);
 
 		/// Reset the image to the initial state and run the given test.
@@ -295,9 +296,12 @@ class test_image: public test_main
 };
 
 /// Add a test_image member function to the test suite
-#define ADD_IMAGE_TEST(empty, fn) {	  \
-	std::function<void()> fnTest = std::bind(fn, this); \
-	this->test_image::addBoundTest(empty, fnTest, BOOST_TEST_STRINGIZE(fn)); \
-}
+#define ADD_IMAGE_TEST(empty, fn) \
+	this->test_image::addBoundTest( \
+		empty, \
+		std::bind(fn, this), \
+		__FILE__, __LINE__, \
+		BOOST_TEST_STRINGIZE(fn) \
+	);
 
 #endif // _CAMOTO_GAMEGRAPHICS_TEST_IMAGE_HPP_

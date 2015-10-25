@@ -80,9 +80,12 @@ class test_tileset: public test_archive
 };
 
 /// Add a test_tileset member function to the test suite
-#define ADD_TILESET_TEST(empty, fn) {	  \
-	std::function<void()> fnTest = std::bind(fn, this); \
-	this->test_tileset::addBoundTest(empty, fnTest, BOOST_TEST_STRINGIZE(fn)); \
-}
+#define ADD_TILESET_TEST(empty, fn) \
+	this->test_tileset::addBoundTest( \
+		empty, \
+		std::bind(fn, this), \
+		__FILE__, __LINE__, \
+		BOOST_TEST_STRINGIZE(fn) \
+	);
 
 #endif // _CAMOTO_GAMETILESET_TEST_TILESET_HPP_
