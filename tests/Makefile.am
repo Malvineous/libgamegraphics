@@ -30,6 +30,7 @@ tests_SOURCES += test-pal-defaults.cpp
 tests_SOURCES += test-subimage.cpp
 tests_SOURCES += test-tileset.cpp
 tests_SOURCES += test-tileset-from_image_list.cpp
+tests_SOURCES += test-tls-actrinfo.cpp
 tests_SOURCES += test-tls-bash.cpp
 tests_SOURCES += test-tls-bash-sprite.cpp
 tests_SOURCES += test-tls-catacomb.cpp

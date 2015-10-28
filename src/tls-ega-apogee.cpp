@@ -63,7 +63,8 @@ Tileset_EGAApogee::Tileset_EGAApogee(std::unique_ptr<stream::inout> content,
 {
 	this->pal = pal;
 
-	int tileSize = this->tileDimensions.x / 8 * this->tileDimensions.y * (unsigned int)this->numPlanes;
+	int tileSize = this->tileDimensions.x / 8 * this->tileDimensions.y
+		* (unsigned int)this->numPlanes;
 
 	stream::pos len = this->content->size();
 
