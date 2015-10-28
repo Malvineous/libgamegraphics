@@ -139,6 +139,7 @@ void Image_FromTileset::doConversion(bool toImage)
 		}
 		firstTileOnRow += this->span;
 	}
+	this->tileset->flush();
 	return;
 }
 
