@@ -31,7 +31,7 @@ Tileset_FAT::Tileset_FAT(std::unique_ptr<stream::inout> content,
 }
 
 Tileset_FAT::Tileset_FAT()
-	: Archive_FAT(nullptr, 0, 0)
+	:	Archive_FAT(nullptr, 0, 0)
 {
 	throw stream::error("Tileset_FAT() default constructor called - should "
 		"never happen!");
@@ -39,6 +39,11 @@ Tileset_FAT::Tileset_FAT()
 
 Tileset_FAT::~Tileset_FAT()
 {
+}
+
+std::shared_ptr<gamearchive::Archive> Tileset_FAT::openFolder(const FileHandle& id)
+{
+	return this->openTileset(id);
 }
 
 std::unique_ptr<Image> Tileset_FAT::openImage(const FileHandle& id)

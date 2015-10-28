@@ -37,6 +37,9 @@ class Tileset_FAT:
 			int lenMaxName);
 		virtual ~Tileset_FAT();
 
+		// Archive
+		virtual std::shared_ptr<gamearchive::Archive> openFolder(const FileHandle& id);
+
 		// Functions to be filled out by descendent classes
 		virtual std::unique_ptr<Image> openImage(const FileHandle& id);
 		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id);
