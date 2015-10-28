@@ -21,6 +21,34 @@
 #include <camoto/gamegraphics.hpp>
 #include <png++/png.hpp>
 
+/// Create a default palette for the given colour depth
+std::shared_ptr<camoto::gamegraphics::Palette> defaultPalette(
+	camoto::gamegraphics::ColourDepth depth)
+{
+	std::shared_ptr<camoto::gamegraphics::Palette> dstPal;
+	switch (depth) {
+		case camoto::gamegraphics::ColourDepth::VGA:
+			dstPal = camoto::gamegraphics::createPalette_DefaultVGA();
+			// Force last colour to be transparent
+			dstPal->at(255).red = 255;
+			dstPal->at(255).green = 0;
+			dstPal->at(255).blue = 192;
+			dstPal->at(255).alpha = 0;
+			break;
+		case camoto::gamegraphics::ColourDepth::EGA:
+			dstPal = camoto::gamegraphics::createPalette_DefaultEGA();
+			break;
+		case camoto::gamegraphics::ColourDepth::CGA:
+			dstPal = camoto::gamegraphics::createPalette_CGA(
+				camoto::gamegraphics::CGAPaletteType::CyanMagenta);
+			break;
+		case camoto::gamegraphics::ColourDepth::Mono:
+			dstPal = camoto::gamegraphics::createPalette_DefaultMono();
+			break;
+	}
+	return dstPal;
+}
+
 /// Prepare the palette for an image export
 int preparePalette(camoto::gamegraphics::ColourDepth depth,
 	const camoto::gamegraphics::Palette* srcPal, png::palette* pngPal,
@@ -32,26 +60,7 @@ int preparePalette(camoto::gamegraphics::ColourDepth depth,
 		dstPal = std::make_shared<camoto::gamegraphics::Palette>(*srcPal);
 	} else {
 		// Need to use the default palette
-		switch (depth) {
-			case camoto::gamegraphics::ColourDepth::VGA:
-				dstPal = camoto::gamegraphics::createPalette_DefaultVGA();
-				// Force last colour to be transparent
-				dstPal->at(255).red = 255;
-				dstPal->at(255).green = 0;
-				dstPal->at(255).blue = 192;
-				dstPal->at(255).alpha = 0;
-				break;
-			case camoto::gamegraphics::ColourDepth::EGA:
-				dstPal = camoto::gamegraphics::createPalette_DefaultEGA();
-				break;
-			case camoto::gamegraphics::ColourDepth::CGA:
-				dstPal = camoto::gamegraphics::createPalette_CGA(
-					camoto::gamegraphics::CGAPaletteType::CyanMagenta);
-				break;
-			case camoto::gamegraphics::ColourDepth::Mono:
-				dstPal = camoto::gamegraphics::createPalette_DefaultMono();
-				break;
-		}
+		dstPal = defaultPalette(depth);
 	}
 	*pngPal = png::palette(dstPal->size());
 	*pngTNS = png::tRNS(dstPal->size());

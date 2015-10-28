@@ -36,18 +36,16 @@ namespace gg = camoto::gamegraphics;
  *   Filename of destination (including ".png")
  */
 void imageToPng(const gg::Image& img, const std::string& destFile,
-	std::shared_ptr<const gg::Palette> palImg)
+	std::shared_ptr<const gg::Palette> pal)
 {
+	// Must have a palette here, caller must supply a default one if needed.
+	assert(pal);
+
 	auto dims = img.dimensions();
 	auto data = img.convert();
 	auto mask = img.convert_mask();
 
 	png::image<png::index_pixel> png(dims.x, dims.y);
-
-	const gg::Palette* srcPal;
-	if (img.caps() & gg::Image::Caps::HasPalette) {
-		srcPal = palImg.get();
-	}
 
 	// Scan the image and see if there is an unused colour
 	int forceXP = -1;
@@ -82,7 +80,7 @@ void imageToPng(const gg::Image& img, const std::string& destFile,
 	png::palette pngPal;
 	png::tRNS pngTNS;
 	int palOffset;
-	auto transparentIndex = preparePalette(img.colourDepth(), srcPal,
+	auto transparentIndex = preparePalette(img.colourDepth(), pal.get(),
 		&pngPal, &pngTNS, &palOffset, forceXP);
 	png.set_palette(pngPal);
 	if (pngTNS.size() > 0) png.set_tRNS(pngTNS);

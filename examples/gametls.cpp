@@ -468,6 +468,12 @@ void extractAllImages(std::string prefix, bool tilesetAsSingleImage,
 {
 	auto tiles = tileset->files();
 
+	std::shared_ptr<const gg::Palette> palTileset;
+	if (tileset->caps() & gg::Tileset::Caps::HasPalette) {
+		palTileset = tileset->palette();
+	} else {
+		palTileset = defaultPalette(tileset->colourDepth());
+	}
 	int j = 0;
 	for (auto& i : tiles) {
 		try {
@@ -512,7 +518,12 @@ void extractAllImages(std::string prefix, bool tilesetAsSingleImage,
 					std::cout << " extracting: " << filename << std::endl;
 				}
 				auto img = tileset->openImage(i);
-				imageToPng(*img, filename, img->palette());
+				auto palUse = palTileset;
+				if (img->caps() & gg::Image::Caps::HasPalette) {
+					auto palImg = img->palette();
+					if (palImg) palUse = palImg;
+				}
+				imageToPng(*img, filename, palUse);
 				if (bScript) {
 					std::cout << "ok" << std::endl;
 				}
@@ -889,6 +900,13 @@ finishTesting:
 						iRet = RET_NONCRITICAL_FAILURE;
 					}
 				} else {
+					std::shared_ptr<const gg::Palette> palTileset;
+					if (nextTileset->caps() & gg::Tileset::Caps::HasPalette) {
+						palTileset = nextTileset->palette();
+					} else {
+						palTileset = defaultPalette(nextTileset->colourDepth());
+					}
+
 					// We have a single image to extract
 					assert(nextTileset);
 					auto img = nextTileset->openImage(ep);
@@ -897,7 +915,12 @@ finishTesting:
 						else std::cout << " [failed; unable to open image]";
 						iRet = RET_NONCRITICAL_FAILURE;
 					} else {
-						imageToPng(*img, strLocalFile, img->palette());
+						auto palUse = palTileset;
+						if (img->caps() & gg::Image::Caps::HasPalette) {
+							auto palImg = img->palette();
+							if (palImg) palUse = palImg;
+						}
+						imageToPng(*img, strLocalFile, palUse);
 						if (bScript) std::cout << "ok";
 					}
 				}
