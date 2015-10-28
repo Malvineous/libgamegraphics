@@ -279,7 +279,7 @@ class test_tls_cosmo_masked: public test_tileset
 		virtual std::string tile4() const
 		{
 			return STRING_WITH_NULLS(
-				"\x00\xBF\xBF\xBF\xBF"
+				"\x00\xFF\xFF\xBF\xBF"
 				"\x7E\x00\x01\x80\x81"
 				"\x7E\x00\x01\x80\x81"
 				"\x7E\x00\x01\x80\x81"
