@@ -258,7 +258,7 @@ TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
 	if (nextOffset < 1) return DefinitelyNo;
 
 	stream::pos fatPos = 2;
-	for (unsigned int i = 1; i < numImages; i++) {
+	for (unsigned int i = 0; i < numImages; i++) {
 
 		// Have a look at the actor structure
 		if (nextOffset + 8 < lenContent) {
@@ -289,6 +289,7 @@ TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
 			// Go back to get the next offset
 			content.seekg(fatPos, stream::start);
 		}
+		if (i == numImages - 1) break;
 
 		auto lastOffset = nextOffset;
 		content >> u16le(nextOffset);
