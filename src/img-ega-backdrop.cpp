@@ -59,7 +59,7 @@ std::unique_ptr<Image> ImageType_Backdrop::open(
 	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	return std::make_unique<Image_FromTileset>(
-		std::make_unique<Tileset_EGAApogee>(
+		std::make_shared<Tileset_EGAApogee>( // must be shared_ptr so shared_from_this works
 			std::move(content),
 			this->dimsTile,
 			PlaneCount::Solid, 1, nullptr

@@ -11,6 +11,7 @@ tests_SOURCES += test-image-from_tileset.cpp
 tests_SOURCES += test-img-bash-sprite.cpp
 tests_SOURCES += test-img-ccomic.cpp
 tests_SOURCES += test-img-ddave.cpp
+tests_SOURCES += test-img-ega-backdrop.cpp
 tests_SOURCES += test-img-ega-linear.cpp
 tests_SOURCES += test-img-ega-planar.cpp
 tests_SOURCES += test-img-ega-byteplanar.cpp
