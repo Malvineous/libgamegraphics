@@ -29,6 +29,7 @@
 #include <camoto/gamearchive/stream_archfile.hpp>
 #include "tls-actrinfo.hpp"
 #include "tileset-fat.hpp"
+#include "filter-block-pad.hpp"
 #include "image-from_tileset.hpp"
 #include "tls-ega-apogee.hpp"
 
@@ -57,11 +58,8 @@
 /// Size of a single actor frame, in bytes.
 #define ACTOR_FRAME_SIZE 8
 
-/// Byte offset multiples to remove a padding byte when reading.
-#define PAD_READ 65536
-
-/// Byte offset multiples to insert a padding byte when writing.
-#define PAD_WRITE 65535
+/// Byte offset to insert a pad byte when reading, and remove when writing.
+#define ACTRINFO_PAD_BLOCK 65535
 
 namespace camoto {
 namespace gamegraphics {
@@ -247,7 +245,6 @@ TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
 	content >> u16le(nextOffset);
 	unsigned int numImages = nextOffset;
 	nextOffset *= 2;
-	nextOffset -= nextOffset / PAD_READ;
 
 	// No actor data
 	// TESTED BY: tls_actrinfo_isinstance_c03
@@ -295,7 +292,6 @@ TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
 		content >> u16le(nextOffset);
 		fatPos += 2;
 		nextOffset *= 2;
-		nextOffset -= nextOffset / PAD_READ;
 
 		// Offsets decrementing
 		// This is probably allowed but it will help avoid false positives
@@ -325,10 +321,27 @@ std::shared_ptr<Tileset> TilesetType_Actrinfo::open(
 	if (suppData.find(SuppItem::Extra1) == suppData.end()) {
 		throw stream::error("no actor tileset specified (missing supplementary item Extra1)");
 	}
-	return std::make_shared<Tileset_ActrInfo>(
-		std::move(suppData[SuppItem::Extra1]),
+
+	// The file data is loaded in lots of 65535 bytes, into memory blocks of
+	// 65536 bytes.  This means after every 65535 bytes, a padding byte should be
+	// inserted in order for the offsets to add up correctly.  Likewise when
+	// saving data, every 65536th byte should be dropped.
+	auto content_filtered = std::make_unique<stream::filtered>(
 		std::move(content),
-//		Point{ACTR_TILE_WIDTH, ACTR_TILE_HEIGHT},
+		std::make_shared<filter_block_pad>(std::string(1, '\x00'), ACTRINFO_PAD_BLOCK),
+		std::make_shared<filter_block_unpad>(1, ACTRINFO_PAD_BLOCK),
+		nullptr
+	);
+	auto extra1_filtered = std::make_unique<stream::filtered>(
+		std::move(suppData[SuppItem::Extra1]),
+		std::make_shared<filter_block_pad>(std::string(1, '\x00'), ACTRINFO_PAD_BLOCK),
+		std::make_shared<filter_block_unpad>(1, ACTRINFO_PAD_BLOCK),
+		nullptr
+	);
+
+	return std::make_shared<Tileset_ActrInfo>(
+		std::move(extra1_filtered),
+		std::move(content_filtered),
 		nullptr
 	);
 }
@@ -492,12 +505,7 @@ Tileset_ActrInfo_Frames::Tileset_ActrInfo_Frames(std::unique_ptr<stream::inout> 
 
 		unsigned int numActors = nextOffset;
 
-		// The file data is loaded in lots of 65535 bytes, into memory blocks of
-		// 65536 bytes.  This means after every 65535 bytes, a padding byte should be
-		// inserted in order for the offsets to add up correctly.  Likewise when
-		// saving data, every 65536th byte should be dropped.
 		nextOffset *= 2;
-		nextOffset -= nextOffset / PAD_READ;
 
 		if (lenContent < nextOffset) {
 			throw stream::error(createString(
@@ -518,7 +526,6 @@ Tileset_ActrInfo_Frames::Tileset_ActrInfo_Frames(std::unique_ptr<stream::inout> 
 			} else {
 				*this->contentFAT >> u16le(nextOffset);
 				nextOffset *= 2;
-				nextOffset -= nextOffset / PAD_READ;
 			}
 
 			auto fat = std::make_unique<FATEntry>();
@@ -597,7 +604,6 @@ void Tileset_ActrInfo_Frames::flush()
 void Tileset_ActrInfo_Frames::updateFileOffset(const FATEntry *pid, stream::delta offDelta)
 {
 	unsigned int offset = pid->iOffset;
-	offset += offset / PAD_WRITE;
 	this->contentFAT->seekp(
 		this->getFirstFrameOffset()
 		+ pid->iIndex * ACTOR_FRAME_SIZE
@@ -655,7 +661,6 @@ void Tileset_ActrInfo_Frames::preInsertFile(const FATEntry *idBeforeThis,
 	this->contentFAT->insert(ACTOR_FRAME_SIZE);
 
 	unsigned int offset = pNewEntry->iOffset;
-	offset += offset / PAD_WRITE;
 	*this->contentFAT
 		<< u16le(this->currentDims.y)
 		<< u16le(this->currentDims.x)
@@ -680,7 +685,6 @@ void Tileset_ActrInfo_Frames::preInsertFile(const FATEntry *idBeforeThis,
 			fatI->iOffset += ACTOR_FRAME_SIZE;
 
 			auto offNew = fatI->iOffset;
-			offNew += fatI->iOffset / PAD_WRITE;
 			offNew /= 2;
 			this->contentFAT->seekp(ACTRINFO_FATENTRY_OFFSET(fatI), stream::start);
 			*this->contentFAT << u16le(offNew);
@@ -706,7 +710,6 @@ void Tileset_ActrInfo_Frames::preRemoveFile(const FATEntry *pid)
 			// write new value
 			this->contentFAT->seekp(ACTRINFO_FATENTRY_OFFSET(fat), stream::start);
 			auto offNew = fat->iOffset;
-			offNew += fat->iOffset / PAD_WRITE;
 			offNew /= 2;
 			*this->contentFAT << u16le(offNew);
 		}
@@ -848,7 +851,6 @@ const Tileset_ActrInfo::FileHandle Tileset_ActrInfo_Frames::insertActor(
 		fatI->iOffset += ACTRINFO_FAT_ENTRY_LEN;
 
 		auto offNew = fatI->iOffset;
-		offNew += fatI->iOffset / PAD_WRITE;
 		offNew /= 2;
 		*this->contentFAT << u16le(offNew);
 	}
@@ -934,7 +936,6 @@ void Tileset_ActrInfo_Frames::removeActor(const FileHandle& id)
 		if (fatI->iIndex >= removedIndex) fatI->iIndex--;
 
 		auto offNew = fatI->iOffset;
-		offNew += fatI->iOffset / PAD_WRITE;
 		offNew /= 2;
 		*this->contentFAT << u16le(offNew);
 	}
