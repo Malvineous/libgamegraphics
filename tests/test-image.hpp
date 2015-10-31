@@ -56,7 +56,7 @@ class test_image: public test_main
 		/// Reset pImage back to a known state.
 		/**
 		 * @param empty
-		 *   true resets to an empty archive (via ImageType::create()) while
+		 *   true resets to an empty image (via ImageType::create()) while
 		 *   false resets to initialstate() and calls ImageType::open().
 		 */
 		virtual void prepareTest(bool empty);
@@ -110,7 +110,7 @@ class test_image: public test_main
 		 *   Expected result when opening the content.
 		 *
 		 * @param content
-		 *   Content to pass as an archive to ImageType::isInstance().
+		 *   Content to pass as an image to ImageType::isInstance().
 		 */
 		void isInstance(ImageType::Certainty result, const std::string& content);
 
@@ -124,7 +124,7 @@ class test_image: public test_main
 		 * don't cause segfaults or infinite loops if the data is corrupted.
 		 *
 		 * @param content
-		 *   Content to pass as an archive to ImageType::isInstance() where
+		 *   Content to pass as an image to ImageType::isInstance() where
 		 *   it will be reported as a valid instance, then passed to
 		 *   ImageType::open(), where an exception should be thrown.
 		 */
@@ -177,7 +177,7 @@ class test_image: public test_main
 			ImageType::Certainty result, const std::string& content,
 			std::shared_ptr<const Palette> palette, std::string strPixelsExpected);
 
-		/// Does the archive content match the parameter?
+		/// Does the image content match the parameter?
 		boost::test_tools::predicate_result is_content_equal(const std::string& exp);
 
 		/// Does the given supplementary item content match the parameter?
@@ -206,7 +206,7 @@ class test_image: public test_main
 		/// Pointers to the underlying storage used for suppitems.
 		std::map<SuppItem, std::shared_ptr<stream::string>> suppBase;
 
-		/// Supplementary data for the archive, populated by streams sitting on
+		/// Supplementary data for the image, populated by streams sitting on
 		/// top of suppBase.
 		camoto::SuppData suppData;
 
@@ -274,7 +274,7 @@ class test_image: public test_main
 		/// Metadata text to set for 'description' when the field should be
 		/// shorter than the initial state.
 		/**
-		 * After setting the description to this value, the archive file should
+		 * After setting the description to this value, the file should
 		 * match the value returned by metadata_set_desc_smaller().
 		 */
 		std::string metadataDescSmaller;
@@ -282,7 +282,7 @@ class test_image: public test_main
 		/// Metadata text to set for 'description' when the field should be
 		/// longer than the initial state.
 		/**
-		 * After setting the description to this value, the archive file should
+		 * After setting the description to this value, the file should
 		 * match the value returned by metadata_set_desc_larger().
 		 */
 		std::string metadataDescLarger;
