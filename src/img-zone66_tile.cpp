@@ -392,10 +392,10 @@ void Image_Zone66Tile::convert(const Pixels& newContent, const Pixels& newMask)
 	*this->content << u8(0xFF); // end of file
 	finalSize++;
 
-	this->content->flush();
-
 	// Then shrink back to actual size
 	this->content->truncate(finalSize);
+
+	this->content->flush();
 
 	return;
 }

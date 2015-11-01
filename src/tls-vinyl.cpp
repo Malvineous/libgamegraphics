@@ -180,6 +180,7 @@ class Image_VGFM_MaskedTile: virtual public Image
 				this->content->write(pixbuf, 4);
 				pixbuf += 4;
 			}
+			this->content->flush();
 			return;
 		}
 

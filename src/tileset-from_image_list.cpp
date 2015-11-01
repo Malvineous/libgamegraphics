@@ -233,7 +233,8 @@ throw stream::error("TODO: Not implemented yet!");
 //					return item.img;
 
 				case Item::SplitType::UniformTiles:
-				case Item::SplitType::List:
+				case Item::SplitType::List: {
+					auto this_shared = this->shared_from_this();
 					if (!item.stdImg) {
 						item.stdImg = std::make_shared<Pixels>(item.img->convert());
 						item.stdMask = std::make_shared<Pixels>(item.img->convert_mask());
@@ -241,10 +242,15 @@ throw stream::error("TODO: Not implemented yet!");
 					return std::make_unique<Image_Sub>(item.stdImg, item.stdMask,
 						item.img->dimensions(), fat->dims, item.img->colourDepth(),
 						item.img->palette(),
-						[&item](){
+						[&item, this_shared](){
 							item.imageChanged = true;
+							// We are the only user of the shared archive, so the caller has
+							// no other means to flush it.  So we will have to flush it for
+							// them.
+							if (this_shared.unique()) this_shared->flush();
 						}
 					);
+				}
 			}
 			break;
 		case Item::AttachmentType::Child:

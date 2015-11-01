@@ -332,6 +332,17 @@ void test_tileset::test_change_image()
 
 	auto dimsReported = img->dimensions();
 
+	// Close all references to the tileset, to confirm the image still
+	// flushes the tileset in this case.
+	targetTileset.reset();
+	tileset.reset();
+	this->pArchive.reset();
+
+	// Nothing should have changed yet
+	this->checkData(&test_tileset::initialstate,
+		"Data corrupted after opening image"
+	);
+
 	BOOST_TEST_CHECKPOINT("Replacing first image with content of standard tile 3");
 	auto pixels3 = createTileData(dimsReported, this->cga, 2);
 	auto mask3 = createMaskData(dimsReported, this->hasHitmask);

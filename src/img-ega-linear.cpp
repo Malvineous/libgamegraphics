@@ -85,6 +85,8 @@ void Image_EGA_Linear::convert(const Pixels& newContent,
 		this->bits.flushByte();
 	}
 	this->bits.flush();
+	this->content->truncate_here();
+	this->content->flush();
 	return;
 }
 

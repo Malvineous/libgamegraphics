@@ -26,7 +26,8 @@
 namespace camoto {
 namespace gamegraphics {
 
-class Tileset_FromImageList: virtual public Tileset
+class Tileset_FromImageList: virtual public Tileset,
+	public std::enable_shared_from_this<Tileset_FromImageList>
 {
 	public:
 		struct ImageListEntry: public File {
