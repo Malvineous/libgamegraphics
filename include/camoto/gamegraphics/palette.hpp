@@ -24,10 +24,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-
-#ifndef DLL_EXPORT
-#define DLL_EXPORT
-#endif
+#include <camoto/config.hpp>
 
 namespace camoto {
 namespace gamegraphics {
@@ -54,7 +51,7 @@ enum class CGAPaletteType {
 };
 
 /// Generate a black and white palette.
-std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultMono();
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_DefaultMono();
 
 /// Generate a CGA palette.
 /**
@@ -65,13 +62,14 @@ std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultMono();
  *   colour of blue (colour #1) try (CGAPaletteType)(GreenRed | 1).  This
  *   only needs to be specified when the background colour is not black.
  */
-std::unique_ptr<Palette> DLL_EXPORT createPalette_CGA(CGAPaletteType cgaPal);
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_CGA(
+	CGAPaletteType cgaPal);
 
 /// Allocate memory for a palette and fill it with CGA defaults.
 /**
  * @return Palette with 16 entries suitable for drawing CGA and EGA images.
  */
-std::unique_ptr<Palette> DLL_EXPORT createPalette_FullCGA();
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_FullCGA();
 
 /// The default EGA palette is the same as the full CGA one.
 #define createPalette_DefaultEGA createPalette_FullCGA
@@ -81,10 +79,10 @@ std::unique_ptr<Palette> DLL_EXPORT createPalette_FullCGA();
  * @return Palette with 64 entries suitable for drawing EGA images that
  *   make use of the EGA palette.
  */
-std::unique_ptr<Palette> DLL_EXPORT createPalette_FullEGA();
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_FullEGA();
 
 /// Generate the default VGA mode 13 palette.
-std::unique_ptr<Palette> DLL_EXPORT createPalette_DefaultVGA();
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_DefaultVGA();
 
 /// Convert a 6-bit VGA palette value (0-63) to 8-bit (0-255)
 constexpr std::uint8_t pal_6to8(std::uint8_t six)

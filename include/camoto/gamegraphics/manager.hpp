@@ -25,15 +25,7 @@
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 
-#ifndef DLL_EXPORT
-#define DLL_EXPORT
-#endif
-
 namespace camoto {
-
-template class FormatEnumerator<gamegraphics::TilesetType>;
-template class FormatEnumerator<gamegraphics::ImageType>;
-
 namespace gamegraphics {
 
 typedef FormatEnumerator<TilesetType> TilesetManager;

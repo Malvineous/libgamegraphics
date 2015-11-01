@@ -25,7 +25,7 @@
 namespace camoto {
 namespace gamegraphics {
 
-std::unique_ptr<Palette> createPalette_DefaultMono()
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_DefaultMono()
 {
 	auto pal = std::make_unique<Palette>();
 	pal->reserve(2);
@@ -40,7 +40,7 @@ std::unique_ptr<Palette> createPalette_DefaultMono()
 	return pal;
 }
 
-std::unique_ptr<Palette> createPalette_CGA(CGAPaletteType cgaPal)
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_CGA(CGAPaletteType cgaPal)
 {
 	auto pal = std::make_unique<Palette>();
 	pal->reserve(4);
@@ -64,7 +64,7 @@ std::unique_ptr<Palette> createPalette_CGA(CGAPaletteType cgaPal)
 	return pal;
 }
 
-std::unique_ptr<Palette> createPalette_FullCGA()
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_FullCGA()
 {
 	auto pal = std::make_unique<Palette>();
 	pal->reserve(16);
@@ -84,7 +84,7 @@ std::unique_ptr<Palette> createPalette_FullCGA()
 	return pal;
 }
 
-std::unique_ptr<Palette> createPalette_FullEGA()
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_FullEGA()
 {
 	auto pal = std::make_unique<Palette>();
 	pal->reserve(64);
@@ -103,7 +103,7 @@ std::unique_ptr<Palette> createPalette_FullEGA()
 	return pal;
 }
 
-std::unique_ptr<Palette> createPalette_DefaultVGA()
+std::unique_ptr<Palette> CAMOTO_GAMEGRAPHICS_API createPalette_DefaultVGA()
 {
 	auto pal = std::make_unique<Palette>();
 	pal->reserve(256);

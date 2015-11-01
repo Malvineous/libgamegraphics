@@ -30,10 +30,6 @@
 #include <camoto/gamegraphics/palette.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
-#ifndef DLL_EXPORT
-#define DLL_EXPORT
-#endif
-
 namespace camoto {
 namespace gamegraphics {
 
