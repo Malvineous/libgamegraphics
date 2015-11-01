@@ -239,6 +239,14 @@ void test_tileset::test_open_image()
 		BOOST_CHECK_EQUAL(this->firstTileDims.y, dimsReported.y);
 	}
 
+	BOOST_TEST_CHECKPOINT("Checking global palette (if any)");
+	if (tileset->caps() & Tileset::Caps::HasPalette) {
+		auto pal = tileset->palette();
+		if (pal) {
+			BOOST_CHECK_LT(pal->size(), 256);
+		}
+	}
+
 	for (int i = 0; i < 2; i++) {
 		auto ep = this->findFile(i);
 
@@ -292,6 +300,13 @@ void test_tileset::test_open_image()
 			auto dimsReported = img->hitrect();
 			BOOST_CHECK_EQUAL(this->ptHitrect[i].x, dimsReported.x);
 			BOOST_CHECK_EQUAL(this->ptHitrect[i].y, dimsReported.y);
+		}
+
+		if (img->caps() & Image::Caps::HasPalette) {
+			auto pal = img->palette();
+			if (pal) {
+				BOOST_CHECK_LT(pal->size(), 256);
+			}
 		}
 	}
 }
