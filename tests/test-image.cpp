@@ -89,8 +89,7 @@ Pixels createMaskData(const Point& dims, bool hit)
 test_image::test_image()
 	:	init(false),
 		numIsInstanceTests(0),
-		numInvalidContentTests(1),
-		numChangeMetadataTests(1)
+		numInvalidContentTests(1)
 {
 	this->create = true;
 
@@ -102,12 +101,6 @@ test_image::test_image()
 	this->dimensions = {0, 0};
 	this->hotspot = {0, 0};
 	this->hitrect = {0, 0};
-
-	this->hasMetadata[camoto::Metadata::MetadataType::Description] = false;
-	this->hasMetadata[camoto::Metadata::MetadataType::Version] = false;
-
-	this->metadataDesc = "Metadata description";
-	this->metadataVer = "123";
 }
 
 void test_image::addTests()
@@ -253,31 +246,6 @@ void test_image::test_invalidContent(const std::string& content,
 		stream::error
 	);
 
-	return;
-}
-
-void test_image::changeMetadata(camoto::Metadata::MetadataType item,
-	const std::string& newValue, const std::string& content)
-{
-	this->ts->add(
-		boost::unit_test::make_test_case(
-			std::bind(&test_image::test_changeMetadata, this, item, newValue,
-				content, this->numChangeMetadataTests),
-			createString("test_image[" << this->basename << "]::changemetadata_c"
-				<< std::setfill('0') << std::setw(2) << this->numChangeMetadataTests),
-			__FILE__, __LINE__
-		)
-	);
-	this->numChangeMetadataTests++;
-	return;
-}
-
-void test_image::test_changeMetadata(camoto::Metadata::MetadataType item,
-	const std::string& newValue, const std::string& content,
-	unsigned int testNumber)
-{
-	BOOST_REQUIRE_MESSAGE(false,
-		"TODO: Implement metadata tests once first format needs them");
 	return;
 }
 

@@ -25,7 +25,6 @@
 #include <functional>
 #include <boost/test/unit_test.hpp>
 #include <camoto/stream_string.hpp>
-#include <camoto/metadata.hpp>
 #include <camoto/gamegraphics.hpp>
 #include "tests.hpp"
 
@@ -130,23 +129,6 @@ class test_image: public test_main
 		 */
 		void invalidContent(const std::string& content);
 
-		/// Add an changeMetadata check to run later.
-		/**
-		 * These checks make sure metadata alterations work correctly.
-		 *
-		 * @param item
-		 *   Metadata item to change.
-		 *
-		 * @param newValue
-		 *   New content for metadata item.
-		 *
-		 * @param content
-		 *   Expected result after taking the initialstate() and changing the
-		 *   given metadata item as specified.
-		 */
-		void changeMetadata(camoto::Metadata::MetadataType item,
-			const std::string& newValue, const std::string& content);
-
 		/// Add another image size and matching content to run conversion tests.
 		void sizedContent(const Point& dims, ImageType::Certainty result,
 			const std::string& content,
@@ -156,11 +138,6 @@ class test_image: public test_main
 	protected:
 		/// Perform an invalidContent check now.
 		void test_invalidContent(const std::string& content,
-			unsigned int testNumber);
-
-		/// Perform a changeMetadata check now.
-		void test_changeMetadata(camoto::Metadata::MetadataType item,
-			const std::string& newValue, const std::string& content,
 			unsigned int testNumber);
 
 		/// Perform a sizedContent check now, reading the image (pixels).
@@ -220,11 +197,6 @@ class test_image: public test_main
 		/// Number of invalidData tests, used to number them sequentially.
 		unsigned int numInvalidContentTests;
 
-		/// Number of changeMetadata tests, used to number them sequentially.
-		unsigned int numChangeMetadataTests;
-
-		//std::map<Point, std::string> contentBySize;
-
 	public:
 		/// File type code for this format.
 		std::string type;
@@ -264,31 +236,6 @@ class test_image: public test_main
 
 		/// Size of collision rectangle, if image caps report hitrect support.
 		Point hitrect;
-
-		/// Does this format support metadata?
-		std::map<camoto::Metadata::MetadataType, bool> hasMetadata;
-
-		/// Default value for metadata 'description' field.
-		std::string metadataDesc;
-
-		/// Metadata text to set for 'description' when the field should be
-		/// shorter than the initial state.
-		/**
-		 * After setting the description to this value, the file should
-		 * match the value returned by metadata_set_desc_smaller().
-		 */
-		std::string metadataDescSmaller;
-
-		/// Metadata text to set for 'description' when the field should be
-		/// longer than the initial state.
-		/**
-		 * After setting the description to this value, the file should
-		 * match the value returned by metadata_set_desc_larger().
-		 */
-		std::string metadataDescLarger;
-
-		/// Default value for metadata 'version' field.
-		std::string metadataVer;
 
 		/// Link between supplementary items and the class containing the expected
 		/// content for each test case.
