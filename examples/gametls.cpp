@@ -1080,8 +1080,8 @@ finishTesting:
 					bool bSizeValue = split(strNewSize, 'x', &strWidth, &strHeight);
 					std::cout << "   set size: " << strId;
 					if (bSizeValue) {
-						unsigned int newWidth = strtoul(strWidth.c_str(), NULL, 10);
-						unsigned int newHeight = strtoul(strHeight.c_str(), NULL, 10);
+						long newWidth = (long)strtoul(strWidth.c_str(), NULL, 10);
+						long newHeight = (long)strtoul(strHeight.c_str(), NULL, 10);
 						std::cout << " -> " << newWidth << 'x' << newHeight;
 
 						auto nextTileset = pTileset;

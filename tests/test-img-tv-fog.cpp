@@ -48,7 +48,7 @@ class test_img_tv_fog: public test_image
 
 			// c02: First 256 bytes aren't 0..255
 			auto c02 = this->initialstate();
-			c02[1] = 0xFF;
+			c02[1] = 0xFFu;
 			this->isInstance(ImageType::DefinitelyNo, c02);
 		}
 

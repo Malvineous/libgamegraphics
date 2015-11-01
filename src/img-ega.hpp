@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_EGA_HPP_
 #define _CAMOTO_IMG_EGA_HPP_
 
+#include <array>
 #include <camoto/config.hpp>
 #include <camoto/gamegraphics/image.hpp>
 

@@ -174,12 +174,12 @@ class test_img_pcx_1b4p: public test_image
 
 			// c01: Bad signature
 			auto c01 = this->initialstate();
-			c01[0] = 0xFF;
+			c01[0] = 0xFFu;
 			this->isInstance(ImageType::DefinitelyNo, c01);
 
 			// c02: Unsupported version
 			auto c02 = this->initialstate();
-			c02[1] = 0xFF;
+			c02[1] = 0xFFu;
 			this->isInstance(ImageType::DefinitelyNo, c02);
 
 			// c03: Wrong number of bits per plane
