@@ -108,12 +108,19 @@ TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len > 65535) return DefinitelyNo; // file too large (probably)
+
+	// File too large (probably)
+	// TESTED BY: TODO
+	if (len > 65535) return DefinitelyNo;
+
 	content.seekg(0, stream::start);
 	uint16_t num;
 	for (int i = 0; i < 3; i++) {
 		content >> u16le(num);
-		if ((num != 0xFFFF) && (num > 512)) return DefinitelyNo; // too many tiles (probably)
+
+		// Too many tiles (probably)
+		// TESTED BY: test_tls_ccomic2_isinstance_c01
+		if ((num != 0xFFFF) && (num > 512)) return DefinitelyNo;
 	}
 	return Unsure;
 }

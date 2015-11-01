@@ -73,6 +73,21 @@ class test_tls_ccomic2: public test_tileset
 
 			// c00: Initial state
 			this->isInstance(ArchiveType::Unsure, this->initialstate());
+
+			// c01: File too large
+			this->isInstance(ArchiveType::DefinitelyNo,
+				this->initialstate()
+				+ std::string(65535 - this->initialstate().length() + 1, '\x00')
+			);
+
+			// c02: Too many tiles
+			this->isInstance(ArchiveType::DefinitelyNo,
+				STRING_WITH_NULLS("\x01\x50\xFF\xFF\x03\x00") +
+				cc2_rle(
+					this->tile1() +
+					this->tile2()
+				)
+			);
 		}
 
 		virtual std::string tile1() const
