@@ -973,7 +973,7 @@ const Tileset_SingleActor::FileVector& Tileset_SingleActor::files() const
 			this->vcFrames.end(),
 			allFrames.begin() + firstFrame,
 			// std::min limits to last frame if actor count wants to go past
-			allFrames.begin() + std::min(firstFrame + numFrames, allFrames.size())
+			allFrames.begin() + std::min(firstFrame + numFrames, (unsigned long)allFrames.size())
 		);
 	} // else first tile is beyond last frame, return blank actor
 

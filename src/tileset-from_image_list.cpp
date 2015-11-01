@@ -228,7 +228,6 @@ std::unique_ptr<Image> Tileset_FromImageList::openImage(const FileHandle& id)
 			switch (item.split) {
 				case Item::SplitType::SingleTile:
 					// TODO need to create a unique_ptr copy
-#warning Not implemented yet!
 throw stream::error("TODO: Not implemented yet!");
 //					return item.img;
 

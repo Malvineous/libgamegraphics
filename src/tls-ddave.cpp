@@ -304,7 +304,6 @@ Tileset_DDave::Tileset_DDave(std::unique_ptr<stream::inout> content,
 			}
 			fat->storedSize = nextOffset - fat->iOffset;
 			fat->realSize = fat->storedSize;
-#warning Real size should be smaller than storedSize because of the removed padding byte
 			this->vcFAT.push_back(ep);
 		}
 	}

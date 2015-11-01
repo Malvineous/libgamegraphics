@@ -204,8 +204,6 @@ void Tileset_CCavesSub::dimensions(const Point& newDimensions)
 
 	this->changeTileSize(widthBytes * this->dims.y * (unsigned int)this->numPlanes);
 
-#warning TODO: Add tests for resizing tilesets
-#warning TODO: Update offsets as this is a fixed-size tileset
 	// Resize our containing stream to fit the new dimensions
 	this->content->truncate(3 + this->vcFAT.size() * this->lenTile);
 	return;
@@ -248,7 +246,7 @@ void Tileset_CCavesSub::preInsertFile(
 
 	// Update the header
 	this->content->seekp(0, stream::start);
-	*this->content << u8(this->vcFAT.size() + 1);
+	*this->content << u8((uint8_t)(this->vcFAT.size() + 1));
 	return;
 }
 
@@ -256,7 +254,7 @@ void Tileset_CCavesSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
 	this->content->seekp(0, stream::start);
-	*this->content << u8(this->vcFAT.size());
+	*this->content << u8((uint8_t)this->vcFAT.size());
 	return;
 }
 

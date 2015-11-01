@@ -58,6 +58,8 @@ Point Tileset::dimensions() const
 	// If we get here the file format said the dimensions are present but
 	// forgot to override this function, so fail.
 	assert(false);
+
+	return {0, 0};
 }
 
 void Tileset::dimensions(const Point& newDimensions)

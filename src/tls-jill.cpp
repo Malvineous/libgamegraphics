@@ -352,14 +352,6 @@ std::unique_ptr<Image> Tileset_JillSub::openImage(const FileHandle& id)
 		std::move(pix), std::move(mask),
 		this->palette(), [](){
 			// TODO (changed func)
-#warning Need tile writeback function or tileset cannot be modified
-/*
-We need to make Tileset_JillSub remember each opened tile ala
-stream_archfile, so that when each tile/image is modified the
-change is noted.  Then when the last change is made or the
-Tileset_JillSub is flushed, all tiles can be written back out using
-an optimal colour map for VGA, EGA and CGA.
-*/
 		}
 	);
 }
@@ -373,7 +365,7 @@ void Tileset_JillSub::preInsertFile(const FATEntry *idBeforeThis,
 
 	// Update the header
 	this->content->seekp(0, stream::start);
-	*this->content << u8(this->vcFAT.size() + 1);
+	*this->content << u8((uint8_t)this->vcFAT.size() + 1);
 
 	return;
 }
@@ -382,7 +374,7 @@ void Tileset_JillSub::postRemoveFile(const FATEntry *pid)
 {
 	// Update the header
 	this->content->seekp(0, stream::start);
-	*this->content << u8(this->vcFAT.size());
+	*this->content << u8((uint8_t)this->vcFAT.size());
 	return;
 }
 
