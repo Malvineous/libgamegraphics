@@ -45,6 +45,8 @@ class Tileset_CComic:
 			PlaneCount numPlanes);
 		virtual ~Tileset_CComic();
 
+		virtual void flush();
+
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
 		virtual Point dimensions() const;
@@ -201,10 +203,80 @@ Tileset_CComic::Tileset_CComic(std::unique_ptr<stream::inout> content,
 		this->vcFAT.push_back(std::move(f));
 	}
 
+	// Read attributes
+	if (numPlanes == PlaneCount::Solid) {
+		this->content->seekg(0, stream::start);
+		uint8_t val;
+
+		this->v_attributes.emplace_back();
+		auto& attrA = this->v_attributes.back();
+		attrA.changed = false;
+		attrA.type = Attribute::Type::Integer;
+		attrA.name = "Last non-blocking tile";
+		attrA.desc = "Index of the last non-blocking tile.  All tiles from 0 "
+			"until and including this one do not block the player.  Tiles after "
+			"this index are solid and the player cannot walk through them.";
+		attrA.integerMinValue = 0;
+		attrA.integerMaxValue = 255;
+		*this->content >> u8(val);
+		attrA.integerValue = val;
+
+		this->v_attributes.emplace_back();
+		auto& attrB = this->v_attributes.back();
+		attrB.changed = false;
+		attrB.type = Attribute::Type::Integer;
+		attrB.name = "Last tile - unknown 1 - solid?";
+		attrB.desc = "Index of the last tile, of an unknown type.";
+		attrB.integerMinValue = 0;
+		attrB.integerMaxValue = 255;
+		*this->content >> u8(val);
+		attrB.integerValue = val;
+
+		this->v_attributes.emplace_back();
+		auto& attrC = this->v_attributes.back();
+		attrC.changed = false;
+		attrC.type = Attribute::Type::Integer;
+		attrC.name = "Last tile - unknown 2";
+		attrC.desc = "Index of the last tile, of an unknown type.";
+		attrC.integerMinValue = 0;
+		attrC.integerMaxValue = 255;
+		*this->content >> u8(val);
+		attrC.integerValue = val;
+
+		this->v_attributes.emplace_back();
+		auto& attrD = this->v_attributes.back();
+		attrD.changed = false;
+		attrD.type = Attribute::Type::Integer;
+		attrD.name = "Flags";
+		attrD.desc = "0=default, 4=unknown, only used in CASTLE.TT2";
+		attrD.integerMinValue = 0;
+		attrD.integerMaxValue = 255;
+		*this->content >> u8(val);
+		attrD.integerValue = val;
+	}
 }
 
 Tileset_CComic::~Tileset_CComic()
 {
+}
+
+void Tileset_CComic::flush()
+{
+	if (numPlanes == PlaneCount::Solid) {
+		// Write any changed attributes
+		this->content->seekp(0, stream::start);
+		for (auto& a : this->v_attributes) {
+			if (a.changed) {
+				uint8_t val = a.integerValue;
+				*this->content << u8(val);
+				a.changed = false;
+			} else {
+				this->content->seekp(1, stream::cur);
+			}
+		}
+	}
+	this->Tileset_FAT::flush();
+	return;
 }
 
 Tileset::Caps Tileset_CComic::caps() const

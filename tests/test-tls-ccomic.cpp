@@ -29,7 +29,7 @@ class test_tls_ccomic: public test_tileset
 			this->lenMaxFilename = -1;
 			this->lenFilesizeFixed = 128;
 
-			this->header = STRING_WITH_NULLS("\x01\x00\x00\x00");
+			this->header = STRING_WITH_NULLS("\x01\x02\x03\x04");
 
 			this->content[0] = this->tile1();
 			this->content[1] = this->tile2();
@@ -37,6 +37,26 @@ class test_tls_ccomic: public test_tileset
 			this->content[3] = this->tile4();
 
 			this->firstTileDims = {16, 16};
+
+			Attribute aa;
+			aa.type = Attribute::Type::Integer;
+			aa.integerValue = 1;
+			this->attributes.push_back(aa);
+
+			Attribute ab;
+			ab.type = Attribute::Type::Integer;
+			ab.integerValue = 2;
+			this->attributes.push_back(ab);
+
+			Attribute ac;
+			ac.type = Attribute::Type::Integer;
+			ac.integerValue = 3;
+			this->attributes.push_back(ac);
+
+			Attribute ad;
+			ad.type = Attribute::Type::Integer;
+			ad.integerValue = 4;
+			this->attributes.push_back(ad);
 		}
 
 		void addTests()
@@ -202,6 +222,9 @@ class test_tls_ccomic_sprite: public test_tls_ccomic
 			this->content[3] = this->tile4();
 
 			this->firstTileDims = {16, 16};
+
+			// The attributes in the test above don't apply to this related format.
+			this->attributes.clear();
 		}
 
 		virtual std::string tile1() const

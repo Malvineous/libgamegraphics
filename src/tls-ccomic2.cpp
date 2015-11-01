@@ -52,6 +52,8 @@ class Tileset_CComic2:
 			PlaneCount numPlanes);
 		virtual ~Tileset_CComic2();
 
+		virtual void flush();
+
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
 		virtual Point dimensions() const;
@@ -111,7 +113,7 @@ TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(
 	uint16_t num;
 	for (int i = 0; i < 3; i++) {
 		content >> u16le(num);
-		if (num > 512) return DefinitelyNo; // too many tiles (probably)
+		if ((num != 0xFFFF) && (num > 512)) return DefinitelyNo; // too many tiles (probably)
 	}
 	return Unsure;
 }
@@ -193,10 +195,78 @@ Tileset_CComic2::Tileset_CComic2(std::unique_ptr<stream::inout> content,
 		this->vcFAT.push_back(std::move(f));
 	}
 
+	// Read attributes
+	if (numPlanes == PlaneCount::Solid) {
+		this->content->seekg(0, stream::start);
+		uint16_t val;
+
+		this->v_attributes.emplace_back();
+		auto& attrA = this->v_attributes.back();
+		attrA.changed = false;
+		attrA.type = Attribute::Type::Integer;
+		attrA.name = "Last blocking tile";
+		attrA.desc = "Zero-based index of the last blocking tile.  All tiles from "
+			"0 until and including this one block the player.  Set to -1 if there "
+			"are no tiles of this type.";
+		attrA.integerMinValue = -1;
+		attrA.integerMaxValue = 255;
+		*this->content >> u16le(val);
+		attrA.integerValue = (val == 0xFFFF) ? -1 : val;
+
+		this->v_attributes.emplace_back();
+		auto& attrB = this->v_attributes.back();
+		attrB.changed = false;
+		attrB.type = Attribute::Type::Integer;
+		attrB.name = "Last standing tile";
+		attrB.desc = "Zero-based index of the last tile the player can walk "
+			"through but also stand upon.  All tiles from after the last blocking "
+			"tile (previous attribute) until this value are tiles the player can "
+			"walk through and stand on.  Set to -1 if there are no tiles of this "
+			"type.";
+		attrB.integerMinValue = -1;
+		attrB.integerMaxValue = 255;
+		*this->content >> u16le(val);
+		attrB.integerValue = (val == 0xFFFF) ? -1 : val;
+
+		this->v_attributes.emplace_back();
+		auto& attrC = this->v_attributes.back();
+		attrC.changed = false;
+		attrC.type = Attribute::Type::Integer;
+		attrC.name = "Last underwater tile";
+		attrC.desc = "Index of the last tile considered as underwater.  All tiles "
+			"from the last standing tile (previous attribute) until this value are "
+			"underwater tiles.  All tiles following this index are background tiles "
+			"that do not interact with the player.  Set to -1 if there are no tiles "
+			"of this type.";
+		attrC.integerMinValue = -1;
+		attrC.integerMaxValue = 255;
+		*this->content >> u16le(val);
+		attrC.integerValue = (val == 0xFFFF) ? -1 : val;
+	}
 }
 
 Tileset_CComic2::~Tileset_CComic2()
 {
+}
+
+void Tileset_CComic2::flush()
+{
+	if (numPlanes == PlaneCount::Solid) {
+		// Write any changed attributes
+		this->content->seekp(0, stream::start);
+		for (auto& a : this->v_attributes) {
+			if (a.changed) {
+				uint16_t val = (uint16_t)a.integerValue;
+				if (a.integerValue < 0) val = 0xFFFF;
+				*this->content << u16le(val);
+				a.changed = false;
+			} else {
+				this->content->seekp(2, stream::cur);
+			}
+		}
+	}
+	this->Tileset_FAT::flush();
+	return;
 }
 
 Tileset::Caps Tileset_CComic2::caps() const
