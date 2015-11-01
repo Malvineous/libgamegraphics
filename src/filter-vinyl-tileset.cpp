@@ -182,7 +182,7 @@ void filter_vinyl_tileset_compress::transform(uint8_t *out, stream::len *lenOut,
 					auto it = std::find(this->codes.begin(), this->codes.end(), pixels);
 					if (it == this->codes.end()) {
 						// Code not found, add it
-						val = this->codes.size();
+						val = (uint16_t)this->codes.size();
 						this->codes.push_back(pixels);
 					} else {
 						// Pixels already used, use that code
@@ -206,7 +206,7 @@ void filter_vinyl_tileset_compress::transform(uint8_t *out, stream::len *lenOut,
 		case Phase::P3_LookupLen: {
 			if (*lenOut < 2) break;
 
-			uint16_t len = this->codes.size() * 4;
+			uint16_t len = (uint16_t)(this->codes.size() * 4);
 			*out++ =  len        & 0xFF;
 			*out++ = (len >>  8) & 0xFF;
 			w += 2;

@@ -200,7 +200,7 @@ std::shared_ptr<const Palette> Palette_VGA::palette() const
 				>> u8(p.green)
 				>> u8(p.blue)
 			;
-		} catch (const stream::incomplete_read& e) {
+		} catch (const stream::incomplete_read&) {
 			break;
 		}
 		if (this->depth == 6) {
