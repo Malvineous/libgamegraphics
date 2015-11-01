@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <camoto/iostream_helpers.hpp>
+#include <camoto/stream_filtered.hpp>
 #include <camoto/util.hpp> // make_unique
 #include <camoto/gamegraphics/palette.hpp>
 #include <camoto/gamearchive/stream_archfile.hpp>
