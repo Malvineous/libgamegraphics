@@ -3,6 +3,7 @@ noinst_PROGRAMS = hello
 
 gametls_SOURCES = gametls.cpp
 EXTRA_gametls_SOURCES  = common.hpp
+EXTRA_gametls_SOURCES += common-attributes.hpp
 EXTRA_gametls_SOURCES += pngutil.hpp
 
 gameimg_SOURCES = gameimg.cpp

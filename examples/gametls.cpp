@@ -27,6 +27,7 @@
 #include <camoto/stream_file.hpp>
 #include <iostream>
 #include "common.hpp"
+#include "common-attributes.hpp"
 
 namespace po = boost::program_options;
 
@@ -626,17 +627,20 @@ int main(int iArgC, char *cArgV[])
 		("extract,x", po::value<std::string>(),
 			"extract a specific image")
 
-		("print,p", po::value<std::string>(),
-			"print a specific image in ANSI text")
-
-		("overwrite,o", po::value<std::string>(),
-			"replace an image with the given file")
-
 		("insert-image,i", po::value<std::string>(),
 			"insert an image at the given ID")
 
 		("insert-tileset,n", po::value<std::string>(),
 			"insert an empty tileset at the given ID")
+
+		("metadata,m",
+			"list archive attributes/metadata")
+
+		("overwrite,o", po::value<std::string>(),
+			"replace an image with the given file")
+
+		("print,p", po::value<std::string>(),
+			"print a specific image in ANSI text")
 
 		("set-size,z", po::value<std::string>(),
 			"set the tileset to the given image size in pixels (e.g. 16x16)")
@@ -871,6 +875,9 @@ finishTesting:
 			} else if (i.string_key.compare("extract-all-tilesets") == 0) {
 				extractAllImages("0", true, iTilesetExportWidth, pTileset.get(),
 					bScript);
+
+			} else if (i.string_key.compare("metadata") == 0) {
+				listAttributes(pTileset.get(), bScript);
 
 			} else if (i.string_key.compare("extract") == 0) {
 				std::string id, strLocalFile;
