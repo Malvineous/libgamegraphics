@@ -22,9 +22,7 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_TILESET_HPP_
 #define _CAMOTO_GAMEGRAPHICS_TILESET_HPP_
 
-#include <vector>
-#include <map>
-
+#include <camoto/config.hpp>
 #include <camoto/error.hpp>
 #include <camoto/gamearchive/archive.hpp>
 #include <camoto/gamegraphics/palette.hpp>
@@ -53,7 +51,7 @@ class EInvalidFormat: public error {
  *       of the functions seek around the underlying stream and thus will break
  *       if two or more functions are executing at the same time.
  */
-class Tileset: virtual public gamearchive::Archive
+class CAMOTO_GAMEGRAPHICS_API Tileset: virtual public gamearchive::Archive
 {
 	public:
 		/// Format capabilities.

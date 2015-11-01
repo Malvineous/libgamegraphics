@@ -22,13 +22,14 @@
 #define _CAMOTO_FILTER_CCOMIC_HPP_
 
 #include <vector>
+#include <camoto/config.hpp>
 #include <camoto/filter.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// RLE expansion filter for Captain Comic images.
-class filter_ccomic_unrle: virtual public filter
+class CAMOTO_GAMEGRAPHICS_API filter_ccomic_unrle: virtual public filter
 {
 	public:
 		virtual void reset(stream::len lenInput);
@@ -43,7 +44,7 @@ class filter_ccomic_unrle: virtual public filter
 };
 
 /// RLE compression filter for Captain Comic images.
-class filter_ccomic_rle: virtual public filter
+class CAMOTO_GAMEGRAPHICS_API filter_ccomic_rle: virtual public filter
 {
 	public:
 		virtual void reset(stream::len lenInput);

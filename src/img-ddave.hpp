@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_DDAVE_HPP_
 #define _CAMOTO_IMG_DDAVE_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include "img-ega-linear.hpp"
 #include "img-ega-rowplanar.hpp"
@@ -30,7 +31,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Dangerous Dave CGA Image implementation.
-class Image_DDaveCGA: virtual public Image_EGA_Linear
+class CAMOTO_GAMEGRAPHICS_API Image_DDaveCGA: virtual public Image_EGA_Linear
 {
 	public:
 		/// Constructor
@@ -55,7 +56,7 @@ class Image_DDaveCGA: virtual public Image_EGA_Linear
 };
 
 /// Dangerous Dave EGA Image implementation.
-class Image_DDaveEGA: virtual public Image_EGA_RowPlanar
+class CAMOTO_GAMEGRAPHICS_API Image_DDaveEGA: virtual public Image_EGA_RowPlanar
 {
 	public:
 		/// Constructor
@@ -79,7 +80,7 @@ class Image_DDaveEGA: virtual public Image_EGA_RowPlanar
 };
 
 /// Dangerous Dave VGA Image implementation.
-class Image_DDaveVGA: virtual public Image_VGA
+class CAMOTO_GAMEGRAPHICS_API Image_DDaveVGA: virtual public Image_VGA
 {
 	public:
 		/// Constructor

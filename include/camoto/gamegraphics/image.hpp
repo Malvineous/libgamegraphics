@@ -23,10 +23,9 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_IMAGE_HPP_
 #define _CAMOTO_GAMEGRAPHICS_IMAGE_HPP_
 
-#include <array>
 #include <memory>
 #include <cstdint>
-
+#include <camoto/config.hpp>
 #include <camoto/stream.hpp> // for stream::error
 #include <camoto/gamegraphics/palette.hpp>
 
@@ -79,7 +78,7 @@ enum class ColourDepth
  *       of the functions seek around the underlying stream and thus will break
  *       if two or more functions are executing at the same time.
  */
-class Image
+class CAMOTO_GAMEGRAPHICS_API Image
 {
 	public:
 		/// Capabilities of this image format.

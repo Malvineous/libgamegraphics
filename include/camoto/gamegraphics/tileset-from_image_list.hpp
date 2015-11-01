@@ -21,12 +21,13 @@
 #ifndef _CAMOTO_TILESET_FROM_IMAGE_LIST_HPP_
 #define _CAMOTO_TILESET_FROM_IMAGE_LIST_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-class Tileset_FromImageList: virtual public Tileset,
+class CAMOTO_GAMEGRAPHICS_API Tileset_FromImageList: virtual public Tileset,
 	public std::enable_shared_from_this<Tileset_FromImageList>
 {
 	public:
@@ -120,7 +121,7 @@ class Tileset_FromImageList: virtual public Tileset,
 				std::shared_ptr<Pixels> stdImg;  ///< Raw image data for img
 				std::shared_ptr<Pixels> stdMask; ///< Raw image mask for img
 
-				friend class Tileset_FromImageList;
+				friend class CAMOTO_GAMEGRAPHICS_API Tileset_FromImageList;
 		};
 		// No palette because each added image will have one
 		Tileset_FromImageList(std::vector<Item> imageList, unsigned int layoutWidth);

@@ -21,14 +21,15 @@
 #ifndef _CAMOTO_TILESET_FAT_FIXED_TILESIZE_HPP_
 #define _CAMOTO_TILESET_FAT_FIXED_TILESIZE_HPP_
 
-#include <camoto/gamearchive/archive-fat.hpp>
+#include <camoto/config.hpp>
 #include "tileset-fat.hpp"
 
 namespace camoto {
 namespace gamegraphics {
 
-/// Partial Archive/Tileset implementation where all tiles are the same size (in bytes.)
-class Tileset_FAT_FixedTileSize: virtual public Tileset_FAT
+/// Partial Tileset implementation where all tiles are the same size (in bytes.)
+class CAMOTO_GAMEGRAPHICS_API Tileset_FAT_FixedTileSize:
+	virtual public Tileset_FAT
 {
 	public:
 		Tileset_FAT_FixedTileSize(stream::len lenTile);

@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_VGA_RAW_HPP_
 #define _CAMOTO_IMG_VGA_RAW_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include "img-vga.hpp"
 
@@ -64,7 +65,7 @@ class ImageType_VGA8Raw: virtual public ImageType_VGARawBase
 };
 
 /// Raw VGA Image implementation.
-class Image_VGARaw: virtual public Image_VGA
+class CAMOTO_GAMEGRAPHICS_API Image_VGARaw: virtual public Image_VGA
 {
 	public:
 		/// Constructor

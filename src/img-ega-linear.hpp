@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_EGA_LINEAR_HPP_
 #define _CAMOTO_IMG_EGA_LINEAR_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/bitstream.hpp>
 #include "img-ega.hpp"
 
@@ -34,7 +35,7 @@ namespace gamegraphics {
  * size (dimensions) so it should be inherited by more specific format
  * handlers if the underlying format has fields for these values.
  */
-class Image_EGA_Linear: public Image_EGA
+class CAMOTO_GAMEGRAPHICS_API Image_EGA_Linear: public Image_EGA
 {
 	public:
 		Image_EGA_Linear(std::unique_ptr<stream::inout> content,

@@ -64,7 +64,8 @@ using namespace camoto::gamegraphics;
 namespace camoto {
 
 template <>
-const std::vector<std::shared_ptr<const TilesetType> > FormatEnumerator<TilesetType>::formats()
+const std::vector<std::shared_ptr<const TilesetType> > CAMOTO_GAMEGRAPHICS_API
+	FormatEnumerator<TilesetType>::formats()
 {
 	std::vector<std::shared_ptr<const TilesetType> > list;
 	FormatEnumerator<TilesetType>::addFormat<
@@ -104,7 +105,8 @@ const std::vector<std::shared_ptr<const TilesetType> > FormatEnumerator<TilesetT
 }
 
 template <>
-const std::vector<std::shared_ptr<const ImageType> > FormatEnumerator<ImageType>::formats()
+const std::vector<std::shared_ptr<const ImageType> > CAMOTO_GAMEGRAPHICS_API
+	FormatEnumerator<ImageType>::formats()
 {
 	std::vector<std::shared_ptr<const ImageType> > list;
 	FormatEnumerator<ImageType>::addFormat<

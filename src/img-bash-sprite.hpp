@@ -21,13 +21,14 @@
 #ifndef _CAMOTO_IMG_BASH_SPRITE_HPP_
 #define _CAMOTO_IMG_BASH_SPRITE_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Image implementation for frames within a Monster Bash sprite.
-class Image_BashSprite: virtual public Image
+class CAMOTO_GAMEGRAPHICS_API Image_BashSprite: virtual public Image
 {
 	public:
 		Image_BashSprite(std::unique_ptr<stream::inout> content);

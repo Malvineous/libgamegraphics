@@ -21,14 +21,14 @@
 #ifndef _CAMOTO_FILTER_PAD_HPP_
 #define _CAMOTO_FILTER_PAD_HPP_
 
-#include <vector>
+#include <camoto/config.hpp>
 #include <camoto/filter.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Filter that adds extra padding data every fixed number of bytes.
-class filter_block_pad: virtual public filter
+class CAMOTO_GAMEGRAPHICS_API filter_block_pad: virtual public filter
 {
 	public:
 		/// Constructor.
@@ -54,7 +54,7 @@ class filter_block_pad: virtual public filter
 };
 
 /// Filter that removes extra padding data every fixed number of bytes.
-class filter_block_unpad: virtual public filter
+class CAMOTO_GAMEGRAPHICS_API filter_block_unpad: virtual public filter
 {
 	public:
 		/// Constructor.

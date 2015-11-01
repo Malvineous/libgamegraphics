@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_VGA_HPP_
 #define _CAMOTO_IMG_VGA_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
@@ -32,7 +33,7 @@ namespace gamegraphics {
  * does not handle image size (dimensions) so it should be inherited by more
  * specific format handlers.
  */
-class Image_VGA: virtual public Image
+class CAMOTO_GAMEGRAPHICS_API Image_VGA: virtual public Image
 {
 	public:
 		/// Constructor

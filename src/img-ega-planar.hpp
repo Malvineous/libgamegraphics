@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_EGA_PLANAR_HPP_
 #define _CAMOTO_IMG_EGA_PLANAR_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
 #include "img-ega.hpp"
 
@@ -37,7 +38,7 @@ namespace gamegraphics {
  * transparency and hitmapping.
  *
  */
-class Image_EGA_Planar: public Image_EGA
+class CAMOTO_GAMEGRAPHICS_API Image_EGA_Planar: public Image_EGA
 {
 	public:
 		Image_EGA_Planar(std::unique_ptr<stream::inout> content,

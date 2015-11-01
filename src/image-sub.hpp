@@ -22,6 +22,7 @@
 #define _CAMOTO_IMAGE_SUB_HPP_
 
 #include <functional>
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
@@ -36,7 +37,7 @@ namespace gamegraphics {
 typedef std::function<void()> fn_image_changed;
 
 /// Image stored within another Image.
-class Image_Sub: virtual public Image
+class CAMOTO_GAMEGRAPHICS_API Image_Sub: virtual public Image
 {
 	public:
 		/// Constructor

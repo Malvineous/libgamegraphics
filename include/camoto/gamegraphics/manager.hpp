@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_GAMEGRAPHICS_MANAGER_HPP_
 #define _CAMOTO_GAMEGRAPHICS_MANAGER_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/formatenum.hpp>
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include <camoto/gamegraphics/imagetype.hpp>
@@ -28,8 +29,8 @@
 namespace camoto {
 namespace gamegraphics {
 
-typedef FormatEnumerator<TilesetType> TilesetManager;
-typedef FormatEnumerator<ImageType> ImageManager;
+typedef FormatEnumerator<TilesetType> CAMOTO_GAMEGRAPHICS_API TilesetManager;
+typedef FormatEnumerator<ImageType> CAMOTO_GAMEGRAPHICS_API ImageManager;
 
 } // namespace gamegraphics
 } // namespace camoto

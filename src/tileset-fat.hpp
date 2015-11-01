@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_TILESET_FAT_HPP_
 #define _CAMOTO_TILESET_FAT_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamearchive/archive-fat.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
@@ -28,7 +29,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Tileset implementation for tilesets with an associated size/offset table.
-class Tileset_FAT:
+class CAMOTO_GAMEGRAPHICS_API Tileset_FAT:
 	public gamearchive::Archive_FAT,
 	public Tileset
 {

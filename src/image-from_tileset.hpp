@@ -21,13 +21,14 @@
 #ifndef _CAMOTO_IMAGE_FROM_TILESET_HPP_
 #define _CAMOTO_IMAGE_FROM_TILESET_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
 /// Create a single image from a collection of tiles.
-class Image_FromTileset: public Image
+class CAMOTO_GAMEGRAPHICS_API Image_FromTileset: public Image
 {
 	public:
 		/// Create a single image from a collection of tiles.

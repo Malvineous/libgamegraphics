@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_IMG_EGA_HPP_
 #define _CAMOTO_IMG_EGA_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/image.hpp>
 
 namespace camoto {
@@ -72,7 +73,7 @@ enum class PlaneCount
  * transparency and hitmapping.
  *
  */
-class Image_EGA: public Image
+class CAMOTO_GAMEGRAPHICS_API Image_EGA: public Image
 {
 	public:
 		Image_EGA(std::unique_ptr<stream::inout> content, stream::pos offset,

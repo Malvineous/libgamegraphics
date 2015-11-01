@@ -21,6 +21,7 @@
 #ifndef _CAMOTO_TLS_HARRY_CHR_HPP_
 #define _CAMOTO_TLS_HARRY_CHR_HPP_
 
+#include <camoto/config.hpp>
 #include <camoto/gamegraphics/tilesettype.hpp>
 #include "tileset-fat.hpp"
 #include "tileset-fat-fixed_tile_size.hpp"
@@ -47,7 +48,7 @@ class TilesetType_HarryCHR: virtual public TilesetType
 			const std::string& filename) const;
 };
 
-class Tileset_HarryCHR:
+class CAMOTO_GAMEGRAPHICS_API Tileset_HarryCHR:
 	virtual public Tileset_FAT,
 	virtual public Tileset_FAT_FixedTileSize
 {
