@@ -44,7 +44,6 @@
 #include "tls-zone66.hpp"
 #include "tls-zone66-map.hpp"
 #include "img-ccomic.hpp"
-#include "img-cga.hpp"
 #include "img-ega-backdrop.hpp"
 #include "img-ega-linear.hpp"
 #include "img-ega-planar.hpp"
@@ -111,8 +110,6 @@ const std::vector<std::shared_ptr<const ImageType> > FormatEnumerator<ImageType>
 	FormatEnumerator<ImageType>::addFormat<
 		ImageType_CComic,
 		ImageType_CosmoBackdrop,
-		ImageType_CGARawLinear,
-		ImageType_EGARawLinearIRGB,
 		ImageType_EGA_RawPlanarBGRI,
 		ImageType_Mono,
 		ImageType_Nukem2Backdrop,
