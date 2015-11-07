@@ -36,6 +36,7 @@
 #include "tls-harry-ico.hpp"
 #include "tls-hocus.hpp"
 #include "tls-jill.hpp"
+#include "tls-nukem2-czone.hpp"
 #include "tls-sagent.hpp"
 #include "tls-stryker.hpp"
 #include "tls-vinyl.hpp"
@@ -91,6 +92,7 @@ const std::vector<std::shared_ptr<const TilesetType> > CAMOTO_GAMEGRAPHICS_API
 		TilesetType_HarryICO,
 		TilesetType_Hocus,
 		TilesetType_Jill,
+		TilesetType_Nukem2_CZone,
 		TilesetType_SAgent2k,
 		TilesetType_SAgent8k,
 		TilesetType_Stryker,
