@@ -72,7 +72,8 @@ class CAMOTO_GAMEGRAPHICS_API Tileset_FromImageList: virtual public Tileset,
 
 			/// How should the image be split?
 			enum class SplitType {
-				/// Add the whole image as a single tile.  Tile is resizable if img is.
+				/// Add the whole image as a single tile.  Tile is resizable if img is
+				/// (not yet implemented).
 				/** If tileset is given instead of img, then whole tileset is added
 				 */
 				SingleTile,

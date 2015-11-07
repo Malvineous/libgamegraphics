@@ -226,11 +226,29 @@ std::unique_ptr<Image> Tileset_FromImageList::openImage(const FileHandle& id)
 	switch (item.att) {
 		case Item::AttachmentType::Append:
 			switch (item.split) {
-				case Item::SplitType::SingleTile:
-					// TODO need to create a unique_ptr copy
-throw stream::error("TODO: Not implemented yet!");
-//					return item.img;
-
+				case Item::SplitType::SingleTile: {
+					if (item.tileset) {
+						throw camoto::error("This is a tileset, it cannot be opened as an image.");
+					}
+					auto this_shared = this->shared_from_this();
+					if (!item.stdImg) {
+						item.stdImg = std::make_shared<Pixels>(item.img->convert());
+						item.stdMask = std::make_shared<Pixels>(item.img->convert_mask());
+					}
+					auto dimsImg = item.img->dimensions();
+					Rect rectFull{0, 0, dimsImg.x, dimsImg.y};
+					return std::make_unique<Image_Sub>(item.stdImg, item.stdMask,
+						dimsImg, rectFull,
+						item.img->colourDepth(), item.img->palette(),
+						[&item, this_shared](){
+							item.imageChanged = true;
+							// We are the only user of the shared archive, so the caller has
+							// no other means to flush it.  So we will have to flush it for
+							// them.
+							if (this_shared.unique()) this_shared->flush();
+						}
+					);
+				}
 				case Item::SplitType::UniformTiles:
 				case Item::SplitType::List: {
 					auto this_shared = this->shared_from_this();
