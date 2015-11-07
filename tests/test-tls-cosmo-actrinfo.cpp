@@ -1,5 +1,5 @@
 /**
- * @file   test-tls-actrinfo.cpp
+ * @file   test-tls-cosmo-actrinfo.cpp
  * @brief  Test code for Cosmo actor tiles.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
@@ -20,12 +20,12 @@
 
 #include "test-tileset.hpp"
 
-class test_suppextra_tls_actrinfo: public test_tileset
+class test_suppextra_tls_cosmo_actrinfo: public test_tileset
 {
 	public:
-		test_suppextra_tls_actrinfo()
+		test_suppextra_tls_cosmo_actrinfo()
 		{
-			this->type = "tls-actrinfo.extra1";
+			this->type = "tls-cosmo-actrinfo.extra1";
 			this->lenMaxFilename = -1;
 		}
 
@@ -215,17 +215,17 @@ class test_suppextra_tls_actrinfo: public test_tileset
 		}
 };
 
-class test_tls_actrinfo: public test_tileset
+class test_tls_cosmo_actrinfo: public test_tileset
 {
 	public:
-		test_tls_actrinfo()
+		test_tls_cosmo_actrinfo()
 		{
-			this->type = "tls-actrinfo";
+			this->type = "tls-cosmo-actrinfo";
 			this->lenMaxFilename = -1;
 			this->outputWidth = 8;
 			this->foldersOnly = true;
 
-			auto suppextra = std::make_unique<test_suppextra_tls_actrinfo>();
+			auto suppextra = std::make_unique<test_suppextra_tls_cosmo_actrinfo>();
 			this->content[0] = suppextra->tile1();
 			this->content[1] = suppextra->tile2();
 			this->content[2] = suppextra->tile3();
@@ -481,16 +481,16 @@ class test_tls_actrinfo: public test_tileset
 };
 
 /// Same tests again, but as tiles entirely within the first actor
-class test_tls_actrinfo_sub: public test_tileset
+class test_tls_cosmo_actrinfo_sub: public test_tileset
 {
 	public:
-		test_tls_actrinfo_sub()
+		test_tls_cosmo_actrinfo_sub()
 		{
-			this->type = "tls-actrinfo";
+			this->type = "tls-cosmo-actrinfo";
 			this->lenMaxFilename = -1;
 			this->outputWidth = 8;
 
-			auto suppextra = std::make_unique<test_suppextra_tls_actrinfo>();
+			auto suppextra = std::make_unique<test_suppextra_tls_cosmo_actrinfo>();
 			this->content[0] = suppextra->tile1();
 			this->content[1] = suppextra->tile2();
 			this->content[2] = suppextra->tile3();
@@ -658,5 +658,5 @@ class test_tls_actrinfo_sub: public test_tileset
 		}
 };
 
-IMPLEMENT_TESTS(tls_actrinfo);
-IMPLEMENT_TESTS(tls_actrinfo_sub);
+IMPLEMENT_TESTS(tls_cosmo_actrinfo);
+IMPLEMENT_TESTS(tls_cosmo_actrinfo_sub);

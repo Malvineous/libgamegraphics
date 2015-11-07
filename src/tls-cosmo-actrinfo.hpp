@@ -1,6 +1,6 @@
 /**
- * @file  tls-actrinfo.hpp
- * @brief Cosmo actor tileset
+ * @file  tls-cosmo-actrinfo.hpp
+ * @brief Cosmo actor tileset.
  *
  * Copyright (C) 2010-2015 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,19 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CAMOTO_TLS_ACTRINFO_HPP_
-#define _CAMOTO_TLS_ACTRINFO_HPP_
+#ifndef _CAMOTO_TLS_COSMO_ACTRINFO_HPP_
+#define _CAMOTO_TLS_COSMO_ACTRINFO_HPP_
 
 #include <camoto/gamegraphics/tilesettype.hpp>
 
 namespace camoto {
 namespace gamegraphics {
 
-class TilesetType_Actrinfo: virtual public TilesetType
+class TilesetType_Cosmo_ActrInfo: virtual public TilesetType
 {
 	public:
-		TilesetType_Actrinfo();
-		virtual ~TilesetType_Actrinfo();
+		TilesetType_Cosmo_ActrInfo();
+		virtual ~TilesetType_Cosmo_ActrInfo();
 
 		virtual std::string code() const;
 		virtual std::string friendlyName() const;
@@ -48,4 +48,4 @@ class TilesetType_Actrinfo: virtual public TilesetType
 } // namespace gamegraphics
 } // namespace camoto
 
-#endif // _CAMOTO_TLS_ACTRINFO_HPP_
+#endif // _CAMOTO_TLS_COSMO_ACTRINFO_HPP_

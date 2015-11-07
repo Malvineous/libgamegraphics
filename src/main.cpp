@@ -20,7 +20,6 @@
 
 #include <camoto/gamegraphics/manager.hpp>
 
-#include "tls-actrinfo.hpp"
 #include "tls-bash.hpp"
 #include "tls-bash-sprite.hpp"
 #include "tls-catacomb.hpp"
@@ -29,6 +28,7 @@
 #include "tls-ccomic.hpp"
 #include "tls-ccomic2.hpp"
 #include "tls-cosmo.hpp"
+#include "tls-cosmo-actrinfo.hpp"
 #include "tls-ddave.hpp"
 #include "tls-got.hpp"
 #include "tls-harry-chr.hpp"
@@ -70,7 +70,7 @@ const std::vector<std::shared_ptr<const TilesetType> > CAMOTO_GAMEGRAPHICS_API
 {
 	std::vector<std::shared_ptr<const TilesetType> > list;
 	FormatEnumerator<TilesetType>::addFormat<
-		TilesetType_Actrinfo,
+		TilesetType_Cosmo_ActrInfo,
 		TilesetType_MonsterBashBackground,
 		TilesetType_MonsterBashForeground,
 		TilesetType_MonsterBashSprite,

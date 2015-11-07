@@ -1,6 +1,6 @@
 /**
- * @file  tls-actrinfo.cpp
- * @brief Cosmo actor tileset
+ * @file  tls-cosmo-actrinfo.cpp
+ * @brief Cosmo actor tileset.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Cosmo_Tileinfo_Format
@@ -28,7 +28,7 @@
 #include <camoto/util.hpp> // make_unique
 #include <camoto/gamegraphics/palette.hpp>
 #include <camoto/gamearchive/stream_archfile.hpp>
-#include "tls-actrinfo.hpp"
+#include "tls-cosmo-actrinfo.hpp"
 #include "tileset-fat.hpp"
 #include "filter-block-pad.hpp"
 #include "image-from_tileset.hpp"
@@ -195,40 +195,40 @@ class Tileset_SingleActor: virtual public Tileset
 };
 
 //
-// TilesetType_Actrinfo
+// TilesetType_Cosmo_ActrInfo
 //
 
-TilesetType_Actrinfo::TilesetType_Actrinfo()
+TilesetType_Cosmo_ActrInfo::TilesetType_Cosmo_ActrInfo()
 {
 }
 
-TilesetType_Actrinfo::~TilesetType_Actrinfo()
+TilesetType_Cosmo_ActrInfo::~TilesetType_Cosmo_ActrInfo()
 {
 }
 
-std::string TilesetType_Actrinfo::code() const
+std::string TilesetType_Cosmo_ActrInfo::code() const
 {
-	return "tls-actrinfo";
+	return "tls-cosmo-actrinfo";
 }
 
-std::string TilesetType_Actrinfo::friendlyName() const
+std::string TilesetType_Cosmo_ActrInfo::friendlyName() const
 {
 	return "Cosmo Actor Tileset";
 }
 
-std::vector<std::string> TilesetType_Actrinfo::fileExtensions() const
+std::vector<std::string> TilesetType_Cosmo_ActrInfo::fileExtensions() const
 {
 	return {"mni"};
 }
 
-std::vector<std::string> TilesetType_Actrinfo::games() const
+std::vector<std::string> TilesetType_Cosmo_ActrInfo::games() const
 {
 	return {
 		"Cosmo's Cosmic Adventures",
 	};
 }
 
-TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
+TilesetType_Cosmo_ActrInfo::Certainty TilesetType_Cosmo_ActrInfo::isInstance(
 	stream::input& content) const
 {
 	auto lenContent = content.size();
@@ -308,7 +308,7 @@ TilesetType_Actrinfo::Certainty TilesetType_Actrinfo::isInstance(
 	return DefinitelyYes;
 }
 
-std::shared_ptr<Tileset> TilesetType_Actrinfo::create(
+std::shared_ptr<Tileset> TilesetType_Cosmo_ActrInfo::create(
 	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	content->seekp(0, stream::start);
@@ -316,7 +316,7 @@ std::shared_ptr<Tileset> TilesetType_Actrinfo::create(
 	return this->open(std::move(content), suppData);
 }
 
-std::shared_ptr<Tileset> TilesetType_Actrinfo::open(
+std::shared_ptr<Tileset> TilesetType_Cosmo_ActrInfo::open(
 	std::unique_ptr<stream::inout> content, SuppData& suppData) const
 {
 	if (suppData.find(SuppItem::Extra1) == suppData.end()) {
@@ -347,7 +347,7 @@ std::shared_ptr<Tileset> TilesetType_Actrinfo::open(
 	);
 }
 
-SuppFilenames TilesetType_Actrinfo::getRequiredSupps(stream::input& content,
+SuppFilenames TilesetType_Cosmo_ActrInfo::getRequiredSupps(stream::input& content,
 	const std::string& filename) const
 {
 	SuppFilenames supps;
