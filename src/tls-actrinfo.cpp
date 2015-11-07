@@ -509,13 +509,17 @@ Tileset_ActrInfo_Frames::Tileset_ActrInfo_Frames(std::unique_ptr<stream::inout> 
 		nextOffset *= 2;
 
 		if (lenContent < nextOffset) {
-			throw stream::error(createString(
+			throw camoto::error(createString(
 				"Actor info FAT truncated (first actor frame at offset " << nextOffset
 				<< " is past EOF at " << lenContent << ")"
 			));
 		}
 
 		stream::pos firstFrameOffset = nextOffset;
+		if (firstFrameOffset < 2) {
+			throw camoto::error("Actor info FAT is corrupted (first actor frame is "
+				"within FAT itself)");
+		}
 
 		// Load all the actors
 		this->vcActors.reserve(numActors);
