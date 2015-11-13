@@ -27,7 +27,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// In-memory implementation of an Image.
-class Image_Memory: public Image
+class CAMOTO_GAMEGRAPHICS_API Image_Memory: public Image
 {
 	public:
 		/**

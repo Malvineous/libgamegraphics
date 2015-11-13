@@ -27,7 +27,7 @@ namespace camoto {
 namespace gamegraphics {
 
 /// Overlay one image onto another and return a new combined image.
-std::unique_ptr<Image> overlayImage(const Image* base, const Image* overlay);
+CAMOTO_GAMEGRAPHICS_API std::unique_ptr<Image> overlayImage(const Image* base, const Image* overlay);
 
 } // namespace gamegraphics
 } // namespace camoto
