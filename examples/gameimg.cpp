@@ -263,7 +263,7 @@ finishTesting:
 			} catch (const stream::open_error& e) {
 				std::cerr << "Error opening supplemental file " << i.second
 					<< ": " << e.what() << std::endl;
-				return RET_SHOWSTOPPER;
+				// Continue anyway in case the file is optional
 			}
 		}
 
@@ -377,7 +377,7 @@ palFinishTesting:
 					} catch (const stream::open_error& e) {
 						std::cerr << "Error opening supplemental file " << i.second
 							<< ": " << e.what() << std::endl;
-						return RET_SHOWSTOPPER;
+						// Continue anyway in case the file is optional
 					}
 				}
 
