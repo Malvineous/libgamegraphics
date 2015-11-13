@@ -57,6 +57,7 @@ class Tileset_Jill: virtual public Tileset_FAT
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
 		virtual unsigned int layoutWidth() const;
+		virtual std::shared_ptr<const Palette> palette() const;
 
 		// Tileset_FAT
 		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id);
@@ -65,6 +66,11 @@ class Tileset_Jill: virtual public Tileset_FAT
 		using Archive::insert;
 		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
 		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta);
+
+	protected:
+		void loadPalette();
+
+		bool loadedPal;
 };
 
 class Tileset_JillSub: virtual public Tileset_FAT

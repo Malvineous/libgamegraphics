@@ -139,9 +139,11 @@ SuppFilenames TilesetType_Jill::getRequiredSupps(stream::input& content,
 
 Tileset_Jill::Tileset_Jill(std::unique_ptr<stream::inout> content,
 	std::shared_ptr<const Palette> pal)
-	:	Tileset_FAT(std::move(content), JILL_FIRST_TILESET_OFFSET, ARCH_NO_FILENAMES)
+	:	Tileset_FAT(std::move(content), JILL_FIRST_TILESET_OFFSET, ARCH_NO_FILENAMES),
+		loadedPal(false)
 {
 	this->pal = pal;
+	if (this->pal) loadedPal = true;
 
 	this->vcFAT.reserve(JILL_NUM_TILESETS);
 	for (int i = 0; i < JILL_NUM_TILESETS; i++) {
@@ -165,7 +167,6 @@ Tileset_Jill::Tileset_Jill(std::unique_ptr<stream::inout> content,
 
 		this->vcFAT.push_back(std::move(fat));
 	}
-
 }
 
 Tileset_Jill::~Tileset_Jill()
@@ -174,6 +175,9 @@ Tileset_Jill::~Tileset_Jill()
 
 Tileset::Caps Tileset_Jill::caps() const
 {
+	if (!this->loadedPal) {
+		const_cast<Tileset_Jill *>(this)->loadPalette();
+	}
 	return this->pal ? Caps::HasPalette : Caps::Default;
 }
 
@@ -213,6 +217,35 @@ void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
 {
 	this->content->seekp((128 * 4) + pid->iIndex * 2, stream::start);
 	*this->content << u16le(pid->storedSize);
+	return;
+}
+
+std::shared_ptr<const Palette> Tileset_Jill::palette() const
+{
+	if (!this->loadedPal) {
+		const_cast<Tileset_Jill *>(this)->loadPalette();
+	}
+	return this->pal;
+}
+
+void Tileset_Jill::loadPalette()
+{
+	this->loadedPal = true; // stop below functions from calling us recursively
+
+	// Xargon stores the palette in tileset 5, so query that now and if it looks
+	// like a palette, use that.
+	if (this->vcFAT.size() > 5) {
+		auto tlsPal = this->openTileset(this->vcFAT[5]);
+		if (tlsPal) {
+			auto entries = tlsPal->files();
+			if (entries.size() > 0) {
+				auto palEntry = tlsPal->openImage(entries[0]);
+				if (palEntry && (palEntry->caps() & Image::Caps::HasPalette)) {
+					this->pal = palEntry->palette();
+				}
+			}
+		}
+	}
 	return;
 }
 
@@ -279,9 +312,9 @@ Tileset_JillSub::Tileset_JillSub(std::unique_ptr<stream::inout> content,
 		fat->iOffset = offset;
 		fat->storedSize = width * height + 3; // always 8bpp
 		fat->lenHeader = 0;
-		this->vcFAT.push_back(std::move(fat));
 		offset += fat->storedSize;
 		this->content->seekg(fat->storedSize - 2, stream::cur); // -2 because we read them above
+		this->vcFAT.push_back(std::move(fat));
 	}
 
 }
@@ -329,6 +362,7 @@ std::unique_ptr<Image> Tileset_JillSub::openImage(const FileHandle& id)
 		}
 	}
 
+	contentImage->seekg(1, stream::cur);
 	auto numPixels = width * height;
 
 	// Convert image here
