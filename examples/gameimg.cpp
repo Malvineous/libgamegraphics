@@ -20,8 +20,6 @@
 
 #include <boost/algorithm/string.hpp> // for case-insensitive string compare
 #include <boost/program_options.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/bind.hpp>
 #include <camoto/gamegraphics.hpp>
 #include <camoto/util.hpp>
 #include <camoto/stream_file.hpp>
