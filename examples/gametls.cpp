@@ -131,13 +131,23 @@ void printTilesetList(std::string prefix, gg::Tileset* pTileset, bool bScript)
 			auto copyHandle = i;
 			auto img = pTileset->openImage(copyHandle);
 			auto imgDims = img->dimensions();
-			if (bScript) {
-				std::cout << "id=" << prefix << '.' << j
-					<< ";type=image;width=" << imgDims.x
-					<< ";height=" << imgDims.y << '\n';
+			if ((imgDims.x == 0) && (imgDims.y == 0) && (img->caps() & gg::Image::Caps::SetPalette)) {
+				if (bScript) {
+					std::cout << "id=" << prefix << '.' << j
+						<< ";type=palette;size=" << img->palette()->size() << '\n';
+				} else {
+					std::cout << prefix << '.' << j << ": Palette ("
+						<< img->palette()->size() << " colours)\n";
+				}
 			} else {
-				std::cout << prefix << '.' << j << ": Image (" << imgDims.x << "x"
-					<< imgDims.y << ")\n";
+				if (bScript) {
+					std::cout << "id=" << prefix << '.' << j
+						<< ";type=image;width=" << imgDims.x
+						<< ";height=" << imgDims.y << '\n';
+				} else {
+					std::cout << prefix << '.' << j << ": Image (" << imgDims.x << "x"
+						<< imgDims.y << ")\n";
+				}
 			}
 		}
 		j++;
