@@ -644,6 +644,9 @@ int main(int iArgC, char *cArgV[])
 		("metadata,m",
 			"list archive attributes/metadata")
 
+		("set-metadata,e", po::value<std::string>(),
+			"change archive attributes/metadata")
+
 		("overwrite,o", po::value<std::string>(),
 			"replace an image with the given file")
 
@@ -886,6 +889,16 @@ finishTesting:
 
 			} else if (i.string_key.compare("metadata") == 0) {
 				listAttributes(pTileset.get(), bScript);
+
+			} else if (i.string_key.compare("set-metadata") == 0) {
+				std::string strIndex, strValue;
+				if (!split(i.value[0], '=', &strIndex, &strValue)) {
+					std::cerr << PROGNAME ": -e/--set-metadata requires an index and "
+						"a value (e.g. --set-metadata 0=example)" << std::endl;
+					return RET_BADARGS;
+				}
+				unsigned int index = strtoul(strIndex.c_str(), nullptr, 0);
+				setAttribute(pTileset.get(), bScript, index, strValue);
 
 			} else if (i.string_key.compare("extract") == 0) {
 				std::string id, strLocalFile;
