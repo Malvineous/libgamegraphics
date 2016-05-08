@@ -25,8 +25,6 @@
 namespace camoto {
 namespace gamegraphics {
 
-const unsigned int TILE_LEN = 128;
-
 /// Largest RLE length
 const unsigned int MAX_RLE_COUNT = 0x80;
 
