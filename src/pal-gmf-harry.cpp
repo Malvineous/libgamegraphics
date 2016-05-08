@@ -119,7 +119,7 @@ ColourDepth Palette_HarryGMF::colourDepth() const
 	return ColourDepth::VGA;
 }
 
-std::shared_ptr<const Palette> Palette_HarryGMF::palette()
+std::shared_ptr<const Palette> Palette_HarryGMF::palette() const
 {
 	auto pal = std::make_shared<Palette>();
 	pal->reserve(256);

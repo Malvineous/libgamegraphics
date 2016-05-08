@@ -59,7 +59,7 @@ class Palette_HarryGMF: virtual public Image_Palette
 
 		virtual Caps caps() const;
 		virtual ColourDepth colourDepth() const;
-		virtual std::shared_ptr<const Palette> palette();
+		virtual std::shared_ptr<const Palette> palette() const;
 		virtual void palette(std::shared_ptr<const Palette> newPalette);
 };
 
