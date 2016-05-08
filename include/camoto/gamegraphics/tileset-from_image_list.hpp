@@ -134,6 +134,7 @@ class CAMOTO_GAMEGRAPHICS_API Tileset_FromImageList: virtual public Tileset,
 		virtual std::unique_ptr<stream::inout> open(const FileHandle& id,
 			bool useFilter);
 		virtual std::shared_ptr<Archive> openFolder(const FileHandle& id);
+		using Tileset::insert;
 		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			const std::string& strFilename, stream::len storedSize, std::string type,
 			File::Attribute attr);
