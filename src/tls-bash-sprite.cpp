@@ -104,14 +104,14 @@ TilesetType::Certainty TilesetType_MonsterBashSprite::isInstance(
 	content.seekg(0, stream::start);
 
 	// TESTED BY: tls_bash_sprite_isinstance_c02
-	if (lenRemaining < MB_MIN_FILE_LEN) return DefinitelyNo;
+	if (lenRemaining < MB_MIN_FILE_LEN) return Certainty::DefinitelyNo;
 
 	uint8_t sig;
 	content >> u8(sig);
 	lenRemaining--;
 
 	// TESTED BY: tls_bash_sprite_isinstance_c03
-	if (sig != 0xFF) return DefinitelyNo;
+	if (sig != 0xFF) return Certainty::DefinitelyNo;
 
 	while (lenRemaining >= MB_SPR_EFAT_ENTRY_LEN) {
 		uint16_t lenBlock;
@@ -119,23 +119,23 @@ TilesetType::Certainty TilesetType_MonsterBashSprite::isInstance(
 		lenRemaining -= 2;
 
 		// TESTED BY: tls_bash_sprite_isinstance_c04
-		if (lenBlock < MB_MIN_IMAGE_LEN) return DefinitelyNo;
+		if (lenBlock < MB_MIN_IMAGE_LEN) return Certainty::DefinitelyNo;
 
 		// TESTED BY: tls_bash_sprite_isinstance_c05
-		if (lenBlock > lenRemaining) return DefinitelyNo;
+		if (lenBlock > lenRemaining) return Certainty::DefinitelyNo;
 
 		content.seekg(lenBlock - 1, stream::cur);
 		uint8_t lastByte;
 		content >> u8(lastByte);
 		// TESTED BY: tls_bash_sprite_isinstance_c06
-		if (lastByte != 0x00) return DefinitelyNo;
+		if (lastByte != 0x00) return Certainty::DefinitelyNo;
 
 		lenRemaining -= lenBlock;
 	}
 
 	// TESTED BY: tls_bash_sprite_isinstance_c00
 	// TESTED BY: tls_bash_sprite_isinstance_c01
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_MonsterBashSprite::create(

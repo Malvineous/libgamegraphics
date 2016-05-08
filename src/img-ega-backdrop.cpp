@@ -42,10 +42,10 @@ ImageType::Certainty ImageType_Backdrop::isInstance(stream::input& content)
 {
 	// Files are a fixed size.
 	// TESTED BY: TODO
-	if (content.size() != this->getExpectedSize()) return DefinitelyNo;
+	if (content.size() != this->getExpectedSize()) return Certainty::DefinitelyNo;
 
 	// TESTED BY: TODO
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::unique_ptr<Image> ImageType_Backdrop::create(

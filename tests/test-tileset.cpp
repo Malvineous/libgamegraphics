@@ -173,7 +173,7 @@ void test_tileset::test_isinstance_others()
 		// handler is to blame.
 		auto isInstanceResult = pTestType->isInstance(content);
 
-		BOOST_CHECK_MESSAGE(isInstanceResult < TilesetType::DefinitelyYes,
+		BOOST_CHECK_MESSAGE(isInstanceResult < TilesetType::Certainty::DefinitelyYes,
 			"isInstance() for " << otherType << " incorrectly recognises content for "
 			<< this->type);
 	}
@@ -190,8 +190,9 @@ void test_tileset::test_new_isinstance()
 	BOOST_REQUIRE_MESSAGE(pTestType,
 		createString("Could not find tileset type " << this->type));
 
-	BOOST_REQUIRE_MESSAGE(pTestType->isInstance(*this->base),
-		"Newly created archive was not recognised as a valid instance");
+	BOOST_REQUIRE_MESSAGE(
+		pTestType->isInstance(*this->base) != TilesetType::Certainty::DefinitelyNo,
+		"Newly created tileset was not recognised as a valid instance");
 
 	BOOST_TEST_CHECKPOINT("New tileset reported valid, trying to open");
 

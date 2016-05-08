@@ -42,14 +42,14 @@ class test_tls_harry_chr: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 
 			// c01: All tiles present
-			this->isInstance(ArchiveType::DefinitelyYes,
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes,
 				std::string(16 * 16 * 255, '\x00'));
 
 			// c02: Wrong size
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00"
 			));
 		}

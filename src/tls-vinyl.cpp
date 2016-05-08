@@ -250,13 +250,13 @@ TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 	stream::pos len = content.size();
 
 	// TESTED BY: tls_vinyl_isinstance_c01
-	if (len < VGFM_FIRST_TILE_OFFSET + 2) return DefinitelyNo; // too short
+	if (len < VGFM_FIRST_TILE_OFFSET + 2) return Certainty::DefinitelyNo; // too short
 
 	content.seekg(0, stream::start);
 	uint16_t numTiles;
 	content >> u16le(numTiles);
 	// TESTED BY: tls_vinyl_isinstance_c02
-	if (numTiles > VGFM_SAFETY_MAX_TILES) return DefinitelyNo;
+	if (numTiles > VGFM_SAFETY_MAX_TILES) return Certainty::DefinitelyNo;
 
 	stream::pos nextOffset = 2;
 	if (numTiles > 0) {
@@ -269,7 +269,7 @@ TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 
 			// Truncated tile (or missing lookup table if last tile)
 			// TESTED BY: tls_vinyl_isinstance_c03
-			if (nextOffset + 2 >= len) return DefinitelyNo;
+			if (nextOffset + 2 >= len) return Certainty::DefinitelyNo;
 
 			// Don't seek +VGFM_FAT_ENTRY_LEN here because we just read those bytes
 			content.seekg(size, stream::cur);
@@ -283,21 +283,21 @@ TilesetType_Vinyl::Certainty TilesetType_Vinyl::isInstance(
 	if (lenLookup) {
 		// Lookup table truncated
 		// TESTED BY: tls_vinyl_isinstance_c04
-		if (nextOffset + lenLookup > len) return DefinitelyNo;
+		if (nextOffset + lenLookup > len) return Certainty::DefinitelyNo;
 		nextOffset += lenLookup;
 	}
 
 	// If we're here, the file seems valid, so do some extra checks to try to
 	// minimise false positives.
 	// TESTED BY: tls_vinyl_isinstance_c05
-	if (nextOffset != len) return Unsure;
+	if (nextOffset != len) return Certainty::Unsure;
 
 	// Empty file - we can't be quite so sure
 	// TESTED BY: tls_vinyl_isinstance_c06
-	if ((numTiles == 0) && (lenLookup == 0)) return PossiblyYes;
+	if ((numTiles == 0) && (lenLookup == 0)) return Certainty::PossiblyYes;
 
 	// TESTED BY: tls_vinyl_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Vinyl::create(

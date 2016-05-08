@@ -78,7 +78,7 @@ ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)
 
 	// Too short
 	// TESTED BY: img_zone66_tile_isinstance_c01
-	if (len < 4) return DefinitelyNo;
+	if (len < 4) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 	Point dims;
@@ -87,7 +87,7 @@ ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)
 
 	// Image too large
 	// TESTED BY: img_zone66_tile_isinstance_c02
-	if ((dims.x > Z66_MAX_DIMS) || (dims.y > Z66_MAX_DIMS)) return DefinitelyNo;
+	if ((dims.x > Z66_MAX_DIMS) || (dims.y > Z66_MAX_DIMS)) return Certainty::DefinitelyNo;
 
 	int imgSize = dims.x * dims.y;
 	int imgPos = 0;
@@ -99,22 +99,22 @@ ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)
 			case 0x00:
 				// Invalid code
 				// TESTED BY: img_zone66_tile_isinstance_c04
-				return DefinitelyNo;
+				return Certainty::DefinitelyNo;
 			case 0xFF: // end of image
 				// EOF marker at EOF
 				// TESTED BY: img_zone66_tile_isinstance_c00
-				if (len == 0) return DefinitelyYes;
+				if (len == 0) return Certainty::DefinitelyYes;
 
 				// EOF marker with trailing data
 				// TESTED BY: img_zone66_tile_isinstance_c05
-				return DefinitelyNo;
+				return Certainty::DefinitelyNo;
 			case 0xFE: // skip to EOL
 				imgPos += (dims.x - (imgPos % dims.x)) % dims.x;
 				break;
 			case 0xFD:
 				// Cut off in middle of 0xFD code
 				// TESTED BY: img_zone66_tile_isinstance_c03
-				if (!len) return DefinitelyNo;
+				if (!len) return Certainty::DefinitelyNo;
 				content >> u8(code);
 				len--;
 				imgPos += code;
@@ -132,11 +132,11 @@ ImageType::Certainty ImageType_Zone66Tile::isInstance(stream::input& content)
 
 	// Read all data but didn't have 0xFF at EOF
 	// TESTED BY: img_zone66_tile_isinstance_c06
-	if ((len == 0) && (imgPos == imgSize)) return DefinitelyYes;
+	if ((len == 0) && (imgPos == imgSize)) return Certainty::DefinitelyYes;
 
 	// Ended mid-data
 	// TESTED BY: img_zone66_tile_isinstance_c07
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::unique_ptr<Image> ImageType_Zone66Tile::create(

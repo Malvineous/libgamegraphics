@@ -217,10 +217,10 @@ ImageType::Certainty ImageType_EGA_RawPlanarBGRI::isInstance(
 	stream::pos len = content.size();
 
 	// TESTED BY: TODO
-	if (len == 32000) return PossiblyYes;
+	if (len == 32000) return Certainty::PossiblyYes;
 
 	// TESTED BY: TODO
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::unique_ptr<Image> ImageType_EGA_RawPlanarBGRI::create(

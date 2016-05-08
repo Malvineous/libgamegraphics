@@ -43,22 +43,22 @@ class test_tls_zone66: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: Too short
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\x00"
 			));
 
 			// c02: Invalid empty tileset
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00\x00\x00\x00"
 				"\x00\x00\x00\x00"
 				"\x00\x00\x00\x00"
 			));
 
 			// c03: First tile always starts at offset 0
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\x00\x00"
 				"\x01\x00\x00\x00"
 				"\x54\x00\x00\x00"
@@ -68,7 +68,7 @@ class test_tls_zone66: public test_tileset
 			);
 
 			// c04: Make sure offsets are increasing
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\x00\x00"
 				"\x54\x00\x00\x00"
 				"\x00\x00\x00\x00"
@@ -78,7 +78,7 @@ class test_tls_zone66: public test_tileset
 			);
 
 			// c05: Tile past EOF
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\x00\x00"
 				"\x00\x00\x00\x00"
 				"\x54\x01\x00\x00"
@@ -364,7 +364,7 @@ class test_tls_zone66_fullscreen: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 		}
 
 		virtual std::string tile1() const

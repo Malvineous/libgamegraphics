@@ -45,10 +45,10 @@ class test_tls_got: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: Width out of range
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\xFF\x00\x08\x00\x00\x00"
 				"\x0F\x0F"
 				"\x0C\x00"
@@ -90,7 +90,7 @@ class test_tls_got: public test_tileset
 			);
 
 			// c01: Height out of range
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\xFF\x00\x00\x00"
 				"\x0F\x0F"
 				"\x0C\x00"
@@ -132,7 +132,7 @@ class test_tls_got: public test_tileset
 			);
 
 			// c03: Data truncated
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x02\x00\x08\x00\x00\x00"
 				"\x0F\x0F"
 				"\x0C\x00"
@@ -172,7 +172,7 @@ class test_tls_got: public test_tileset
 			));
 
 			// c04: Empty file
-			this->isInstance(ArchiveType::PossiblyYes, {});
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, {});
 		}
 
 		virtual std::string tile1() const

@@ -102,8 +102,8 @@ TilesetType_CComic::Certainty TilesetType_CComic::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len % 128 == 4) return PossiblyYes;
-	return DefinitelyNo;
+	if (len % 128 == 4) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_CComic::create(
@@ -147,8 +147,8 @@ TilesetType_CComic_Sprite::Certainty TilesetType_CComic_Sprite::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len % 160 == 0) return PossiblyYes;
-	return DefinitelyNo;
+	if (len % 160 == 0) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_CComic_Sprite::create(

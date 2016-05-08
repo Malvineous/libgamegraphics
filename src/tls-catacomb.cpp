@@ -134,16 +134,16 @@ TilesetType_CatacombEGA::Certainty TilesetType_CatacombEGA::isInstance(
 
 	// Catacomb I
 	// TESTED BY: tls_catacomb_ega_c01
-	if (len == CATI_NUMTILES * CAT_EGA_TILE_SIZE) return DefinitelyYes;
+	if (len == CATI_NUMTILES * CAT_EGA_TILE_SIZE) return Certainty::DefinitelyYes;
 
 	// Catacomb II
-	if (len == CATII_NUMTILES * CAT_EGA_TILE_SIZE) return DefinitelyYes;
+	if (len == CATII_NUMTILES * CAT_EGA_TILE_SIZE) return Certainty::DefinitelyYes;
 
 	// TESTED BY: tls_catacomb_ega_c00
-	if (len % CAT_EGA_TILE_SIZE == 0) return PossiblyYes;
+	if (len % CAT_EGA_TILE_SIZE == 0) return Certainty::PossiblyYes;
 
 	// TESTED BY: tls_catacomb_ega_c02
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_CatacombEGA::create(
@@ -191,16 +191,16 @@ TilesetType_CatacombCGA::Certainty TilesetType_CatacombCGA::isInstance(
 
 	// Catacomb I
 	// TESTED BY: tls_catacomb_ega_c01
-	if (len == CATI_NUMTILES * CAT_CGA_TILE_SIZE) return DefinitelyYes;
+	if (len == CATI_NUMTILES * CAT_CGA_TILE_SIZE) return Certainty::DefinitelyYes;
 
 	// Catacomb II
-	if (len == CATII_NUMTILES * CAT_CGA_TILE_SIZE) return DefinitelyYes;
+	if (len == CATII_NUMTILES * CAT_CGA_TILE_SIZE) return Certainty::DefinitelyYes;
 
 	// TESTED BY: tls_catacomb_ega_c00
-	if (len % CAT_EGA_TILE_SIZE == 0) return PossiblyYes;
+	if (len % CAT_EGA_TILE_SIZE == 0) return Certainty::PossiblyYes;
 
 	// TESTED BY: tls_catacomb_ega_c02
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_CatacombCGA::create(

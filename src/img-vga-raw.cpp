@@ -41,10 +41,10 @@ ImageType::Certainty ImageType_VGARawBase::isInstance(
 	stream::pos len = content.size();
 
 	// TESTED BY: TODO
-	if (len == 64000) return PossiblyYes;
+	if (len == 64000) return Certainty::PossiblyYes;
 
 	// TESTED BY: TODO
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::unique_ptr<Image> ImageType_VGARawBase::create(

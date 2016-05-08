@@ -82,7 +82,7 @@ TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(
 
 	// Too short
 	// TESTED BY: tls_ccaves_sub_isinstance_c02
-	if (len < 3) return DefinitelyNo;
+	if (len < 3) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 	uint8_t numTiles, widthBytes, height;
@@ -97,10 +97,10 @@ TilesetType_CCavesSub::Certainty TilesetType_CCavesSub::isInstance(
 	// Length doesn't match value calculated from header
 	// TESTED BY: tls_ccaves_sub_isinstance_c01
 	if ((unsigned)(3 + lenTile * numTiles) != len)
-		return DefinitelyNo;
+		return Certainty::DefinitelyNo;
 
 	// TESTED BY: tls_ccaves_sub_isinstance_c00
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_CCavesSub::create(

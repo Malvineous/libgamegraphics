@@ -42,15 +42,15 @@ class test_tls_ccaves_sub: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 
 			// c01: Too short
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00" "\x01"
 			));
 
 			// c02: Length doesn't match header
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x03" "\x01" "\x08"
 				) +

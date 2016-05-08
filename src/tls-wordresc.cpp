@@ -66,7 +66,7 @@ TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(
 	stream::input& content) const
 {
 	ImageType_PCX_PlanarEGA pcx;
-	if (!pcx.isInstance(content)) return DefinitelyNo;
+	if (!pcx.isInstance(content)) return Certainty::DefinitelyNo;
 
 /// @todo Implement this when TilesetType::open() can take a read-only stream
 /*
@@ -75,9 +75,9 @@ TilesetType_Wordresc::Certainty TilesetType_Wordresc::isInstance(
 
 	unsigned int width, height;
 	img->getDimensions(&width, &height);
-	if ((width != 320) || (height != 200)) return DefinitelyNo;
+	if ((width != 320) || (height != 200)) return Certainty::DefinitelyNo;
 */
-	return PossiblyYes; // best we can hope for
+	return Certainty::PossiblyYes; // best we can hope for
 }
 
 std::shared_ptr<Tileset> TilesetType_Wordresc::create(

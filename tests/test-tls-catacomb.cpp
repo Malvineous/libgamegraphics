@@ -43,15 +43,15 @@ class test_tls_catacomb_cga: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 
 			// c01: Known tile size
-			this->isInstance(ArchiveType::DefinitelyYes,
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes,
 				std::string(1462 * 16, '\x00')
 			);
 
 			// c02: Not a multiple of the tile size
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				std::string(1462 * 16 - 1, '\x00')
 			);
 		}
@@ -219,15 +219,15 @@ class test_tls_catacomb_ega: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 
 			// c01: Known tile size
-			this->isInstance(ArchiveType::DefinitelyYes,
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes,
 				std::string(1462 * 32, '\x00')
 			);
 
 			// c02: Not a multiple of the tile size
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				std::string(1462 * 32 - 1, '\x00')
 			);
 		}

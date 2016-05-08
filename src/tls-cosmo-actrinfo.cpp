@@ -235,11 +235,11 @@ TilesetType_Cosmo_ActrInfo::Certainty TilesetType_Cosmo_ActrInfo::isInstance(
 
 	// Could be a blank file
 	// TESTED BY: tls_actrinfo_isinstance_c01
-	if (lenContent == 0) return Unsure;
+	if (lenContent == 0) return Certainty::Unsure;
 
 	// First offset truncated
 	// TESTED BY: tls_actrinfo_isinstance_c02
-	if (lenContent == 1) return DefinitelyNo;
+	if (lenContent == 1) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 	stream::pos nextOffset;
@@ -249,11 +249,11 @@ TilesetType_Cosmo_ActrInfo::Certainty TilesetType_Cosmo_ActrInfo::isInstance(
 
 	// No actor data
 	// TESTED BY: tls_actrinfo_isinstance_c03
-	if (nextOffset > lenContent) return DefinitelyNo;
+	if (nextOffset > lenContent) return Certainty::DefinitelyNo;
 
 	// First FAT offset points to FAT itself
 	// TESTED BY: tls_actrinfo_isinstance_c04
-	if (nextOffset < 1) return DefinitelyNo;
+	if (nextOffset < 1) return Certainty::DefinitelyNo;
 
 	stream::pos fatPos = 2;
 	for (unsigned int i = 0; i < numImages; i++) {
@@ -277,12 +277,12 @@ TilesetType_Cosmo_ActrInfo::Certainty TilesetType_Cosmo_ActrInfo::isInstance(
 			if (
 				(width > (320 / ACTR_TILE_WIDTH))
 				|| (height > (200 / ACTR_TILE_HEIGHT))
-			) return DefinitelyNo;
+			) return Certainty::DefinitelyNo;
 
 			// Offset too big
 			// We'll assume tileset files are never going to be larger than 4MB
 			// TESTED BY: tls_actrinfo_isinstance_c06
-			if (offset > 1048576 * 4) return DefinitelyNo;
+			if (offset > 1048576 * 4) return Certainty::DefinitelyNo;
 
 			// Go back to get the next offset
 			content.seekg(fatPos, stream::start);
@@ -297,15 +297,15 @@ TilesetType_Cosmo_ActrInfo::Certainty TilesetType_Cosmo_ActrInfo::isInstance(
 		// Offsets decrementing
 		// This is probably allowed but it will help avoid false positives
 		// TESTED BY: tls_actrinfo_isinstance_c07
-		if (nextOffset < lastOffset) return DefinitelyNo;
+		if (nextOffset < lastOffset) return Certainty::DefinitelyNo;
 
 		// Truncated actor data
 		// TESTED BY: tls_actrinfo_isinstance_c08
-		if (nextOffset >= lenContent) return DefinitelyNo;
+		if (nextOffset >= lenContent) return Certainty::DefinitelyNo;
 	}
 
 	// TESTED BY: tls_actrinfo_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Cosmo_ActrInfo::create(

@@ -100,15 +100,15 @@ TilesetType_Cosmo::Certainty TilesetType_Cosmo::isInstance(
 	stream::pos len = content.size();
 
 	// Standard tileset
-	if (len == CCA_SIZE_STANDARD) return PossiblyYes;
+	if (len == CCA_SIZE_STANDARD) return Certainty::PossiblyYes;
 
 	// Map backdrop (Cosmo)
-	if (len == CCA_SIZE_BACKDROP) return PossiblyYes;
+	if (len == CCA_SIZE_BACKDROP) return Certainty::PossiblyYes;
 
 	// Map backdrop / CZone solid (Duke II)
-	if (len == DN2_SIZE_BACKDROP) return PossiblyYes;
+	if (len == DN2_SIZE_BACKDROP) return Certainty::PossiblyYes;
 
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_Cosmo::create(
@@ -154,9 +154,9 @@ TilesetType_CosmoMasked::Certainty TilesetType_CosmoMasked::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len == CCA_SIZE_STDMASK) return PossiblyYes;
-	if (len == DN2_SIZE_CZONE_MASK) return PossiblyYes;
-	return DefinitelyNo;
+	if (len == CCA_SIZE_STDMASK) return Certainty::PossiblyYes;
+	if (len == DN2_SIZE_CZONE_MASK) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_CosmoMasked::open(

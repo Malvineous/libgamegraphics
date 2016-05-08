@@ -66,15 +66,15 @@ class test_tls_bash_sprite: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: Minimum file length
-			this->isInstance(ArchiveType::DefinitelyYes, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, STRING_WITH_NULLS(
 				"\xFF"
 			));
 
 			// c02: Correct fields, but less than minimum file length
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\xFF"
 				"\x00\x0B"
 				"\x00\x08\x08\x00"
@@ -82,7 +82,7 @@ class test_tls_bash_sprite: public test_tileset
 			));
 
 			// c03: Bad signature byte
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS("\xFE") +
 				STRING_WITH_NULLS("\x3A\x00") +
 				this->tile1() +
@@ -91,7 +91,7 @@ class test_tls_bash_sprite: public test_tileset
 			);
 
 			// c04: Correct fields, but less than minimum image length
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS("\xFF") +
 				STRING_WITH_NULLS("\x3A\x00") +
 				this->tile1() +
@@ -103,7 +103,7 @@ class test_tls_bash_sprite: public test_tileset
 			);
 
 			// c05: Image goes past EOF
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				this->header +
 				STRING_WITH_NULLS("\x3A\x00") +
 				this->tile1() +
@@ -125,12 +125,12 @@ class test_tls_bash_sprite: public test_tileset
 				);
 
 			// c06a: Confirm c06 data is good for next test
-			this->isInstance(ArchiveType::DefinitelyYes,
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes,
 				c06 + STRING_WITH_NULLS("\x00")
 			);
 
 			// c06b: Last plane ID byte is non-zero
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				c06 + STRING_WITH_NULLS("\x01")
 			);
 		}

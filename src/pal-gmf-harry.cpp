@@ -58,13 +58,13 @@ ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input& conte
 {
 	auto len = content.size();
 	// Too short
-	if (len < 0x1D + 768) return DefinitelyNo;
+	if (len < 0x1D + 768) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 
 	char sig[0x12];
 	content.read(sig, 0x12);
-	if (strncmp(sig, "\x11SubZero Game File", 0x12) != 0) return DefinitelyNo;
+	if (strncmp(sig, "\x11SubZero Game File", 0x12) != 0) return Certainty::DefinitelyNo;
 
 	content.seekg(0x1D, stream::start);
 
@@ -73,10 +73,10 @@ ImageType::Certainty ImageType_Palette_HarryGMF::isInstance(stream::input& conte
 	content.read(pal, 768);
 	for (int i = 0; i < 768; i++) {
 		// TESTED BY: TODO
-		if (pal[i] > 0x40) return DefinitelyNo;
+		if (pal[i] > 0x40) return Certainty::DefinitelyNo;
 	}
 
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_Palette_HarryGMF::create(

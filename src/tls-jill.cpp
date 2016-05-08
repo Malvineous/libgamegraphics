@@ -90,15 +90,15 @@ TilesetType_Jill::Certainty TilesetType_Jill::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len < 128 * 6) return DefinitelyNo; // missing offset table
+	if (len < 128 * 6) return Certainty::DefinitelyNo; // missing offset table
 
 	uint32_t offset;
 	for (int i = 0; i < 128; i++) {
 		content >> u32le(offset);
-		if (offset > len) return DefinitelyNo; // offset past EOF
+		if (offset > len) return Certainty::DefinitelyNo; // offset past EOF
 	}
 
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Jill::create(

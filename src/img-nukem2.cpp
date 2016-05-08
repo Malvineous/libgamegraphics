@@ -88,7 +88,7 @@ ImageType::Certainty ImageType_Nukem2::isInstance(
 	// Files are a fixed size.
 	// TESTED BY: img_nukem2_isinstance_c01
 	if (content.size() != (N2IMG_WIDTH * N2IMG_HEIGHT / 2 + N2IMG_PALSIZE)) {
-		return DefinitelyNo;
+		return Certainty::DefinitelyNo;
 	}
 
 	// Make sure the palette values are within range.
@@ -101,12 +101,12 @@ ImageType::Certainty ImageType_Nukem2::isInstance(
 		if (buf[i] > 0x40) {
 			// Palette entry out of range
 			// TESTED BY: img_nukem2_isinstance_c02
-			return DefinitelyNo;
+			return Certainty::DefinitelyNo;
 		}
 	}
 
 	// TESTED BY: img_nukem2_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_Nukem2::create(

@@ -82,16 +82,16 @@ TilesetType_HarryCHR::Certainty TilesetType_HarryCHR::isInstance(
 
 	// Exact match with all tiles present
 	// TESTED BY: tls_harry_chr_isinstance_c01
-	if (len == CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return DefinitelyYes;
+	if (len == CHR_WIDTH * CHR_HEIGHT * CHR_NUM_TILES) return Certainty::DefinitelyYes;
 
 	// Wrong size
 	// TESTED BY: tls_harry_chr_isinstance_c02
 	if (len % (CHR_WIDTH * CHR_HEIGHT) != 0)
-		return DefinitelyNo;
+		return Certainty::DefinitelyNo;
 
 	// Probable match with only some tiles present
 	// TESTED BY: tls_harry_chr_isinstance_c00
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_HarryCHR::create(

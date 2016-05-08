@@ -120,15 +120,15 @@ class test_tls_vinyl: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: File too short
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00\x00"
 			));
 
 			// c02: Too many tiles
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				// Tile count
 				"\xFF\x7F"
 				// Tile 1
@@ -178,7 +178,7 @@ class test_tls_vinyl: public test_tileset
 			));
 
 			// c03: Data truncated
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				// Tile count
 				"\x02\x00"
 				// Tile 1
@@ -202,7 +202,7 @@ class test_tls_vinyl: public test_tileset
 			));
 
 			// c04: Lookup table truncated
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				// Tile count
 				"\x02\x00"
 				// Tile 1
@@ -252,10 +252,10 @@ class test_tls_vinyl: public test_tileset
 			));
 
 			// c05: Trailing data
-			this->isInstance(ArchiveType::Unsure, this->initialstate() + "a");
+			this->isInstance(ArchiveType::Certainty::Unsure, this->initialstate() + "a");
 
 			// c06: Valid but empty file
-			this->isInstance(ArchiveType::PossiblyYes, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, STRING_WITH_NULLS(
 				// Tile count
 				"\x00\x00"
 				// Lookup table

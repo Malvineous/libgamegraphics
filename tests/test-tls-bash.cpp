@@ -44,7 +44,7 @@ class test_tls_bash_bg: public test_tileset
 			// c00: Initial state
 			// Can't test initialstate() because it's too short and the tests only
 			// work on file size.
-			this->isInstance(ArchiveType::PossiblyYes,
+			this->isInstance(ArchiveType::Certainty::PossiblyYes,
 				std::string(511 * this->lenFilesizeFixed, ' '));
 		}
 
@@ -198,7 +198,7 @@ class test_tls_bash_fg: public test_tileset
 			// c00: Initial state
 			// Can't test initialstate() because it's too short and the tests only
 			// work on file size.
-			this->isInstance(ArchiveType::PossiblyYes,
+			this->isInstance(ArchiveType::Certainty::PossiblyYes,
 				std::string(128 * this->lenFilesizeFixed, ' '));
 		}
 

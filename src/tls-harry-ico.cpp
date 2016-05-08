@@ -102,7 +102,7 @@ TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(
 
 	// Since there's no header, an empty file could mean an empty tileset.
 	// TESTED BY: tls_harry_ico_new_isinstance
-	if (len == 0) return PossiblyYes;
+	if (len == 0) return Certainty::PossiblyYes;
 
 	content.seekg(0, stream::start);
 	while (len > ICO_HEADER_LEN) {
@@ -116,11 +116,11 @@ TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(
 
 		// Width or height of zero don't really make sense
 		// TESTED BY: fmt_harry_ico_isinstance_c03
-		if ((width == 0) || (height == 0)) return DefinitelyNo;
+		if ((width == 0) || (height == 0)) return Certainty::DefinitelyNo;
 
 		// If this tile goes past EOF then it's not a valid file
 		// TESTED BY: fmt_harry_ico_isinstance_c01
-		if (len < delta) return DefinitelyNo;
+		if (len < delta) return Certainty::DefinitelyNo;
 		len -= delta;
 
 		content.seekg(delta, stream::cur);
@@ -128,10 +128,10 @@ TilesetType_HarryICO::Certainty TilesetType_HarryICO::isInstance(
 
 	// Trailing data
 	// TESTED BY: fmt_harry_ico_isinstance_c02
-	if (len) return DefinitelyNo;
+	if (len) return Certainty::DefinitelyNo;
 
 	// TESTED BY: fmt_harry_ico_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_HarryICO::create(

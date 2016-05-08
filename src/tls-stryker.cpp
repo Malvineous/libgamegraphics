@@ -92,10 +92,10 @@ TilesetType::Certainty TilesetType_Stryker::isInstance(
 {
 	stream::pos len = content.size();
 
-	if (len == MS_SIZE_STANDARD) return PossiblyYes;
-	if (len == MS_SIZE_BACKDROP) return PossiblyYes;
+	if (len == MS_SIZE_STANDARD) return Certainty::PossiblyYes;
+	if (len == MS_SIZE_BACKDROP) return Certainty::PossiblyYes;
 
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_Stryker::create(
@@ -146,8 +146,8 @@ TilesetType_StrykerMasked::Certainty TilesetType_StrykerMasked::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len == MS_SIZE_STDMASK) return PossiblyYes;
-	return DefinitelyNo;
+	if (len == MS_SIZE_STDMASK) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_StrykerMasked::open(

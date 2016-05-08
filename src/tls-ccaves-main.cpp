@@ -86,11 +86,11 @@ TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
 
 	// Empty file
 	// TESTED BY: tls_ccaves_main_isinstance_c01
-	if (len == 0) return PossiblyYes;
+	if (len == 0) return Certainty::PossiblyYes;
 
 	// Too short
 	// TESTED BY: tls_ccaves_main_isinstance_c01
-	if (len < 3) return DefinitelyNo; // too short
+	if (len < 3) return Certainty::DefinitelyNo; // too short
 
 	content.seekg(0, stream::start);
 	stream::pos pos = 0;
@@ -108,13 +108,13 @@ TilesetType_CCavesMain::Certainty TilesetType_CCavesMain::isInstance(
 
 		// If this pushes us past EOF it's not a valid file
 		pos += delta;
-		if (pos > len) return DefinitelyNo;
+		if (pos > len) return Certainty::DefinitelyNo;
 
 		content.seekg(delta, stream::cur);
 	}
 
 	// TESTED BY: tls_ccaves_main_isinstance_c00
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_CCavesMain::create(

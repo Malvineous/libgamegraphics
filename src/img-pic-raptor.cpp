@@ -93,7 +93,7 @@ ImageType::Certainty ImageType_RaptorPIC::isInstance(
 	stream::pos len = content.size();
 	// File too short
 	// TESTED BY: img_pic_raptor_isinstance_c01
-	if (len < PIC_DATA_OFFSET) return DefinitelyNo;
+	if (len < PIC_DATA_OFFSET) return Certainty::DefinitelyNo;
 	uint32_t unknown1, unknown2, unknown3, width, height;
 	content.seekg(0, stream::start);
 	content
@@ -106,10 +106,10 @@ ImageType::Certainty ImageType_RaptorPIC::isInstance(
 
 	// Image dimensions larger than available data
 	// TESTED BY: img_pic_raptor_isinstance_c02
-	if (width * height + PIC_DATA_OFFSET != len) return DefinitelyNo;
+	if (width * height + PIC_DATA_OFFSET != len) return Certainty::DefinitelyNo;
 
 	// TESTED BY: img_pic_raptor_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_RaptorPIC::create(

@@ -230,7 +230,7 @@ ImageType::Certainty ImageType_PCXBase::isInstance(
 {
 	// Header too short
 	// TESTED BY: img_pcx_*_isinstance_c05
-	if (content.size() < 128) return DefinitelyNo;
+	if (content.size() < 128) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 
@@ -244,7 +244,7 @@ ImageType::Certainty ImageType_PCXBase::isInstance(
 
 	// Bad signature
 	// TESTED BY: img_pcx_*_isinstance_c01
-	if (sig != 0x0A) return DefinitelyNo;
+	if (sig != 0x0A) return Certainty::DefinitelyNo;
 
 	// Unsupported version
 	// TESTED BY: img_pcx_*_isinstance_c02
@@ -253,11 +253,11 @@ ImageType::Certainty ImageType_PCXBase::isInstance(
 		(ver != 0x02) &&
 		(ver != 0x03) &&
 		(ver != 0x05)
-	) return DefinitelyNo;
+	) return Certainty::DefinitelyNo;
 
 	// Wrong number of bits per plane
 	// TESTED BY: img_pcx_*_isinstance_c03
-	if (bpp != this->bitsPerPlane) return DefinitelyNo;
+	if (bpp != this->bitsPerPlane) return Certainty::DefinitelyNo;
 
 	// The RLE flag is for writing only, we will accept files either way.
 
@@ -267,10 +267,10 @@ ImageType::Certainty ImageType_PCXBase::isInstance(
 
 	// Wrong number of planes
 	// TESTED BY: img_pcx_*_isinstance_c04
-	if (pln != this->numPlanes) return DefinitelyNo;
+	if (pln != this->numPlanes) return Certainty::DefinitelyNo;
 
 	// TESTED BY: img_pcx_*_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_PCXBase::create(

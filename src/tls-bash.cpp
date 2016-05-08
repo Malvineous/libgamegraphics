@@ -123,11 +123,11 @@ TilesetType::Certainty TilesetType_MonsterBashBackground::isInstance(
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len == 0) return PossiblyYes;
-	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return PossiblyYes;
+	if (len == 0) return Certainty::PossiblyYes;
+	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG) return Certainty::PossiblyYes;
 	// Some tiles are one byte larger for some reason
-	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG + 1) return PossiblyYes;
-	return DefinitelyNo;
+	if (len == MB_NUM_TILES_BG * MB_TILE_LEN_BG + 1) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_MonsterBashBackground::create(
@@ -190,11 +190,11 @@ TilesetType_MonsterBashForeground::Certainty TilesetType_MonsterBashForeground::
 	stream::input& content) const
 {
 	stream::pos len = content.size();
-	if (len == 0) return PossiblyYes;
-	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return PossiblyYes;
+	if (len == 0) return Certainty::PossiblyYes;
+	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG) return Certainty::PossiblyYes;
 	// Some tiles are one byte larger for some reason
-	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG + 1) return PossiblyYes;
-	return DefinitelyNo;
+	if (len == MB_NUM_TILES_FG * MB_TILE_LEN_FG + 1) return Certainty::PossiblyYes;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_MonsterBashForeground::create(

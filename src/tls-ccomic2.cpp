@@ -111,7 +111,7 @@ TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(
 
 	// File too large (probably)
 	// TESTED BY: TODO
-	if (len > 65535) return DefinitelyNo;
+	if (len > 65535) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 	uint16_t num;
@@ -120,9 +120,9 @@ TilesetType_CComic2::Certainty TilesetType_CComic2::isInstance(
 
 		// Too many tiles (probably)
 		// TESTED BY: test_tls_ccomic2_isinstance_c01
-		if ((num != 0xFFFF) && (num > 512)) return DefinitelyNo;
+		if ((num != 0xFFFF) && (num > 512)) return Certainty::DefinitelyNo;
 	}
-	return Unsure;
+	return Certainty::Unsure;
 }
 
 std::shared_ptr<Tileset> TilesetType_CComic2::create(

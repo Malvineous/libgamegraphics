@@ -73,18 +73,18 @@ ImageType::Certainty ImageType_TVFog::isInstance(
 
 	// Image wrong length
 	// TESTED BY: img_tv_fog_isinstance_c01
-	if (len != 4096) return DefinitelyNo;
+	if (len != 4096) return Certainty::DefinitelyNo;
 
 	uint8_t start[256];
 	content.seekg(0, stream::start);
 	content.read((char *)start, 256);
 	for (int i = 0; i < 256; i++) {
 		// TESTED BY: img_tv_fog_isinstance_c02
-		if (start[i] != i) return DefinitelyNo;
+		if (start[i] != i) return Certainty::DefinitelyNo;
 	}
 
 	// TESTED BY: img_tv_fog_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_TVFog::create(

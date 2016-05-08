@@ -103,13 +103,13 @@ TilesetType::Certainty TilesetType_DDave::isInstance(stream::input& content)
 {
 	stream::pos len = content.size();
 	// TESTED BY: TODO
-	if (len < DD_FIRST_TILE_OFFSET) return DefinitelyNo; // too short
+	if (len < DD_FIRST_TILE_OFFSET) return Certainty::DefinitelyNo; // too short
 
 	content.seekg(0, stream::start);
 	uint32_t numFiles;
 	content >> u32le(numFiles);
 
-	if ((numFiles == 0) && (len > DD_FIRST_TILE_OFFSET)) return DefinitelyNo; // invalid empty file
+	if ((numFiles == 0) && (len > DD_FIRST_TILE_OFFSET)) return Certainty::DefinitelyNo; // invalid empty file
 
 	uint32_t offset, lastOffset = 0;
 	uint32_t firstOffset;
@@ -123,11 +123,11 @@ TilesetType::Certainty TilesetType_DDave::isInstance(stream::input& content)
 		// file size (or the file has been tweaked to make opening difficult, but
 		// then there's the -f option to gametls for that.)
 		// TESTED BY: TODO
-		if (offset < lastOffset) return DefinitelyNo;
+		if (offset < lastOffset) return Certainty::DefinitelyNo;
 
 		// Make sure the tile is contained within the file
 		// TESTED BY: TODO
-		if (offset > len) return DefinitelyNo;
+		if (offset > len) return Certainty::DefinitelyNo;
 
 		lastOffset = offset;
 	}
@@ -135,11 +135,11 @@ TilesetType::Certainty TilesetType_DDave::isInstance(stream::input& content)
 	// Check the size of the first tile to see what format it's in.
 	if (numFiles > 0) {
 		// Call function in DDave[CEV]GATilesetType
-		if (!this->isInstance(secondOffset - firstOffset)) return DefinitelyNo;
+		if (!this->isInstance(secondOffset - firstOffset)) return Certainty::DefinitelyNo;
 	}
 
 	// TESTED BY: tls_ddave_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_DDave::create(

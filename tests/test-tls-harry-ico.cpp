@@ -45,10 +45,10 @@ class test_tls_harry_ico: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: Trailing data / header cut off
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				this->tile1() +
 				this->tile2() +
 				STRING_WITH_NULLS(
@@ -57,7 +57,7 @@ class test_tls_harry_ico: public test_tileset
 			);
 
 			// c02: Tile too large for available data
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				this->tile1() +
 				this->tile2() +
 				STRING_WITH_NULLS(
@@ -68,7 +68,7 @@ class test_tls_harry_ico: public test_tileset
 			);
 
 			// c03: We don't recognise width or height of zero
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				this->tile1() +
 				this->tile2() +
 				STRING_WITH_NULLS(

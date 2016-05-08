@@ -119,7 +119,7 @@ TilesetType::Certainty TilesetType_Zone66::isInstance(stream::input& content)
 
 	// Too short
 	// TESTED BY: tls_zone66_isinstance_c01
-	if (len < Z66_FIRST_TILE_OFFSET) return DefinitelyNo;
+	if (len < Z66_FIRST_TILE_OFFSET) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 	uint32_t numFiles;
@@ -127,7 +127,7 @@ TilesetType::Certainty TilesetType_Zone66::isInstance(stream::input& content)
 
 	// Invalid empty tileset
 	// TESTED BY: tls_zone66_isinstance_c02
-	if ((numFiles == 0) && (len > 8)) return DefinitelyNo;
+	if ((numFiles == 0) && (len > 8)) return Certainty::DefinitelyNo;
 
 	uint32_t offset, lastOffset = 0;
 	for (unsigned int i = 0; i < numFiles; i++) {
@@ -135,23 +135,23 @@ TilesetType::Certainty TilesetType_Zone66::isInstance(stream::input& content)
 
 		// The first file always starts at offset 0.
 		// TESTED BY: tls_zone66_isinstance_c03
-		if ((i == 0) && (offset != 0)) return DefinitelyNo;
+		if ((i == 0) && (offset != 0)) return Certainty::DefinitelyNo;
 
 		// Make sure the offsets are increasing, otherwise we'd get a negative
 		// file size (or the file has been tweaked to make opening difficult, but
 		// then there's the -f option to gametls for that.)
 		// TESTED BY: tls_zone66_isinstance_c04
-		if (offset < lastOffset) return DefinitelyNo;
+		if (offset < lastOffset) return Certainty::DefinitelyNo;
 
 		// Make sure the tile is contained within the file
 		// TESTED BY: tls_zone66_isinstance_c05
-		if ((numFiles+1) * 4 + offset > len) return DefinitelyNo;
+		if ((numFiles+1) * 4 + offset > len) return Certainty::DefinitelyNo;
 
 		lastOffset = offset;
 	}
 
 	// TESTED BY: tls_zone66_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Zone66::create(

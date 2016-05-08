@@ -272,18 +272,18 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::DefinitelyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::DefinitelyYes, this->initialstate());
 
 			// c01: Could be a blank file
-			this->isInstance(ArchiveType::Unsure, {});
+			this->isInstance(ArchiveType::Certainty::Unsure, {});
 
 			// c02: First offset truncated
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00"
 			));
 
 			// c03: No actor data
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x02\xF0"
 					"\x06\x00"
@@ -293,7 +293,7 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			);
 
 			// c04: First FAT offset points to FAT itself
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x00\x00"
 					"\x06\x00"
@@ -303,7 +303,7 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			);
 
 			// c05: Actor frame too big (>320x200)
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x02\x00"
 					"\x06\x00"
@@ -315,7 +315,7 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			);
 
 			// c06: Offset too big (>4MB)
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x02\x00"
 					"\x06\x00"
@@ -327,7 +327,7 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			);
 
 			// c07: Offsets decrementing
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x02\x00"
 					"\x01\x00"
@@ -337,7 +337,7 @@ class test_tls_cosmo_actrinfo: public test_tileset
 			);
 
 			// c08: Truncated actor data
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				STRING_WITH_NULLS(
 					"\x02\x00"
 					"\x06\xF0"

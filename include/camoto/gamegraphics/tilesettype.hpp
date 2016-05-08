@@ -27,6 +27,7 @@
 #include <vector>
 #include <camoto/stream.hpp>
 #include <camoto/suppitem.hpp>
+#include <camoto/gamearchive/archivetype.hpp>
 #include <camoto/gamegraphics/tileset.hpp>
 
 /// Main namespace
@@ -45,12 +46,7 @@ class TilesetType
 		static constexpr const char* const obj_t_name = "Tileset"; // defined in main.cpp
 
 		/// Confidence level when guessing a file format.
-		enum Certainty {
-			DefinitelyNo,  ///< Definitely not in this format
-			Unsure,        ///< The checks were inconclusive, it could go either way
-			PossiblyYes,   ///< Everything checked out OK, but there's no signature
-			DefinitelyYes, ///< This format has a signature and it matched
-		};
+		typedef gamearchive::ArchiveType::Certainty Certainty;
 
 		/// Get a short code to identify this file format, e.g. "tls-xargon"
 		/**

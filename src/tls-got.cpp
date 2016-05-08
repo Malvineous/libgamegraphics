@@ -146,7 +146,7 @@ TilesetType_GOT::Certainty TilesetType_GOT::isInstance(
 
 	// Empty tileset
 	// TESTED BY: tls_got_isinstance_c04
-	if (len == 0) return PossiblyYes;
+	if (len == 0) return Certainty::PossiblyYes;
 
 	content.seekg(0, stream::start);
 	while (len) {
@@ -161,22 +161,22 @@ TilesetType_GOT::Certainty TilesetType_GOT::isInstance(
 
 		// Width out of range
 		// TESTED BY: tls_got_isinstance_c01
-		if (width > 320) return DefinitelyNo;
+		if (width > 320) return Certainty::DefinitelyNo;
 
 		// Height out of range
 		// TESTED BY: tls_got_isinstance_c02
-		if (width > 200) return DefinitelyNo;
+		if (width > 200) return Certainty::DefinitelyNo;
 
 		// Data truncated
 		// TESTED BY: tls_got_isinstance_c03
-		if (len < lenTile) return DefinitelyNo;
+		if (len < lenTile) return Certainty::DefinitelyNo;
 
 		len -= lenTile;
 		content.seekg(lenTile + 2, stream::cur);
 	}
 
 	// TESTED BY: tls_got_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_GOT::create(

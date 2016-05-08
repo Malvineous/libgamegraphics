@@ -792,25 +792,25 @@ int main(int iArgC, char *cArgV[])
 				auto cert = i->isInstance(*content);
 				switch (cert) {
 
-					case gg::TilesetType::DefinitelyNo:
+					case gg::TilesetType::Certainty::DefinitelyNo:
 						// Don't print anything (TODO: Maybe unless verbose?)
 						break;
 
-					case gg::TilesetType::Unsure:
+					case gg::TilesetType::Certainty::Unsure:
 						std::cout << "File could be a " << i->friendlyName()
 							<< " [" << i->code() << "]" << std::endl;
 						// If we haven't found a match already, use this one
 						if (!pTilesetType) pTilesetType = i;
 						break;
 
-					case gg::TilesetType::PossiblyYes:
+					case gg::TilesetType::Certainty::PossiblyYes:
 						std::cout << "File is likely to be a " << i->friendlyName()
 							<< " [" << i->code() << "]" << std::endl;
 						// Take this one as it's better than an uncertain match
 						pTilesetType = i;
 						break;
 
-					case gg::TilesetType::DefinitelyYes:
+					case gg::TilesetType::Certainty::DefinitelyYes:
 						std::cout << "File is definitely a " << i->friendlyName()
 							<< " [" << i->code() << "]" << std::endl;
 						pTilesetType = i;
@@ -836,7 +836,11 @@ finishTesting:
 		assert(pTilesetType != NULL);
 
 		// Check to see if the file is actually in this format
-		if (!pTilesetType->isInstance(*content)) {
+		auto cert = pTilesetType->isInstance(*content);
+		if (
+			(cert != gg::TilesetType::Certainty::DefinitelyYes)
+			&& (cert != gg::TilesetType::Certainty::PossiblyYes)
+		) {
 			if (bForceOpen) {
 				std::cerr << "Warning: " << strFilename << " is not a "
 					<< pTilesetType->friendlyName() << ", open forced." << std::endl;

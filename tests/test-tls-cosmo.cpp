@@ -48,10 +48,10 @@ class test_tls_cosmo: public test_tileset
 			// c00: Initial state
 			std::string standard;
 			for (int i = 0; i < 40 * 50; i++) standard.append(this->tile1());
-			this->isInstance(ArchiveType::PossiblyYes, standard);
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, standard);
 
 			// c01: File too short
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00\x00"
 			));
 		}
@@ -226,10 +226,10 @@ class test_tls_cosmo_masked: public test_tileset
 			// c00: Initial state
 			std::string standard;
 			for (int i = 0; i < 40 * 25; i++) standard.append(this->tile1());
-			this->isInstance(ArchiveType::PossiblyYes, standard);
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, standard);
 
 			// c01: File too short
-			this->isInstance(ArchiveType::DefinitelyNo, STRING_WITH_NULLS(
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo, STRING_WITH_NULLS(
 				"\x00\x00"
 			));
 		}

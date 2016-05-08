@@ -141,10 +141,10 @@ TilesetType::Certainty TilesetType_Nukem2_CZone::isInstance(
 
 	// Standard tileset
 	// TESTED BY: TODO
-	if (len == 42000) return PossiblyYes;
+	if (len == 42000) return Certainty::PossiblyYes;
 
 	// TESTED BY: TODO
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::shared_ptr<Tileset> TilesetType_Nukem2_CZone::create(

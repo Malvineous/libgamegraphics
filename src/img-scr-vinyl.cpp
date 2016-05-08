@@ -59,8 +59,8 @@ ImageType::Certainty ImageType_VinylSCR::isInstance(
 	stream::input& content) const
 {
 	stream::len len = content.size();
-	if (len != 320*200) return DefinitelyNo;
-	return Unsure;
+	if (len != 320*200) return Certainty::DefinitelyNo;
+	return Certainty::Unsure;
 }
 
 std::unique_ptr<Image> ImageType_VinylSCR::create(

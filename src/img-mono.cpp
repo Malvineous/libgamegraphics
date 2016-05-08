@@ -60,10 +60,10 @@ ImageType::Certainty ImageType_Mono::isInstance(stream::input& content) const
 	stream::pos len = content.size();
 
 	// TESTED BY: TODO
-	if (len == 8000) return PossiblyYes;
+	if (len == 8000) return Certainty::PossiblyYes;
 
 	// TESTED BY: TODO
-	return DefinitelyNo;
+	return Certainty::DefinitelyNo;
 }
 
 std::unique_ptr<Image> ImageType_Mono::create(

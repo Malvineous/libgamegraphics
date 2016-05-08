@@ -71,7 +71,7 @@ ImageType::Certainty ImageType_CComic::isInstance(
 
 	// Too short
 	// TESTED BY: img_ccomic_isinstance_c01
-	if (lenContent < 2) return DefinitelyNo;
+	if (lenContent < 2) return Certainty::DefinitelyNo;
 
 	content.seekg(0, stream::start);
 
@@ -82,7 +82,7 @@ ImageType::Certainty ImageType_CComic::isInstance(
 
 	// Plane must be correct size
 	// TESTED BY: img_ccomic_isinstance_c02
-	if (lenPlane != 8000) return DefinitelyNo;
+	if (lenPlane != 8000) return Certainty::DefinitelyNo;
 
 	lenPlane *= 4;  // count all planes
 	try {
@@ -91,30 +91,30 @@ ImageType::Certainty ImageType_CComic::isInstance(
 			try {
 				content >> u8(code);
 			} catch (...) {
-				return DefinitelyNo;
+				return Certainty::DefinitelyNo;
 			}
 			if (code & 0x80) {
 				unsigned int repeat = code & 0x7F;
-				if (repeat > lenPlane) return DefinitelyNo;
+				if (repeat > lenPlane) return Certainty::DefinitelyNo;
 				content.seekg(1, stream::cur);
 				lenPlane -= repeat;
 			} else {
-				if (code > lenPlane) return DefinitelyNo;
+				if (code > lenPlane) return Certainty::DefinitelyNo;
 				lenPlane -= code;
 				content.seekg(code, stream::cur);
 			}
 		}
 	} catch (const stream::error&) {
 		// TESTED BY: img_ccomic_isinstance_c03
-		return DefinitelyNo;
+		return Certainty::DefinitelyNo;
 	}
 
 	// Should be no trailing data
 	// TESTED BY: img_ccomic_isinstance_c04
-	if (content.tellg() != lenContent) return DefinitelyNo;
+	if (content.tellg() != lenContent) return Certainty::DefinitelyNo;
 
 	// TESTED BY: img_ccomic_isinstance_c00
-	return DefinitelyYes;
+	return Certainty::DefinitelyYes;
 }
 
 std::unique_ptr<Image> ImageType_CComic::create(

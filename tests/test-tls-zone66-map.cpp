@@ -43,10 +43,10 @@ class test_tls_zone66_map: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 
 			// c01: Not a multiple of the tile size
-			this->isInstance(ArchiveType::DefinitelyNo,
+			this->isInstance(ArchiveType::Certainty::DefinitelyNo,
 				this->initialstate().substr(0, 32 * 32 - 1)
 			);
 		}

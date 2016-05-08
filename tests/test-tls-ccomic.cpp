@@ -64,7 +64,7 @@ class test_tls_ccomic: public test_tileset
 			this->test_tileset::addTests();
 
 			// c00: Initial state
-			this->isInstance(ArchiveType::PossiblyYes, this->initialstate());
+			this->isInstance(ArchiveType::Certainty::PossiblyYes, this->initialstate());
 		}
 
 		virtual std::string tile1() const

@@ -112,10 +112,10 @@ TilesetType::Certainty TilesetType_Zone66Map::isInstance(
 
 	// Standard tileset
 	// TESTED BY: tls_zone66_map_c01
-	if (len % Z66_TILE_SIZE != 0) return DefinitelyNo;
+	if (len % Z66_TILE_SIZE != 0) return Certainty::DefinitelyNo;
 
 	// TESTED BY: tls_zone66_map_c00
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::shared_ptr<Tileset> TilesetType_Zone66Map::create(

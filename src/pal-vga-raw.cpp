@@ -59,7 +59,7 @@ ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input& content)
 	stream::pos len = content.size();
 
 	// Allow palettes with 256 entries, but also ones with only 16 (Duke II)
-	if ((len != 16 * 3) && (len != 256 * 3)) return DefinitelyNo;
+	if ((len != 16 * 3) && (len != 256 * 3)) return Certainty::DefinitelyNo;
 
 	uint8_t buf[768];
 	memset(buf, 0, 768);
@@ -67,15 +67,15 @@ ImageType::Certainty ImageType_Palette_VGA::isInstance(stream::input& content)
 	content.try_read(buf, 768);
 	for (int i = 0; i < 768; i++) {
 		// Some palettes do use 64 instead of the max value of 63
-		if (buf[i] > 64) return DefinitelyNo;
+		if (buf[i] > 64) return Certainty::DefinitelyNo;
 	}
 
 	// See if the first colour is black, which is even more likely to mean it's
 	// a VGA palette.
-	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return DefinitelyYes;
+	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return Certainty::DefinitelyYes;
 
 	// TESTED BY: TODO
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::unique_ptr<Image> ImageType_Palette_VGA::create(
@@ -131,17 +131,17 @@ ImageType::Certainty ImageType_VGA8Palette::isInstance(stream::input& content)
 {
 	stream::pos len = content.size();
 
-	if (len != 768) return DefinitelyNo;
+	if (len != 768) return Certainty::DefinitelyNo;
 
 	// See if the first colour is black, which is even more likely to mean it's
 	// a VGA palette.
 	content.seekg(0, stream::start);
 	uint8_t buf[3];
 	content.read((char *)buf, 3);
-	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return DefinitelyYes;
+	if ((buf[0] == 0) && (buf[1] == 0) && (buf[2] == 0)) return Certainty::DefinitelyYes;
 
 	// TESTED BY: TODO
-	return PossiblyYes;
+	return Certainty::PossiblyYes;
 }
 
 std::unique_ptr<Image> ImageType_VGA8Palette::create(
