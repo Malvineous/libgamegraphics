@@ -43,6 +43,7 @@ class CAMOTO_GAMEGRAPHICS_API Image_EGA_BytePlanar: virtual public Image_EGA
 			std::shared_ptr<const Palette> pal);
 		virtual ~Image_EGA_BytePlanar();
 
+		using Image_EGA::convert;
 		virtual void convert(const Pixels& newContent, const Pixels& newMask);
 
 	protected:

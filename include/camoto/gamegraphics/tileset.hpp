@@ -172,6 +172,8 @@ class CAMOTO_GAMEGRAPHICS_API Tileset: virtual public gamearchive::Archive
 		 */
 		virtual std::shared_ptr<Tileset> openTileset(const FileHandle& id) = 0;
 
+		using Archive::insert;
+
 		/// Add a tile.
 		/**
 		 * Dimensions are standard for the tileset or 0x0, and can possibly be

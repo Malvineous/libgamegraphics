@@ -86,6 +86,7 @@ class CAMOTO_GAMEGRAPHICS_API Image_EGA: public Image
 		virtual ColourDepth colourDepth() const;
 		virtual Point dimensions() const;
 		virtual void dimensions(const Point& newDimensions);
+		using Image::convert;
 		virtual Pixels convert() const;
 		virtual Pixels convert_mask() const;
 
