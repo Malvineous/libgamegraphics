@@ -1,11 +1,13 @@
 Camoto: Classic-game Modding Tools
-Copyright 2010-2015 Adam Nielsen <malvineous@shikadi.net>
-http://www.shikadi.net/camoto/
+==================================
+Copyright 2010-2016 Adam Nielsen <<malvineous@shikadi.net>>  
+http://www.shikadi.net/camoto/  
+Linux/OSX: [![Build Status](https://travis-ci.org/Malvineous/libgamegraphics.svg?branch=master)](https://travis-ci.org/Malvineous/libgamegraphics)
 
-Camoto is a collection of utilities for editing (modding) "classic games",
-those from the early to mid 1990s.
+Camoto is a collection of utilities for editing (modding) "classic" PC
+games - those running under MS-DOS from the 1980s and 1990s.
 
-This is libgamegraphics, one component of the Camoto suite.  libgamegraphics
+This is **libgamegraphics**, one component of the Camoto suite.  libgamegraphics
 provides a standard method of accessing pixel and palette data in the many
 different (often custom) image formats used by many games.  It allows
 full-screen images, sprites and animations to be extracted and/or modified.
@@ -45,26 +47,32 @@ File formats from the following games have been implemented:
 
 Many more formats are planned.
 
-This distribution includes two example programs (gameimg and gamegfx) which
+This distribution includes two example programs (`gameimg` and `gametls`) which
 provide access to single-image files and tilesets respectively.  These are
 intended as both command-line interfaces to the library as well as an example
 of how to use the library.  The programs are installed as part of the
-"make install" process.  See the manpages for full details.
+`make install` process.  See their manpages for full details.
 
-libgamecommon, libpng and png++ >= 0.2.7 are required dependencies of this
-library.  png++ can be obtained from http://www.nongnu.org/pngpp/
+The library is compiled and installed in the usual way:
 
-The library is then compiled and installed in the usual way:
+    ./autogen.sh          # Only if compiling from git
+    ./configure && make
+    make check            # Optional, compile and run tests
+    sudo make install
+    sudo ldconfig
 
-  ./configure && make
-  sudo make install
-  sudo ldconfig
+You will need the following prerequisites already installed:
 
-If you downloaded the git release, run ./autogen.sh before the commands above.
+  * [libgamecommon](https://github.com/Malvineous/libgamecommon) >= 2.0
+  * [libgamearchive](https://github.com/Malvineous/libgamearchive) >= 2.0
+  * Boost >= 1.59 (Boost >= 1.46 will work if not using `make check`)
+  * libpng
+  * [png++](http://www.nongnu.org/pngpp/) >= 0.2.7
+  * xmlto (optional for tarball releases, required for git version and if
+    manpages are to be changed)
 
-All supported file formats are fully documented on the ModdingWiki - see:
-
- * http://www.shikadi.net/moddingwiki/Category:Image_formats
- * http://www.shikadi.net/moddingwiki/Category:Tileset_formats
+All supported file formats are fully documented on the ModdingWiki
+([images](http://www.shikadi.net/moddingwiki/Category:Image_formats) and
+[tilesets](http://www.shikadi.net/moddingwiki/Category:Tileset_formats)).
 
 This library is released under the GPLv3 license.
