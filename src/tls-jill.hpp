@@ -64,8 +64,8 @@ class Tileset_Jill: virtual public Tileset_FAT
 		virtual const FileHandle insert(const FileHandle& idBeforeThis,
 			File::Attribute attr);
 		using Archive::insert;
-		virtual void updateFileOffset(const FATEntry *pid, stream::len offDelta);
-		virtual void updateFileSize(const FATEntry *pid, stream::len sizeDelta);
+		virtual void updateFileOffset(const FATEntry *pid, stream::delta offDelta);
+		virtual void updateFileSize(const FATEntry *pid, stream::delta sizeDelta);
 
 	protected:
 		void loadPalette();

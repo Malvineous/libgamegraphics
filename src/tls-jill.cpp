@@ -206,14 +206,14 @@ const Tileset::FileHandle Tileset_Jill::insert(const FileHandle& idBeforeThis,
 	return this->insert(idBeforeThis, "", 0, FILETYPE_JILL, attr);
 }
 
-void Tileset_Jill::updateFileOffset(const FATEntry *pid, stream::len offDelta)
+void Tileset_Jill::updateFileOffset(const FATEntry *pid, stream::delta offDelta)
 {
 	this->content->seekp(pid->iIndex * 4, stream::start);
 	*this->content << u32le(pid->iOffset);
 	return;
 }
 
-void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::len sizeDelta)
+void Tileset_Jill::updateFileSize(const FATEntry *pid, stream::delta sizeDelta)
 {
 	this->content->seekp((128 * 4) + pid->iIndex * 2, stream::start);
 	*this->content << u16le(pid->storedSize);
