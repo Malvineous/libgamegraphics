@@ -339,6 +339,28 @@ SuppFilenames ImageType_PCXBase::getRequiredSupps(stream::input& content,
 }
 
 
+ImageType_PCX_LinearCGA::ImageType_PCX_LinearCGA()
+	:	ImageType_PCXBase(2, 1, true)
+{
+}
+
+ImageType_PCX_LinearCGA::~ImageType_PCX_LinearCGA()
+{
+}
+
+std::string ImageType_PCX_LinearCGA::friendlyName() const
+{
+	return "PCX image (4-colour linear CGA)";
+}
+
+std::vector<std::string> ImageType_PCX_LinearCGA::games() const
+{
+	return {
+		"Super Muncher",
+	};
+}
+
+
 ImageType_PCX_PlanarEGA::ImageType_PCX_PlanarEGA()
 	:	ImageType_PCXBase(1, 4, true)
 {
@@ -438,10 +460,16 @@ Image_PCX::Image_PCX(std::unique_ptr<stream::inout> content,
 
 	// Load the palette
 	if (this->ver == 3) { // 2.8 w/out palette
-		this->pal = createPalette_DefaultEGA();
+		switch (this->bitsPerPlane << this->numPlanes) {
+			case 4:
+				this->pal = createPalette_CGA(CGAPaletteType::CyanMagentaBright);
+				break;
+			case 16:
+			default:
+				this->pal = createPalette_DefaultEGA();
+				break;
+		}
 	} else {
-
-		/// @todo Handle CGA graphics-mode palette
 
 		uint8_t palSig = 0;
 		if (this->ver >= 5) { // 3.0 or better, look for VGA pal
@@ -458,24 +486,65 @@ Image_PCX::Image_PCX(std::unique_ptr<stream::inout> content,
 			// 256-colour palette
 			palSize = 256;
 		} else {
-			// Default to EGA palette in file header
-			palSize = 16;
 			this->content->seekg(16, stream::start);
+			switch (this->bitsPerPlane << this->numPlanes) {
+				case 4:
+					/// @todo Handle CGA graphics-mode palette
+					palSize = 4;
+					break;
+				case 16:
+				default:
+					// Default to EGA palette in file header
+					palSize = 16;
+					break;
+			}
 		}
 
-		auto newPal = std::make_shared<Palette>();
-		newPal->reserve(palSize);
-		for (int c = 0; c < palSize; c++) {
-			PaletteEntry p;
+		if (palSize == 4) {
+			uint8_t bg, pad, cgapal;
 			*this->content
-				>> u8(p.red)
-				>> u8(p.green)
-				>> u8(p.blue)
+				>> u8(bg)
+				>> u8(pad)
+				>> u8(pad)
+				>> u8(cgapal)
 			;
-			p.alpha = 255;
-			newPal->push_back(p);
+			// Bit 7 in cgapal is ignored (0=colour, 1=monochrome)
+			std::shared_ptr<Palette> newPal;
+			switch ((cgapal >> 5) & 3) {
+				case 0: // pal=0, int=0
+					newPal = createPalette_CGA(CGAPaletteType::GreenRed);
+					break;
+				case 1: // pal=0, int=1
+					newPal = createPalette_CGA(CGAPaletteType::GreenRedBright);
+					break;
+				case 2: // pal=1, int=0
+					newPal = createPalette_CGA(CGAPaletteType::CyanMagenta);
+					break;
+				case 3: // pal=1, int=1
+				default: // should never happen, but just in case
+					newPal = createPalette_CGA(CGAPaletteType::CyanMagentaBright);
+					break;
+			}
+			// Populate background colour
+			auto fullcga = createPalette_FullCGA();
+			newPal->at(0) = fullcga->at(bg & 0x0F);
+			this->pal = newPal;
+
+		} else { // 16 or 256
+			auto newPal = std::make_shared<Palette>();
+			newPal->reserve(palSize);
+			for (int c = 0; c < palSize; c++) {
+				PaletteEntry p;
+				*this->content
+					>> u8(p.red)
+					>> u8(p.green)
+					>> u8(p.blue)
+				;
+				p.alpha = 255;
+				newPal->push_back(p);
+			}
+			this->pal = newPal;
 		}
-		this->pal = newPal;
 	}
 	assert(this->pal);
 }

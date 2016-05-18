@@ -68,6 +68,17 @@ class ImageType_PCXBase: virtual public ImageType
 		bool useRLE;          ///< true to RLE-encode pixel data, false not to
 };
 
+/// Filetype handler for linear CGA (2b1p) .PCX images.
+class ImageType_PCX_LinearCGA: virtual public ImageType_PCXBase
+{
+	public:
+		ImageType_PCX_LinearCGA();
+		virtual ~ImageType_PCX_LinearCGA();
+
+		virtual std::string friendlyName() const;
+		virtual std::vector<std::string> games() const;
+};
+
 /// Filetype handler for planar EGA (1b4p) .PCX images.
 class ImageType_PCX_PlanarEGA: virtual public ImageType_PCXBase
 {

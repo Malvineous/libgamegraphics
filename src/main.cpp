@@ -118,6 +118,7 @@ const std::vector<std::shared_ptr<const ImageType> > CAMOTO_GAMEGRAPHICS_API
 		ImageType_Mono,
 		ImageType_Nukem2Backdrop,
 		ImageType_Nukem2,
+		ImageType_PCX_LinearCGA,
 		ImageType_PCX_LinearVGA,
 		ImageType_PCX_LinearVGA_NoRLE,
 		ImageType_PCX_PlanarEGA,
