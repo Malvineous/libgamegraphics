@@ -44,6 +44,7 @@ class ImageType_VGARawBase: virtual public ImageType
 
 	protected:
 		unsigned int depth; // palette depth (6 or 8)
+		Point dims;
 };
 
 class ImageType_VGA6Raw: virtual public ImageType_VGARawBase
@@ -76,11 +77,8 @@ class CAMOTO_GAMEGRAPHICS_API Image_VGARaw: virtual public Image_VGA
 		 * @param content
 		 *   VGA data
 		 *
-		 * @param width
-		 *   Image width
-		 *
-		 * @param height
-		 *   Image height
+		 * @param dims
+		 *   Image width and height
 		 *
 		 * @param pal
 		 *   Image palette

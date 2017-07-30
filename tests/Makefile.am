@@ -20,6 +20,7 @@ tests_SOURCES += test-img-nukem2.cpp
 tests_SOURCES += test-img-pcx-1b4p.cpp
 tests_SOURCES += test-img-pcx-8b1p.cpp
 tests_SOURCES += test-img-pic-raptor.cpp
+tests_SOURCES += test-img-sw93beta-planar.cpp
 tests_SOURCES += test-img-tv-fog.cpp
 tests_SOURCES += test-img-vga.cpp
 tests_SOURCES += test-img-vga-planar.cpp

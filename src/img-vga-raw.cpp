@@ -27,7 +27,7 @@ namespace gamegraphics {
 
 std::vector<std::string> ImageType_VGARawBase::fileExtensions() const
 {
-	return {"pal"};
+	return {};
 }
 
 std::vector<std::string> ImageType_VGARawBase::games() const
@@ -68,7 +68,7 @@ std::unique_ptr<Image> ImageType_VGARawBase::open(
 		pal = palFile->palette();
 	}
 	return std::make_unique<Image_VGARaw>(
-		std::move(content), Point{320, 200},
+		std::move(content), this->dims,
 		std::dynamic_pointer_cast<const Palette>(pal));
 }
 
@@ -86,6 +86,7 @@ SuppFilenames ImageType_VGARawBase::getRequiredSupps(stream::input& content,
 ImageType_VGA6Raw::ImageType_VGA6Raw()
 {
 	this->depth = 6;
+	this->dims = Point{320, 200};
 }
 
 std::string ImageType_VGA6Raw::code() const
@@ -102,6 +103,7 @@ std::string ImageType_VGA6Raw::friendlyName() const
 ImageType_VGA8Raw::ImageType_VGA8Raw()
 {
 	this->depth = 8;
+	this->dims = Point{320, 200};
 }
 
 std::string ImageType_VGA8Raw::code() const

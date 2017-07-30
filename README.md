@@ -39,6 +39,7 @@ File formats from the following games have been implemented:
   * Monster Bash (tiles)
   * Raptor (some fullscreen)
   * Secret Agent (tiles, sprites and fullscreen images)
+  * Shadow Warrior 1993 Beta (tiles, images)
   * Vinyl Goddess From Mars (tiles, some fullscreen)
   * Wacky Wheels (tiles and fullscreen images)
   * Word Rescue (tiles and fullscreen images)
