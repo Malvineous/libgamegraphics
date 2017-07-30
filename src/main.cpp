@@ -55,6 +55,7 @@
 #include "img-scr-vinyl.hpp"
 #include "img-sw93beta.hpp"
 #include "img-sw93beta-planar.hpp"
+#include "img-sw93beta-bg-planar.hpp"
 #include "img-tv-fog.hpp"
 #include "img-zone66_tile.hpp"
 #include "img-vga-raw.hpp"
@@ -126,6 +127,7 @@ const std::vector<std::shared_ptr<const ImageType> > CAMOTO_GAMEGRAPHICS_API
 		ImageType_PCX_PlanarEGA,
 		ImageType_RaptorPIC,
 		ImageType_SW93Beta_BG,
+		ImageType_SW93Beta_BG_Planar,
 		ImageType_SW93Beta_Wall,
 		ImageType_SW93Beta_Planar,
 		ImageType_TVFog,

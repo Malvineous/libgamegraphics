@@ -219,7 +219,7 @@ Pixels Image_SW93Beta_Planar::convert() const
 	dst.resize(this->dims.x * this->dims.y, 0);
 
 	// Return to start of first plane
-	this->content->seekp(3, stream::start);
+	this->content->seekg(3, stream::start);
 
 	for (int p = 0; p < 4; p++) {
 		uint8_t planeWidth;
