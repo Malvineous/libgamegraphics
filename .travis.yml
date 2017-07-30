@@ -26,7 +26,7 @@ addons:
     packages:
     - g++-4.8
     - xmlto
-    - libpng
+    - libpng-dev
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -36,13 +36,9 @@ install:
   - |-
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew install xmlto
-      if [[ "$CXX" == "g++" ]]; then
-        brew unlink boost
-        wget 'https://github.com/Malvineous/travis-homebrew-bottle/releases/download/boost1.60-gcc/boost-1.60.0_2.mavericks.bottle.tar.gz'
-        brew install *.bottle.tar.gz
-      fi
+      brew unlink boost
+      brew install boost
     fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
   # Prepare for local installs
   - export LOCAL_INSTALL="$HOME/local"; mkdir "$LOCAL_INSTALL" && export PKG_CONFIG_PATH="$LOCAL_INSTALL/lib/pkgconfig"
@@ -50,6 +46,7 @@ install:
   # Install Boost if Linux
   - |-
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
       pushd "$HOME"
       wget 'http://downloads.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2'
       tar jxf boost_1_60_0.tar.bz2
