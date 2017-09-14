@@ -327,7 +327,8 @@
 	<refsect1 id="bugs">
 		<title id="bugs-title">Bugs and Questions</title>
 		<para>
-			Report bugs at <ulink url="http://www.shikadi.net/camoto/bugs/">http://www.shikadi.net/camoto/bugs/</ulink>
+			Report bugs at
+			<ulink url="https://github.com/Malvineous/libgamegraphics/issues">https://github.com/Malvineous/libgamegraphics/issues</ulink>
 		</para>
 		<para>
 			Ask questions about Camoto or modding in general at the <ulink
@@ -339,7 +340,7 @@
 	<refsect1 id="copyright">
 		<title id="copyright-title">Copyright</title>
 		<para>
-			Copyright (c) 2010-2012 Adam Nielsen.
+			Copyright (c) 2010-2017 Adam Nielsen.
 		</para>
 		<para>
 			License GPLv3+: <ulink url="http://gnu.org/licenses/gpl.html">GNU GPL
