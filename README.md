@@ -1,6 +1,6 @@
 Camoto: Classic-game Modding Tools
 ==================================
-Copyright 2010-2016 Adam Nielsen <<malvineous@shikadi.net>>  
+Copyright 2010-2017 Adam Nielsen <<malvineous@shikadi.net>>  
 http://www.shikadi.net/camoto/  
 Linux/OSX: [![Build Status](https://travis-ci.org/Malvineous/libgamegraphics.svg?branch=master)](https://travis-ci.org/Malvineous/libgamegraphics)
 
@@ -48,7 +48,9 @@ File formats from the following games have been implemented:
 
 Many more formats are planned.
 
-This distribution includes two example programs (`gameimg` and `gametls`) which
+This distribution includes two example programs
+([`gameimg`](http://www.shikadi.net/camoto/manpage/gameimg) and
+[`gametls`](http://www.shikadi.net/camoto/manpage/gametls)) which
 provide access to single-image files and tilesets respectively.  These are
 intended as both command-line interfaces to the library as well as an example
 of how to use the library.  The programs are installed as part of the
